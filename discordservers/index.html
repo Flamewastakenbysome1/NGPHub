@@ -1,25 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Discord Servers</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NGP — Discord Servers</title>
+
+  <!-- Fonts to match your site -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
+
   <style>
-    body {
-      background: #111;
-      color: #0f0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
+    :root{
+      --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+      --brandA:#6a11cb; --brandB:#2575fc; --ring:0 0 0 .2rem rgba(37,117,252,.35);
+      --shadow:0 10px 30px rgba(0,0,0,.35); --radius:16px;
     }
-    h1 {
-      font-size: 2em;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+      color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     }
+    body.readable{ font-family:'OpenDyslexic','Rubik',system-ui,sans-serif; line-height:1.75; letter-spacing:.2px; }
+
+    .wrap{max-width:950px; margin:0 auto; padding:28px 16px 48px;}
+
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 0;}
+    .logo{display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-weight:700}
+    .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+    .back{color:#a9b3ff; text-decoration:none; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.12)}
+    .back:hover,.back:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+    h1{margin:8px 0 6px; font-size:clamp(24px,3.5vw,34px)}
+    p.lead{margin:0 0 18px; color:var(--muted)}
+
+    .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-top:18px}
+    .card{
+      background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius);
+      padding:18px; box-shadow:var(--shadow);
+    }
+    .card h3{margin:0 0 6px; font-size:1.1rem}
+    .card p{margin:0 0 14px; color:var(--muted); font-size:.98rem}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      background:#0f1016; border:1px solid rgba(255,255,255,.12);
+      padding:6px 10px; border-radius:10px; color:#d6dcff;
+    }
+    .btn{
+      display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px;
+      padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB));
+      border:1px solid rgba(255,255,255,.18);
+    }
+    .btn:focus-visible{outline:none; box-shadow:var(--ring)}
+    footer{margin-top:26px; color:var(--muted); text-align:center; font-size:.95rem}
+    .toggle{margin-left:10px; border:1px solid rgba(255,255,255,.15); background:var(--card); color:var(--ink); border-radius:10px; padding:8px 10px; cursor:pointer;}
+    .toggle:focus-visible{outline:none; box-shadow:var(--ring)}
   </style>
 </head>
 <body>
-  <h1>Hey! This page is coming epicly soon!</h1>
+  <div class="wrap">
+    <header>
+      <a class="logo" href="/">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span>NGP</span>
+      </a>
+      <div>
+        <button class="toggle" id="readableBtn" type="button" title="Toggle Readable Mode">Readable</button>
+        <a class="back" href="/">← Back to Home</a>
+      </div>
+    </header>
+
+    <h1>Discord Servers</h1>
+    <p class="lead">Clean list of NGP servers. Pick one and jump in.</p>
+
+    <section class="grid" aria-label="Discord server list">
+      <!-- NGP-Studios -->
+      <article class="card" aria-labelledby="srv1">
+        <h3 id="srv1">NGP-Studios</h3>
+        <p>Main server: updates, dev talk, events.</p>
+        <div class="row">
+          <span class="code">discord.gg/VqXsafQAMd</span>
+          <a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join</a>
+        </div>
+      </article>
+
+      <!-- Tribute to Pre-Rework on Flames Studios -->
+      <article class="card" aria-labelledby="srv2">
+        <h3 id="srv2">Tribute to Pre-Rework (Flames Studios)</h3>
+        <p>Legacy vibe, pre-rework community hangout.</p>
+        <div class="row">
+          <span class="code">discord.gg/tUu57QYaTd</span>
+          <a class="btn" href="https://discord.gg/tUu57QYaTd" target="_blank" rel="noopener">Join</a>
+        </div>
+      </article>
+
+      <!-- NGP-Hangout -->
+      <article class="card" aria-labelledby="srv3">
+        <h3 id="srv3">NGP-Hangout</h3>
+        <p>Chill chat, quick feedback, community.</p>
+        <div class="row">
+          <span class="code">discord.gg/5CMThETQy9</span>
+          <a class="btn" href="https://discord.gg/5CMThETQy9" target="_blank" rel="noopener">Join</a>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <p>Missing a server? Ping us in <a class="back" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">NGP-Studios</a>.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Readable mode (matches your main site)
+    const btn = document.getElementById('readableBtn');
+    const LS_KEY = 'ngp_readable';
+    function applyReadable(v){
+      document.body.classList.toggle('readable', v === '1');
+      btn.textContent = document.body.classList.contains('readable') ? 'Readable: ON' : 'Readable';
+    }
+    applyReadable(localStorage.getItem(LS_KEY) || '0');
+    btn.addEventListener('click', () => {
+      const next = document.body.classList.contains('readable') ? '0' : '1';
+      localStorage.setItem(LS_KEY, next); applyReadable(next);
+    });
+  </script>
 </body>
 </html>
