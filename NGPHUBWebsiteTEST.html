@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Prototype</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  body.readable{
+    font-family:'OpenDyslexic','Rubik',system-ui,sans-serif;
+    line-height:1.75; letter-spacing:.2px; word-spacing:.05em; font-size:18px;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:0 16px}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-mark{width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+  .logo h1{font-size:1.15rem; margin:0; letter-spacing:.3px}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:10px;
+    padding:8px 10px; border-radius:10px;
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+  .toggle{
+    margin-left:10px; border:1px solid rgba(255,255,255,.15);
+    background:var(--card); color:var(--ink); border-radius:10px;
+    padding:8px 10px; cursor:pointer;
+  }
+  .toggle:focus-visible{outline:none; box-shadow:var(--ring)}
+
+  /* Hero / About */
+  .hero{
+    position:relative; overflow:hidden; text-align:center; padding:70px 16px 60px;
+    background:
+      radial-gradient(1200px 600px at 50% -20%, rgba(106,17,203,.25), transparent 70%),
+      radial-gradient(800px 400px at 10% 10%, rgba(37,117,252,.18), transparent 60%);
+  }
+  .hero h2{font-size:clamp(28px,4.5vw,44px); margin:0 0 12px}
+  .hero p{margin:0 auto; max-width:900px; color:var(--muted); font-size:1.05rem}
+  .tag{
+    display:inline-block; margin:14px 0 0; font-size:.95rem; color:#e8e8ff;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    padding:8px 14px; border-radius:999px; box-shadow:var(--shadow)
+  }
+
+  /* Section titles */
+  section .section-title{margin:40px 0 8px; font-size:1.35rem}
+  section .muted{color:var(--muted); margin:0 0 20px}
+
+  /* Grids / Cards */
+  .grid{display:grid; gap:18px; padding:28px 0 4px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease}
+  .card:hover{transform:translateY(-4px); border-color:rgba(37,117,252,.35)}
+  .card h3{margin:2px 0 8px; font-size:1.05rem}
+  .card p{margin:0 0 14px; color:var(--muted)}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:600; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.18)}
+  .link{color:#6aafff; text-decoration:none}
+  ul.simple{line-height:1.7; padding-left:18px}
+  ul.simple li{margin-bottom:10px}
+
+  /* Roadmap timeline */
+  .timeline{position:relative; margin:30px 0 60px}
+  .timeline::before{
+    content:""; position:absolute; left:50%; top:0; bottom:0; width:3px;
+    background:linear-gradient(var(--brandA),var(--brandB));
+    transform:translateX(-50%); border-radius:2px; opacity:.9
+  }
+  .t-item{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:22px 0}
+  .t-card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px; box-shadow:var(--shadow)}
+  .t-item .left{grid-column:1}
+  .t-item .right{grid-column:2}
+  .t-dot{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:18px; height:18px; border-radius:50%; background:#0b0b0f; border:4px solid var(--line);
+    box-shadow:0 0 0 3px rgba(37,117,252,.15)
+  }
+  .t-card h4{margin:0 0 6px; font-size:1.05rem}
+  .t-card p{margin:0; color:var(--muted)}
+
+  /* FAQ details */
+  details{background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:14px 16px; margin:10px 0}
+  details summary{cursor:pointer; font-weight:600}
+  details p{margin:8px 0 0; color:var(--muted)}
+
+  /* Footer */
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:26px 0 40px; text-align:center}
+
+  /* Mobile timeline */
+  @media (max-width: 800px){
+    .timeline::before{left:20px; transform:none}
+    .t-item{grid-template-columns:1fr; padding-left:46px}
+    .t-item .left,.t-item .right{grid-column:auto}
+    .t-dot{left:20px; transform:translate(-50%,-50%)}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#top">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#mission">Mission</a>
+      <a href="#servers">Servers</a>
+      <a href="#projects">Projects</a>
+      <a href="#youtube">YouTube</a>
+      <a href="#roblox">Roblox</a>
+      <a href="#discord">Discord</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+      <button class="toggle" id="readableBtn" type="button" title="Toggle Readable Mode">Readable</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- About / Hero -->
+  <section class="hero" id="about">
+    <div class="wrap">
+      <span class="tag">NGP Hub — Prototype</span>
+      <h2>Convenience, Community, Creation.</h2>
+      <p>
+        “It’s not about info, it’s about NGP as a whole — our servers and everything we need.
+        We’ll code it ourselves, but we’ll also use tools (like Wix) when it helps.
+        NGP isn’t just a Discord; it’s a soon-to-be company + community fixing inconvenient stuff
+        (e.g., remove brain-rot by eating brains :D). Font: <strong>Rubik</strong>.”
+        — <em>Flame</em>
+      </p>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="wrap" id="mission" aria-labelledby="mission-title">
+    <h3 class="section-title" id="mission-title">Mission</h3>
+    <p class="muted">Build original, useful experiences (games, tools, videos) that kill inconvenience. Fun, fast, community-first.</p>
+    <div class="grid">
+      <article class="card"><h3>Originality</h3><p>No clones. New ideas that feel fresh and useful.</p></article>
+      <article class="card"><h3>Utility</h3><p>Small features that remove big pain (bots, tools, QoL).</p></article>
+      <article class="card"><h3>Community</h3><p>Feedback loops and early builds for rapid iteration.</p></article>
+    </div>
+  </section>
+
+  <!-- Servers -->
+  <section class="wrap" id="servers" aria-labelledby="servers-title">
+    <h3 class="section-title" id="servers-title">Servers</h3>
+    <p class="muted">All hubs we run. (Swap in real links later if needed.)</p>
+    <div class="grid">
+      <article class="card" aria-labelledby="s1">
+        <h3 id="s1">Discord — NGP Devs</h3>
+        <p>Dev chat, releases, and playtests.</p>
+        <a class="btn" href="#discord" aria-label="Jump to Discord section">Join</a>
+      </article>
+      <article class="card" aria-labelledby="s2">
+        <h3 id="s2">Roblox — Studio & Games</h3>
+        <p>NGP universes, events, Squid-like challenges.</p>
+        <a class="btn" href="#roblox" aria-label="Jump to Roblox section">Open</a>
+      </article>
+      <article class="card" aria-labelledby="s3">
+        <h3 id="s3">YouTube — NGP</h3>
+        <p>Devlogs, trailers, community videos.</p>
+        <a class="btn" href="#youtube" aria-label="Jump to YouTube section">Watch</a>
+      </article>
+      <article class="card" aria-labelledby="s4">
+        <h3 id="s4">Docs — Handbook</h3>
+        <p>Brand, guidelines, contributor docs.</p>
+        <a class="btn ghost" href="#" aria-label="Placeholder link">Read</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="wrap" id="projects" aria-labelledby="projects-title">
+    <h3 class="section-title" id="projects-title">Projects</h3>
+    <p class="muted">Live or in-progress. Replace copy + links later.</p>
+    <div class="grid">
+      <article class="card"><h3>Yoadverse</h3><p>Creative universe: games, lore, tools, and visuals.</p><a class="btn ghost" href="#">Learn more</a></article>
+      <article class="card"><h3>NGP Bots</h3><p>Discord utilities: logging, media, events, QoL.</p><a class="btn ghost" href="#">Docs</a></article>
+      <article class="card"><h3>RNG / Events</h3><p>Game events, luck systems, community challenges.</p><a class="btn ghost" href="#">Schedule</a></article>
+    </div>
+  </section>
+
+  <!-- YouTube -->
+  <section class="wrap" id="youtube" aria-labelledby="yt-title">
+    <h3 class="section-title" id="yt-title">YouTube Channels</h3>
+    <p class="muted">Our channels for devlogs, projects, and chaos.</p>
+    <ul class="simple">
+      <li><a class="link" href="https://www.youtube.com/@NamedFlame" target="_blank" rel="noopener">NamedFlame</a> — Main owner’s channel, the Guy B)</li>
+      <li><a class="link" href="https://www.youtube.com/@CraftingScrpt" target="_blank" rel="noopener">CraftingScrpt</a> — Co-owner, revived NGP in 2025, coder</li>
+      <li><a class="link" href="https://www.youtube.com/@hashtagg-k3m" target="_blank" rel="noopener">Hashtagg</a> — Co-owner, AI + tester</li>
+    </ul>
+  </section>
+
+  <!-- Roblox -->
+  <section class="wrap" id="roblox" aria-labelledby="rb-title">
+    <h3 class="section-title" id="rb-title">Roblox Projects</h3>
+    <p class="muted">Games & contests we run (follows ToS tightly).</p>
+    <ul class="simple">
+      <li><a class="link" href="https://www.roblox.com/games/117978336574960/Robux-Games" target="_blank" rel="noopener">Robux Games</a> — Play contests, win Robux</li>
+      <li><a class="link" href="https://www.roblox.com/games/122019407615443/The-Pulling-Wind-BETA" target="_blank" rel="noopener">The Pulling Wind (BETA)</a></li>
+    </ul>
+  </section>
+
+  <!-- Discord -->
+  <section class="wrap" id="discord" aria-labelledby="dc-title">
+    <h3 class="section-title" id="dc-title">Discord</h3>
+    <p class="muted">Join our server for chat, updates, and early builds.</p>
+    <p><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">👉 Join NGP Discord</a></p>
+  </section>
+
+  <!-- Roadmap (single founder + years) -->
+  <section class="wrap" id="roadmap" aria-labelledby="roadmap-title">
+    <h3 class="section-title" id="roadmap-title">Roadmap</h3>
+    <p class="muted">Solo founder: <strong>Flame</strong>. Started: <strong>2021</strong>.</p>
+    <div class="timeline" role="list">
+      <div class="t-item" role="listitem" aria-label="2021 — Start">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div class="t-card left">
+          <h4>2021 — NGP Begins</h4>
+          <p>Core idea: fix inconvenient stuff with fun, original builds.</p>
+        </div><div></div>
+      </div>
+      <div class="t-item" role="listitem" aria-label="2023 — Servers">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div></div>
+        <div class="t-card right">
+          <h4>2023 — Servers + Early Projects</h4>
+          <p>Discord + game experiments, bots, and small utilities.</p>
+        </div>
+      </div>
+      <div class="t-item" role="listitem" aria-label="2024 — Branding">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div class="t-card left">
+          <h4>2024 — Branding Pass</h4>
+          <p>Rubik font, cleaner UI, consistent look across assets.</p>
+        </div><div></div>
+      </div>
+      <div class="t-item" role="listitem" aria-label="2025 — Now">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div></div>
+        <div class="t-card right">
+          <h4>2025 — Today</h4>
+          <p>Prototype hub, event work, and more utility-focused features.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="wrap" id="faq" aria-labelledby="faq-title">
+    <h3 class="section-title" id="faq-title">FAQ</h3>
+    <details>
+      <summary>Is NGP a company?</summary>
+      <p>Soon™. For now, it’s a community + projects. We’ll formalize when it helps speed + quality.</p>
+    </details>
+    <details>
+      <summary>Why Rubik?</summary>
+      <p>Clean, friendly, readable. Team favorite across multiple assets.</p>
+    </details>
+    <details>
+      <summary>How can I help?</summary>
+      <p>Join the Discord, test builds, file issues, and share ideas.</p>
+    </details>
+  </section>
+
+  <!-- Contact -->
+  <section class="wrap" id="contact" aria-labelledby="contact-title">
+    <h3 class="section-title" id="contact-title">Contact</h3>
+    <p class="muted">Swap in real values anytime:</p>
+    <div class="grid">
+      <article class="card"><h3>Email</h3><p>Press / collab: hello@ngp.example</p><a class="btn" href="mailto:hello@ngp.example">Email</a></article>
+      <article class="card"><h3>Contribute</h3><p>Issues, ideas, and PRs welcome.</p><a class="btn" href="#" aria-label="Placeholder board">Open board</a></article>
+      <article class="card"><h3>Discord</h3><p>Fastest way to reach us.</p><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join</a></article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Prototype. Single founder: Flame. Started 2021.</small>
+  </div>
+</footer>
+
+<script>
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Readable Mode toggle (stores preference)
+  const btn = document.getElementById('readableBtn');
+  const LS_KEY = 'ngp_readable';
+  function applyReadable(v){
+    document.body.classList.toggle('readable', v === '1');
+    btn.textContent = document.body.classList.contains('readable') ? 'Readable: ON' : 'Readable';
+  }
+  applyReadable(localStorage.getItem(LS_KEY) || '0');
+  btn.addEventListener('click', () => {
+    const next = document.body.classList.contains('readable') ? '0' : '1';
+    localStorage.setItem(LS_KEY, next); applyReadable(next);
+  });
+</script>
+</body>
+</html>
