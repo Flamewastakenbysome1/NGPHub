@@ -2,30 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Mini HTML UI Builder (Offline)</title>
+<title>Mini HTML UI Builder v2 (Offline)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root{--bg:#0f1115;--panel:#151923;--ink:#e7ecf3;--mut:#9aa4b2;--acc:#4da3ff;--line:#232838}
   *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.3 system-ui,Segoe UI,Roboto,Arial}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui,Segoe UI,Roboto,Arial}
   .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
-  .top{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+  .top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
   .group{display:flex;gap:6px;flex-wrap:wrap;background:#0f1320;border:1px solid var(--line);border-radius:10px;padding:6px}
-  button,label.btn{background:#1b2130;color:var(--ink);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
-  button:hover,label.btn:hover{outline:1px solid var(--acc)}
+  button,label.btn,select{background:#1b2130;color:var(--ink);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+  select{cursor:default}
+  button:hover,label.btn:hover,select:hover{outline:1px solid var(--acc)}
   button:active{transform:translateY(1px)}
-  .split{display:grid;grid-template-columns:320px 1fr;min-height:0}
-  .side{border-right:1px solid var(--line);background:#0f1320;min-width:0}
+  .split{display:grid;grid-template-columns:340px 1fr;min-height:0}
+  .side{border-right:1px solid var(--line);background:#0f1320;min-width:0;overflow:auto}
   .side h3{margin:14px 12px 6px;color:var(--mut);font-weight:600}
-  textarea,input[type="text"]{width:100%;background:#0c101b;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
-  textarea{min-height:120px}
+  textarea,input[type="text"],input[type="url"]{width:100%;background:#0c101b;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+  textarea{min-height:110px}
   .side .box{padding:10px}
-  iframe#canvas{width:100%;height:100%;border:0;background:#fff}
   .status{padding:8px 12px;border-top:1px solid var(--line);color:var(--mut);background:var(--panel);display:flex;justify-content:space-between;gap:8px}
   .kbd{border:1px solid var(--line);padding:2px 6px;border-radius:6px;background:#0f1320;color:var(--mut)}
   .pill{padding:3px 8px;background:#10243a;border:1px solid var(--line);border-radius:999px}
   .blockbtns button{width:100%;text-align:left}
   .filehide{display:none}
+  .canvasWrap{display:flex;justify-content:center;align-items:stretch;padding:10px}
+  .frameBox{background:#0b0e14;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #000 inset}
+  iframe#canvas{width:100%;height:calc(100vh - 150px);border:0;background:#fff}
+  .row{display:flex;gap:6px}
+  .two .col{flex:1}
+  .label{font-size:12px;color:var(--mut);margin-bottom:6px}
+  .hl{outline:2px dashed #3aa3ff66;outline-offset:4px;border-radius:6px}
 </style>
 </head>
 <body>
@@ -35,25 +42,47 @@
       <label class="btn" title="Open .html file">
         Open HTML <input id="openFile" class="filehide" type="file" accept=".html,.htm,.xhtml,.txt" />
       </label>
-      <button onclick="applyPasted()" title="Load from the Paste box on the left">Load Pasted</button>
-      <button id="toggleEdit" onclick="toggleEdit()" title="Enable/Disable visual editing (text/content)">Enable Edit</button>
-      <button onclick="injectBaseCSS()" title="Adds simple utility CSS into the page">Add Base CSS</button>
-      <button onclick="downloadHTML()" title="Download the edited HTML">Export HTML</button>
+      <button id="newBtn" title="Start from scratch (choose a template)">New…</button>
+      <select id="tplPick" title="Quick template">
+        <option value="">Templates…</option>
+        <option value="blank">Blank</option>
+        <option value="minimal">Minimal (with base CSS)</option>
+        <option value="landing">Landing Page</option>
+        <option value="docs">Docs / Article</option>
+      </select>
+      <button onclick="downloadHTML()" title="Download the edited HTML (Ctrl+S)">Export</button>
     </div>
+
     <div class="group">
+      <button onclick="toggleEdit()" id="toggleEdit" title="Enable/Disable visual editing (Ctrl+E)">Enable Edit</button>
       <button onclick="cmd('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
       <button onclick="cmd('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
       <button onclick="cmd('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
       <button onclick="cmd('formatBlock','H1')" title="Heading 1">H1</button>
       <button onclick="cmd('formatBlock','H2')" title="Heading 2">H2</button>
-      <button onclick="cmd('insertUnorderedList')" title="Bullet list">• List</button>
-      <button onclick="cmd('insertOrderedList')" title="Numbered list">1. List</button>
+      <button onclick="cmd('insertUnorderedList')" title="Bullet list">•</button>
+      <button onclick="cmd('insertOrderedList')" title="Numbered list">1.</button>
       <button onclick="makeLink()" title="Insert/Edit link">Link</button>
-      <button onclick="insertImage()" title="Insert image by URL">Image</button>
+      <label class="btn" title="Insert image from your computer">
+        Img Upload <input id="imgFile" class="filehide" type="file" accept="image/*" />
+      </label>
+      <button onclick="insertImage()" title="Insert image by URL">Img URL</button>
       <button onclick="cmd('removeFormat')" title="Clear formatting">Clear</button>
     </div>
+
     <div class="group">
-      <span class="pill">Tip: double-click text to edit.</span>
+      <span class="pill">Preview:</span>
+      <button onclick="setDevice(375)">Mobile</button>
+      <button onclick="setDevice(768)">Tablet</button>
+      <button onclick="setDevice(1024)">Laptop</button>
+      <button onclick="setDevice(1440)">Desktop</button>
+      <button onclick="setDevice('auto')" title="Full width">Auto</button>
+    </div>
+
+    <div class="group">
+      <button onclick="undo()">Undo</button>
+      <button onclick="redo()">Redo</button>
+      <button onclick="toggleCode()" id="codeBtn" title="View/Edit full HTML source">Code View</button>
     </div>
   </div>
 
@@ -61,21 +90,43 @@
     <div class="side">
       <h3>Paste HTML</h3>
       <div class="box">
-        <textarea id="pasteHtml" placeholder="Paste your HTML here..."></textarea>
+        <textarea id="pasteHtml" placeholder="Paste your HTML here…"></textarea>
         <div style="height:8px"></div>
         <button onclick="applyPasted()">Load Pasted →</button>
       </div>
+
       <h3>Insert Blocks</h3>
       <div class="box blockbtns">
-        <button onclick="insertBlock(sampleBlocks.hero)">Hero section</button>
-        <button onclick="insertBlock(sampleBlocks.cardGrid)">3-Card grid</button>
-        <button onclick="insertBlock(sampleBlocks.cta)">CTA section</button>
-        <button onclick="insertBlock(sampleBlocks.nav)">Simple navbar</button>
-        <button onclick="insertBlock(sampleBlocks.footer)">Footer</button>
+        <button onclick="insertBlock(blocks.hero)">Hero section</button>
+        <button onclick="insertBlock(blocks.cardGrid)">3-Card grid</button>
+        <button onclick="insertBlock(blocks.cta)">CTA section</button>
+        <button onclick="insertBlock(blocks.nav)">Simple navbar</button>
+        <button onclick="insertBlock(blocks.footer)">Footer</button>
         <div style="height:8px"></div>
         <button onclick="wrapSelection('<div class=&quot;container&quot;>','</div>')">Wrap in .container</button>
         <button onclick="wrapSelection('<section class=&quot;section&quot;>','</section>')">Wrap in &lt;section&gt;</button>
       </div>
+
+      <h3>Element Inspector</h3>
+      <div class="box">
+        <div class="label">Selected element</div>
+        <input id="selTag" type="text" placeholder="tag (readonly)" readonly>
+        <div class="two row" style="margin-top:8px">
+          <div class="col"><input id="selId" type="text" placeholder="id"></div>
+          <div class="col"><input id="selClass" type="text" placeholder="class"></div>
+        </div>
+        <div class="two row" style="margin-top:8px">
+          <div class="col"><input id="selHref" type="url" placeholder="href/src (for links/images)"></div>
+          <div class="col"><input id="selText" type="text" placeholder="textContent"></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="applyInspector()">Apply</button>
+          <button onclick="duplicateEl()">Duplicate</button>
+          <button onclick="deleteEl()">Delete</button>
+        </div>
+        <div class="label" style="margin-top:10px">Tip: in Edit mode, click any element in the canvas to select it.</div>
+      </div>
+
       <h3>Extra CSS (optional)</h3>
       <div class="box">
         <textarea id="extraCss" placeholder="/* CSS added to <head> */"></textarea>
@@ -84,51 +135,113 @@
       </div>
     </div>
 
-    <iframe id="canvas" title="Design Canvas"></iframe>
+    <div class="canvasWrap">
+      <div class="frameBox" id="frameBox" style="width:100%;max-width:100%">
+        <iframe id="canvas" title="Design Canvas"></iframe>
+      </div>
+    </div>
   </div>
 
   <div class="status">
-    <div>Mode: <span id="mode" class="kbd">View</span></div>
-    <div><span class="kbd">Ctrl+S</span> export · <span class="kbd">Ctrl+E</span> toggle edit</div>
+    <div>Mode: <span id="mode" class="kbd">View</span> · <span class="kbd">Ctrl+S</span> export · <span class="kbd">Ctrl+E</span> toggle edit</div>
+    <div id="statusMsg"></div>
   </div>
 </div>
 
+<!-- Full-source overlay -->
+<textarea id="codeOverlay" style="display:none;position:fixed;inset:10px;border:1px solid #333;border-radius:12px;background:#0b0e14;color:#e7ecf3;padding:14px;z-index:99;"></textarea>
+
 <script>
   const frame = document.getElementById('canvas');
+  const fb = document.getElementById('frameBox');
   const openFile = document.getElementById('openFile');
   const modeEl = document.getElementById('mode');
   const toggleBtn = document.getElementById('toggleEdit');
+  const statusMsg = document.getElementById('statusMsg');
+  const codeOverlay = document.getElementById('codeOverlay');
+  const tplPick = document.getElementById('tplPick');
+  const imgFile = document.getElementById('imgFile');
 
-  // --- Boot with blank document
-  const BLANK_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled</title></head><body style="font-family:system-ui,Segoe UI,Roboto,Arial; margin:0"><main class="container section"><h1>Start editing</h1><p>Select text and use the toolbar. Insert blocks from the left. Export when done.</p></main></body></html>`;
+  // History
+  const hist = {stack:[], idx:-1, lock:false};
+  const pushHistory = () => {
+    if(hist.lock) return;
+    const html = getDoc().documentElement.outerHTML;
+    if(hist.stack[hist.idx] === html) return;
+    hist.stack = hist.stack.slice(0, hist.idx+1);
+    hist.stack.push(html); hist.idx++;
+    setStatus(`Saved state (${hist.idx+1})`);
+  };
+  const undo = () => {
+    if(hist.idx<=0) return;
+    hist.idx--; hist.lock=true; frame.srcdoc = hist.stack[hist.idx]; hist.lock=false;
+    setStatus('Undo');
+  };
+  const redo = () => {
+    if(hist.idx>=hist.stack.length-1) return;
+    hist.idx++; hist.lock=true; frame.srcdoc = hist.stack[hist.idx]; hist.lock=false;
+    setStatus('Redo');
+  };
+  window.undo = undo; window.redo = redo;
+
+  // Boot docs
+  const BLANK_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled</title></head><body style="font-family:system-ui,Segoe UI,Roboto,Arial;margin:0"><main class="container section"><h1>Blank Page</h1><p>Add content.</p></main></body></html>`;
+  const MINIMAL_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minimal</title></head><body><main class="container section"><h1>Minimal Starter</h1><p>Edit me.</p></main></body></html>`;
+  const LANDING_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Landing</title></head><body></body></html>`;
+  const DOCS_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docs</title></head><body><article class="container section"><h1>Page Title</h1><p>Intro paragraph.</p><h2>Section</h2><p>Some text…</p></article></body></html>`;
+
   frame.srcdoc = BLANK_DOC;
-
-  // Handle file open
-  openFile.addEventListener('change', async (e)=>{
-    const f = e.target.files[0];
-    if(!f) return;
-    const text = await f.text();
-    loadHtml(text);
-    openFile.value = "";
-  });
 
   function getDoc(){ return frame.contentDocument || frame.contentWindow.document; }
 
-  function loadHtml(html){
-    // Ensure it’s a full HTML doc
-    const hasHtmlTag = /<\s*html[\s>]/i.test(html);
-    frame.srcdoc = hasHtmlTag ? html : `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Imported</title></head><body>${html}</body></html>`;
-    frame.onload = () => {
-      // prevent accidental nav when editing
-      getDoc().body.addEventListener('click', ev=>{
-        if(getDoc().body.isContentEditable && ev.target.closest('a')){
-          ev.preventDefault();
-        }
-      }, true);
-    };
-    setEdit(false);
+  function afterLoadSetup(){
+    // prevent accidental nav while editing
+    getDoc().body.addEventListener('click', ev=>{
+      if(getDoc().body.isContentEditable && ev.target.closest('a')) ev.preventDefault();
+      if(getDoc().body.isContentEditable){
+        selectElement(ev.target);
+      }
+    }, true);
+
+    // observe changes → history
+    const mo = new MutationObserver(()=>debouncedPush());
+    mo.observe(getDoc(), {subtree:true, childList:true, attributes:true, characterData:true});
   }
 
+  frame.addEventListener('load', ()=>{ afterLoadSetup(); setEdit(false); injectBaseCSS(true); pushHistory(); });
+
+  // Debounce
+  let t=null; function debouncedPush(){ clearTimeout(t); t=setTimeout(pushHistory, 400); }
+
+  // File open
+  openFile.addEventListener('change', async (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const text = await f.text(); loadHtml(text); openFile.value="";
+  });
+
+  // New / templates
+  document.getElementById('newBtn').onclick = async ()=>{
+    const choice = prompt("New page:\n- blank\n- minimal\n- landing\n- docs\n\nType one:");
+    if(!choice) return;
+    applyTemplate(choice.toLowerCase());
+  };
+  tplPick.onchange = ()=>{ if(tplPick.value) { applyTemplate(tplPick.value); tplPick.value=""; } };
+
+  function applyTemplate(name){
+    if(name==='blank') return loadHtml(BLANK_DOC);
+    if(name==='minimal'){ loadHtml(MINIMAL_DOC); injectBaseCSS(); return; }
+    if(name==='landing'){ loadHtml(BLANK_DOC); injectBaseCSS(); insertBlock(blocks.nav); insertBlock(blocks.hero); insertBlock(blocks.cardGrid); insertBlock(blocks.cta); insertBlock(blocks.footer); return; }
+    if(name==='docs'){ loadHtml(DOCS_DOC); injectBaseCSS(); return; }
+    loadHtml(BLANK_DOC);
+  }
+
+  // Load HTML string
+  function loadHtml(html){
+    const hasHtmlTag = /<\s*html[\s>]/i.test(html);
+    frame.srcdoc = hasHtmlTag ? html : `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Imported</title></head><body>${html}</body></html>`;
+  }
+
+  // Paste loader
   function applyPasted(){
     const txt = document.getElementById('pasteHtml').value;
     if(!txt.trim()) return;
@@ -141,50 +254,44 @@
     modeEl.textContent = on ? "Edit" : "View";
     toggleBtn.textContent = on ? "Disable Edit" : "Enable Edit";
   }
-
   function toggleEdit(){ setEdit(!(getDoc().body.isContentEditable)); }
+  window.toggleEdit = toggleEdit;
 
-  // execCommand helper (still widely supported for simple WYSIWYG)
   function cmd(c,v=null){ getDoc().execCommand(c,false,v); frame.contentWindow.focus(); }
 
   function makeLink(){
-    const url = prompt("Link URL:");
-    if(!url) return;
-    cmd('createLink', url);
+    const url = prompt("Link URL:"); if(!url) return; cmd('createLink', url);
   }
 
   function insertImage(){
-    const url = prompt("Image URL (https://...)");
-    if(!url) return;
-    cmd('insertImage', url);
+    const url = prompt("Image URL (https://…)"); if(!url) return; cmd('insertImage', url);
   }
+  imgFile.addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const b64 = await f.arrayBuffer().then(ab=>URL.createObjectURL(new Blob([ab],{type:f.type})));
+    cmd('insertImage', b64); setStatus('Image inserted'); imgFile.value="";
+  });
 
-  function insertBlock(html){
-    getDoc().execCommand('insertHTML', false, html);
-  }
-
+  function insertBlock(html){ getDoc().execCommand('insertHTML', false, html); }
   function wrapSelection(prefix,suffix){
     getDoc().execCommand('insertHTML', false, prefix + getSelectionHtml() + suffix);
   }
-
   function getSelectionHtml(){
-    const doc = getDoc();
-    const sel = doc.getSelection();
+    const doc = getDoc(); const sel = doc.getSelection();
     if(!sel || sel.rangeCount===0) return "";
     const div = doc.createElement('div');
     for(let i=0;i<sel.rangeCount;i++){ div.appendChild(sel.getRangeAt(i).cloneContents()); }
     return div.innerHTML;
   }
 
-  // Add a small utility CSS set into the page (safe, scoped to content)
-  function injectBaseCSS(){
+  // Base CSS
+  function injectBaseCSS(silent=false){
     const doc = getDoc();
-    if(doc.getElementById('mini-editor-styles')) return;
+    if(doc.getElementById('mini-editor-styles')){ if(!silent) setStatus('Base CSS already present'); return; }
     const css = `
-/* === Mini Builder Base === */
 :root{--ink:#111;--mut:#475569;--bg:#ffffff;--pri:#2563eb;--soft:#f1f5f9}
 *{box-sizing:border-box}
-body{color:var(--ink)}
+body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
 .container{max-width:980px;margin:0 auto;padding:24px}
 .section{padding:48px 0}
 .hero{padding:80px 0;background:linear-gradient(180deg,#eef6ff,#ffffff)}
@@ -204,6 +311,7 @@ body{color:var(--ink)}
     style.id = 'mini-editor-styles';
     style.textContent = css;
     doc.head.appendChild(style);
+    if(!silent) setStatus('Base CSS added');
   }
 
   function injectExtraCSS(){
@@ -213,34 +321,100 @@ body{color:var(--ink)}
     const style = doc.createElement('style');
     style.textContent = css;
     doc.head.appendChild(style);
+    setStatus('Extra CSS injected');
   }
 
-  // Export current iframe HTML
+  // Export
   function downloadHTML(){
     const doc = getDoc();
-    // Ensure <meta charset> exists
     if(!doc.querySelector('meta[charset]')){
-      const meta = doc.createElement('meta'); meta.setAttribute('charset','utf-8');
-      doc.head.prepend(meta);
+      const meta = doc.createElement('meta'); meta.setAttribute('charset','utf-8'); doc.head.prepend(meta);
     }
     const html = "<!doctype html>\n" + doc.documentElement.outerHTML;
     const blob = new Blob([html], {type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = (doc.title?.trim() || 'page') + '.html';
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(a.href);
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+    setStatus('Exported HTML');
   }
+  window.downloadHTML = downloadHTML;
+
+  // Device preview
+  function setDevice(w){
+    if(w==='auto'){ fb.style.maxWidth='100%'; fb.style.width='100%'; return; }
+    fb.style.maxWidth = w+'px'; fb.style.width = w+'px';
+  }
+  window.setDevice = setDevice;
+
+  // Code view
+  function toggleCode(){
+    if(codeOverlay.style.display==='none'){
+      codeOverlay.value = "<!doctype html>\n" + getDoc().documentElement.outerHTML;
+      codeOverlay.style.display='block';
+    } else {
+      loadHtml(codeOverlay.value);
+      codeOverlay.style.display='none';
+    }
+  }
+  window.toggleCode = toggleCode;
 
   // Keyboard shortcuts
   addEventListener('keydown', e=>{
     const mod = e.ctrlKey || e.metaKey;
     if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadHTML(); }
     if(mod && e.key.toLowerCase()==='e'){ e.preventDefault(); toggleEdit(); }
+    if(mod && e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
+    if(mod && (e.key.toLowerCase()==='y' || (mod && e.shiftKey && e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); }
   });
 
-  // Sample blocks
-  const sampleBlocks = {
+  // Status helper
+  let stT=null; function setStatus(msg){ clearTimeout(stT); statusMsg.textContent=msg; stT=setTimeout(()=>statusMsg.textContent='',1500); }
+
+  // ---- Element Inspector ----
+  let currentEl = null;
+  function selectElement(el){
+    if(currentEl) currentEl.classList.remove('hl');
+    currentEl = el;
+    try{ currentEl.classList.add('hl'); setInspectorValues(); }catch{}
+  }
+  function setInspectorValues(){
+    if(!currentEl){ return; }
+    const d = getDoc();
+    d.getSelection().removeAllRanges();
+    document.getElementById('selTag').value = currentEl.tagName.toLowerCase();
+    document.getElementById('selId').value = currentEl.id || '';
+    document.getElementById('selClass').value = currentEl.getAttribute('class') || '';
+    const href = currentEl.getAttribute('href') || currentEl.getAttribute('src') || '';
+    document.getElementById('selHref').value = href;
+    document.getElementById('selText').value = currentEl.textContent || '';
+  }
+  function applyInspector(){
+    if(!currentEl) return;
+    currentEl.id = document.getElementById('selId').value.trim();
+    const cls = document.getElementById('selClass').value.trim();
+    cls ? currentEl.setAttribute('class', cls) : currentEl.removeAttribute('class');
+    const link = document.getElementById('selHref').value.trim();
+    if(currentEl.tagName==='A' && link) currentEl.setAttribute('href', link);
+    if(currentEl.tagName==='IMG' && link) currentEl.setAttribute('src', link);
+    const txt = document.getElementById('selText').value;
+    if(currentEl && currentEl.childElementCount===0) currentEl.textContent = txt;
+    setStatus('Inspector applied');
+    pushHistory();
+  }
+  function deleteEl(){
+    if(!currentEl) return;
+    const p = currentEl.parentNode; p.removeChild(currentEl); currentEl=null; setStatus('Element deleted'); pushHistory();
+  }
+  function duplicateEl(){
+    if(!currentEl) return;
+    const clone = currentEl.cloneNode(true);
+    currentEl.after(clone); setStatus('Duplicated'); pushHistory();
+  }
+  window.applyInspector = applyInspector; window.deleteEl = deleteEl; window.duplicateEl = duplicateEl;
+
+  // Blocks
+  const blocks = {
     hero: `
 <section class="hero">
   <div class="container center">
@@ -249,8 +423,7 @@ body{color:var(--ink)}
     <a class="btn primary" href="#">Get Started</a>
     <a class="btn" href="#">Learn More</a>
   </div>
-</section>
-`.trim(),
+</section>`.trim(),
     cardGrid: `
 <section class="section">
   <div class="container">
@@ -261,29 +434,26 @@ body{color:var(--ink)}
       <div class="card"><h3>Three</h3><p>Edit this text.</p></div>
     </div>
   </div>
-</section>
-`.trim(),
+</section>`.trim(),
     cta: `
-<section class="section center" style="background:var(--soft)">
+<section class="section center" style="background:#f8fafc">
   <div class="container">
     <h2>Call To Action</h2>
     <p>Say something inspiring here.</p>
     <a class="btn primary" href="#">Do the thing</a>
   </div>
-</section>
-`.trim(),
+</section>`.trim(),
     nav: `
 <div class="container nav">
   <strong>MySite</strong>
   <a href="#">Home</a><a href="#">About</a><a href="#">Contact</a>
-</div>
-`.trim(),
+</div>`.trim(),
     footer: `
 <footer class="footer">
   <div class="container">&copy; <span id="y">${new Date().getFullYear()}</span> Your Name</div>
-</footer>
-`.trim()
+</footer>`.trim()
   };
+  window.blocks = blocks;
 </script>
 </body>
 </html>
