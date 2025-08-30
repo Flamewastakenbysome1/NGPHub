@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP — Not 404, page found.</title>
+
+<!-- Fonts (same as site) -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .readable body{font-family:'OpenDyslexic','Rubik',system-ui,sans-serif}
+  .wrap{max-width:820px; width:100%}
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:28px; text-align:center;
+  }
+  h1{font-size:clamp(32px,6vw,56px); margin:0 0 10px}
+  p{color:var(--muted); margin:8px 0 18px; line-height:1.6}
+  .tag{
+    display:inline-block; margin-bottom:14px; font-size:.95rem; color:#e8e8ff;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    padding:8px 14px; border-radius:999px;
+  }
+  .buttons{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:10px}
+  a.btn{
+    display:inline-block; text-decoration:none; color:white; font-weight:600;
+    padding:12px 16px; border-radius:12px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:1px solid rgba(255,255,255,.18);
+  }
+  a.btn.ghost{background:transparent}
+  .hint{font-size:.9rem; color:#aeb1bf; margin-top:12px}
+  .code{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background:#0f1016; border:1px solid rgba(255,255,255,.08);
+    padding:6px 8px; border-radius:8px; display:inline-block;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="tag">NGP — Alpha</span>
+      <h1>Not 404: Page Found</h1>
+      <p>bro the page name is CALLED "work-in-progress" T-T.</p>
+      <div class="buttons">
+        <a class="btn" href="/">⬅ Back to Home D:</a>
+        <a class="btn ghost" href="/discordservers/">Discord Servers</a>
+        <a class="btn ghost" href="/#projects">Projects</a>
+        <a class="btn ghost" href="/#contact">Contact</a>
+        <a class="btn ghost" href="/tools/">Super cool Tools</a>
+      </div>
+      <p class="hint">Tried: <span class="code" id="path"></span></p>
+    </div>
+  </div>
+
+<script>
+  // Show the path the user tried
+  document.getElementById('path').textContent = location.pathname + location.search;
+</script>
+</body>
+</html>
