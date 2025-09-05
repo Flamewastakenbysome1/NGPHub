@@ -7,8 +7,6 @@
 
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
 
 <style>
   :root{
@@ -26,100 +24,84 @@
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     scroll-behavior:smooth;
   }
-  body.readable{
-    font-family:'OpenDyslexic','Rubik',system-ui,sans-serif;
-    line-height:1.75; letter-spacing:.2px; word-spacing:.05em; font-size:18px;
-  }
-  .wrap{max-width:1100px; margin:0 auto; padding:0 16px}
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
   /* Header */
   header{
-    position:sticky; top:0; z-index:50;
-    backdrop-filter:saturate(140%) blur(10px);
-    background:rgba(10,10,14,.6);
-    border-bottom:1px solid rgba(255,255,255,.06);
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
   }
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-mark{width:32px; height:32px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
-  .logo h1{font-size:1.15rem; margin:0; letter-spacing:.3px}
+  .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
   nav a{
-    color:var(--ink); text-decoration:none; font-weight:500; margin-left:10px;
-    padding:8px 10px; border-radius:10px;
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
   }
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
-  .toggle{
-    margin-left:10px; border:1px solid rgba(255,255,255,.15);
-    background:var(--card); color:var(--ink); border-radius:10px;
-    padding:8px 10px; cursor:pointer;
-  }
-  .toggle:focus-visible{outline:none; box-shadow:var(--ring)}
 
-  /* Hero / About */
+  /* Hero */
   .hero{
-    position:relative; overflow:hidden; text-align:center; padding:70px 16px 60px;
+    position:relative; overflow:hidden; text-align:center; padding:70px 16px 40px;
     background:
       radial-gradient(1200px 600px at 50% -20%, rgba(106,17,203,.25), transparent 70%),
       radial-gradient(800px 400px at 10% 10%, rgba(37,117,252,.18), transparent 60%);
   }
-  .hero h2{font-size:clamp(28px,4.5vw,44px); margin:0 0 12px}
-  .hero p{margin:0 auto; max-width:900px; color:var(--muted); font-size:1.05rem}
-  .tag{
-    display:inline-block; margin:14px 0 0; font-size:.95rem; color:#e8e8ff;
-    background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    padding:8px 14px; border-radius:999px; box-shadow:var(--shadow)
-  }
-
-  /* Section titles */
-  section .section-title{margin:40px 0 8px; font-size:1.35rem}
-  section .muted{color:var(--muted); margin:0 0 20px}
-
-  /* Grids / Cards */
-  .grid{display:grid; gap:18px; padding:28px 0 4px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease}
-  .card:hover{transform:translateY(-4px); border-color:rgba(37,117,252,.35)}
-  .card h3{margin:2px 0 8px; font-size:1.05rem}
-  .card p{margin:0 0 14px; color:var(--muted)}
+  .hero h2{font-size:clamp(28px,4.5vw,42px); margin:0 0 12px}
+  .hero p{margin:0 auto 16px; max-width:780px; color:var(--muted); font-size:1.02rem}
+  .cta{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px}
   .btn{display:inline-block; text-decoration:none; color:white; font-weight:600; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
   .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.18)}
-  .link{color:#6aafff; text-decoration:none}
-  ul.simple{line-height:1.7; padding-left:18px}
-  ul.simple li{margin-bottom:10px}
+  .tag{display:inline-block; margin:14px 0 0; font-size:.9rem; color:#e8e8ff; background:linear-gradient(120deg,var(--brandA),var(--brandB)); padding:6px 12px; border-radius:999px; box-shadow:var(--shadow)}
 
+  /* Section */
+  section .section-title{margin:24px 0 6px; font-size:1.2rem}
+  section .muted{color:var(--muted); margin:0 0 12px}
+
+  /* Simple grid */
+  .grid{display:grid; gap:16px; padding:18px 0 6px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease}
+  .card:hover{transform:translateY(-3px); border-color:rgba(37,117,252,.35)}
+  .card h3{margin:2px 0 6px; font-size:1.02rem}
+  .card p{margin:0 0 10px; color:var(--muted)}
+  .link{color:#6aafff; text-decoration:none}
+  ul.simple{line-height:1.6; padding-left:18px}
+  ul.simple li{margin-bottom:8px}
+
+  /* Platforms strip */
+  .strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+  .pill{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:14px; background:linear-gradient(120deg,rgba(106,17,203,.24),rgba(37,117,252,.18)); border:1px solid rgba(255,255,255,.08)}
+  .pill span{font-weight:600}
+
+  /* Roadmap (condensed) */
+  .road{display:grid; gap:12px; padding:8px 0}
+  .mile{display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px}
+  .dot{flex:0 0 10px; height:10px; border-radius:50%; background:linear-gradient(120deg,var(--brandA),var(--brandB)); margin-top:6px}
+  .mile h4{margin:0 0 4px; font-size:1.02rem}
+  .mile p{margin:0; color:var(--muted)}
+
+  /* Footer */
   /* Roadmap timeline */
   .timeline{position:relative; margin:30px 0 60px}
-  .timeline::before{
-    content:""; position:absolute; left:50%; top:0; bottom:0; width:3px;
-    background:linear-gradient(var(--brandA),var(--brandB));
-    transform:translateX(-50%); border-radius:2px; opacity:.9
-  }
+  .timeline::before{content:""; position:absolute; left:50%; top:0; bottom:0; width:3px; background:linear-gradient(var(--brandA),var(--brandB)); transform:translateX(-50%); border-radius:2px; opacity:.9}
   .t-item{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:22px 0}
   .t-card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px; box-shadow:var(--shadow)}
   .t-item .left{grid-column:1}
   .t-item .right{grid-column:2}
-  .t-dot{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    width:18px; height:18px; border-radius:50%; background:#0b0b0f; border:4px solid var(--line);
-    box-shadow:0 0 0 3px rgba(37,117,252,.15)
-  }
+  .t-dot{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:#0b0b0f; border:4px solid var(--line); box-shadow:0 0 0 3px rgba(37,117,252,.15)}
   .t-card h4{margin:0 0 6px; font-size:1.05rem}
   .t-card p{margin:0; color:var(--muted)}
-
-  /* FAQ details */
-  details{background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:14px 16px; margin:10px 0}
-  details summary{cursor:pointer; font-weight:600}
-  details p{margin:8px 0 0; color:var(--muted)}
-
-  /* Footer */
-  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:26px 0 40px; text-align:center}
-
-  /* Mobile timeline */
   @media (max-width: 800px){
     .timeline::before{left:20px; transform:none}
     .t-item{grid-template-columns:1fr; padding-left:46px}
     .t-item .left,.t-item .right{grid-column:auto}
     .t-dot{left:20px; transform:translate(-50%,-50%)}
   }
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
 </head>
@@ -127,46 +109,36 @@
 
 <header>
   <div class="wrap bar">
-    <a class="logo" href="#top">
-      <span class="logo-mark" aria-hidden="true"></span>
-      <h1>NGP</h1>
-    </a>
+    <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"></span><h1>NGP</h1></a>
     <nav aria-label="Primary">
-      <a href="#about">About</a>
-      <a href="#mission">Mission</a>
-      <a href="#servers">Servers</a>
-      <a href="#projects">Projects</a>
-      <a href="#youtube">YouTube</a>
-      <a href="#roblox">Roblox</a>
-      <a href="#discord">Discord</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
-      <button class="toggle" id="readableBtn" type="button" title="Toggle Readable Mode">Readable</button>
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <!-- About / Hero -->
+  <!-- Hero -->
   <section class="hero" id="about">
     <div class="wrap">
       <span class="tag">NGP Hub — Alpha</span>
-      <h2>Convenience, Community, Creation.</h2>
-      <p>
-        “It’s not about info; it’s about NGP as a whole—our servers and everything we need.
-        We’ll code it ourselves, but that doesn’t mean we won’t also use tools when it helps.
-        NGP isn’t just a Discord; it’s a soon-to-be company + community fixing inconvenient stuff
-        (e.g., helping remove brain-rot, actually caring about the community). Font: <strong>Rubik</strong>.”
-        — <em>Flame</em>
-      </p>
+      <h2>Convenience. Community. Creation.</h2>
+      <p>NGP builds useful, original stuff — games, tools, and videos — shaped by the community.</p>
+      <div class="cta">
+        <a class="btn" href="/discordservers/" target="_blank" rel="noopener">Discord Servers</a>
+        <a class="btn ghost" href="/tools">Explore Tools</a>
+      </div>
     </div>
   </section>
 
-  <!-- Mission -->
-  <section class="wrap" id="mission" aria-labelledby="mission-title">
-    <h3 class="section-title" id="mission-title">Mission</h3>
-    <p class="muted">Build original, useful experiences (games, tools, videos) that kill inconvenience. Fun, fast, community-first.</p>
+  <!-- 3 Pillars -->
+  <section class="wrap" aria-labelledby="mission-title">
+    <h3 class="section-title" id="mission-title">What we value</h3>
+    <p class="muted">Fast, fresh, community-first.</p>
     <div class="grid">
       <article class="card"><h3>Originality</h3><p>No clones. New ideas that feel fresh and useful.</p></article>
       <article class="card"><h3>Utility</h3><p>Small features that remove big pain (bots, tools, QoL).</p></article>
@@ -174,77 +146,36 @@
     </div>
   </section>
 
-  <!-- Servers -->
-  <section class="wrap" id="servers" aria-labelledby="servers-title">
-    <h3 class="section-title" id="servers-title">Servers</h3>
-    <p class="muted">All hubs we run.</p>
-    <div class="grid">
-      <article class="card" aria-labelledby="s1">
-        <h3 id="s1">Discord — NGP Devs</h3>
-        <p>Dev chat, releases, and playtests.</p>
-        <a class="btn" href="discordservers/" aria-label="Go to DiscordServers page">Join</a>
-      </article>
-      <article class="card" aria-labelledby="s2">
-        <h3 id="s2">Tools — Useful Tools</h3>
-        <p>NGP Tools, useful, not filled with ads, and quick!</p>
-        <a class="btn" href="tools/" aria-label="Go to Tools page">Open</a>
-      </article>
-      <article class="card" aria-labelledby="s3">
-        <h3 id="s3">YouTube — NGP</h3>
-        <p>Devlogs, trailers, community videos.</p>
-        <a class="btn" href="#youtube" aria-label="Jump to YouTube section">Watch</a>
-      </article>
-      <article class="card" aria-labelledby="s4">
-        <h3 id="s4">Docs — Handbook</h3>
-        <p>Brand, guidelines, contributor docs.</p>
-        <a class="btn ghost" href="#" aria-label="Placeholder link">Read</a>
-      </article>
-    </div>
-  </section>
-
-  <!-- Projects -->
+  <!-- Projects (tight) -->
   <section class="wrap" id="projects" aria-labelledby="projects-title">
     <h3 class="section-title" id="projects-title">Projects</h3>
-    <p class="muted">Live or in-progress. Replace copy + links later.</p>
+    <p class="muted">Live or in‑progress.</p>
     <div class="grid">
-      <article class="card"><h3>Yoadverse</h3><p>Creative universe: games, lore, tools, and visuals.</p><a class="btn ghost" href="#">Learn more</a></article>
-      <article class="card"><h3>NGP Bots</h3><p>Discord utilities: logging, media, events, QoL.</p><a class="btn ghost" href="#">Docs</a></article>
-      <article class="card"><h3>RNG / Events</h3><p>Game events, luck systems, community challenges.</p><a class="btn ghost" href="#">Schedule</a></article>
+      <article class="card"><h3>Yoadverse</h3><p>Creative universe: games, lore, tools, visuals.</p><a class="btn ghost" href="/projects#yoadverse">Learn more</a></article>
+      <article class="card"><h3>NGP Bots</h3><p>Discord utilities: logging, media, events, QoL.</p><a class="btn ghost" href="/projects#bots">Docs</a></article>
+      <article class="card"><h3>RNG / Events</h3><p>Luck systems & community challenges.</p><a class="btn ghost" href="/projects#events">Schedule</a></article>
     </div>
   </section>
 
-  <!-- YouTube -->
-  <section class="wrap" id="youtube" aria-labelledby="yt-title">
-    <h3 class="section-title" id="yt-title">YouTube Channels</h3>
-    <p class="muted">Our channels for devlogs, projects, and chaos.</p>
-    <ul class="simple">
-      <li><a class="link" href="https://www.youtube.com/@NamedFlame" target="_blank" rel="noopener">NamedFlame</a> — Main owner’s channel, the Guy B)</li>
-      <li><a class="link" href="https://www.youtube.com/@CraftingScrpt" target="_blank" rel="noopener">CraftingScrpt</a> — Co-owner, revived NGP in 2025, coder</li>
-      <li><a class="link" href="https://www.youtube.com/@hashtagg-k3m" target="_blank" rel="noopener">Hashtagg</a> — Co-owner, AI + tester</li>
-    </ul>
+  <!-- Platforms (merged quick actions) -->
+  <section class="wrap" id="platforms" aria-labelledby="plat-title">
+    <h3 class="section-title" id="plat-title">Platforms</h3>
+    <p class="muted">Where we hang out and ship.</p>
+    <div class="strip" role="list">
+      <div class="pill" role="listitem"><span>Discord — NGP Studios (Main Server)</span><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join</a></div>
+      <div class="pill" role="listitem"><span>Roblox — Robux Games</span><a class="btn" href="https://www.roblox.com/games/117978336574960/Robux-Games" target="_blank" rel="noopener">Play</a></div>
+      <div class="pill" role="listitem"><span>Roblox — The Pulling Wind (BETA)</span><a class="btn" href="https://www.roblox.com/games/122019407615443/The-Pulling-Wind-BETA" target="_blank" rel="noopener">Open</a></div>
+      <div class="pill" role="listitem"><span>YouTube — NamedFlame</span><a class="btn" href="https://www.youtube.com/@NamedFlame" target="_blank" rel="noopener">Watch</a></div>
+      <div class="pill" role="listitem"><span>YouTube — CraftingScrpt</span><a class="btn" href="https://www.youtube.com/@CraftingScrpt" target="_blank" rel="noopener">Watch</a></div>
+      <div class="pill" role="listitem"><span>YouTube — Hashtagg</span><a class="btn" href="https://www.youtube.com/@hashtagg-k3m" target="_blank" rel="noopener">Watch</a></div>
+    </div>
   </section>
 
-  <!-- Roblox -->
-  <section class="wrap" id="roblox" aria-labelledby="rb-title">
-    <h3 class="section-title" id="rb-title">Roblox Projects</h3>
-    <p class="muted">Games & contests we run (follows ToS tightly).</p>
-    <ul class="simple">
-      <li><a class="link" href="https://www.roblox.com/games/117978336574960/Robux-Games" target="_blank" rel="noopener">Robux Games</a> — Play contests, win Robux</li>
-      <li><a class="link" href="https://www.roblox.com/games/122019407615443/The-Pulling-Wind-BETA" target="_blank" rel="noopener">The Pulling Wind (BETA)</a></li>
-    </ul>
-  </section>
-
-  <!-- Discord -->
-  <section class="wrap" id="discord" aria-labelledby="dc-title">
-    <h3 class="section-title" id="dc-title">Discord</h3>
-    <p class="muted">Join our server for chat, updates, and early builds.</p>
-    <p><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">👉 Join NGP Studios, our latest Discord server</a></p>
-  </section>
-
+  <!-- Roadmap (condensed list) -->
+   <!-- Roadmap -->
   <!-- Roadmap -->
   <section class="wrap" id="roadmap" aria-labelledby="roadmap-title">
     <h3 class="section-title" id="roadmap-title">Roadmap</h3>
-    <p class="muted">Solo founder: <strong>Flame</strong>. Started: <strong>2021</strong>.</p>
     <div class="timeline" role="list">
 
       <div class="t-item" role="listitem" aria-label="2021 — Start">
@@ -308,61 +239,26 @@
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="wrap" id="faq" aria-labelledby="faq-title">
-    <h3 class="section-title" id="faq-title">FAQ</h3>
-    <details>
-      <summary>Is NGP a company?</summary>
-      <p>We hope to make NGP a full company soon.</p>
-    </details>
-    <details>
-      <summary>Why Rubik?</summary>
-      <p>Clean, friendly, readable. Team favorite across multiple assets.</p>
-    </details>
-    <details>
-      <summary>How can I help?</summary>
-      <p>Join the Discord, test builds, file issues, and share ideas.</p>
-    </details>
-    <details>
-      <summary>When will NGP become a company with most features?</summary>
-      <p>Based on current speed, we expect NGP to become a company before 2026, though this could change.</p>
-    </details>
-  </section>
-
-  <!-- Contact -->
+  <!-- Contact (trimmed) -->
   <section class="wrap" id="contact" aria-labelledby="contact-title">
     <h3 class="section-title" id="contact-title">Contact</h3>
-    <p class="muted">Swap in real values anytime:</p>
     <div class="grid">
-      <article class="card"><h3>Email</h3><p>Press / collab (directly to Flame): flamesgamesyt1@gmail.com</p><a class="btn" href="mailto:flamesgamesyt1@gmail.com">Email</a></article>
-      <article class="card"><h3>Contribute</h3><p>Issues, ideas, and PRs welcome.</p><a class="btn" href="#" aria-label="Placeholder board">Open board</a></article>
+      <article class="card"><h3>Email</h3><p>Press / collab (Flame): flamesgamesyt1@gmail.com</p><a class="btn" href="mailto:flamesgamesyt1@gmail.com">Email</a></article>
       <article class="card"><h3>Discord</h3><p>Fastest way to reach us.</p><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join</a></article>
+      <article class="card"><h3>Contribute</h3><p>Issues, ideas, and PRs welcome.</p><a class="btn ghost" href="/docs/">Open board</a></article>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha. Single founder: Flame. Started 2021.</small>
+    <small>© <span id="year"></span> NGP — Alpha.</small>
   </div>
 </footer>
 
 <script>
   // Year
   document.getElementById('year').textContent = new Date().getFullYear();
-
-  // Readable Mode toggle (stores preference)
-  const btn = document.getElementById('readableBtn');
-  const LS_KEY = 'ngp_readable';
-  function applyReadable(v){
-    document.body.classList.toggle('readable', v === '1');
-    btn.textContent = document.body.classList.contains('readable') ? 'Readable: ON' : 'Readable';
-  }
-  applyReadable(localStorage.getItem(LS_KEY) || '0');
-  btn.addEventListener('click', () => {
-    const next = document.body.classList.contains('readable') ? '0' : '1';
-    localStorage.setItem(LS_KEY, next); applyReadable(next);
-  });
 </script>
 </body>
 </html>
