@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NGP — Discord Servers</title>
 
-  <!-- Fonts to match your site -->
+  <!-- Fonts to match site -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
 
   <style>
     :root{
@@ -23,58 +21,59 @@
       color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
       -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     }
-    body.readable{ font-family:'OpenDyslexic','Rubik',system-ui,sans-serif; line-height:1.75; letter-spacing:.2px; }
 
-    .wrap{max-width:950px; margin:0 auto; padding:28px 16px 48px;}
+    .wrap{max-width:950px; margin:0 auto; padding:0 16px 48px;}
 
-    header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 0;}
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+      background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0;}
     .logo{display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-weight:700}
     .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
-    .back{color:#a9b3ff; text-decoration:none; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.12)}
-    .back:hover,.back:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+    nav{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    nav a{color:var(--ink); text-decoration:none; padding:8px 10px; border-radius:10px; font-weight:600; opacity:.95}
+    nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
+    /* Page head */
+    .pagehead{padding:28px 0 8px}
     h1{margin:8px 0 6px; font-size:clamp(24px,3.5vw,34px)}
     p.lead{margin:0 0 18px; color:var(--muted)}
 
+    /* Grid */
     .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); margin-top:18px}
-    .card{
-      background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius);
-      padding:18px; box-shadow:var(--shadow);
-    }
+    .card{background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
     .card h3{margin:0 0 6px; font-size:1.1rem}
     .card p{margin:0 0 14px; color:var(--muted); font-size:.98rem}
     .row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
-    .code{
-      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      background:#0f1016; border:1px solid rgba(255,255,255,.12);
-      padding:6px 10px; border-radius:10px; color:#d6dcff;
-    }
-    .btn{
-      display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px;
-      padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB));
-      border:1px solid rgba(255,255,255,.18);
-    }
+    .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#0f1016; border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:10px; color:#d6dcff}
+    .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:1px solid rgba(255,255,255,.18)}
     .btn:focus-visible{outline:none; box-shadow:var(--ring)}
-    footer{margin-top:26px; color:var(--muted); text-align:center; font-size:.95rem}
-    .toggle{margin-left:10px; border:1px solid rgba(255,255,255,.15); background:var(--card); color:var(--ink); border-radius:10px; padding:8px 10px; cursor:pointer;}
-    .toggle:focus-visible{outline:none; box-shadow:var(--ring)}
+
+    footer{margin-top:26px; color:var(--muted); text-align:center; font-size:.95rem; padding:26px 0}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a class="logo" href="/">
-        <span class="logo-mark" aria-hidden="true"></span>
-        <span>NGP</span>
-      </a>
-      <div>
-        <button class="toggle" id="readableBtn" type="button" title="Toggle Readable Mode">Readable</button>
-        <a class="back" href="/">← Back to Home</a>
-      </div>
-    </header>
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"></span><span>NGP</span></a>
+      <nav aria-label="Primary">
+        <a href="/tools">Tools</a>
+        <a href="/discordservers/">Servers</a>
+        <a href="/projects">Projects</a>
+        <a href="/docs/">Docs</a>
+        <a href="/roblox">Roblox</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <h1>Discord Servers</h1>
-    <p class="lead">Clean list of NGP servers. Pick one and jump in.</p>
+  <div class="wrap">
+    <div class="pagehead">
+      <h1>Discord Servers</h1>
+      <p class="lead">Clean list of NGP servers. Pick one and jump in.</p>
+    </div>
 
     <section class="grid" aria-label="Discord server list">
       <!-- NGP-Studios -->
@@ -109,27 +108,14 @@
     </section>
 
     <footer>
-      <p>Missing a server? Ping us in <a class="back" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">NGP-Studios</a>.</p>
+      <small>© <span id="year"></span> NGP</small>
+      <div><a class="btn" style="margin-top:12px; display:inline-block" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join NGP‑Studios (I know very usefull button, and not like there's two of these)</a></div>
     </footer>
   </div>
 
   <script>
-    // Readable mode (matches your main site)
-    const btn = document.getElementById('readableBtn');
-    const LS_KEY = 'ngp_readable';
-    function applyReadable(v){
-      document.body.classList.toggle('readable', v === '1');
-      btn.textContent = document.body.classList.contains('readable') ? 'Readable: ON' : 'Readable';
-    }
-    applyReadable(localStorage.getItem(LS_KEY) || '0');
-    btn.addEventListener('click', () => {
-      const next = document.body.classList.contains('readable') ? '0' : '1';
-      localStorage.setItem(LS_KEY, next); applyReadable(next);
-    });
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
-<script>
-  // Year
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
 </body>
 </html>
