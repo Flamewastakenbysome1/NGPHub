@@ -49,6 +49,7 @@
   main{padding:28px 0 40px}
   .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
   .panel{
+    position:relative;
     background:var(--card); border:1px solid rgba(255,255,255,.06);
     border-radius:var(--radius); box-shadow:var(--shadow);
     overflow:hidden;
@@ -63,7 +64,7 @@
   .fileTitle{font-weight:600}
   .fileMeta{color:var(--muted); font-size:.85rem}
   .dots{opacity:.6}
-  .controls{padding:16px}
+  .controls{padding:16px; padding-right:70px;} /* leave room for gain dock */
   .knob{margin:14px 0}
   .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
   .knob small{color:var(--muted); margin-left:8px; font-weight:400}
@@ -91,14 +92,30 @@
   .play{width:42px; height:42px; border-radius:999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer}
   .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
   .grow{flex:1}
-  .link{color:var(--ink); text-decoration:none}
   .muted{color:var(--muted)}
   .tip{font-size:.85rem; color:var(--muted)}
   .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff}
   .switch{display:inline-flex; align-items:center; gap:8px}
   .switch input{transform:scale(1.2)}
   @media (max-width:920px){ .grid{grid-template-columns:1fr} }
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !重要}}
+
+  /* Gain dock (right side vertical slider) */
+  .gainDock{
+    position:absolute; top:58px; right:10px; bottom:10px;
+    width:44px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .gainDock .cap{font-size:.7rem; color:var(--muted)}
+  .gainDock input[type="range"]{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    width: 44px; height: 260px;
+  }
+  .gainBadge{
+    font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.06);
+  }
 </style>
 </head>
 <body>
@@ -125,7 +142,7 @@
         <button id="clearBtn" class="btnGhost">✕ Clear</button>
         <div class="pill" id="dlMenu"><span>Download</span></div>
       </div>
-      <span class="tag">No Pro stuff. All local.</span>
+      <span class="tag">No need to pay, straight from the browser!</span>
     </div>
 
     <div class="grid">
@@ -175,6 +192,14 @@
             <span class="tip">Tip: Download uses a smooth grain stretcher to avoid stutter.</span>
           </div>
         </div>
+
+        <!-- Audio Gain dock (right side) -->
+        <aside class="gainDock" aria-label="Output Gain">
+          <span class="cap">+24</span>
+          <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
+          <span class="cap">-24</span>
+          <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
+        </aside>
       </section>
     </div>
   </div>
@@ -210,18 +235,21 @@
   const speed = $('speed'), reverb = $('reverb'), bass = $('bass');
   const speedLbl = $('speedLbl'), reverbLbl = $('reverbLbl'), bassLbl = $('bassLbl');
   const preserve = $('preserve'), currentName = $('currentName');
+  const gainSlider = $('gainSlider'), gainLbl = $('gainLbl');
 
   // Audio graph
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let src = null, buf = null, gain = ctx.createGain();
+  let src = null, buf = null;
+
+  // nodes
   let convolver = ctx.createConvolver();
   let lowShelf = ctx.createBiquadFilter(); lowShelf.type = "lowshelf"; lowShelf.frequency.value = 140;
-  let masterGain = ctx.createGain(); masterGain.gain.value = 1.0;
+  let outGain = ctx.createGain(); // master/output gain
 
-  // chain: source -> convolver -> lowshelf -> gain -> destination
+  // chain: source -> convolver -> lowshelf -> outGain -> destination
   convolver.buffer = makeImpulse(0.0001); // almost dry to start
-  gain.connect(ctx.destination);
-  convolver.connect(lowShelf); lowShelf.connect(gain);
+  outGain.connect(ctx.destination);
+  convolver.connect(lowShelf); lowShelf.connect(outGain);
 
   function connectSource() {
     if (!buf) return;
@@ -240,10 +268,11 @@
   const fmt = s => {
     s = Math.max(0, s|0); const m = (s/60)|0, r = s%60; return `${m}:${r.toString().padStart(2,'0')}`;
   };
+  const dbToLinear = db => Math.pow(10, db/20);
 
   function setStatus(t){ statusEl.textContent = t; }
 
-  // Waveform (very lightweight fake grid + canvas render)
+  // Waveform canvas
   const cvs = document.createElement('canvas'); cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; wave.appendChild(cvs);
   const c2 = cvs.getContext('2d');
 
@@ -262,7 +291,7 @@
     }
   }
 
-  // Impulse response generator for reverb
+  // Reverb impulse (runtime)
   function makeImpulse(seconds=1.5, decay=2.5, reverse=false){
     const rate = ctx.sampleRate, length = Math.max(1,(seconds*rate)|0);
     const ir = ctx.createBuffer(2, length, rate);
@@ -351,6 +380,14 @@
     makeListRow();
   };
 
+  // Output Gain (right dock)
+  function setGain(db){
+    outGain.gain.value = dbToLinear(db);
+    gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`;
+  }
+  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value));
+  setGain(0);
+
   // Seek
   seek.oninput = ()=>{
     if(!buf) return;
@@ -378,30 +415,20 @@
     };
   });
 
-  // Connect final stage (source is connected dynamically)
-  gain.gain.value = 1.0;
-
   // ======= Download (smooth stretch / keeps pitch) =======
-  // Simple granular stretcher for offline render (Hann window + overlap-add)
   async function renderProcessed(buffer, speedX, reverbPct, bassDb){
     const rate = buffer.sampleRate;
     const channels = buffer.numberOfChannels;
-    // Time-stretch length
     const outLen = Math.max(1, Math.floor(buffer.length / speedX));
-    // Grain settings
-    const grainSize = Math.floor(0.06 * rate);      // 60 ms grains
+    const grainSize = Math.floor(0.06 * rate);
     const hopIn = Math.floor(grainSize * 0.5);
     const hopOut = Math.floor(hopIn / speedX);
-    // Prepare output
     const out = new Float32Array(outLen);
     const win = hann(grainSize);
-
-    // Use channel 0 for analysis (mono blend for index)
     const mono = buffer.getChannelData(0);
 
     let inPos = 0, outPos = 0;
     while (inPos + grainSize < mono.length && outPos + grainSize < out.length){
-      // Cross-fade overlap-add
       for(let i=0;i<grainSize;i++){
         const s = mono[inPos + i] * win[i];
         out[outPos + i] += s;
@@ -410,16 +437,13 @@
       outPos += hopOut;
     }
 
-    // Duplicate to all channels
     const off = new OfflineAudioContext(channels, out.length, rate);
     const buf2 = off.createBuffer(channels, out.length, rate);
     for(let ch=0; ch<channels; ch++){
       if(ch===0){ buf2.getChannelData(0).set(out); }
       else{
-        // copy from original channel scaled to the same grain map for a bit more stereo feel
         const srcCh = buffer.getChannelData(Math.min(ch, buffer.numberOfChannels-1));
         const chArr = buf2.getChannelData(ch);
-        // naive copy-resample to stretched length
         for(let i=0;i<out.length;i++){
           const srcIdx = Math.min(srcCh.length-1, Math.floor(i*speedX));
           chArr[i] = (srcCh[srcIdx] + out[i]) * 0.5;
@@ -427,11 +451,12 @@
       }
     }
 
-    // Build FX
     const srcNode = off.createBufferSource(); srcNode.buffer = buf2;
     const conv = off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, reverbPct/100));
     const shelf = off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value = bassDb;
-    srcNode.connect(conv); conv.connect(shelf); shelf.connect(off.destination);
+
+    const master = off.createGain(); master.gain.value = outGain.gain.value; // use current UI gain
+    srcNode.connect(conv); conv.connect(shelf); shelf.connect(master); master.connect(off.destination);
     srcNode.start();
     const rendered = await off.startRendering();
     return rendered;
@@ -441,8 +466,7 @@
     const w = new Float32Array(n);
     for(let i=0;i<n;i++){ w[i] = 0.5*(1 - Math.cos(2*Math.PI*i/(n-1))); }
     return w;
-    }
-
+  }
   function makeIR(offCtx, amt){
     const seconds = 1.8*amt+0.05, decay = 3*amt+0.5;
     const rate = offCtx.sampleRate, length = Math.max(1,(seconds*rate)|0);
