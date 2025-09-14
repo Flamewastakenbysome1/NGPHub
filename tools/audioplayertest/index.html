@@ -6,7 +6,6 @@
 <title>NGP Hub — Audio Remix (Beta)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
-
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
@@ -18,44 +17,30 @@
   html,body{height:100%}
   body{
     margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
-    color:var(--ink);
-    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    scroll-behavior:smooth;
+    color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; scroll-behavior:smooth;
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
-  header{
-    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
-    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
-  }
+  header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06)}
   .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
   .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
   .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
   nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{
-    color:var(--ink); text-decoration:none; font-weight:500;
-    padding:8px 10px; border-radius:10px; opacity:.9
-  }
+  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
   footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
 
   main{padding:28px 0 40px}
   .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
-  .panel{
-    background:var(--card); border:1px solid rgba(255,255,255,.06);
-    border-radius:var(--radius); box-shadow:var(--shadow);
-    overflow:hidden;
-  }
+  .panel{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
   .panel h2{margin:0; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); font-size:1rem}
   .list{max-height:420px; overflow:auto}
-  .fileRow{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05);
-  }
-  .fileRow:hover{background:rgba(255,255,255,.04)}
+  .fileRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05)}
+  .fileRow.muted{color:var(--muted)}
   .fileTitle{font-weight:600}
   .fileMeta{color:var(--muted); font-size:.85rem}
   .controls{padding:16px}
@@ -64,66 +49,46 @@
   .knob small{color:var(--muted); margin-left:8px; font-weight:400}
   input[type="range"]{width:100%}
   .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .btn{
-    background:linear-gradient(135deg,var(--brandA),var(--brandB));
-    color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer;
-    box-shadow:var(--shadow)
-  }
+  .btn{background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
   .btn:disabled{opacity:.5; cursor:not-allowed}
-  .btnGhost{
-    background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2);
-    border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer;
-  }
-  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none}
-  .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%);}
+  .btnGhost{background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer}
+  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none; cursor:pointer}
+  .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%)}
   .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
-  .playerBar{
-    position:sticky; bottom:0; left:0; right:0;
-    background:rgba(10,10,14,.8); backdrop-filter:saturate(140%) blur(10px);
-    border-top:1px solid rgba(255,255,255,.08);
-  }
+  .playerBar{position:sticky; bottom:0; left:0; right:0; background:rgba(10,10,14,.8); backdrop-filter:saturate(140%) blur(10px); border-top:1px solid rgba(255,255,255,.08)}
   .playerInner{max-width:1024px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px}
   .play{width:42px; height:42px; border-radius:999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer}
   .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
   .grow{flex:1}
   .muted{color:var(--muted)}
   .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff; cursor:pointer}
+  .unlockWrap{display:none; align-items:center; gap:8px}
+  .unlockWrap label{font-size:.85rem; color:var(--muted)}
 
   /* Floating Gain (outside) */
   .gainFloat{
-    position:fixed; right:10px; top:140px;
-    z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
+    position:fixed; right:10px; top:140px; z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
     padding:10px 8px; border-radius:14px; background:rgba(21,21,27,.85); border:1px solid rgba(255,255,255,.09); box-shadow:var(--shadow);
     backdrop-filter: blur(8px) saturate(140%);
   }
   .gainFloat .cap{font-size:.7rem; color:var(--muted)}
   .gainFloat input[type="range"]{
-    writing-mode: bt-lr;
-    -webkit-appearance: slider-vertical;
-    appearance: slider-vertical;
+    writing-mode: bt-lr; -webkit-appearance: slider-vertical; appearance: slider-vertical;
     width: 44px; height: 260px;
   }
-  .gainBadge{
-    font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
-    background:rgba(255,255,255,.06);
-  }
+  .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
 
-  .unlockWrap{display:none; align-items:center; gap:8px}
-  .unlockWrap label{font-size:.85rem; color:var(--muted)}
+  @media (max-width:920px){ .grid{grid-template-columns:1fr} }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="wrap bar">
     <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"></span><h1>NGP</h1></a>
     <nav aria-label="Primary">
-      <a href="/tools">Tools</a>
-      <a href="/discordservers/">Servers</a>
-      <a href="/projects">Projects</a>
-      <a href="/docs/">Docs</a>
-      <a href="/roblox">Roblox</a>
-      <a href="/contact">Contact</a>
+      <a href="/tools">Tools</a><a href="/discordservers/">Servers</a><a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a><a href="/roblox">Roblox</a><a href="/contact">Contact</a>
     </nav>
   </div>
 </header>
@@ -147,13 +112,15 @@
     </div>
 
     <div class="grid">
+      <!-- Files -->
       <section class="panel" aria-label="Files">
         <h2>Files</h2>
         <div class="list" id="fileList">
-          <div class="fileRow"><span class="muted">No file yet. Click “Add file”.</span></div>
+          <div class="fileRow muted">No file yet. Click “Add file”.</div>
         </div>
       </section>
 
+      <!-- Editor -->
       <section class="panel" aria-label="Editor">
         <h2 id="currentName">—</h2>
         <div class="wave" id="wave"></div>
@@ -168,7 +135,7 @@
           </div>
 
           <div class="knob">
-            <label>Speed <small id="speedLbl">(1.0×)</small></label>
+            <label>Speed <small id="speedLbl">(1.00×)</small></label>
             <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
             <div class="row" style="margin-top:6px;">
               <input type="checkbox" id="preserve" />
@@ -215,37 +182,36 @@
 </div>
 
 <footer>
-  <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha.</small>
-  </div>
+  <div class="wrap"><small>© <span id="year"></span> NGP — Alpha.</small></div>
 </footer>
 
 <input type="file" id="fileInput" accept="audio/*" hidden />
 
 <script>
+(() => {
+  // ===== Grab UI =====
   const $ = id => document.getElementById(id);
   $('year').textContent = new Date().getFullYear();
+  const addBtn=$('addBtn'), clearBtn=$('clearBtn'), fileInput=$('fileInput');
+  const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
+  const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
+  const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
+  const speed=$('speed'), reverb=$('reverb'), bass=$('bass');
+  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl');
+  const preserve=$('preserve'), currentName=$('currentName');
+  const gainSlider=$('gainSlider'), gainLbl=$('gainLbl');
+  const freeTag=$('freeTag'), unlockWrap=$('unlockWrap'), unlockBox=$('unlockBox');
 
-  const addBtn = $('addBtn'), clearBtn = $('clearBtn'), fileInput = $('fileInput');
-  const fileList = $('fileList'), playBtn = $('playBtn'), seek = $('seek');
-  const curTime = $('curTime'), durTime = $('durTime'), tStart = $('tStart'), tEnd = $('tEnd');
-  const wave = $('wave'), downloadBtn = $('downloadBtn');
-  const speed = $('speed'), reverb = $('reverb'), bass = $('bass');
-  const speedLbl = $('speedLbl'), reverbLbl = $('reverbLbl'), bassLbl = $('bassLbl');
-  const preserve = $('preserve'), currentName = $('currentName');
-  const gainSlider = $('gainSlider'), gainLbl = $('gainLbl');
-  const freeTag = $('freeTag'), unlockWrap = $('unlockWrap'), unlockBox = $('unlockBox');
-
+  // ===== Audio =====
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let src = null, buf = null, playing = false, startAt = 0, started = 0;
+  let src=null, buf=null, playing=false, startAt=0, started=0;
 
   const convolver = ctx.createConvolver();
-  const lowShelf = ctx.createBiquadFilter(); lowShelf.type = "lowshelf"; lowShelf.frequency.value = 140;
-  const outGain = ctx.createGain();
+  const shelf = ctx.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140;
+  const outGain = ctx.createGain(); outGain.gain.value=1;
 
-  convolver.buffer = makeImpulse(0.0001);
-  outGain.connect(ctx.destination);
-  convolver.connect(lowShelf); lowShelf.connect(outGain);
+  convolver.buffer = makeImpulseRT(0.0001); // near-dry start
+  convolver.connect(shelf); shelf.connect(outGain); outGain.connect(ctx.destination);
 
   function connectSource(){
     if(!buf) return;
@@ -257,10 +223,15 @@
     src.onended = ()=>{ playing=false; playBtn.textContent='▶'; };
   }
 
-  function fmt(s){ s=Math.max(0,s|0); const m=(s/60)|0,r=s%60; return `${m}:${r.toString().padStart(2,'0')}`; }
+  // ===== Helpers =====
+  const fmt = s => { s=Math.max(0, s|0); const m=(s/60)|0, r=s%60; return `${m}:${r.toString().padStart(2,'0')}`; };
   const dbToLinear = db => Math.pow(10, db/20);
+  function setStatus(t){ if(statusEl) statusEl.textContent=t; }
+
+  // Gain
   function setGain(db){ outGain.gain.value = dbToLinear(db); gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`; }
-  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value)); setGain(0);
+  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value));
+  setGain(0);
 
   // Waveform
   const cvs = document.createElement('canvas'); cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; wave.appendChild(cvs);
@@ -279,6 +250,7 @@
   }
   new ResizeObserver(()=>{ cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; drawWave(buf); }).observe(wave);
 
+  // ===== File load =====
   addBtn.onclick = ()=> fileInput.click();
   fileInput.onchange = async e=>{
     const f = e.target.files[0]; if(!f) return;
@@ -292,15 +264,17 @@
     fileList.innerHTML = `<div class="fileRow"><div><div class="fileTitle">${f.name}</div>
       <div class="fileMeta">${speed.value}× speed, ${reverb.value}% reverb, ${bass.value} dB bass</div></div><div>⋯</div></div>`;
     downloadBtn.disabled=false;
+    setStatus('Ready');
   };
 
   clearBtn.onclick=()=>{
     if(src){ try{src.stop()}catch{} }
-    src=null; buf=null; fileList.innerHTML='<div class="fileRow"><span class="muted">No file yet. Click “Add file”.</span></div>';
+    src=null; buf=null; fileList.innerHTML='<div class="fileRow muted">No file yet. Click “Add file”.</div>';
     currentName.textContent='—'; c2.clearRect(0,0,cvs.width,cvs.height);
-    seek.value=0; durTime.textContent='0:00'; tEnd.textContent='0:00'; downloadBtn.disabled=true;
+    seek.value=0; durTime.textContent='0:00'; tEnd.textContent='0:00'; downloadBtn.disabled=true; setStatus('Cleared');
   };
 
+  // ===== Transport =====
   function nowPlaybackTime(){ if(!src||!playing) return 0; return Math.min(buf.duration, startAt + (ctx.currentTime-started)*src.playbackRate.value); }
 
   playBtn.onclick=()=>{
@@ -312,124 +286,120 @@
       try{src.stop()}catch{}; seek.value=nowPlaybackTime(); playing=false; playBtn.textContent='▶';
     }
   };
-
-  speed.oninput=()=>{ speedLbl.textContent=`(${parseFloat(speed.value).toFixed(2)}×)`; if(src) src.playbackRate.value=parseFloat(speed.value); };
-  reverb.oninput=()=>{ reverbLbl.textContent=`(${reverb.value}%)`; const amt=Math.max(0.0001, parseInt(reverb.value)/100); convolver.buffer=makeImpulse(1.8*amt+0.05, 3*amt+0.5); };
-  bass.oninput=()=>{ bassLbl.textContent=`(${bass.value} dB)`; lowShelf.gain.value=parseFloat(bass.value); };
-
   seek.oninput=()=>{
     if(!buf) return;
     if(playing){ try{src.stop()}catch{}; playing=false; playBtn.textContent='▶'; }
     connectSource();
   };
 
-  function tick(){ requestAnimationFrame(tick); if(!buf) return; const t=playing?nowPlaybackTime():parseFloat(seek.value); seek.value=t; curTime.textContent=fmt(t|0); }
-  tick();
+  // ===== Live FX =====
+  speed.oninput=()=>{ speedLbl.textContent=`(${parseFloat(speed.value).toFixed(2)}×)`; if(src) src.playbackRate.value=parseFloat(speed.value); };
+  reverb.oninput=()=>{ reverbLbl.textContent=`(${reverb.value}%)`; const amt=Math.max(0.0001, parseInt(reverb.value)/100); convolver.buffer=makeImpulseRT(1.8*amt+0.05, 3*amt+0.5); };
+  bass.oninput=()=>{ bassLbl.textContent=`(${bass.value} dB)`; shelf.gain.value=parseFloat(bass.value); };
 
-  // Presets (typo fixed)
+  // ===== Presets =====
   document.querySelectorAll('[data-preset]').forEach(b=>{
     b.onclick=()=>{
       const p=b.dataset.preset;
-      if(p==='slowed'){ speed.value=0.7; reverb.value=45; bass.value=0; }
+      if(p==='slowed'){ speed.value=0.70; reverb.value=45; bass.value=0; }
       if(p==='nightcore'){ speed.value=1.25; reverb.value=0; bass.value=0; }
       if(p==='perfection'){ speed.value=0.83; reverb.value=26; bass.value=10; }
       speed.oninput(); reverb.oninput(); bass.oninput();
     };
   });
 
-  // -------- Download (Smooth when "preserve" is ON) --------
+  // ===== UI loop =====
+  (function tick(){ requestAnimationFrame(tick); if(!buf) return; const t=playing?nowPlaybackTime():parseFloat(seek.value); seek.value=t; curTime.textContent=fmt(t|0); })();
+
+  // ===== Download =====
   downloadBtn.onclick = async ()=>{
     if(!buf) return;
-    downloadBtn.disabled=true;
+    downloadBtn.disabled=true; setStatus(preserve.checked?'Rendering (smooth)…':'Rendering…');
     try{
-      let rendered;
-      if(preserve.checked){
-        rendered = await renderTimeStretchWSOLA(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value);
-      }else{
-        // simple resample (changes pitch)
-        rendered = await renderSimpleResample(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value);
-      }
+      const rendered = preserve.checked
+        ? await renderWSOLA(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value)
+        : await renderResample(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value);
+
       const wav = toWav(rendered);
       const a=document.createElement('a');
       const name=(currentName.textContent||'audio').replace(/\.[^.]+$/,'');
       a.href=URL.createObjectURL(wav); a.download=`${name}_ngp-remix.wav`; a.click();
-    }catch(e){ console.error(e); }
+      setStatus('Done.');
+    }catch(e){ console.error(e); setStatus('Render failed'); }
     downloadBtn.disabled=false;
   };
 
-  // Simple resample via OfflineAudioContext (pitch-shifts)
-  async function renderSimpleResample(buffer, speedX, rvPct, bassDb, gainLinear){
+  // Simple resample (pitch changes)
+  async function renderResample(buffer, speedX, rvPct, bassDb, gainLin){
     const frames = Math.max(1, Math.floor(buffer.length / speedX));
     const off = new OfflineAudioContext(buffer.numberOfChannels, frames, buffer.sampleRate);
-    const src = off.createBufferSource(); src.buffer=buffer; src.playbackRate.value=speedX;
+    const s = off.createBufferSource(); s.buffer=buffer; s.playbackRate.value=speedX;
     const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, rvPct/100));
-    const shelf=off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value=bassDb;
-    const g=off.createGain(); g.gain.value=gainLinear;
-    src.connect(conv); conv.connect(shelf); shelf.connect(g); g.connect(off.destination);
-    src.start();
+    const sh=off.createBiquadFilter(); sh.type='lowshelf'; sh.frequency.value=140; sh.gain.value=bassDb;
+    const g=off.createGain(); g.gain.value=gainLin;
+    s.connect(conv); conv.connect(sh); sh.connect(g); g.connect(off.destination); s.start();
     return off.startRendering();
   }
 
-  // Smooth WSOLA-like time-stretch (keeps pitch)
-  async function renderTimeStretchWSOLA(buffer, speedX, rvPct, bassDb, gainLinear){
-    const rate = buffer.sampleRate, channels = buffer.numberOfChannels;
+  // WSOLA-like stretch (pitch preserved)
+  async function renderWSOLA(buffer, speedX, rvPct, bassDb, gainLin){
+    const rate=buffer.sampleRate, chs=buffer.numberOfChannels;
     const outLen = Math.max(1, Math.floor(buffer.length / speedX));
-    const grainSize = Math.floor(0.05 * rate);    // 50 ms
-    const hopIn = Math.floor(grainSize * 0.5);
+    const grain = Math.floor(0.05 * rate);       // 50ms grains
+    const hopIn = Math.floor(grain * 0.5);
     const hopOut = Math.max(1, Math.floor(hopIn / speedX));
-    const win = hann(grainSize);
+    const win = hann(grain);
 
-    // per-channel OLA
-    const stretched = new Array(channels).fill(null).map(()=>new Float32Array(outLen));
-    for(let ch=0; ch<channels; ch++){
-      const srcCh = buffer.getChannelData(ch);
-      let inPos = 0, outPos = 0;
-      while(inPos + grainSize < srcCh.length && outPos + grainSize < outLen){
-        for(let i=0;i<grainSize;i++){
-          stretched[ch][outPos + i] += srcCh[inPos + i] * win[i];
-        }
-        inPos += hopIn;
-        outPos += hopOut;
+    const out = Array.from({length:chs}, ()=> new Float32Array(outLen));
+    for(let c=0;c<chs;c++){
+      const x = buffer.getChannelData(c);
+      let ip=0, op=0;
+      while(ip+grain < x.length && op+grain < outLen){
+        // Overlap-add with Hann window
+        for(let i=0;i<grain;i++) out[c][op+i] += x[ip+i]*win[i];
+        ip += hopIn; op += hopOut;
       }
     }
 
-    // build offline graph and apply FX + master gain
-    const off = new OfflineAudioContext(channels, outLen, rate);
-    const outBuf = off.createBuffer(channels, outLen, rate);
-    for(let ch=0; ch<channels; ch++) outBuf.getChannelData(ch).set(stretched[ch]);
+    const off = new OfflineAudioContext(chs, outLen, rate);
+    const y = off.createBuffer(chs, outLen, rate);
+    for(let c=0;c<chs;c++) y.getChannelData(c).set(out[c]);
 
-    const src = off.createBufferSource(); src.buffer = outBuf;
+    const src = off.createBufferSource(); src.buffer=y;
     const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, rvPct/100));
-    const shelf=off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value=bassDb;
-    const g=off.createGain(); g.gain.value = gainLinear;
-
-    src.connect(conv); conv.connect(shelf); shelf.connect(g); g.connect(off.destination);
-    src.start();
+    const sh=off.createBiquadFilter(); sh.type='lowshelf'; sh.frequency.value=140; sh.gain.value=bassDb;
+    const g=off.createGain(); g.gain.value=gainLin;
+    src.connect(conv); conv.connect(sh); sh.connect(g); g.connect(off.destination); src.start();
     return off.startRendering();
   }
 
+  // ===== IR & Windows =====
   function hann(n){ const w=new Float32Array(n); for(let i=0;i<n;i++) w[i]=0.5*(1-Math.cos(2*Math.PI*i/(n-1))); return w; }
-  function makeIR(offCtx, amt){
-    const seconds = 1.8*amt+0.05, decay = 3*amt+0.5;
-    const rate = offCtx.sampleRate, length = Math.max(1,(seconds*rate)|0);
-    const ir = offCtx.createBuffer(2, length, rate);
-    for(let ch=0; ch<2; ch++){
-      const data = ir.getChannelData(ch);
-      for(let i=0;i<length;i++){ data[i] = (Math.random()*2-1) * Math.pow(1 - i/length, decay); }
-    }
+  function makeImpulseRT(seconds=1.5, decay=2.5){
+    const rate = ctx.sampleRate, len = Math.max(1,(seconds*rate)|0);
+    const ir = ctx.createBuffer(2, len, rate);
+    for(let c=0;c<2;c++){ const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
     return ir;
   }
-  function toWav(audBuf){
-    const numCh=audBuf.numberOfChannels, sr=audBuf.sampleRate, len=audBuf.length;
-    const inter=interleave(audBuf), bytesPerSample=2, blockAlign=numCh*bytesPerSample;
-    const buffer=new ArrayBuffer(44+inter.length*2), view=new DataView(buffer);
-    const W=(o,s)=>{for(let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i));};
-    const U16=(o,v)=>view.setUint16(o,v,true), U32=(o,v)=>view.setUint32(o,v,true);
+  function makeIR(off, amt){
+    const seconds=1.8*amt+0.05, decay=3*amt+0.5, rate=off.sampleRate, len=Math.max(1,(seconds*rate)|0);
+    const ir = off.createBuffer(2, len, rate);
+    for(let c=0;c<2;c++){ const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
+    return ir;
+  }
+
+  // ===== WAV =====
+  function toWav(ab){
+    const ch=ab.numberOfChannels, sr=ab.sampleRate, len=ab.length;
+    const inter=interleave(ab), bps=2, block=ch*bps;
+    const buf=new ArrayBuffer(44+inter.length*2), v=new DataView(buf);
+    const W=(o,s)=>{for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i));};
+    const U16=(o,x)=>v.setUint16(o,x,true), U32=(o,x)=>v.setUint32(o,x,true);
     W(0,'RIFF'); U32(4,36+inter.length*2); W(8,'WAVE'); W(12,'fmt '); U32(16,16); U16(20,1);
-    U16(22,numCh); U32(24,sr); U32(28,sr*blockAlign); U16(32,blockAlign); U16(34,16);
+    U16(22,ch); U32(24,sr); U32(28,sr*block); U16(32,block); U16(34,16);
     W(36,'data'); U32(40,inter.length*2);
-    let off=44; for(let i=0;i<inter.length;i++){ const s=Math.max(-1,Math.min(1,inter[i])); view.setInt16(off, s<0?s*0x8000:s*0x7FFF, true); off+=2; }
-    return new Blob([view],{type:'audio/wav'});
+    let off=44; for(let i=0;i<inter.length;i++){ const s=Math.max(-1,Math.min(1,inter[i])); v.setInt16(off, s<0?s*0x8000:s*0x7FFF, true); off+=2; }
+    return new Blob([v],{type:'audio/wav'});
   }
   function interleave(buf){
     const chs=[]; for(let i=0;i<buf.numberOfChannels;i++) chs.push(buf.getChannelData(i));
@@ -438,7 +408,7 @@
     return inter;
   }
 
-  // Secret clicks → unlock
+  // ===== Secret unlock =====
   let clicks=0;
   freeTag.addEventListener('click', ()=>{ clicks++; if(clicks>=15) unlockWrap.style.display='flex'; });
   function setUnlocked(on){
@@ -454,6 +424,7 @@
   }
   unlockBox.addEventListener('change', e=>setUnlocked(e.target.checked));
   setUnlocked(false);
+})();
 </script>
 </body>
 </html>
