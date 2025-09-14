@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>NGP Hub — Audio Remix (Beta)</title>
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 
 <style>
@@ -26,7 +25,6 @@
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
-  /* Header */
   header{
     position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
     background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
@@ -37,15 +35,13 @@
   .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
   nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
   nav a{
-    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    color:var(--ink); text-decoration:none; font-weight:500;
     padding:8px 10px; border-radius:10px; opacity:.9
   }
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
-  /* Footer */
   footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
 
-  /* Page */
   main{padding:28px 0 40px}
   .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
   .panel{
@@ -57,12 +53,11 @@
   .list{max-height:420px; overflow:auto}
   .fileRow{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05); cursor:default;
+    padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05);
   }
   .fileRow:hover{background:rgba(255,255,255,.04)}
   .fileTitle{font-weight:600}
   .fileMeta{color:var(--muted); font-size:.85rem}
-  .dots{opacity:.6}
   .controls{padding:16px}
   .knob{margin:14px 0}
   .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
@@ -79,7 +74,7 @@
     background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2);
     border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer;
   }
-  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; cursor:pointer; user-select:none}
+  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none}
   .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%);}
   .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
   .playerBar{
@@ -92,14 +87,9 @@
   .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
   .grow{flex:1}
   .muted{color:var(--muted)}
-  .tip{font-size:.85rem; color:var(--muted)}
-  .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff}
-  .switch{display:inline-flex; align-items:center; gap:8px}
-  .switch input{transform:scale(1.2)}
-  @media (max-width:920px){ .grid{grid-template-columns:1fr} }
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+  .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff; cursor:pointer}
 
-  /* Floating Gain (outside the box) */
+  /* Floating Gain (outside) */
   .gainFloat{
     position:fixed; right:10px; top:140px;
     z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
@@ -108,7 +98,7 @@
   }
   .gainFloat .cap{font-size:.7rem; color:var(--muted)}
   .gainFloat input[type="range"]{
-    writing-mode: bt-lr; /* IE */
+    writing-mode: bt-lr;
     -webkit-appearance: slider-vertical;
     appearance: slider-vertical;
     width: 44px; height: 260px;
@@ -118,7 +108,6 @@
     background:rgba(255,255,255,.06);
   }
 
-  /* Hidden toggle (appears above tag when… who knows) */
   .unlockWrap{display:none; align-items:center; gap:8px}
   .unlockWrap label{font-size:.85rem; color:var(--muted)}
 </style>
@@ -153,39 +142,37 @@
           <input type="checkbox" id="unlockBox" />
           <label for="unlockBox">Extra range</label>
         </div>
-        <span class="tag pill" id="freeTag">No need to pay, straight from the browser!</span>
+        <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
       </div>
     </div>
 
     <div class="grid">
-      <!-- Left: file list -->
       <section class="panel" aria-label="Files">
         <h2>Files</h2>
         <div class="list" id="fileList">
-          <div class="fileRow muted">No file yet. Click “Add file”.</div>
+          <div class="fileRow"><span class="muted">No file yet. Click “Add file”.</span></div>
         </div>
       </section>
 
-      <!-- Right: editor -->
       <section class="panel" aria-label="Editor">
         <h2 id="currentName">—</h2>
         <div class="wave" id="wave"></div>
         <div class="timeline"><span id="tStart">0:00</span><span id="tEnd">0:00</span></div>
 
         <div class="controls">
-          <div class="row" style="justify-content:flex-start; gap:12px;">
+          <div class="row" style="gap:12px;">
             <span class="pill">Presets</span>
             <button class="btnGhost" data-preset="slowed">Slowed+Reverb</button>
             <button class="btnGhost" data-preset="nightcore">Nightcore</button>
-            <button class="btnGhost" data-preset="preection">Slowed to preection</button>
+            <button class="btnGhost" data-preset="perfection">Slowed to perfection</button>
           </div>
 
           <div class="knob">
             <label>Speed <small id="speedLbl">(1.0×)</small></label>
             <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
-            <div class="row tip switch" style="margin-top:6px;">
+            <div class="row" style="margin-top:6px;">
               <input type="checkbox" id="preserve" />
-              <label for="preserve" class="muted">Smooth time-stretch (keeps pitch, used for download; preview uses simple speed)</label>
+              <label for="preserve" class="muted">Smooth time-stretch for downloads (keeps pitch)</label>
             </div>
           </div>
 
@@ -202,7 +189,7 @@
           <div class="row" style="margin-top:10px">
             <button id="downloadBtn" class="btn" disabled>Download</button>
             <button id="trimBtn" class="btnGhost" disabled>Export selection (soon)</button>
-            <span class="tip">Tip: Download uses a smooth grain stretcher to avoid stutter.</span>
+            <span class="muted" id="status">Ready</span>
           </div>
         </div>
       </section>
@@ -210,7 +197,7 @@
   </div>
 </main>
 
-<!-- Floating Gain (outside the editor box) -->
+<!-- Floating Gain -->
 <aside class="gainFloat" aria-label="Output Gain">
   <span class="cap">+24</span>
   <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
@@ -218,14 +205,12 @@
   <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
 </aside>
 
-<!-- Player bar -->
 <div class="playerBar">
   <div class="playerInner">
     <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
     <div class="time" id="curTime">0:00</div>
     <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
     <div class="time" id="durTime">0:00</div>
-    <span class="muted" id="status">Ready</span>
   </div>
 </div>
 
@@ -238,359 +223,236 @@
 <input type="file" id="fileInput" accept="audio/*" hidden />
 
 <script>
-  // UI els
   const $ = id => document.getElementById(id);
   $('year').textContent = new Date().getFullYear();
+
   const addBtn = $('addBtn'), clearBtn = $('clearBtn'), fileInput = $('fileInput');
   const fileList = $('fileList'), playBtn = $('playBtn'), seek = $('seek');
   const curTime = $('curTime'), durTime = $('durTime'), tStart = $('tStart'), tEnd = $('tEnd');
-  const wave = $('wave'), statusEl = $('status'), downloadBtn = $('downloadBtn');
+  const wave = $('wave'), downloadBtn = $('downloadBtn');
   const speed = $('speed'), reverb = $('reverb'), bass = $('bass');
   const speedLbl = $('speedLbl'), reverbLbl = $('reverbLbl'), bassLbl = $('bassLbl');
   const preserve = $('preserve'), currentName = $('currentName');
   const gainSlider = $('gainSlider'), gainLbl = $('gainLbl');
   const freeTag = $('freeTag'), unlockWrap = $('unlockWrap'), unlockBox = $('unlockBox');
 
-  // Audio graph
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let src = null, buf = null;
+  let src = null, buf = null, playing = false, startAt = 0, started = 0;
 
-  // nodes
-  let convolver = ctx.createConvolver();
-  let lowShelf = ctx.createBiquadFilter(); lowShelf.type = "lowshelf"; lowShelf.frequency.value = 140;
-  let outGain = ctx.createGain(); // master/output gain
+  const convolver = ctx.createConvolver();
+  const lowShelf = ctx.createBiquadFilter(); lowShelf.type = "lowshelf"; lowShelf.frequency.value = 140;
+  const outGain = ctx.createGain();
 
-  // chain: source -> convolver -> lowshelf -> outGain -> destination
-  convolver.buffer = makeImpulse(0.0001); // almost dry to start
+  convolver.buffer = makeImpulse(0.0001);
   outGain.connect(ctx.destination);
   convolver.connect(lowShelf); lowShelf.connect(outGain);
 
-  function connectSource() {
-    if (!buf) return;
-    if (src) { try{src.stop();}catch{} src.disconnect(); }
+  function connectSource(){
+    if(!buf) return;
+    if(src){ try{src.stop()}catch{}; src.disconnect(); }
     src = ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = parseFloat(speed.value);
     src.connect(convolver);
-    src.onended = () => { playing = false; playBtn.textContent = '▶'; };
+    src.onended = ()=>{ playing=false; playBtn.textContent='▶'; };
   }
 
-  // State
-  let fileMeta = null, playing = false, startAt = 0, started = 0;
-
-  // Helpers
-  const fmt = s => {
-    s = Math.max(0, s|0); const m = (s/60)|0, r = s%60; return `${m}:${r.toString().padStart(2,'0')}`;
-  };
+  function fmt(s){ s=Math.max(0,s|0); const m=(s/60)|0,r=s%60; return `${m}:${r.toString().padStart(2,'0')}`; }
   const dbToLinear = db => Math.pow(10, db/20);
-  function setStatus(t){ statusEl.textContent = t; }
+  function setGain(db){ outGain.gain.value = dbToLinear(db); gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`; }
+  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value)); setGain(0);
 
-  // Waveform canvas
+  // Waveform
   const cvs = document.createElement('canvas'); cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; wave.appendChild(cvs);
   const c2 = cvs.getContext('2d');
-
   function drawWave(abuf){
     c2.clearRect(0,0,cvs.width,cvs.height);
-    if(!abuf){ return; }
+    if(!abuf) return;
     const ch = abuf.getChannelData(0);
     const step = Math.max(1, Math.floor(ch.length / cvs.width));
-    const mid = cvs.height/2;
-    c2.fillStyle = 'rgba(255,255,255,.9)';
+    const mid = cvs.height/2; c2.fillStyle='rgba(255,255,255,.9)';
     for(let x=0;x<cvs.width;x++){
-      let min=1, max=-1;
-      const i0 = x*step;
-      for(let i=i0;i<i0+step && i<ch.length;i++){ const v = ch[i]; if(v<min)min=v; if(v>max)max=v; }
+      let min=1,max=-1, i0=x*step;
+      for(let i=i0;i<i0+step && i<ch.length;i++){ const v=ch[i]; if(v<min)min=v; if(v>max)max=v; }
       c2.fillRect(x, mid + min*mid, 1, Math.max(1,(max-min)*mid));
     }
   }
+  new ResizeObserver(()=>{ cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; drawWave(buf); }).observe(wave);
 
-  // Reverb impulse (runtime)
-  function makeImpulse(seconds=1.5, decay=2.5, reverse=false){
-    const rate = ctx.sampleRate, length = Math.max(1,(seconds*rate)|0);
-    const ir = ctx.createBuffer(2, length, rate);
-    for(let ch=0; ch<2; ch++){
-      const data = ir.getChannelData(ch);
-      for(let i=0;i<length;i++){
-        const n = reverse ? length-i : i;
-        data[i] = (Math.random()*2-1) * Math.pow(1 - n/length, decay);
-      }
-    }
-    return ir;
-  }
-
-  // UI wiring
   addBtn.onclick = ()=> fileInput.click();
   fileInput.onchange = async e=>{
-    const f = e.target.files[0];
-    if(!f) return;
+    const f = e.target.files[0]; if(!f) return;
     const arr = await f.arrayBuffer();
-    setStatus('Decoding…');
     buf = await ctx.decodeAudioData(arr);
     connectSource();
-    fileMeta = {name: f.name};
     currentName.textContent = f.name;
     drawWave(buf);
-    tStart.textContent = '0:00';
-    tEnd.textContent = fmt(buf.duration|0);
-    durTime.textContent = fmt(buf.duration|0);
-    seek.value = 0; seek.max = buf.duration;
-    makeListRow();
-    downloadBtn.disabled = false;
-    setStatus('Ready');
+    tStart.textContent='0:00'; tEnd.textContent=fmt(buf.duration|0); durTime.textContent=fmt(buf.duration|0);
+    seek.value=0; seek.max=buf.duration;
+    fileList.innerHTML = `<div class="fileRow"><div><div class="fileTitle">${f.name}</div>
+      <div class="fileMeta">${speed.value}× speed, ${reverb.value}% reverb, ${bass.value} dB bass</div></div><div>⋯</div></div>`;
+    downloadBtn.disabled=false;
   };
 
-  function makeListRow(){
-    fileList.innerHTML = '';
-    const row = document.createElement('div'); row.className='fileRow';
-    row.innerHTML = `<div><div class="fileTitle">${fileMeta.name}</div>
-      <div class="fileMeta">${speed.value}× speed, ${reverb.value}% reverb, ${bass.value} dB bass</div></div>
-      <div class="dots">⋯</div>`;
-    fileList.appendChild(row);
-  }
-
-  clearBtn.onclick = ()=>{
-    if(src){ try{src.stop();}catch{} }
-    src = null; buf=null; fileList.innerHTML='<div class="fileRow muted">No file yet. Click “Add file”.</div>';
+  clearBtn.onclick=()=>{
+    if(src){ try{src.stop()}catch{} }
+    src=null; buf=null; fileList.innerHTML='<div class="fileRow"><span class="muted">No file yet. Click “Add file”.</span></div>';
     currentName.textContent='—'; c2.clearRect(0,0,cvs.width,cvs.height);
-    seek.value=0; durTime.textContent='0:00'; tEnd.textContent='0:00'; downloadBtn.disabled=true; setStatus('Cleared');
+    seek.value=0; durTime.textContent='0:00'; tEnd.textContent='0:00'; downloadBtn.disabled=true;
   };
 
-  // Play/Pause
-  function nowPlaybackTime(){
-    if(!src || !playing) return 0;
-    return Math.min(buf.duration, startAt + (ctx.currentTime - started) * src.playbackRate.value);
-  }
+  function nowPlaybackTime(){ if(!src||!playing) return 0; return Math.min(buf.duration, startAt + (ctx.currentTime-started)*src.playbackRate.value); }
 
-  playBtn.onclick = ()=>{
+  playBtn.onclick=()=>{
     if(!buf) return;
     if(!playing){
-      connectSource();
-      src.start(0, seek.value);
-      startAt = seek.value; started = ctx.currentTime; playing = true;
-      playBtn.textContent = '⏸';
+      connectSource(); src.start(0, seek.value);
+      startAt=seek.value; started=ctx.currentTime; playing=true; playBtn.textContent='⏸';
     }else{
-      try{ src.stop(); }catch{}
-      seek.value = nowPlaybackTime();
-      playing = false; playBtn.textContent = '▶';
+      try{src.stop()}catch{}; seek.value=nowPlaybackTime(); playing=false; playBtn.textContent='▶';
     }
   };
 
-  // Live controls
-  speed.oninput = ()=>{
-    speedLbl.textContent = `(${parseFloat(speed.value).toFixed(2)}×)`;
-    if(src) src.playbackRate.value = parseFloat(speed.value);
-    makeListRow();
-  };
-  reverb.oninput = ()=>{
-    reverbLbl.textContent = `(${reverb.value}%)`;
-    const amt = Math.max(0.0001, parseInt(reverb.value)/100);
-    convolver.buffer = makeImpulse(1.8*amt+0.05, 3*amt+0.5, false);
-    makeListRow();
-  };
-  bass.oninput = ()=>{
-    bassLbl.textContent = `(${bass.value} dB)`;
-    lowShelf.gain.value = parseFloat(bass.value);
-    makeListRow();
-  };
+  speed.oninput=()=>{ speedLbl.textContent=`(${parseFloat(speed.value).toFixed(2)}×)`; if(src) src.playbackRate.value=parseFloat(speed.value); };
+  reverb.oninput=()=>{ reverbLbl.textContent=`(${reverb.value}%)`; const amt=Math.max(0.0001, parseInt(reverb.value)/100); convolver.buffer=makeImpulse(1.8*amt+0.05, 3*amt+0.5); };
+  bass.oninput=()=>{ bassLbl.textContent=`(${bass.value} dB)`; lowShelf.gain.value=parseFloat(bass.value); };
 
-  // Output Gain (floating)
-  function setGain(db){
-    outGain.gain.value = dbToLinear(db);
-    gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`;
-  }
-  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value));
-  setGain(0);
-
-  // Seek
-  seek.oninput = ()=>{
+  seek.oninput=()=>{
     if(!buf) return;
-    if(playing){ try{src.stop();}catch{} playing=false; playBtn.textContent='▶'; }
+    if(playing){ try{src.stop()}catch{}; playing=false; playBtn.textContent='▶'; }
     connectSource();
   };
 
-  // UI loop
-  function tick(){
-    requestAnimationFrame(tick);
-    if(!buf) return;
-    const t = playing ? nowPlaybackTime() : parseFloat(seek.value);
-    seek.value = t;
-    curTime.textContent = fmt(t|0);
-  }
+  function tick(){ requestAnimationFrame(tick); if(!buf) return; const t=playing?nowPlaybackTime():parseFloat(seek.value); seek.value=t; curTime.textContent=fmt(t|0); }
   tick();
 
-  // Presets
-  document.querySelectorAll('[data-preset]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const p = btn.dataset.preset;
+  // Presets (typo fixed)
+  document.querySelectorAll('[data-preset]').forEach(b=>{
+    b.onclick=()=>{
+      const p=b.dataset.preset;
       if(p==='slowed'){ speed.value=0.7; reverb.value=45; bass.value=0; }
       if(p==='nightcore'){ speed.value=1.25; reverb.value=0; bass.value=0; }
-      if(p==='preection'){ speed.value=0.83; reverb.value=26; bass.value=10; }
+      if(p==='perfection'){ speed.value=0.83; reverb.value=26; bass.value=10; }
       speed.oninput(); reverb.oninput(); bass.oninput();
     };
   });
 
-  // ======= Download (smooth stretch / keeps pitch) =======
-  async function renderProcessed(buffer, speedX, reverbPct, bassDb){
-    const rate = buffer.sampleRate;
-    const channels = buffer.numberOfChannels;
+  // -------- Download (Smooth when "preserve" is ON) --------
+  downloadBtn.onclick = async ()=>{
+    if(!buf) return;
+    downloadBtn.disabled=true;
+    try{
+      let rendered;
+      if(preserve.checked){
+        rendered = await renderTimeStretchWSOLA(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value);
+      }else{
+        // simple resample (changes pitch)
+        rendered = await renderSimpleResample(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value), outGain.gain.value);
+      }
+      const wav = toWav(rendered);
+      const a=document.createElement('a');
+      const name=(currentName.textContent||'audio').replace(/\.[^.]+$/,'');
+      a.href=URL.createObjectURL(wav); a.download=`${name}_ngp-remix.wav`; a.click();
+    }catch(e){ console.error(e); }
+    downloadBtn.disabled=false;
+  };
+
+  // Simple resample via OfflineAudioContext (pitch-shifts)
+  async function renderSimpleResample(buffer, speedX, rvPct, bassDb, gainLinear){
+    const frames = Math.max(1, Math.floor(buffer.length / speedX));
+    const off = new OfflineAudioContext(buffer.numberOfChannels, frames, buffer.sampleRate);
+    const src = off.createBufferSource(); src.buffer=buffer; src.playbackRate.value=speedX;
+    const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, rvPct/100));
+    const shelf=off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value=bassDb;
+    const g=off.createGain(); g.gain.value=gainLinear;
+    src.connect(conv); conv.connect(shelf); shelf.connect(g); g.connect(off.destination);
+    src.start();
+    return off.startRendering();
+  }
+
+  // Smooth WSOLA-like time-stretch (keeps pitch)
+  async function renderTimeStretchWSOLA(buffer, speedX, rvPct, bassDb, gainLinear){
+    const rate = buffer.sampleRate, channels = buffer.numberOfChannels;
     const outLen = Math.max(1, Math.floor(buffer.length / speedX));
-    const grainSize = Math.floor(0.06 * rate);
+    const grainSize = Math.floor(0.05 * rate);    // 50 ms
     const hopIn = Math.floor(grainSize * 0.5);
-    const hopOut = Math.floor(hopIn / speedX);
-    const out = new Float32Array(outLen);
+    const hopOut = Math.max(1, Math.floor(hopIn / speedX));
     const win = hann(grainSize);
-    const mono = buffer.getChannelData(0);
 
-    let inPos = 0, outPos = 0;
-    while (inPos + grainSize < mono.length && outPos + grainSize < out.length){
-      for(let i=0;i<grainSize;i++){
-        const s = mono[inPos + i] * win[i];
-        out[outPos + i] += s;
-      }
-      inPos += hopIn;
-      outPos += hopOut;
-    }
-
-    const off = new OfflineAudioContext(channels, out.length, rate);
-    const buf2 = off.createBuffer(channels, out.length, rate);
+    // per-channel OLA
+    const stretched = new Array(channels).fill(null).map(()=>new Float32Array(outLen));
     for(let ch=0; ch<channels; ch++){
-      if(ch===0){ buf2.getChannelData(0).set(out); }
-      else{
-        const srcCh = buffer.getChannelData(Math.min(ch, buffer.numberOfChannels-1));
-        const chArr = buf2.getChannelData(ch);
-        for(let i=0;i<out.length;i++){
-          const srcIdx = Math.min(srcCh.length-1, Math.floor(i*speedX));
-          chArr[i] = (srcCh[srcIdx] + out[i]) * 0.5;
+      const srcCh = buffer.getChannelData(ch);
+      let inPos = 0, outPos = 0;
+      while(inPos + grainSize < srcCh.length && outPos + grainSize < outLen){
+        for(let i=0;i<grainSize;i++){
+          stretched[ch][outPos + i] += srcCh[inPos + i] * win[i];
         }
+        inPos += hopIn;
+        outPos += hopOut;
       }
     }
 
-    const srcNode = off.createBufferSource(); srcNode.buffer = buf2;
-    const conv = off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, reverbPct/100));
-    const shelf = off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value = bassDb;
+    // build offline graph and apply FX + master gain
+    const off = new OfflineAudioContext(channels, outLen, rate);
+    const outBuf = off.createBuffer(channels, outLen, rate);
+    for(let ch=0; ch<channels; ch++) outBuf.getChannelData(ch).set(stretched[ch]);
 
-    const master = off.createGain(); master.gain.value = outGain.gain.value;
-    srcNode.connect(conv); conv.connect(shelf); shelf.connect(master); master.connect(off.destination);
-    srcNode.start();
-    const rendered = await off.startRendering();
-    return rendered;
+    const src = off.createBufferSource(); src.buffer = outBuf;
+    const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, rvPct/100));
+    const shelf=off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value=bassDb;
+    const g=off.createGain(); g.gain.value = gainLinear;
+
+    src.connect(conv); conv.connect(shelf); shelf.connect(g); g.connect(off.destination);
+    src.start();
+    return off.startRendering();
   }
 
-  function hann(n){
-    const w = new Float32Array(n);
-    for(let i=0;i<n;i++){ w[i] = 0.5*(1 - Math.cos(2*Math.PI*i/(n-1))); }
-    return w;
-  }
+  function hann(n){ const w=new Float32Array(n); for(let i=0;i<n;i++) w[i]=0.5*(1-Math.cos(2*Math.PI*i/(n-1))); return w; }
   function makeIR(offCtx, amt){
     const seconds = 1.8*amt+0.05, decay = 3*amt+0.5;
     const rate = offCtx.sampleRate, length = Math.max(1,(seconds*rate)|0);
     const ir = offCtx.createBuffer(2, length, rate);
     for(let ch=0; ch<2; ch++){
       const data = ir.getChannelData(ch);
-      for(let i=0;i<length;i++){
-        data[i] = (Math.random()*2-1) * Math.pow(1 - i/length, decay);
-      }
+      for(let i=0;i<length;i++){ data[i] = (Math.random()*2-1) * Math.pow(1 - i/length, decay); }
     }
     return ir;
   }
-
-  // WAV encoder
   function toWav(audBuf){
-    const numCh = audBuf.numberOfChannels, sr = audBuf.sampleRate, len = audBuf.length;
-    const interleaved = interleave(audBuf);
-    const bytesPerSample = 2;
-    const blockAlign = numCh * bytesPerSample;
-    const buffer = new ArrayBuffer(44 + interleaved.length*2);
-    const view = new DataView(buffer);
-
-    function writeString(off, str){ for(let i=0;i<str.length;i++) view.setUint8(off+i, str.charCodeAt(i)); }
-    function write16(off, val){ view.setUint16(off, val, true); }
-    function write32(off, val){ view.setUint32(off, val, true); }
-
-    writeString(0, 'RIFF');
-    write32(4, 36 + interleaved.length*2);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    write32(16, 16);
-    write16(20, 1);
-    write16(22, numCh);
-    write32(24, sr);
-    write32(28, sr * blockAlign);
-    write16(32, blockAlign);
-    write16(34, 16);
-    writeString(36, 'data');
-    write32(40, interleaved.length*2);
-
-    let offset = 44;
-    for(let i=0;i<interleaved.length;i++){
-      const s = Math.max(-1, Math.min(1, interleaved[i]));
-      view.setInt16(offset, s<0 ? s*0x8000 : s*0x7FFF, true);
-      offset += 2;
-    }
-    return new Blob([view], {type:'audio/wav'});
+    const numCh=audBuf.numberOfChannels, sr=audBuf.sampleRate, len=audBuf.length;
+    const inter=interleave(audBuf), bytesPerSample=2, blockAlign=numCh*bytesPerSample;
+    const buffer=new ArrayBuffer(44+inter.length*2), view=new DataView(buffer);
+    const W=(o,s)=>{for(let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i));};
+    const U16=(o,v)=>view.setUint16(o,v,true), U32=(o,v)=>view.setUint32(o,v,true);
+    W(0,'RIFF'); U32(4,36+inter.length*2); W(8,'WAVE'); W(12,'fmt '); U32(16,16); U16(20,1);
+    U16(22,numCh); U32(24,sr); U32(28,sr*blockAlign); U16(32,blockAlign); U16(34,16);
+    W(36,'data'); U32(40,inter.length*2);
+    let off=44; for(let i=0;i<inter.length;i++){ const s=Math.max(-1,Math.min(1,inter[i])); view.setInt16(off, s<0?s*0x8000:s*0x7FFF, true); off+=2; }
+    return new Blob([view],{type:'audio/wav'});
   }
-
   function interleave(buf){
-    const ch = [];
-    for(let i=0;i<buf.numberOfChannels;i++) ch.push(buf.getChannelData(i));
-    const len = buf.length;
-    const inter = new Float32Array(len * buf.numberOfChannels);
-    let idx = 0;
-    for(let i=0;i<len;i++){
-      for(let c=0;c<ch.length;c++){
-        inter[idx++] = ch[c][i];
-      }
-    }
+    const chs=[]; for(let i=0;i<buf.numberOfChannels;i++) chs.push(buf.getChannelData(i));
+    const inter=new Float32Array(buf.length*buf.numberOfChannels); let k=0;
+    for(let i=0;i<buf.length;i++) for(let c=0;c<chs.length;c++) inter[k++]=chs[c][i];
     return inter;
   }
 
-  downloadBtn.onclick = async ()=>{
-    if(!buf) return;
-    setStatus('Rendering (smooth)…');
-    downloadBtn.disabled = true;
-    try{
-      const rendered = await renderProcessed(buf, parseFloat(speed.value), parseInt(reverb.value), parseFloat(bass.value));
-      const wav = toWav(rendered);
-      const a = document.createElement('a');
-      const name = (fileMeta?.name||'audio').replace(/\.[^.]+$/,'');
-      a.href = URL.createObjectURL(wav);
-      a.download = `${name}_ngp-remix.wav`;
-      a.click();
-      setStatus('Done.');
-    }catch(e){
-      console.error(e); setStatus('Render failed');
-    }finally{
-      downloadBtn.disabled = false;
-    }
-  };
-
-  // Resize canvas on layout change
-  new ResizeObserver(()=>{
-    cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; drawWave(buf);
-  }).observe(wave);
-
-  // ===== secret little thing =====
-  let clicks = 0;
-  freeTag.addEventListener('click', ()=>{
-    clicks++;
-    if(clicks>=15){ unlockWrap.style.display='flex'; }
-  });
-
-  // toggle extended ranges
+  // Secret clicks → unlock
+  let clicks=0;
+  freeTag.addEventListener('click', ()=>{ clicks++; if(clicks>=15) unlockWrap.style.display='flex'; });
   function setUnlocked(on){
     if(on){
       speed.min='0.05'; speed.max='4'; speed.step='0.001';
-      reverb.min='0'; reverb.max='300'; reverb.step='1';
-      bass.min='-24'; bass.max='48'; bass.step='1';
-      gainSlider.min='-48'; gainSlider.max='48'; gainSlider.step='1';
+      reverb.max='300'; bass.min='-24'; bass.max='48';
+      gainSlider.min='-48'; gainSlider.max='48';
     }else{
       speed.min='0.5'; speed.max='1.5'; speed.step='0.01';
-      reverb.min='0'; reverb.max='100'; reverb.step='1';
-      bass.min='0'; bass.max='18'; bass.step='1';
-      gainSlider.min='-24'; gainSlider.max='24'; gainSlider.step='1';
+      reverb.max='100'; bass.min='0'; bass.max='18';
+      gainSlider.min='-24'; gainSlider.max='24';
     }
   }
-  unlockBox.addEventListener('change', e=> setUnlocked(e.target.checked));
+  unlockBox.addEventListener('change', e=>setUnlocked(e.target.checked));
   setUnlocked(false);
 </script>
 </body>
