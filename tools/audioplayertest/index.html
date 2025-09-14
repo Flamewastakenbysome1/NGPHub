@@ -49,7 +49,6 @@
   main{padding:28px 0 40px}
   .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
   .panel{
-    position:relative;
     background:var(--card); border:1px solid rgba(255,255,255,.06);
     border-radius:var(--radius); box-shadow:var(--shadow);
     overflow:hidden;
@@ -64,7 +63,7 @@
   .fileTitle{font-weight:600}
   .fileMeta{color:var(--muted); font-size:.85rem}
   .dots{opacity:.6}
-  .controls{padding:16px; padding-right:70px;} /* leave room for gain dock */
+  .controls{padding:16px}
   .knob{margin:14px 0}
   .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
   .knob small{color:var(--muted); margin-left:8px; font-weight:400}
@@ -80,7 +79,7 @@
     background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2);
     border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer;
   }
-  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px}
+  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; cursor:pointer; user-select:none}
   .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%);}
   .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
   .playerBar{
@@ -98,15 +97,17 @@
   .switch{display:inline-flex; align-items:center; gap:8px}
   .switch input{transform:scale(1.2)}
   @media (max-width:920px){ .grid{grid-template-columns:1fr} }
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !重要}}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 
-  /* Gain dock (right side vertical slider) */
-  .gainDock{
-    position:absolute; top:58px; right:10px; bottom:10px;
-    width:44px; display:flex; flex-direction:column; align-items:center; gap:6px;
+  /* Floating Gain (outside the box) */
+  .gainFloat{
+    position:fixed; right:10px; top:140px;
+    z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:10px 8px; border-radius:14px; background:rgba(21,21,27,.85); border:1px solid rgba(255,255,255,.09); box-shadow:var(--shadow);
+    backdrop-filter: blur(8px) saturate(140%);
   }
-  .gainDock .cap{font-size:.7rem; color:var(--muted)}
-  .gainDock input[type="range"]{
+  .gainFloat .cap{font-size:.7rem; color:var(--muted)}
+  .gainFloat input[type="range"]{
     writing-mode: bt-lr; /* IE */
     -webkit-appearance: slider-vertical;
     appearance: slider-vertical;
@@ -116,6 +117,10 @@
     font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2);
     background:rgba(255,255,255,.06);
   }
+
+  /* Hidden toggle (appears above tag when… who knows) */
+  .unlockWrap{display:none; align-items:center; gap:8px}
+  .unlockWrap label{font-size:.85rem; color:var(--muted)}
 </style>
 </head>
 <body>
@@ -136,13 +141,20 @@
 
 <main>
   <div class="wrap">
-    <div class="row" style="margin-bottom:12px; justify-content:space-between;">
+    <div class="row" style="margin-bottom:6px; justify-content:space-between;">
       <div class="row">
         <button id="addBtn" class="btnGhost">+ Add file</button>
         <button id="clearBtn" class="btnGhost">✕ Clear</button>
         <div class="pill" id="dlMenu"><span>Download</span></div>
       </div>
-      <span class="tag">No need to pay, straight from the browser!</span>
+
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px">
+        <div class="unlockWrap" id="unlockWrap">
+          <input type="checkbox" id="unlockBox" />
+          <label for="unlockBox">Extra range</label>
+        </div>
+        <span class="tag pill" id="freeTag">No need to pay, straight from the browser!</span>
+      </div>
     </div>
 
     <div class="grid">
@@ -165,6 +177,7 @@
             <span class="pill">Presets</span>
             <button class="btnGhost" data-preset="slowed">Slowed+Reverb</button>
             <button class="btnGhost" data-preset="nightcore">Nightcore</button>
+            <button class="btnGhost" data-preset="preection">Slowed to preection</button>
           </div>
 
           <div class="knob">
@@ -192,18 +205,18 @@
             <span class="tip">Tip: Download uses a smooth grain stretcher to avoid stutter.</span>
           </div>
         </div>
-
-        <!-- Audio Gain dock (right side) -->
-        <aside class="gainDock" aria-label="Output Gain">
-          <span class="cap">+24</span>
-          <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
-          <span class="cap">-24</span>
-          <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
-        </aside>
       </section>
     </div>
   </div>
 </main>
+
+<!-- Floating Gain (outside the editor box) -->
+<aside class="gainFloat" aria-label="Output Gain">
+  <span class="cap">+24</span>
+  <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
+  <span class="cap">-24</span>
+  <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
+</aside>
 
 <!-- Player bar -->
 <div class="playerBar">
@@ -236,6 +249,7 @@
   const speedLbl = $('speedLbl'), reverbLbl = $('reverbLbl'), bassLbl = $('bassLbl');
   const preserve = $('preserve'), currentName = $('currentName');
   const gainSlider = $('gainSlider'), gainLbl = $('gainLbl');
+  const freeTag = $('freeTag'), unlockWrap = $('unlockWrap'), unlockBox = $('unlockBox');
 
   // Audio graph
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -269,7 +283,6 @@
     s = Math.max(0, s|0); const m = (s/60)|0, r = s%60; return `${m}:${r.toString().padStart(2,'0')}`;
   };
   const dbToLinear = db => Math.pow(10, db/20);
-
   function setStatus(t){ statusEl.textContent = t; }
 
   // Waveform canvas
@@ -380,7 +393,7 @@
     makeListRow();
   };
 
-  // Output Gain (right dock)
+  // Output Gain (floating)
   function setGain(db){
     outGain.gain.value = dbToLinear(db);
     gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`;
@@ -411,6 +424,7 @@
       const p = btn.dataset.preset;
       if(p==='slowed'){ speed.value=0.7; reverb.value=45; bass.value=0; }
       if(p==='nightcore'){ speed.value=1.25; reverb.value=0; bass.value=0; }
+      if(p==='preection'){ speed.value=0.83; reverb.value=26; bass.value=10; }
       speed.oninput(); reverb.oninput(); bass.oninput();
     };
   });
@@ -455,7 +469,7 @@
     const conv = off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, reverbPct/100));
     const shelf = off.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140; shelf.gain.value = bassDb;
 
-    const master = off.createGain(); master.gain.value = outGain.gain.value; // use current UI gain
+    const master = off.createGain(); master.gain.value = outGain.gain.value;
     srcNode.connect(conv); conv.connect(shelf); shelf.connect(master); master.connect(off.destination);
     srcNode.start();
     const rendered = await off.startRendering();
@@ -554,6 +568,30 @@
   new ResizeObserver(()=>{
     cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; drawWave(buf);
   }).observe(wave);
+
+  // ===== secret little thing =====
+  let clicks = 0;
+  freeTag.addEventListener('click', ()=>{
+    clicks++;
+    if(clicks>=15){ unlockWrap.style.display='flex'; }
+  });
+
+  // toggle extended ranges
+  function setUnlocked(on){
+    if(on){
+      speed.min='0.05'; speed.max='4'; speed.step='0.001';
+      reverb.min='0'; reverb.max='300'; reverb.step='1';
+      bass.min='-24'; bass.max='48'; bass.step='1';
+      gainSlider.min='-48'; gainSlider.max='48'; gainSlider.step='1';
+    }else{
+      speed.min='0.5'; speed.max='1.5'; speed.step='0.01';
+      reverb.min='0'; reverb.max='100'; reverb.step='1';
+      bass.min='0'; bass.max='18'; bass.step='1';
+      gainSlider.min='-24'; gainSlider.max='24'; gainSlider.step='1';
+    }
+  }
+  unlockBox.addEventListener('change', e=> setUnlocked(e.target.checked));
+  setUnlocked(false);
 </script>
 </body>
 </html>
