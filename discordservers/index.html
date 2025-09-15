@@ -8,6 +8,9 @@
   <!-- Fonts to match site -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Favicon (tab bar icon) -->
+  <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
   <style>
     :root{
       --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
@@ -31,7 +34,7 @@
     }
     .bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0;}
     .logo{display:flex; align-items:center; gap:10px; color:var(--ink); text-decoration:none; font-weight:700}
-    .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+    .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
     nav{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
     nav a{color:var(--ink); text-decoration:none; padding:8px 10px; border-radius:10px; font-weight:600; opacity:.95}
     nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
@@ -57,7 +60,10 @@
 <body>
   <header>
     <div class="wrap bar">
-      <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"></span><span>NGP</span></a>
+      <a class="logo" href="/">
+        <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+        <h1>NGP</h1>
+      </a>
       <nav aria-label="Primary">
         <a href="/tools">Tools</a>
         <a href="/discordservers/">Servers</a>
