@@ -62,9 +62,11 @@
   
   .record-section{text-align:center; margin-bottom:32px}
   
+  .record-controls{display:flex; gap:16px; justify-content:center; align-items:center; margin-bottom:24px}
+  
   .record-btn{
     width:120px; height:120px; border-radius:50%; border:none; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+    display:flex; align-items:center; justify-content:center;
     font-size:2rem; transition:all 0.3s ease; position:relative; overflow:hidden;
   }
   
@@ -78,6 +80,14 @@
   }
   .record-btn:hover{transform:scale(1.05)}
   .record-btn:active{transform:scale(0.95)}
+  
+  .stop-btn{
+    width:60px; height:60px; border-radius:12px; border:none; cursor:pointer;
+    background:linear-gradient(135deg, #6b7280, #4b5563); color:white;
+    font-size:1.5rem; transition:all 0.3s ease; display:none;
+  }
+  .stop-btn.show{display:flex; align-items:center; justify-content:center}
+  .stop-btn:hover{transform:scale(1.05); background:linear-gradient(135deg, #4b5563, #374151)}
   
   @keyframes pulse{
     0%, 100%{opacity:1}
@@ -207,7 +217,10 @@
     
     <div class="recorder-container">
       <div class="record-section">
-        <button id="recordBtn" class="record-btn idle">🎤</button>
+        <div class="record-controls">
+          <button id="recordBtn" class="record-btn idle">🎤</button>
+          <button id="stopBtn" class="stop-btn">⏹️</button>
+        </div>
         <p id="status" class="status">Click to start recording</p>
         <div id="timer" class="timer">00:00</div>
         <div id="waveform" class="waveform" style="display:none">
@@ -219,6 +232,13 @@
         <div class="control-row">
           <button id="playBtn" class="btn btn-primary">▶️ Play Original</button>
           <button id="playEffectBtn" class="btn btn-secondary" disabled>🎭 Play with Effects</button>
+          <div class="format-selector">
+            <label for="formatSelect" style="color:var(--ink); margin-right:8px">Format:</label>
+            <select id="formatSelect" style="background:var(--card); color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px">
+              <option value="wav">WAV</option>
+              <option value="mp3">MP3</option>
+            </select>
+          </div>
           <button id="saveBtn" class="btn btn-success">💾 Save Recording</button>
         </div>
         
@@ -289,12 +309,14 @@ class VoiceRecorder {
   
   initializeElements() {
     this.recordBtn = document.getElementById('recordBtn');
+    this.stopBtn = document.getElementById('stopBtn');
     this.status = document.getElementById('status');
     this.timer = document.getElementById('timer');
     this.audioControls = document.getElementById('audioControls');
     this.playBtn = document.getElementById('playBtn');
     this.playEffectBtn = document.getElementById('playEffectBtn');
     this.saveBtn = document.getElementById('saveBtn');
+    this.formatSelect = document.getElementById('formatSelect');
     this.waveform = document.getElementById('waveform');
     this.waveformBars = document.getElementById('waveformBars');
     this.transcript = document.getElementById('transcript');
@@ -312,7 +334,8 @@ class VoiceRecorder {
   }
   
   initializeEventListeners() {
-    this.recordBtn.addEventListener('click', () => this.toggleRecording());
+    this.recordBtn.addEventListener('click', () => this.startRecording());
+    this.stopBtn.addEventListener('click', () => this.stopRecording());
     this.playBtn.addEventListener('click', () => this.playRecording());
     this.playEffectBtn.addEventListener('click', () => this.playWithEffects());
     this.saveBtn.addEventListener('click', () => this.saveRecording());
@@ -370,18 +393,20 @@ class VoiceRecorder {
     this.timerInterval = setTimeout(() => this.updateTimer(), 1000);
   }
   
-  async toggleRecording() {
-    if (this.isRecording) {
-      this.stopRecording();
-    } else {
-      await this.startRecording();
-    }
-  }
-  
   async startRecording() {
+    if (this.isRecording) return;
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      this.mediaRecorder = new MediaRecorder(stream);
+      
+      // Set the MIME type based on selected format
+      const selectedFormat = this.formatSelect.value;
+      const mimeType = selectedFormat === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+      
+      // Check if the selected format is supported
+      const options = MediaRecorder.isTypeSupported(mimeType) ? { mimeType } : {};
+      
+      this.mediaRecorder = new MediaRecorder(stream, options);
       this.audioChunks = [];
       
       this.mediaRecorder.ondataavailable = (event) => {
@@ -389,8 +414,11 @@ class VoiceRecorder {
       };
       
       this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+        const selectedFormat = this.formatSelect.value;
+        const mimeType = selectedFormat === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+        const audioBlob = new Blob(this.audioChunks, { type: mimeType });
         this.currentAudio = URL.createObjectURL(audioBlob);
+        this.currentFormat = selectedFormat;
         this.audioControls.classList.add('show');
         this.updateEffectButton();
       };
@@ -399,9 +427,10 @@ class VoiceRecorder {
       this.isRecording = true;
       this.startTime = Date.now();
       
-      this.recordBtn.className = 'record-btn recording';
-      this.recordBtn.textContent = '⏹️';
-      this.status.textContent = 'Recording... Click to stop';
+      this.recordBtn.disabled = true;
+      this.recordBtn.style.opacity = '0.5';
+      this.stopBtn.classList.add('show');
+      this.status.textContent = 'Recording... Click stop to finish';
       this.status.className = 'status recording';
       this.waveform.style.display = 'block';
       
@@ -422,8 +451,9 @@ class VoiceRecorder {
       this.isRecording = false;
       clearTimeout(this.timerInterval);
       
-      this.recordBtn.className = 'record-btn idle';
-      this.recordBtn.textContent = '🎤';
+      this.recordBtn.disabled = false;
+      this.recordBtn.style.opacity = '1';
+      this.stopBtn.classList.remove('show');
       this.status.textContent = 'Recording complete! Use the controls below';
       this.status.className = 'status';
       this.waveform.style.display = 'none';
@@ -518,11 +548,13 @@ class VoiceRecorder {
     
     const name = prompt('Enter a name for this recording:') || `Recording ${Date.now()}`;
     const timestamp = new Date().toLocaleString();
+    const format = this.currentFormat || 'wav';
     
     const recording = {
       id: Date.now(),
       name: name,
       timestamp: timestamp,
+      format: format,
       audioData: this.currentAudio,
       effects: {
         pitch: this.pitchSlider.value,
@@ -536,7 +568,7 @@ class VoiceRecorder {
     localStorage.setItem('ngp-recordings', JSON.stringify(this.recordings));
     this.displayRecordings();
     
-    alert('Recording saved successfully!');
+    alert(`Recording saved successfully as ${format.toUpperCase()}!`);
   }
   
   displayRecordings() {
@@ -551,7 +583,7 @@ class VoiceRecorder {
       <div class="recording-item">
         <div class="recording-info">
           <p class="recording-name">${recording.name}</p>
-          <p class="recording-meta">Saved on ${recording.timestamp}</p>
+          <p class="recording-meta">Saved on ${recording.timestamp} • ${(recording.format || 'wav').toUpperCase()}</p>
         </div>
         <div class="recording-actions">
           <button class="btn btn-primary" onclick="recorder.playRecordingById('${recording.id}')">▶️ Play</button>
@@ -575,7 +607,8 @@ class VoiceRecorder {
     if (recording) {
       const a = document.createElement('a');
       a.href = recording.audioData;
-      a.download = `${recording.name}.wav`;
+      const format = recording.format || 'wav';
+      a.download = `${recording.name}.${format}`;
       a.click();
     }
   }
