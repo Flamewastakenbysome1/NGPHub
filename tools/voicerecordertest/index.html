@@ -231,7 +231,9 @@
       <div id="audioControls" class="audio-controls">
         <div class="control-row">
           <button id="playBtn" class="btn btn-primary">▶️ Play Original</button>
+          <button id="pauseBtn" class="btn btn-secondary" disabled>⏸️ Pause</button>
           <button id="playEffectBtn" class="btn btn-secondary" disabled>🎭 Play with Effects</button>
+          <button id="pauseEffectBtn" class="btn btn-secondary" disabled>⏸️ Pause Effects</button>
           <div class="format-selector">
             <label for="formatSelect" style="color:var(--ink); margin-right:8px">Format:</label>
             <select id="formatSelect" style="background:var(--card); color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px">
@@ -298,6 +300,8 @@ class VoiceRecorder {
     this.startTime = 0;
     this.audioContext = null;
     this.currentAudio = null;
+    this.currentAudioElement = null;
+    this.currentEffectSource = null;
     this.recordings = JSON.parse(localStorage.getItem('ngp-recordings') || '[]');
     this.timerInterval = null;
     
@@ -314,7 +318,9 @@ class VoiceRecorder {
     this.timer = document.getElementById('timer');
     this.audioControls = document.getElementById('audioControls');
     this.playBtn = document.getElementById('playBtn');
+    this.pauseBtn = document.getElementById('pauseBtn');
     this.playEffectBtn = document.getElementById('playEffectBtn');
+    this.pauseEffectBtn = document.getElementById('pauseEffectBtn');
     this.saveBtn = document.getElementById('saveBtn');
     this.formatSelect = document.getElementById('formatSelect');
     this.waveform = document.getElementById('waveform');
@@ -337,7 +343,9 @@ class VoiceRecorder {
     this.recordBtn.addEventListener('click', () => this.startRecording());
     this.stopBtn.addEventListener('click', () => this.stopRecording());
     this.playBtn.addEventListener('click', () => this.playRecording());
+    this.pauseBtn.addEventListener('click', () => this.pauseRecording());
     this.playEffectBtn.addEventListener('click', () => this.playWithEffects());
+    this.pauseEffectBtn.addEventListener('click', () => this.pauseEffectPlayback());
     this.saveBtn.addEventListener('click', () => this.saveRecording());
     
     // Effect sliders
@@ -460,10 +468,54 @@ class VoiceRecorder {
     }
   }
   
+  stopAllAudio() {
+    // Stop original audio
+    if (this.currentAudioElement) {
+      this.currentAudioElement.pause();
+      this.currentAudioElement.currentTime = 0;
+      this.currentAudioElement = null;
+    }
+    
+    // Stop effect audio
+    if (this.currentEffectSource) {
+      this.currentEffectSource.stop();
+      this.currentEffectSource = null;
+    }
+    
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+    
+    // Reset button states
+    this.playBtn.textContent = '▶️ Play Original';
+    this.pauseBtn.disabled = true;
+    this.playEffectBtn.textContent = '🎭 Play with Effects';
+    this.pauseEffectBtn.disabled = true;
+  }
+  
   playRecording() {
-    if (this.currentAudio) {
-      const audio = new Audio(this.currentAudio);
-      audio.play();
+    if (!this.currentAudio) return;
+    
+    this.stopAllAudio();
+    
+    this.currentAudioElement = new Audio(this.currentAudio);
+    
+    this.currentAudioElement.addEventListener('ended', () => {
+      this.playBtn.textContent = '▶️ Play Original';
+      this.pauseBtn.disabled = true;
+    });
+    
+    this.currentAudioElement.play();
+    this.playBtn.textContent = '🔄 Playing...';
+    this.pauseBtn.disabled = false;
+  }
+  
+  pauseRecording() {
+    if (this.currentAudioElement) {
+      this.currentAudioElement.pause();
+      this.playBtn.textContent = '▶️ Continue';
+      this.pauseBtn.disabled = true;
     }
   }
   
@@ -480,25 +532,57 @@ class VoiceRecorder {
   async playWithEffects() {
     if (!this.currentAudio) return;
     
+    this.stopAllAudio();
+    
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const response = await fetch(this.currentAudio);
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
+      // Create a new buffer for pitch shifting
+      const pitchRatio = parseFloat(this.pitchSlider.value);
+      const speedRatio = parseFloat(this.speedSlider.value);
       
-      // Apply pitch and speed
-      source.playbackRate.value = parseFloat(this.speedSlider.value);
+      let processedBuffer = audioBuffer;
+      
+      // Apply pitch shifting by changing sample rate
+      if (pitchRatio !== 1) {
+        const newLength = Math.floor(audioBuffer.length / pitchRatio);
+        processedBuffer = this.audioContext.createBuffer(
+          audioBuffer.numberOfChannels,
+          newLength,
+          audioBuffer.sampleRate
+        );
+        
+        for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+          const inputData = audioBuffer.getChannelData(channel);
+          const outputData = processedBuffer.getChannelData(channel);
+          
+          for (let i = 0; i < newLength; i++) {
+            const index = i * pitchRatio;
+            const indexFloor = Math.floor(index);
+            const indexCeil = Math.min(indexFloor + 1, inputData.length - 1);
+            const fraction = index - indexFloor;
+            
+            outputData[i] = inputData[indexFloor] * (1 - fraction) + inputData[indexCeil] * fraction;
+          }
+        }
+      }
+      
+      const source = this.audioContext.createBufferSource();
+      source.buffer = processedBuffer;
+      
+      // Apply speed (playback rate)
+      source.playbackRate.value = speedRatio;
       
       // Create gain node for volume control
-      const gainNode = audioContext.createGain();
+      const gainNode = this.audioContext.createGain();
       
       // Simple distortion effect
       const distortionAmount = parseInt(this.distortionSlider.value);
       if (distortionAmount > 0) {
-        const waveshaper = audioContext.createWaveShaper();
+        const waveshaper = this.audioContext.createWaveShaper();
         waveshaper.curve = this.makeDistortionCurve(distortionAmount);
         source.connect(waveshaper);
         waveshaper.connect(gainNode);
@@ -509,24 +593,49 @@ class VoiceRecorder {
       // Simple reverb effect using delay
       const reverbAmount = parseInt(this.reverbSlider.value);
       if (reverbAmount > 0) {
-        const delay = audioContext.createDelay();
+        const delay = this.audioContext.createDelay();
         delay.delayTime.value = 0.1;
-        const feedback = audioContext.createGain();
+        const feedback = this.audioContext.createGain();
         feedback.gain.value = reverbAmount / 100;
         
         gainNode.connect(delay);
         delay.connect(feedback);
         feedback.connect(delay);
-        delay.connect(audioContext.destination);
+        delay.connect(this.audioContext.destination);
       }
       
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(this.audioContext.destination);
+      
+      source.addEventListener('ended', () => {
+        this.playEffectBtn.textContent = '🎭 Play with Effects';
+        this.pauseEffectBtn.disabled = true;
+        this.currentEffectSource = null;
+      });
+      
+      this.currentEffectSource = source;
       source.start();
+      
+      this.playEffectBtn.textContent = '🔄 Playing Effects...';
+      this.pauseEffectBtn.disabled = false;
       
     } catch (err) {
       console.error('Error applying effects:', err);
-      // Fallback to normal playback
+      alert('Error applying effects. Playing original audio instead.');
       this.playRecording();
+    }
+  }
+  
+  pauseEffectPlayback() {
+    if (this.currentEffectSource) {
+      this.currentEffectSource.stop();
+      this.currentEffectSource = null;
+      this.playEffectBtn.textContent = '🎭 Play with Effects';
+      this.pauseEffectBtn.disabled = true;
+      
+      if (this.audioContext) {
+        this.audioContext.close();
+        this.audioContext = null;
+      }
     }
   }
   
@@ -597,6 +706,7 @@ class VoiceRecorder {
   playRecordingById(id) {
     const recording = this.recordings.find(r => r.id.toString() === id);
     if (recording) {
+      this.stopAllAudio();
       const audio = new Audio(recording.audioData);
       audio.play();
     }
