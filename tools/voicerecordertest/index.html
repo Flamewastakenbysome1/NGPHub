@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Voice Recorder</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<!-- Favicon (tab bar icon) -->
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+  
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+  
+  /* Main Content */
+  main{padding:32px 0; min-height:calc(100vh - 140px)}
+  
+  .page-header{text-align:center; margin-bottom:48px}
+  .page-header h1{
+    font-size:2.5rem; font-weight:700; margin:0 0 16px;
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .page-header p{color:var(--muted); font-size:1.1rem; margin:0}
+  
+  .recorder-container{
+    background:var(--card); border-radius:var(--radius); padding:32px;
+    box-shadow:var(--shadow); margin-bottom:32px;
+  }
+  
+  .record-section{text-align:center; margin-bottom:32px}
+  
+  .record-btn{
+    width:120px; height:120px; border-radius:50%; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+    font-size:2rem; transition:all 0.3s ease; position:relative; overflow:hidden;
+  }
+  
+  .record-btn.idle{
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    box-shadow:var(--shadow);
+  }
+  .record-btn.recording{
+    background:linear-gradient(135deg, var(--danger), #dc2626);
+    animation:pulse 1.5s infinite;
+  }
+  .record-btn:hover{transform:scale(1.05)}
+  .record-btn:active{transform:scale(0.95)}
+  
+  @keyframes pulse{
+    0%, 100%{opacity:1}
+    50%{opacity:0.7}
+  }
+  
+  .status{font-size:1.1rem; margin:0; color:var(--muted)}
+  .status.recording{color:var(--danger)}
+  .timer{font-size:2rem; font-weight:700; margin:16px 0; color:var(--ink)}
+  
+  .audio-controls{
+    display:none; background:rgba(255,255,255,.03); border-radius:12px;
+    padding:24px; margin-top:24px; text-align:left;
+  }
+  .audio-controls.show{display:block}
+  
+  .control-row{display:flex; align-items:center; gap:16px; margin-bottom:16px; flex-wrap:wrap}
+  .control-row:last-child{margin-bottom:0}
+  
+  .btn{
+    padding:10px 20px; border:none; border-radius:10px; cursor:pointer;
+    font-weight:500; transition:all 0.2s ease; text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:linear-gradient(135deg, var(--brandA), var(--brandB)); color:white}
+  .btn-secondary{background:rgba(255,255,255,.1); color:var(--ink)}
+  .btn-success{background:var(--success); color:white}
+  .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:0.5; cursor:not-allowed; transform:none}
+  
+  .effect-controls{margin-top:24px}
+  .effect-controls h3{margin:0 0 16px; color:var(--ink)}
+  
+  .effect-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px}
+  .effect-item{background:rgba(255,255,255,.05); border-radius:10px; padding:16px}
+  .effect-item label{display:block; margin-bottom:8px; font-weight:500; color:var(--ink)}
+  .effect-item input[type="range"]{
+    width:100%; height:6px; border-radius:3px; background:rgba(255,255,255,.1);
+    -webkit-appearance:none; appearance:none; outline:none;
+  }
+  .effect-item input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:16px; height:16px;
+    border-radius:50%; background:var(--line); cursor:pointer;
+  }
+  .effect-item input[type="range"]::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%; background:var(--line);
+    cursor:pointer; border:none;
+  }
+  
+  .transcript-section{
+    background:var(--card); border-radius:var(--radius); padding:24px;
+    box-shadow:var(--shadow); margin-bottom:32px;
+  }
+  .transcript-section h2{margin:0 0 16px; color:var(--ink)}
+  .transcript-area{
+    width:100%; min-height:120px; background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:16px;
+    color:var(--ink); font-family:inherit; resize:vertical;
+  }
+  .transcript-area:focus{outline:none; border-color:var(--line); box-shadow:var(--ring)}
+  
+  .recordings-list{
+    background:var(--card); border-radius:var(--radius); padding:24px;
+    box-shadow:var(--shadow);
+  }
+  .recordings-list h2{margin:0 0 16px; color:var(--ink)}
+  .recording-item{
+    background:rgba(255,255,255,.03); border-radius:10px; padding:16px;
+    margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:12px;
+  }
+  .recording-item:last-child{margin-bottom:0}
+  .recording-info{flex:1; min-width:200px}
+  .recording-name{font-weight:500; color:var(--ink); margin:0 0 4px}
+  .recording-meta{color:var(--muted); font-size:0.9rem; margin:0}
+  .recording-actions{display:flex; gap:8px; flex-wrap:wrap}
+  
+  .waveform{
+    height:60px; background:rgba(255,255,255,.03); border-radius:8px;
+    margin:12px 0; position:relative; overflow:hidden;
+  }
+  .waveform-bars{
+    display:flex; align-items:end; height:100%; padding:8px; gap:2px;
+  }
+  .waveform-bar{
+    flex:1; background:var(--line); border-radius:1px; min-height:4px;
+    transition:height 0.1s ease; opacity:0.7;
+  }
+  
+  /* Footer */
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+  
+  @media (max-width: 768px){
+    .control-row{flex-direction:column; align-items:stretch}
+    .recording-item{flex-direction:column; align-items:stretch}
+    .recording-actions{justify-content:center}
+  }
+  
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="page-header">
+      <h1>Voice Recorder</h1>
+      <p>Record your voice, apply effects, and save your creations</p>
+    </div>
+    
+    <div class="recorder-container">
+      <div class="record-section">
+        <button id="recordBtn" class="record-btn idle">🎤</button>
+        <p id="status" class="status">Click to start recording</p>
+        <div id="timer" class="timer">00:00</div>
+        <div id="waveform" class="waveform" style="display:none">
+          <div class="waveform-bars" id="waveformBars"></div>
+        </div>
+      </div>
+      
+      <div id="audioControls" class="audio-controls">
+        <div class="control-row">
+          <button id="playBtn" class="btn btn-primary">▶️ Play Original</button>
+          <button id="playEffectBtn" class="btn btn-secondary" disabled>🎭 Play with Effects</button>
+          <button id="saveBtn" class="btn btn-success">💾 Save Recording</button>
+        </div>
+        
+        <div class="effect-controls">
+          <h3>Audio Effects</h3>
+          <div class="effect-grid">
+            <div class="effect-item">
+              <label for="pitchSlider">Pitch: <span id="pitchValue">1.0</span></label>
+              <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <div class="effect-item">
+              <label for="speedSlider">Speed: <span id="speedValue">1.0</span></label>
+              <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <div class="effect-item">
+              <label for="reverbSlider">Reverb: <span id="reverbValue">0</span></label>
+              <input type="range" id="reverbSlider" min="0" max="100" step="10" value="0">
+            </div>
+            <div class="effect-item">
+              <label for="distortionSlider">Distortion: <span id="distortionValue">0</span></label>
+              <input type="range" id="distortionSlider" min="0" max="50" step="5" value="0">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="transcript-section">
+      <h2>📝 Transcript</h2>
+      <p style="color:var(--muted); margin-bottom:16px">Write or paste your script here to read from:</p>
+      <textarea id="transcript" class="transcript-area" placeholder="Enter your script here... You can read from this while recording!"></textarea>
+    </div>
+    
+    <div class="recordings-list">
+      <h2>🎵 Saved Recordings</h2>
+      <div id="recordingsList">
+        <p style="color:var(--muted); text-align:center; margin:32px 0">No recordings yet. Start recording to see them here!</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+class VoiceRecorder {
+  constructor() {
+    this.mediaRecorder = null;
+    this.audioChunks = [];
+    this.isRecording = false;
+    this.startTime = 0;
+    this.audioContext = null;
+    this.currentAudio = null;
+    this.recordings = JSON.parse(localStorage.getItem('ngp-recordings') || '[]');
+    this.timerInterval = null;
+    
+    this.initializeElements();
+    this.initializeEventListeners();
+    this.displayRecordings();
+    this.createWaveformBars();
+  }
+  
+  initializeElements() {
+    this.recordBtn = document.getElementById('recordBtn');
+    this.status = document.getElementById('status');
+    this.timer = document.getElementById('timer');
+    this.audioControls = document.getElementById('audioControls');
+    this.playBtn = document.getElementById('playBtn');
+    this.playEffectBtn = document.getElementById('playEffectBtn');
+    this.saveBtn = document.getElementById('saveBtn');
+    this.waveform = document.getElementById('waveform');
+    this.waveformBars = document.getElementById('waveformBars');
+    this.transcript = document.getElementById('transcript');
+    
+    // Effect controls
+    this.pitchSlider = document.getElementById('pitchSlider');
+    this.speedSlider = document.getElementById('speedSlider');
+    this.reverbSlider = document.getElementById('reverbSlider');
+    this.distortionSlider = document.getElementById('distortionSlider');
+    
+    this.pitchValue = document.getElementById('pitchValue');
+    this.speedValue = document.getElementById('speedValue');
+    this.reverbValue = document.getElementById('reverbValue');
+    this.distortionValue = document.getElementById('distortionValue');
+  }
+  
+  initializeEventListeners() {
+    this.recordBtn.addEventListener('click', () => this.toggleRecording());
+    this.playBtn.addEventListener('click', () => this.playRecording());
+    this.playEffectBtn.addEventListener('click', () => this.playWithEffects());
+    this.saveBtn.addEventListener('click', () => this.saveRecording());
+    
+    // Effect sliders
+    this.pitchSlider.addEventListener('input', (e) => {
+      this.pitchValue.textContent = e.target.value;
+      this.updateEffectButton();
+    });
+    
+    this.speedSlider.addEventListener('input', (e) => {
+      this.speedValue.textContent = e.target.value;
+      this.updateEffectButton();
+    });
+    
+    this.reverbSlider.addEventListener('input', (e) => {
+      this.reverbValue.textContent = e.target.value;
+      this.updateEffectButton();
+    });
+    
+    this.distortionSlider.addEventListener('input', (e) => {
+      this.distortionValue.textContent = e.target.value;
+      this.updateEffectButton();
+    });
+  }
+  
+  createWaveformBars() {
+    for (let i = 0; i < 50; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'waveform-bar';
+      this.waveformBars.appendChild(bar);
+    }
+  }
+  
+  animateWaveform() {
+    if (!this.isRecording) return;
+    
+    const bars = this.waveformBars.children;
+    for (let i = 0; i < bars.length; i++) {
+      const height = Math.random() * 40 + 4;
+      bars[i].style.height = height + 'px';
+    }
+    
+    setTimeout(() => this.animateWaveform(), 100);
+  }
+  
+  updateTimer() {
+    if (!this.isRecording) return;
+    
+    const elapsed = Date.now() - this.startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    this.timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    this.timerInterval = setTimeout(() => this.updateTimer(), 1000);
+  }
+  
+  async toggleRecording() {
+    if (this.isRecording) {
+      this.stopRecording();
+    } else {
+      await this.startRecording();
+    }
+  }
+  
+  async startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.audioChunks = [];
+      
+      this.mediaRecorder.ondataavailable = (event) => {
+        this.audioChunks.push(event.data);
+      };
+      
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+        this.currentAudio = URL.createObjectURL(audioBlob);
+        this.audioControls.classList.add('show');
+        this.updateEffectButton();
+      };
+      
+      this.mediaRecorder.start();
+      this.isRecording = true;
+      this.startTime = Date.now();
+      
+      this.recordBtn.className = 'record-btn recording';
+      this.recordBtn.textContent = '⏹️';
+      this.status.textContent = 'Recording... Click to stop';
+      this.status.className = 'status recording';
+      this.waveform.style.display = 'block';
+      
+      this.updateTimer();
+      this.animateWaveform();
+      
+    } catch (err) {
+      alert('Could not access microphone. Please check your permissions.');
+      console.error('Error accessing microphone:', err);
+    }
+  }
+  
+  stopRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      
+      this.isRecording = false;
+      clearTimeout(this.timerInterval);
+      
+      this.recordBtn.className = 'record-btn idle';
+      this.recordBtn.textContent = '🎤';
+      this.status.textContent = 'Recording complete! Use the controls below';
+      this.status.className = 'status';
+      this.waveform.style.display = 'none';
+    }
+  }
+  
+  playRecording() {
+    if (this.currentAudio) {
+      const audio = new Audio(this.currentAudio);
+      audio.play();
+    }
+  }
+  
+  updateEffectButton() {
+    const hasEffects = this.pitchSlider.value != 1 || 
+                      this.speedSlider.value != 1 || 
+                      this.reverbSlider.value != 0 || 
+                      this.distortionSlider.value != 0;
+    
+    this.playEffectBtn.disabled = !this.currentAudio;
+    this.playEffectBtn.textContent = hasEffects ? '🎭 Play with Effects' : '🎭 No Effects Applied';
+  }
+  
+  async playWithEffects() {
+    if (!this.currentAudio) return;
+    
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const response = await fetch(this.currentAudio);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      
+      // Apply pitch and speed
+      source.playbackRate.value = parseFloat(this.speedSlider.value);
+      
+      // Create gain node for volume control
+      const gainNode = audioContext.createGain();
+      
+      // Simple distortion effect
+      const distortionAmount = parseInt(this.distortionSlider.value);
+      if (distortionAmount > 0) {
+        const waveshaper = audioContext.createWaveShaper();
+        waveshaper.curve = this.makeDistortionCurve(distortionAmount);
+        source.connect(waveshaper);
+        waveshaper.connect(gainNode);
+      } else {
+        source.connect(gainNode);
+      }
+      
+      // Simple reverb effect using delay
+      const reverbAmount = parseInt(this.reverbSlider.value);
+      if (reverbAmount > 0) {
+        const delay = audioContext.createDelay();
+        delay.delayTime.value = 0.1;
+        const feedback = audioContext.createGain();
+        feedback.gain.value = reverbAmount / 100;
+        
+        gainNode.connect(delay);
+        delay.connect(feedback);
+        feedback.connect(delay);
+        delay.connect(audioContext.destination);
+      }
+      
+      gainNode.connect(audioContext.destination);
+      source.start();
+      
+    } catch (err) {
+      console.error('Error applying effects:', err);
+      // Fallback to normal playback
+      this.playRecording();
+    }
+  }
+  
+  makeDistortionCurve(amount) {
+    const samples = 44100;
+    const curve = new Float32Array(samples);
+    const deg = Math.PI / 180;
+    
+    for (let i = 0; i < samples; i++) {
+      const x = (i * 2) / samples - 1;
+      curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+    }
+    
+    return curve;
+  }
+  
+  saveRecording() {
+    if (!this.currentAudio) return;
+    
+    const name = prompt('Enter a name for this recording:') || `Recording ${Date.now()}`;
+    const timestamp = new Date().toLocaleString();
+    
+    const recording = {
+      id: Date.now(),
+      name: name,
+      timestamp: timestamp,
+      audioData: this.currentAudio,
+      effects: {
+        pitch: this.pitchSlider.value,
+        speed: this.speedSlider.value,
+        reverb: this.reverbSlider.value,
+        distortion: this.distortionSlider.value
+      }
+    };
+    
+    this.recordings.unshift(recording);
+    localStorage.setItem('ngp-recordings', JSON.stringify(this.recordings));
+    this.displayRecordings();
+    
+    alert('Recording saved successfully!');
+  }
+  
+  displayRecordings() {
+    const container = document.getElementById('recordingsList');
+    
+    if (this.recordings.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted); text-align:center; margin:32px 0">No recordings yet. Start recording to see them here!</p>';
+      return;
+    }
+    
+    container.innerHTML = this.recordings.map(recording => `
+      <div class="recording-item">
+        <div class="recording-info">
+          <p class="recording-name">${recording.name}</p>
+          <p class="recording-meta">Saved on ${recording.timestamp}</p>
+        </div>
+        <div class="recording-actions">
+          <button class="btn btn-primary" onclick="recorder.playRecordingById('${recording.id}')">▶️ Play</button>
+          <button class="btn btn-secondary" onclick="recorder.downloadRecording('${recording.id}')">⬇️ Download</button>
+          <button class="btn" style="background:var(--danger); color:white" onclick="recorder.deleteRecording('${recording.id}')">🗑️ Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  playRecordingById(id) {
+    const recording = this.recordings.find(r => r.id.toString() === id);
+    if (recording) {
+      const audio = new Audio(recording.audioData);
+      audio.play();
+    }
+  }
+  
+  downloadRecording(id) {
+    const recording = this.recordings.find(r => r.id.toString() === id);
+    if (recording) {
+      const a = document.createElement('a');
+      a.href = recording.audioData;
+      a.download = `${recording.name}.wav`;
+      a.click();
+    }
+  }
+  
+  deleteRecording(id) {
+    if (confirm('Are you sure you want to delete this recording?')) {
+      this.recordings = this.recordings.filter(r => r.id.toString() !== id);
+      localStorage.setItem('ngp-recordings', JSON.stringify(this.recordings));
+      this.displayRecordings();
+    }
+  }
+}
+
+// Initialize the voice recorder
+const recorder = new VoiceRecorder();
+</script>
+</body>
+</html>
