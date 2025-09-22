@@ -3,568 +3,74 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (Beta)</title>
+<title>NGP — Not 404, page found.</title>
 
+<!-- Fonts (same as site) -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
-<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/Webfonts/open-dyslexic.css" rel="stylesheet">
+
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
     --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
-    --ring:0 0 0 .2rem rgba(37,117,252,.35);
     --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
     margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
-    color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; scroll-behavior:smooth;
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    display:flex; align-items:center; justify-content:center; padding:24px;
   }
-  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
-
-  header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
-    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06)}
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
-  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
-  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
-  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
-  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
-  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
-
-  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
-
-  main{padding:28px 0 40px}
-  .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
-  .panel{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
-  .panel h2{margin:0; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); font-size:1rem}
-  .list{max-height:420px; overflow:auto}
-  .fileRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05)}
-  .fileRow.muted{color:var(--muted)}
-  .fileTitle{font-weight:600}
-  .fileMeta{color:var(--muted); font-size:.85rem}
-  .controls{padding:16px}
-  .knob{margin:14px 0}
-  .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
-  .knob small{color:var(--muted); margin-left:8px; font-weight:400}
-  input[type="range"]{width:100%}
-  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .btn{background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
-  .btn:disabled{opacity:.5; cursor:not-allowed}
-  .btnGhost{background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer}
-  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none; cursor:pointer}
-  .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%)}
-  .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
-  .playerBar{position:sticky; bottom:0; left:0; right:0; background:rgba(10,10,14,.8); backdrop-filter:saturate(140%) blur(10px); border-top:1px solid rgba(255,255,255,.08)}
-  .playerInner{max-width:1024px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px}
-  .play{width:42px; height:42px; border-radius:999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer}
-  .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
-  .grow{flex:1}
-  .muted{color:var(--muted)}
-  .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff; cursor:pointer}
-  .unlockWrap{display:none; align-items:center; gap:8px}
-  .unlockWrap label{font-size:.85rem; color:var(--muted)}
-
-  /* Floating Gain (outside) */
-  .gainFloat{
-    position:fixed; right:10px; top:140px; z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
-    padding:10px 8px; border-radius:14px; background:rgba(21,21,27,.85); border:1px solid rgba(255,255,255,.09); box-shadow:var(--shadow);
-    backdrop-filter: blur(8px) saturate(140%);
+  .readable body{font-family:'OpenDyslexic','Rubik',system-ui,sans-serif}
+  .wrap{max-width:820px; width:100%}
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:28px; text-align:center;
   }
-  .gainFloat .cap{font-size:.7rem; color:var(--muted)}
-  .gainFloat input[type="range"]{
-    writing-mode: bt-lr; -webkit-appearance: slider-vertical; appearance: slider-vertical;
-    width: 44px; height: 260px;
+  h1{font-size:clamp(32px,6vw,56px); margin:0 0 10px}
+  p{color:var(--muted); margin:8px 0 18px; line-height:1.6}
+  .tag{
+    display:inline-block; margin-bottom:14px; font-size:.95rem; color:#e8e8ff;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    padding:8px 14px; border-radius:999px;
   }
-  .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
-
-  @media (max-width:920px){ .grid{grid-template-columns:1fr} }
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+  .buttons{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:10px}
+  a.btn{
+    display:inline-block; text-decoration:none; color:white; font-weight:600;
+    padding:12px 16px; border-radius:12px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:1px solid rgba(255,255,255,.18);
+  }
+  a.btn.ghost{background:transparent}
+  .hint{font-size:.9rem; color:#aeb1bf; margin-top:12px}
+  .code{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background:#0f1016; border:1px solid rgba(255,255,255,.08);
+    padding:6px 8px; border-radius:8px; display:inline-block;
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap bar">
-    <a class="logo" href="/">
-      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
-      <h1>NGP</h1>
-    </a>
-    <nav aria-label="Primary">
-      <a href="/tools">Tools</a><a href="/discordservers/">Servers</a><a href="/projects">Projects</a>
-      <a href="/docs/">Docs</a><a href="/roblox">Roblox</a><a href="/contact">Contact</a>
-    </nav>
-  </div>
-</header>
-
-<main>
   <div class="wrap">
-    <div class="row" style="margin-bottom:6px; justify-content:space-between;">
-      <div class="row">
-        <button id="addBtn" class="btnGhost">+ Add file</button>
-        <button id="clearBtn" class="btnGhost">✕ Clear</button>
+    <div class="card">
+      <span class="tag">NGP — Alpha</span>
+      <h1>Not 404: Page Found</h1>
+      <p>this page has been moved too another page B)</p>
+      <div class="buttons">
+        <a class="btn" href="/">⬅ Back to Home D:</a>
+        <a class="btn ghost" href="/tools/audioeditor">Go To Updated Page</a>
       </div>
-
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px">
-        <div class="unlockWrap" id="unlockWrap">
-          <input type="checkbox" id="unlockBox" />
-          <label for="unlockBox">Extra range</label>
-        </div>
-        <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- Files -->
-      <section class="panel" aria-label="Files">
-        <h2>Files</h2>
-        <div class="list" id="fileList">
-          <div class="fileRow muted">No file yet. Click “Add file”.</div>
-        </div>
-      </section>
-
-      <!-- Editor -->
-      <section class="panel" aria-label="Editor">
-        <h2 id="currentName">—</h2>
-        <div class="wave" id="wave"></div>
-        <div class="timeline"><span id="tStart">0:00</span><span id="tEnd">0:00</span></div>
-
-        <div class="controls">
-          <div class="row" style="gap:12px;">
-            <span class="pill">Presets</span>
-            <button class="btnGhost" data-preset="slowed">Slowed+Reverb</button>
-            <button class="btnGhost" data-preset="nightcore">Nightcore</button>
-            <button class="btnGhost" data-preset="perfection">Slowed to Perfection</button>
-          </div>
-
-          <div class="knob">
-            <label>Speed <small id="speedLbl">(1.00×)</small></label>
-            <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
-            <div class="row" style="margin-top:6px;">
-              <input type="checkbox" id="preserve" />
-              <label for="preserve" class="muted">Smooth time-stretch</label>
-            </div>
-          </div>
-
-          <div class="knob">
-            <label>Reverb <small id="reverbLbl">(0%)</small></label>
-            <input type="range" id="reverb" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Bass boost <small id="bassLbl">(0 dB)</small></label>
-            <input type="range" id="bass" min="0" max="18" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Muffle <small id="muffleLbl">(0%)</small></label>
-            <input type="range" id="muffle" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Echo <small id="echoLbl">(0%)</small></label>
-            <input type="range" id="echo" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="row" style="margin-top:10px">
-            <button id="downloadBtn" class="btn" disabled>Download (beta may not turn out the same screen rec ig)</button>
-            <button id="trimBtn" class="btnGhost" disabled>Export selection (coming soon)</button>
-            <span class="muted" id="status">Ready</span>
-          </div>
-        </div>
-      </section>
+      <p class="hint">Tried: <span class="code" id="path"></span></p>
     </div>
   </div>
-</main>
-
-<!-- Floating Gain -->
-<aside class="gainFloat" aria-label="Output Gain">
-  <span class="cap">+24</span>
-  <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
-  <span class="cap">-24</span>
-  <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
-</aside>
-
-<div class="playerBar">
-  <div class="playerInner">
-    <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
-    <div class="time" id="curTime">0:00</div>
-    <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
-    <div class="time" id="durTime">0:00</div>
-  </div>
-</div>
-
-<footer>
-  <div class="wrap"><small>© <span id="year"></span> NGP — Alpha.</small></div>
-</footer>
-
-<input type="file" id="fileInput" accept="audio/*" hidden />
 
 <script>
-(() => {
-  // ===== Grab UI =====
-  const $ = id => document.getElementById(id);
-  $('year').textContent = new Date().getFullYear();
-  const addBtn=$('addBtn'), clearBtn=$('clearBtn'), fileInput=$('fileInput');
-  const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
-  const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
-  const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
-  const speed=$('speed'), reverb=$('reverb'), bass=$('bass');
-  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl');
-  const muffle=$('muffle'), muffleLbl=$('muffleLbl');
-  const echo=$('echo'), echoLbl=$('echoLbl');
-  const preserve=$('preserve'), currentName=$('currentName');
-  const gainSlider=$('gainSlider'), gainLbl=$('gainLbl');
-  const freeTag=$('freeTag'), unlockWrap=$('unlockWrap'), unlockBox=$('unlockBox');
-
-  // ===== Audio =====
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let src=null, buf=null, playing=false, startAt=0, started=0;
-
-  // Nodes
-  const muffleLP = ctx.createBiquadFilter(); muffleLP.type='lowpass'; muffleLP.Q.value = 0.7;
-  const convolver = ctx.createConvolver();
-  const shelf = ctx.createBiquadFilter(); shelf.type='lowshelf'; shelf.frequency.value=140;
-  const dryGain = ctx.createGain(); dryGain.gain.value = 1;
-
-  // Echo network
-  const delay = ctx.createDelay(2.0);           // up to 2s
-  const feedback = ctx.createGain(); feedback.gain.value = 0;
-  const echoWet = ctx.createGain(); echoWet.gain.value = 0; // mix
-
-  // Connect echo loop
-  delay.connect(feedback).connect(delay);       // feedback loop
-
-  // Master
-  const outGain = ctx.createGain(); outGain.gain.value=1;
-
-  // Wire main graph: src -> muffle -> reverb -> bass -> [dry & echo] -> master -> speakers
-  muffleLP.connect(convolver);
-  convolver.connect(shelf);
-  shelf.connect(dryGain);                       // dry branch
-  shelf.connect(delay);                         // echo branch in
-  delay.connect(echoWet);
-
-  dryGain.connect(outGain);
-  echoWet.connect(outGain);
-  outGain.connect(ctx.destination);
-
-  // Defaults
-  convolver.buffer = makeImpulseRT(0.0001); // near-dry start
-
-  function connectSource(){
-    if(!buf) return;
-    if(src){ try{src.stop()}catch{}; src.disconnect(); }
-    src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.playbackRate.value = parseFloat(speed.value);
-    src.connect(muffleLP);
-    src.onended = ()=>{ playing=false; playBtn.textContent='▶'; };
-  }
-
-  // ===== Helpers =====
-  const fmt = s => { s=Math.max(0, s|0); const m=(s/60)|0, r=s%60; return `${m}:${r.toString().padStart(2,'0')}`; };
-  const dbToLinear = db => Math.pow(10, db/20);
-  function setStatus(t){ if(statusEl) statusEl.textContent=t; }
-  const isUnlocked = () => !!(unlockBox && unlockBox.checked);
-
-  // Gain
-  function setGain(db){ outGain.gain.value = dbToLinear(db); gainLbl.textContent = `Gain ${db>0?'+':''}${db} dB`; }
-  gainSlider.oninput = ()=> setGain(parseInt(gainSlider.value));
-  setGain(0);
-
-  // Muffle mapping (lowpass cutoff)
-  function cutoffFromMuffle(val){
-    const maxHz = 20000;
-    const minHz = isUnlocked() ? 60 : 300;  // extra muffle when unlocked
-    const t = Math.max(0, Math.min(isUnlocked()?2:1, val/100)); // 0..1 (or 0..2 unlocked)
-    return maxHz * Math.pow(minHz/maxHz, t);
-  }
-  function updateMuffle(){
-    muffleLbl.textContent = `(${muffle.value}%)`;
-    muffleLP.frequency.value = cutoffFromMuffle(Number(muffle.value));
-  }
-
-  // Echo mapping
-  function echoParams(val){
-    const t = Math.max(0, Math.min(isUnlocked()?2:1, val/100));
-    const delayTime = 0.08 + (isUnlocked()?1.2:0.42) * t;   // 80ms → 1.28s (unlocked) or 0.5s
-    const fb = Math.min(0.95, (isUnlocked()?0.95:0.85) * t);
-    const wet = Math.min(1.2, (isUnlocked()?1.2:0.8) * t);  // mix gain
-    return { delayTime, fb, wet };
-  }
-  function updateEcho(){
-    echoLbl.textContent = `(${echo.value}%)`;
-    const p = echoParams(Number(echo.value));
-    delay.delayTime.value = Math.min( (delay.delayTime.maxValue||2.0), p.delayTime );
-    feedback.gain.value = p.fb;
-    echoWet.gain.value = p.wet;
-  }
-
-  // Waveform
-  const cvs = document.createElement('canvas'); cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; wave.appendChild(cvs);
-  const c2 = cvs.getContext('2d');
-  function drawWave(abuf){
-    c2.clearRect(0,0,cvs.width,cvs.height);
-    if(!abuf) return;
-    const ch = abuf.getChannelData(0);
-    const step = Math.max(1, Math.floor(ch.length / cvs.width));
-    const mid = cvs.height/2; c2.fillStyle='rgba(255,255,255,.9)';
-    for(let x=0;x<cvs.width;x++){
-      let min=1,max=-1, i0=x*step;
-      for(let i=i0;i<i0+step && i<ch.length;i++){ const v=ch[i]; if(v<min)min=v; if(v>max)max=v; }
-      c2.fillRect(x, mid + min*mid, 1, Math.max(1,(max-min)*mid));
-    }
-  }
-  new ResizeObserver(()=>{ cvs.width = wave.clientWidth; cvs.height = wave.clientHeight; drawWave(buf); }).observe(wave);
-
-  // ===== File load =====
-  addBtn.onclick = ()=> fileInput.click();
-  fileInput.onchange = async e=>{
-    const f = e.target.files[0]; if(!f) return;
-    const arr = await f.arrayBuffer();
-    buf = await ctx.decodeAudioData(arr);
-    connectSource();
-    currentName.textContent = f.name;
-    drawWave(buf);
-    tStart.textContent='0:00'; tEnd.textContent=fmt(buf.duration|0); durTime.textContent=fmt(buf.duration|0);
-    seek.value=0; seek.max=buf.duration;
-    fileList.innerHTML = `<div class="fileRow"><div><div class="fileTitle">${f.name}</div>
-      <div class="fileMeta">${speed.value}× speed, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo</div></div><div>⋯</div></div>`;
-    downloadBtn.disabled=false;
-    setStatus('Ready');
-  };
-
-  clearBtn.onclick=()=>{
-    if(src){ try{src.stop()}catch{} }
-    src=null; buf=null; fileList.innerHTML='<div class="fileRow muted">No file yet. Click “Add file”.</div>';
-    currentName.textContent='—'; c2.clearRect(0,0,cvs.width,cvs.height);
-    seek.value=0; durTime.textContent='0:00'; tEnd.textContent='0:00'; downloadBtn.disabled=true; setStatus('Cleared');
-  };
-
-  // ===== Transport =====
-  function nowPlaybackTime(){ if(!src||!playing) return 0; return Math.min(buf.duration, startAt + (ctx.currentTime-started)*src.playbackRate.value); }
-
-  playBtn.onclick=()=>{
-    if(!buf) return;
-    if(!playing){
-      connectSource(); src.start(0, seek.value);
-      startAt=seek.value; started=ctx.currentTime; playing=true; playBtn.textContent='⏸';
-    }else{
-      try{src.stop()}catch{}; seek.value=nowPlaybackTime(); playing=false; playBtn.textContent='▶';
-    }
-  };
-  seek.oninput=()=>{
-    if(!buf) return;
-    if(playing){ try{src.stop()}catch{}; playing=false; playBtn.textContent='▶'; }
-    connectSource();
-  };
-
-  // ===== Live FX =====
-  speed.oninput=()=>{ speedLbl.textContent=`(${parseFloat(speed.value).toFixed(2)}×)`; if(src) src.playbackRate.value=parseFloat(speed.value); };
-  reverb.oninput=()=>{ reverbLbl.textContent=`(${reverb.value}%)`; const amt=Math.max(0.0001, parseInt(reverb.value)/100); convolver.buffer=makeImpulseRT(1.8*amt+0.05, 3*amt+0.5); };
-  bass.oninput=()=>{ bassLbl.textContent=`(${bass.value} dB)`; shelf.gain.value=parseFloat(bass.value); };
-  muffle.oninput=updateMuffle;
-  echo.oninput=updateEcho;
-  // init fx
-  updateMuffle(); updateEcho();
-
-  // ===== Presets =====
-  document.querySelectorAll('[data-preset]').forEach(b=>{
-    b.onclick=()=>{
-      const p=b.dataset.preset;
-      if(p==='slowed'){ speed.value=0.70; reverb.value=45; bass.value=0; muffle.value=10; echo.value=10; }
-      if(p==='nightcore'){ speed.value=1.25; reverb.value=0; bass.value=0; muffle.value=0; echo.value=0; }
-      if(p==='perfection'){ speed.value=0.83; reverb.value=26; bass.value=10; muffle.value=12; echo.value=8; }
-      speed.oninput(); reverb.oninput(); bass.oninput(); updateMuffle(); updateEcho();
-    };
-  });
-
-  // ===== UI loop =====
-  (function tick(){ requestAnimationFrame(tick); if(!buf) return; const t=playing?nowPlaybackTime():parseFloat(seek.value); seek.value=t; curTime.textContent=fmt(t|0); })();
-
-  // ===== Download =====
-  downloadBtn.onclick = async ()=>{
-    if(!buf) return;
-    downloadBtn.disabled=true;
-    const params = {
-      speedX: Number(speed.value),
-      rvPct:  Number(reverb.value),
-      bassDb: Number(bass.value),
-      muffleVal: Number(muffle.value),
-      echoVal: Number(echo.value),
-      unlocked: isUnlocked(),
-      gainLin: outGain.gain.value
-    };
-    setStatus(preserve.checked?'Rendering (smooth)…':'Rendering…');
-
-    try{
-      const rendered = preserve.checked
-        ? await renderWSOLA(buf, params)
-        : await renderResample(buf, params);
-
-      const wav = toWav(rendered);
-      const a=document.createElement('a');
-      const name=(currentName.textContent||'audio').replace(/\.[^.]+$/,'');
-      a.href=URL.createObjectURL(wav); a.download=`${name}_ngp-remix.wav`; a.click();
-      setStatus('Done.');
-    }catch(e){ console.error(e); setStatus('Render failed'); }
-    downloadBtn.disabled=false;
-  };
-
-  // Simple resample (pitch changes)
-  async function renderResample(buffer, p){
-    const rate=buffer.sampleRate, ch=buffer.numberOfChannels;
-    const frames = Math.max(1, Math.round(buffer.length / p.speedX));
-    const off = new OfflineAudioContext(ch, frames, rate);
-
-    const s = off.createBufferSource(); s.buffer=buffer; s.playbackRate.value=p.speedX;
-
-    // build FX offline
-    const lp = off.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=0.7;
-    lp.frequency.value = cutoffFromMuffle_off(p.muffleVal, p.unlocked, rate);
-
-    const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, p.rvPct/100));
-    const sh=off.createBiquadFilter(); sh.type='lowshelf'; sh.frequency.value=140; sh.gain.value=p.bassDb;
-
-    const dry=off.createGain(); dry.gain.value=1;
-
-    const dly=off.createDelay(2.0);
-    const fb=off.createGain();
-    const wet=off.createGain();
-    applyEcho_off(dly, fb, wet, p.echoVal, p.unlocked);
-
-    const g=off.createGain(); g.gain.value=p.gainLin;
-
-    s.connect(lp); lp.connect(conv); conv.connect(sh);
-    sh.connect(dry); sh.connect(dly);
-    dly.connect(fb).connect(dly);
-    dly.connect(wet);
-
-    dry.connect(g); wet.connect(g); g.connect(off.destination);
-    s.start(0);
-    return off.startRendering();
-  }
-
-  // WSOLA-like stretch (pitch preserved)
-  async function renderWSOLA(buffer, p){
-    const rate=buffer.sampleRate, chs=buffer.numberOfChannels;
-    const outLen = Math.max(1, Math.round(buffer.length / p.speedX));
-    const grain = Math.max(32, Math.floor(0.05 * rate));
-    const hopIn = Math.floor(grain * 0.5);
-    const hopOut = Math.max(1, Math.floor(hopIn / p.speedX));
-    const win = hann(grain);
-
-    const out = Array.from({length:chs}, ()=> new Float32Array(outLen));
-    for(let c=0;c<chs;c++){
-      const x = buffer.getChannelData(c);
-      let ip=0, op=0;
-      while(ip+grain < x.length && op+grain < outLen){
-        for(let i=0;i<grain;i++){ out[c][op+i] += x[ip+i]*win[i]; }
-        ip += hopIn; op += hopOut;
-      }
-    }
-
-    const off = new OfflineAudioContext(chs, outLen, rate);
-    const y = off.createBuffer(chs, outLen, rate);
-    for(let c=0;c<chs;c++) y.getChannelData(c).set(out[c]);
-
-    const src = off.createBufferSource(); src.buffer=y;
-
-    const lp = off.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=0.7;
-    lp.frequency.value = cutoffFromMuffle_off(p.muffleVal, p.unlocked, rate);
-
-    const conv=off.createConvolver(); conv.buffer = makeIR(off, Math.max(0.0001, p.rvPct/100));
-    const sh=off.createBiquadFilter(); sh.type='lowshelf'; sh.frequency.value=140; sh.gain.value=p.bassDb;
-
-    const dry=off.createGain(); dry.gain.value=1;
-    const dly=off.createDelay(2.0);
-    const fb=off.createGain();
-    const wet=off.createGain();
-    applyEcho_off(dly, fb, wet, p.echoVal, p.unlocked);
-
-    const g=off.createGain(); g.gain.value=p.gainLin;
-
-    src.connect(lp); lp.connect(conv); conv.connect(sh);
-    sh.connect(dry); sh.connect(dly);
-    dly.connect(fb).connect(dly);
-    dly.connect(wet);
-
-    dry.connect(g); wet.connect(g); g.connect(off.destination);
-    src.start(0);
-    return off.startRendering();
-  }
-
-  // ===== Offline helpers =====
-  function cutoffFromMuffle_off(val, unlocked){
-    const maxHz=20000, minHz = unlocked?60:300;
-    const t = Math.max(0, Math.min(unlocked?2:1, val/100));
-    return maxHz * Math.pow(minHz/maxHz, t);
-  }
-  function applyEcho_off(delayNode, fbNode, wetNode, val, unlocked){
-    const t = Math.max(0, Math.min(unlocked?2:1, val/100));
-    const dt = 0.08 + (unlocked?1.2:0.42) * t;
-    delayNode.delayTime.value = Math.min(2.0, dt);
-    fbNode.gain.value = Math.min(0.95, (unlocked?0.95:0.85) * t);
-    wetNode.gain.value = Math.min(1.2, (unlocked?1.2:0.8) * t);
-  }
-
-  // ===== IR & Windows =====
-  function hann(n){ const w=new Float32Array(n); for(let i=0;i<n;i++) w[i]=0.5*(1-Math.cos(2*Math.PI*i/(n-1))); return w; }
-  function makeImpulseRT(seconds=1.5, decay=2.5){
-    const rate = ctx.sampleRate, len = Math.max(1,(seconds*rate)|0);
-    const ir = ctx.createBuffer(2, len, rate);
-    for(let c=0;c<2;c++){ const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
-    return ir;
-  }
-  function makeIR(off, amt){
-    const seconds=1.8*amt+0.05, decay=3*amt+0.5, rate=off.sampleRate, len=Math.max(1,(seconds*rate)|0);
-    const ir = off.createBuffer(2, len, rate);
-    for(let c=0;c<2;c++){ const d=ir.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
-    return ir;
-  }
-
-  // ===== WAV =====
-  function toWav(ab){
-    const ch=ab.numberOfChannels, sr=ab.sampleRate;
-    const inter=interleave(ab), bps=2, block=ch*bps;
-    const buf=new ArrayBuffer(44+inter.length*2), v=new DataView(buf);
-    const W=(o,s)=>{for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i));};
-    const U16=(o,x)=>v.setUint16(o,x,true), U32=(o,x)=>v.setUint32(o,x,true);
-    W(0,'RIFF'); U32(4,36+inter.length*2); W(8,'WAVE'); W(12,'fmt '); U32(16,16); U16(20,1);
-    U16(22,ch); U32(24,sr); U32(28,sr*block); U16(32,block); U16(34,16);
-    W(36,'data'); U32(40,inter.length*2);
-    let off=44; for(let i=0;i<inter.length;i++){ const s=Math.max(-1,Math.min(1,inter[i])); v.setInt16(off, s<0?s*0x8000:s*0x7FFF, true); off+=2; }
-    return new Blob([v],{type:'audio/wav'});
-  }
-  function interleave(buf){
-    const chs=[]; for(let i=0;i<buf.numberOfChannels;i++) chs.push(buf.getChannelData(i));
-    const inter=new Float32Array(buf.length*buf.numberOfChannels); let k=0;
-    for(let i=0;i<buf.length;i++) for(let c=0;c<chs.length;c++) inter[k++]=chs[c][i];
-    return inter;
-  }
-
-  // ===== Secret unlock =====
-  let clicks=0;
-  freeTag.addEventListener('click', ()=>{ clicks++; if(clicks>=15) unlockWrap.style.display='flex'; });
-  function setUnlocked(on){
-    if(on){
-      speed.min='0.05'; speed.max='4'; speed.step='0.001';
-      reverb.max='300'; bass.min='-24'; bass.max='48';
-      gainSlider.min='-48'; gainSlider.max='48';
-      muffle.max='200'; echo.max='200';
-    }else{
-      speed.min='0.5'; speed.max='1.5'; speed.step='0.01';
-      reverb.max='100'; bass.min='0'; bass.max='18';
-      gainSlider.min='-24'; gainSlider.max='24';
-      muffle.max='100'; echo.max='100';
-    }
-    updateMuffle(); updateEcho();
-  }
-  unlockBox.addEventListener('change', e=>setUnlocked(e.target.checked));
-  setUnlocked(false);
-})();
+  // Show the path the user tried
+  document.getElementById('path').textContent = location.pathname + location.search;
 </script>
 </body>
 </html>
