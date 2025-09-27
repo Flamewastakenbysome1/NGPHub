@@ -178,6 +178,9 @@
           <div class="knob">
             <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
             <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
+            <div class="row" style="margin-top:4px;">
+              <small class="muted">Note: Pitch changes only apply to downloaded files, not live preview</small>
+            </div>
           </div>
 
           <div class="knob">
@@ -665,18 +668,12 @@ try {
     const roundedPitch = Math.round(pitchValue * 10) / 10;
     elements.pitchLbl.textContent = '(' + (roundedPitch >= 0 ? '+' : '') + roundedPitch + ' semitones)';
     
+    // Pitch slider ONLY affects final download, not live playback
+    // This is because Web Audio API cannot do independent pitch shifting in real-time
     if (sourceNode) {
       const speedMultiplier = parseFloat(elements.speed.value);
-      const pitchMultiplier = Math.pow(2, pitchValue / 12);
-      
-      if (elements.preserve.checked) {
-        // When preserving pitch, pitch slider doesn't affect live playback
-        // (it will only work in the final render)
-        sourceNode.playbackRate.value = speedMultiplier;
-      } else {
-        // When not preserving, combine speed and pitch
-        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-      }
+      // Always use only speed for live playback
+      sourceNode.playbackRate.value = speedMultiplier;
     }
   };
 
