@@ -122,7 +122,7 @@
   <div class="wrap">
     <!-- Disclaimer -->
     <div class="disclaimer">
-      <strong>⚠️ Disclaimer:</strong> NGP is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio remix tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
+      <strong>⚠️ Disclaimer:</strong> NGP Studios is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio remix tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
     </div>
 
     <div class="row" style="margin-bottom:6px; justify-content:space-between;">
@@ -171,8 +171,13 @@
             <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
             <div class="row" style="margin-top:6px;">
               <input type="checkbox" id="preserve" />
-              <label for="preserve" class="muted">Smooth time-stretch</label>
+              <label for="preserve" class="muted">Keep original pitch when changing speed</label>
             </div>
+          </div>
+
+          <div class="knob">
+            <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
+            <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
           </div>
 
           <div class="knob">
@@ -241,8 +246,8 @@
   const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
   const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
   const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
-  const speed=$('speed'), reverb=$('reverb'), bass=$('bass');
-  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl');
+  const speed=$('speed'), reverb=$('reverb'), bass=$('bass'), pitch=$('pitch');
+  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl'), pitchLbl=$('pitchLbl');
   const muffle=$('muffle'), muffleLbl=$('muffleLbl');
   const echo=$('echo'), echoLbl=$('echoLbl');
   const preserve=$('preserve'), currentName=$('currentName');
@@ -345,7 +350,19 @@
     
     sourceNode = ctx.createBufferSource();
     sourceNode.buffer = audioBuffer;
-    sourceNode.playbackRate.value = parseFloat(speed.value);
+    
+    // Calculate playback rate from speed and pitch
+    const speedMultiplier = parseFloat(speed.value);
+    const pitchSemitones = parseFloat(pitch.value);
+    const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+    
+    // If preserve pitch is enabled, only apply speed, otherwise apply both
+    if (preserve.checked) {
+      sourceNode.playbackRate.value = speedMultiplier;
+    } else {
+      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+    }
+    
     sourceNode.connect(muffleFilter);
     
     sourceNode.onended = () => {
@@ -386,7 +403,7 @@
       currentTime = 0;
       updateProgressIndicator();
       
-      const fileInfo = `${speed.value}× speed, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo`;
+      const fileInfo = `${speed.value}× speed, ${pitch.value} semitones, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo`;
       fileList.innerHTML = `
         <div class="fileRow">
           <div>
@@ -608,7 +625,41 @@
     const speedValue = parseFloat(speed.value);
     speedLbl.textContent = `(${speedValue.toFixed(2)}×)`;
     if (sourceNode) {
-      sourceNode.playbackRate.value = speedValue;
+      const pitchSemitones = parseFloat(pitch.value);
+      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+      
+      if (preserve.checked) {
+        sourceNode.playbackRate.value = speedValue;
+      } else {
+        sourceNode.playbackRate.value = speedValue * pitchMultiplier;
+      }
+    }
+  };
+
+  pitch.oninput = () => {
+    const pitchValue = parseFloat(pitch.value);
+    const roundedPitch = Math.round(pitchValue * 10) / 10;
+    pitchLbl.textContent = `(${roundedPitch >= 0 ? '+' : ''}${roundedPitch} semitones)`;
+    
+    if (sourceNode && !preserve.checked) {
+      const speedMultiplier = parseFloat(speed.value);
+      const pitchMultiplier = Math.pow(2, pitchValue / 12);
+      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+    }
+  };
+
+  preserve.onchange = () => {
+    // Update the playback rate when preserve mode changes
+    if (sourceNode) {
+      const speedMultiplier = parseFloat(speed.value);
+      const pitchSemitones = parseFloat(pitch.value);
+      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+      
+      if (preserve.checked) {
+        sourceNode.playbackRate.value = speedMultiplier;
+      } else {
+        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+      }
     }
   };
 
@@ -649,26 +700,33 @@
       
       if (preset === 'slowed') {
         speed.value = 0.70;
+        pitch.value = 0;
         reverb.value = 45;
         bass.value = 2;
         muffle.value = 10;
         echo.value = 10;
+        preserve.checked = true;
       } else if (preset === 'nightcore') {
         speed.value = 1.25;
+        pitch.value = 2;
         reverb.value = 0;
         bass.value = 0;
         muffle.value = 0;
         echo.value = 0;
+        preserve.checked = false;
       } else if (preset === 'perfection') {
         speed.value = 0.83;
+        pitch.value = -1;
         reverb.value = 26;
         bass.value = 10;
         muffle.value = 12;
         echo.value = 8;
+        preserve.checked = true;
       }
       
       // Trigger all updates
       speed.oninput();
+      pitch.oninput();
       reverb.oninput();
       bass.oninput();
       updateMuffleFilter();
@@ -687,6 +745,7 @@
     try {
       const params = {
         speed: parseFloat(speed.value),
+        pitch: parseFloat(pitch.value),
         reverb: parseInt(reverb.value),
         bass: parseInt(bass.value),
         muffle: parseInt(muffle.value),
@@ -744,14 +803,19 @@
     
     const channels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
-    const outputLength = Math.max(1, Math.floor(buffer.length / params.speed));
+    
+    // Calculate playback rate based on speed and pitch
+    const pitchMultiplier = Math.pow(2, params.pitch / 12);
+    const finalPlaybackRate = params.preservePitch ? params.speed : params.speed * pitchMultiplier;
+    
+    const outputLength = Math.max(1, Math.floor(buffer.length / finalPlaybackRate));
     
     const offlineCtx = new OfflineAudioContext(channels, outputLength, sampleRate);
     
     // Create source
     const source = offlineCtx.createBufferSource();
     source.buffer = buffer;
-    source.playbackRate.value = params.speed;
+    source.playbackRate.value = finalPlaybackRate;
     
     renderProgressFill.style.width = '40%';
     
@@ -818,11 +882,13 @@
     setStatus('Rendering (time-stretch)...');
     renderProgressFill.style.width = '10%';
     
-    // Simple time-stretching using overlap-add
+    // When preserving pitch, we need to handle speed and pitch separately
     const channels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
     const inputLength = buffer.length;
-    const outputLength = Math.max(1, Math.floor(inputLength / params.speed));
+    
+    // First apply speed change with time-stretching to preserve pitch
+    const speedStretchedLength = Math.max(1, Math.floor(inputLength / params.speed));
     
     const frameSize = Math.max(512, Math.floor(0.05 * sampleRate));
     const hopInput = Math.floor(frameSize * 0.25);
@@ -830,20 +896,20 @@
     
     const window = createHannWindow(frameSize);
     
-    renderProgressFill.style.width = '30%';
+    renderProgressFill.style.width = '20%';
     
-    // Stretch each channel
+    // Time-stretch each channel
     const stretchedChannels = [];
     for (let c = 0; c < channels; c++) {
       const inputData = buffer.getChannelData(c);
-      const outputData = new Float32Array(outputLength);
+      const outputData = new Float32Array(speedStretchedLength);
       
       let inputPos = 0;
       let outputPos = 0;
       
-      while (inputPos + frameSize < inputLength && outputPos + frameSize < outputLength) {
+      while (inputPos + frameSize < inputLength && outputPos + frameSize < speedStretchedLength) {
         for (let i = 0; i < frameSize; i++) {
-          if (outputPos + i < outputLength) {
+          if (outputPos + i < speedStretchedLength) {
             outputData[outputPos + i] += inputData[inputPos + i] * window[i];
           }
         }
@@ -854,22 +920,26 @@
       stretchedChannels.push(outputData);
     }
     
-    renderProgressFill.style.width = '50%';
+    renderProgressFill.style.width = '40%';
     
-    // Create buffer with stretched audio
-    const stretchedBuffer = ctx.createBuffer(channels, outputLength, sampleRate);
+    // Create buffer with time-stretched audio
+    const stretchedBuffer = ctx.createBuffer(channels, speedStretchedLength, sampleRate);
     for (let c = 0; c < channels; c++) {
       stretchedBuffer.getChannelData(c).set(stretchedChannels[c]);
     }
     
-    renderProgressFill.style.width = '70%';
+    renderProgressFill.style.width = '50%';
     
-    // Now apply effects to stretched audio
-    const offlineCtx = new OfflineAudioContext(channels, outputLength, sampleRate);
+    // Now apply pitch shift and effects using offline context
+    const pitchMultiplier = Math.pow(2, params.pitch / 12);
+    const finalLength = Math.max(1, Math.floor(speedStretchedLength / pitchMultiplier));
+    
+    const offlineCtx = new OfflineAudioContext(channels, finalLength, sampleRate);
     const source = offlineCtx.createBufferSource();
     source.buffer = stretchedBuffer;
+    source.playbackRate.value = pitchMultiplier; // Apply pitch shift
     
-    // Apply same effects as resampling method
+    // Apply effects
     const muffle = offlineCtx.createBiquadFilter();
     muffle.type = 'lowpass';
     muffle.Q.value = 0.7;
@@ -894,6 +964,56 @@
     
     const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
     delay.delayTime.value = Math.min(2.0, 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
+    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
+    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
+    
+    const master = offlineCtx.createGain();
+    master.gain.value = dbToLinear(params.gain);
+    
+    // Connect
+    source.connect(muffle);
+    muffle.connect(conv);
+    conv.connect(bassEQ);
+    bassEQ.connect(dryGain);
+    bassEQ.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(echoWet);
+    dryGain.connect(master);
+    echoWet.connect(master);
+    master.connect(offlineCtx.destination);
+    
+    source.start(0);
+    
+    renderProgressFill.style.width = '90%';
+    return await offlineCtx.startRendering();
+  }.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
+    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
+    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
+    
+    const master = offlineCtx.createGain();
+    master.gain.value = dbToLinear(params.gain);
+    
+    renderProgressFill.style.width = '70%';
+    
+    // Connect
+    source.connect(muffle);
+    muffle.connect(conv);
+    conv.connect(bassEQ);
+    bassEQ.connect(dryGain);
+    bassEQ.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(echoWet);
+    dryGain.connect(master);
+    echoWet.connect(master);
+    master.connect(offlineCtx.destination);
+    
+    source.start(0);
+    
+    renderProgressFill.style.width = '90%';
+    return await offlineCtx.startRendering();
+  }.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
     feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
     echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
     
@@ -1007,6 +1127,9 @@
       speed.min = '0.05';
       speed.max = '4';
       speed.step = '0.001';
+      pitch.min = '-24';
+      pitch.max = '24';
+      pitch.step = '0.05';
       reverb.max = '300';
       bass.min = '-24';
       bass.max = '48';
@@ -1018,6 +1141,9 @@
       speed.min = '0.5';
       speed.max = '1.5';
       speed.step = '0.01';
+      pitch.min = '-12';
+      pitch.max = '12';
+      pitch.step = '0.1';
       reverb.max = '100';
       bass.min = '0';
       bass.max = '18';
