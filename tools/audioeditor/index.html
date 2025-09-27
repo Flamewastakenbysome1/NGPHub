@@ -233,7 +233,7 @@
 </div>
 
 <footer>
-  <div class="wrap"><small>© <span id="year"></span> NGP — Audio Remix Tool (Beta)</small></div>
+  <div class="wrap"><small>© <span id="year"></span> NGP</small></div>
 </footer>
 
 <input type="file" id="fileInput" accept="audio/*" hidden />
@@ -356,17 +356,25 @@ try {
     const length = Math.max(1, Math.floor(seconds * sampleRate));
     const impulse = audioContext.createBuffer(2, length, sampleRate);
     
-    for (let channel = 0; channel < 2; channel++) {
-      const channelData = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        const n = length - i;
-        channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+    // Create a very short, almost dry impulse for default (no reverb)
+    if (seconds < 0.01) {
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel);
+        channelData[0] = 1; // Single impulse for dry signal
+      }
+    } else {
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+          const n = length - i;
+          channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+        }
       }
     }
     return impulse;
   }
 
-  // Initialize reverb
+  // Initialize reverb with proper dry signal
   nodes.convolver.buffer = createImpulseResponse(0.001, 0.1);
 
   function createAudioSource() {
@@ -418,6 +426,11 @@ try {
     try {
       const arrayBuffer = await file.arrayBuffer();
       audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+      // Initialize all effects properly
+      updateMuffleFilter();
+      updateEchoEffect();
+      updateGain();
       
       createAudioSource();
       elements.currentName.textContent = file.name;
@@ -650,10 +663,17 @@ try {
     const roundedPitch = Math.round(pitchValue * 10) / 10;
     elements.pitchLbl.textContent = '(' + (roundedPitch >= 0 ? '+' : '') + roundedPitch + ' semitones)';
     
-    if (sourceNode && !elements.preserve.checked) {
+    if (sourceNode) {
       const speedMultiplier = parseFloat(elements.speed.value);
       const pitchMultiplier = Math.pow(2, pitchValue / 12);
-      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+      
+      if (elements.preserve.checked) {
+        // When preserving pitch, apply pitch independently
+        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+      } else {
+        // When not preserving, combine speed and pitch
+        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+      }
     }
   };
 
