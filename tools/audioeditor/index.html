@@ -1,626 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (Beta)</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
-<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
-<style>
-  :root{
-    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
-    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
-    --ring:0 0 0 .2rem rgba(37,117,252,.35);
-    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
-    color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; scroll-behavior:smooth;
-  }
-  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
-
-  header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
-    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06)}
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
-  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
-  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
-  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
-  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
-  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
-
-  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
-
-  main{padding:28px 0 40px}
-  .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
-  .panel{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
-  .panel h2{margin:0; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); font-size:1rem}
-  .list{max-height:420px; overflow:auto}
-  .fileRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05)}
-  .fileRow.muted{color:var(--muted)}
-  .fileTitle{font-weight:600}
-  .fileMeta{color:var(--muted); font-size:.85rem}
-  .controls{padding:16px}
-  .knob{margin:14px 0}
-  .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
-  .knob small{color:var(--muted); margin-left:8px; font-weight:400}
-  input[type="range"]{width:100%}
-  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .btn{background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
-  .btn:disabled{opacity:.5; cursor:not-allowed}
-  .btnGhost{background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer}
-  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none; cursor:pointer}
-  
-  .wave-container{position:relative; height:140px}
-  .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%); position:relative}
-  .progress-indicator{position:absolute; top:0; bottom:0; width:2px; background:var(--brandB); z-index:10; transform:translateX(-50%); opacity:.8; box-shadow: 0 0 8px rgba(37,117,252,.6)}
-  
-  .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
-  .playerBar{position:sticky; bottom:0; left:0; right:0; background:rgba(10,10,14,.8); backdrop-filter:saturate(140%) blur(10px); border-top:1px solid rgba(255,255,255,.08)}
-  .playerInner{max-width:1024px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px}
-  .play{width:42px; height:42px; border-radius:999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer}
-  .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
-  .grow{flex:1}
-  .muted{color:var(--muted)}
-  .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff; cursor:pointer}
-  .unlockWrap{display:none; align-items:center; gap:8px}
-  .unlockWrap label{font-size:.85rem; color:var(--muted)}
-
-  /* Floating Gain (outside) */
-  .gainFloat{
-    position:fixed; right:10px; top:140px; z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
-    padding:10px 8px; border-radius:14px; background:rgba(21,21,27,.85); border:1px solid rgba(255,255,255,.09); box-shadow:var(--shadow);
-    backdrop-filter: blur(8px) saturate(140%);
-  }
-  .gainFloat .cap{font-size:.7rem; color:var(--muted)}
-  .gainFloat input[type="range"]{
-    writing-mode: bt-lr; -webkit-appearance: slider-vertical; appearance: slider-vertical;
-    width: 44px; height: 260px;
-  }
-  .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
-
-  /* Disclaimer */
-  .disclaimer{
-    background:rgba(255,69,0,.1); border:1px solid rgba(255,69,0,.3); border-radius:12px; padding:12px;
-    margin:16px 0; color:#ffb3b3; font-size:.85rem; line-height:1.4;
-  }
-  .disclaimer strong{color:#ff6b6b}
-
-  /* Progress bar styling */
-  .progress-bar{
-    width:100%; height:4px; background:rgba(255,255,255,.1); border-radius:2px; margin:8px 0;
-  }
-  .progress-fill{
-    height:100%; background:linear-gradient(90deg,var(--brandA),var(--brandB)); border-radius:2px;
-    transition:width .1s ease; width:0%;
-  }
-
-  @media (max-width:920px){ .grid{grid-template-columns:1fr} .gainFloat{display:none} }
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
-</style>
-</head>
-<body>
-<header>
-  <div class="wrap bar">
-    <a class="logo" href="/">
-      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
-      <h1>NGP</h1>
-    </a>
-    <nav aria-label="Primary">
-      <a href="/tools">Tools</a><a href="/discordservers/">Servers</a><a href="/projects">Projects</a>
-      <a href="/docs/">Docs</a><a href="/roblox">Roblox</a><a href="/contact">Contact</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <div class="wrap">
-    <!-- Disclaimer -->
-    <div class="disclaimer">
-      <strong>⚠️ Disclaimer:</strong> NGP Studios is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio remix tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
-    </div>
-
-    <div class="row" style="margin-bottom:6px; justify-content:space-between;">
-      <div class="row">
-        <button id="addBtn" class="btnGhost">+ Add file</button>
-        <button id="clearBtn" class="btnGhost">✕ Clear</button>
-      </div>
-
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px">
-        <div class="unlockWrap" id="unlockWrap">
-          <input type="checkbox" id="unlockBox" />
-          <label for="unlockBox">Extra range</label>
-        </div>
-        <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- Files -->
-      <section class="panel" aria-label="Files">
-        <h2>Files</h2>
-        <div class="list" id="fileList">
-          <div class="fileRow muted">No file yet. Click "Add file".</div>
-        </div>
-      </section>
-
-      <!-- Editor -->
-      <section class="panel" aria-label="Editor">
-        <h2 id="currentName">—</h2>
-        <div class="wave-container">
-          <div class="wave" id="wave"></div>
-          <div class="progress-indicator" id="progressIndicator" style="left:0%"></div>
-        </div>
-        <div class="timeline"><span id="tStart">0:00</span><span id="tEnd">0:00</span></div>
-
-        <div class="controls">
-          <div class="row" style="gap:12px;">
-            <span class="pill">Presets</span>
-            <button class="btnGhost" data-preset="slowed">Slowed+Reverb</button>
-            <button class="btnGhost" data-preset="nightcore">Nightcore</button>
-            <button class="btnGhost" data-preset="perfection">Slowed to Perfection</button>
-          </div>
-
-          <div class="knob">
-            <label>Speed <small id="speedLbl">(1.00×)</small></label>
-            <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
-            <div class="row" style="margin-top:6px;">
-              <input type="checkbox" id="preserve" />
-              <label for="preserve" class="muted">Keep original pitch when changing speed</label>
-            </div>
-          </div>
-
-          <div class="knob">
-            <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
-            <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Reverb <small id="reverbLbl">(0%)</small></label>
-            <input type="range" id="reverb" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Bass boost <small id="bassLbl">(0 dB)</small></label>
-            <input type="range" id="bass" min="0" max="18" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Muffle <small id="muffleLbl">(0%)</small></label>
-            <input type="range" id="muffle" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="knob">
-            <label>Echo <small id="echoLbl">(0%)</small></label>
-            <input type="range" id="echo" min="0" max="100" step="1" value="0" />
-          </div>
-
-          <div class="row" style="margin-top:10px">
-            <button id="downloadBtn" class="btn" disabled>Download Remix</button>
-            <span class="muted" id="status">Ready</span>
-          </div>
-          
-          <div class="progress-bar" id="renderProgress" style="display:none">
-            <div class="progress-fill" id="renderProgressFill"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-</main>
-
-<!-- Floating Gain -->
-<aside class="gainFloat" aria-label="Output Gain">
-  <span class="cap">+24</span>
-  <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
-  <span class="cap">-24</span>
-  <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
-</aside>
-
-<div class="playerBar">
-  <div class="playerInner">
-    <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
-    <div class="time" id="curTime">0:00</div>
-    <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
-    <div class="time" id="durTime">0:00</div>
-  </div>
-</div>
-
-<footer>
-  <div class="wrap"><small>© <span id="year"></span> NGP Studios — Audio Remix Tool (Beta)</small></div>
-</footer>
-
-<input type="file" id="fileInput" accept="audio/*" hidden />
-
-<script>
-(() => {
-  // ===== Grab UI =====
-  const $ = id => document.getElementById(id);
-  $('year').textContent = new Date().getFullYear();
-  const addBtn=$('addBtn'), clearBtn=$('clearBtn'), fileInput=$('fileInput');
-  const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
-  const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
-  const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
-  const speed=$('speed'), reverb=$('reverb'), bass=$('bass'), pitch=$('pitch');
-  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl'), pitchLbl=$('pitchLbl');
-  const muffle=$('muffle'), muffleLbl=$('muffleLbl');
-  const echo=$('echo'), echoLbl=$('echoLbl');
-  const preserve=$('preserve'), currentName=$('currentName');
-  const gainSlider=$('gainSlider'), gainLbl=$('gainLbl');
-  const freeTag=$('freeTag'), unlockWrap=$('unlockWrap'), unlockBox=$('unlockBox');
-  const progressIndicator=$('progressIndicator');
-  const renderProgress=$('renderProgress'), renderProgressFill=$('renderProgressFill');
-
-  // ===== Audio State =====
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let audioBuffer=null, sourceNode=null, isPlaying=false, currentTime=0, 
-      startOffset=0, lastPlayTime=0, animationFrame=null;
-
-  // ===== Audio Graph =====
-  const muffleFilter = ctx.createBiquadFilter();
-  muffleFilter.type = 'lowpass';
-  muffleFilter.frequency.value = 20000;
-  muffleFilter.Q.value = 0.7;
-
-  const convolver = ctx.createConvolver();
-  const bassFilter = ctx.createBiquadFilter();
-  bassFilter.type = 'lowshelf';
-  bassFilter.frequency.value = 140;
-
-  const dryGain = ctx.createGain();
-  dryGain.gain.value = 1;
-
-  // Echo chain
-  const delayNode = ctx.createDelay(2.0);
-  const feedbackGain = ctx.createGain();
-  const echoWetGain = ctx.createGain();
-  feedbackGain.gain.value = 0;
-  echoWetGain.gain.value = 0;
-
-  // Echo feedback loop
-  delayNode.connect(feedbackGain);
-  feedbackGain.connect(delayNode);
-
-  const masterGain = ctx.createGain();
-  masterGain.gain.value = 1;
-
-  // Connect the audio graph
-  muffleFilter.connect(convolver);
-  convolver.connect(bassFilter);
-  bassFilter.connect(dryGain);
-  bassFilter.connect(delayNode);
-  delayNode.connect(echoWetGain);
-  dryGain.connect(masterGain);
-  echoWetGain.connect(masterGain);
-  masterGain.connect(ctx.destination);
-
-  // Initialize with dry convolver
-  convolver.buffer = createImpulseResponse(0.001, 0.1);
-
-  // ===== Helper Functions =====
-  const formatTime = (seconds) => {
-    const mins = Math.floor(Math.max(0, seconds) / 60);
-    const secs = Math.floor(Math.max(0, seconds) % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const dbToLinear = (db) => Math.pow(10, db / 20);
-  const linearToDb = (linear) => 20 * Math.log10(Math.max(0.001, linear));
-
-  function setStatus(text) {
-    if (statusEl) statusEl.textContent = text;
-  }
-
-  function updateProgressIndicator() {
-    if (!audioBuffer) return;
-    const progress = currentTime / audioBuffer.duration;
-    progressIndicator.style.left = `${Math.min(100, Math.max(0, progress * 100))}%`;
-  }
-
-  // ===== Audio Processing =====
-  function createImpulseResponse(seconds = 1.5, decay = 2.5) {
-    const sampleRate = ctx.sampleRate;
-    const length = Math.max(1, Math.floor(seconds * sampleRate));
-    const impulse = ctx.createBuffer(2, length, sampleRate);
-    
-    for (let channel = 0; channel < 2; channel++) {
-      const channelData = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        const n = length - i;
-        channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
-      }
-    }
-    return impulse;
-  }
-
-  function createAudioSource() {
-    if (!audioBuffer) return;
-    
-    if (sourceNode) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
-      sourceNode.disconnect();
-    }
-    
-    sourceNode = ctx.createBufferSource();
-    sourceNode.buffer = audioBuffer;
-    
-    // Calculate playback rate from speed and pitch
-    const speedMultiplier = parseFloat(speed.value);
-    const pitchSemitones = parseFloat(pitch.value);
-    const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-    
-    // If preserve pitch is enabled, only apply speed, otherwise apply both
-    if (preserve.checked) {
-      sourceNode.playbackRate.value = speedMultiplier;
-    } else {
-      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-    }
-    
-    sourceNode.connect(muffleFilter);
-    
-    sourceNode.onended = () => {
-      if (isPlaying) {
-        isPlaying = false;
-        playBtn.textContent = '▶';
-        if (animationFrame) {
-          cancelAnimationFrame(animationFrame);
-          animationFrame = null;
-        }
-      }
-    };
-  }
-
-  // ===== File Loading =====
-  addBtn.onclick = () => fileInput.click();
-  
-  fileInput.onchange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    setStatus('Loading file...');
-    
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      
-      createAudioSource();
-      currentName.textContent = file.name;
-      drawWaveform(audioBuffer);
-      
-      tStart.textContent = '0:00';
-      tEnd.textContent = formatTime(audioBuffer.duration);
-      durTime.textContent = formatTime(audioBuffer.duration);
-      
-      seek.value = 0;
-      seek.max = audioBuffer.duration;
-      currentTime = 0;
-      updateProgressIndicator();
-      
-      const fileInfo = `${speed.value}× speed, ${pitch.value} semitones, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo`;
-      fileList.innerHTML = `
-        <div class="fileRow">
-          <div>
-            <div class="fileTitle">${file.name}</div>
-            <div class="fileMeta">${fileInfo}</div>
-          </div>
-          <div>♪</div>
-        </div>`;
-      
-      downloadBtn.disabled = false;
-      setStatus('Ready');
-      
-    } catch (error) {
-      console.error('Error loading file:', error);
-      setStatus('Failed to load file');
-    }
-  };
-
-  clearBtn.onclick = () => {
-    if (sourceNode) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
-      sourceNode.disconnect();
-    }
-    
-    sourceNode = null;
-    audioBuffer = null;
-    isPlaying = false;
-    currentTime = 0;
-    
-    fileList.innerHTML = '<div class="fileRow muted">No file yet. Click "Add file".</div>';
-    currentName.textContent = '—';
-    
-    const canvas = wave.querySelector('canvas');
-    if (canvas) {
-      const ctx2d = canvas.getContext('2d');
-      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    seek.value = 0;
-    durTime.textContent = '0:00';
-    tEnd.textContent = '0:00';
-    curTime.textContent = '0:00';
-    playBtn.textContent = '▶';
-    downloadBtn.disabled = true;
-    updateProgressIndicator();
-    
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = null;
-    }
-    
-    setStatus('Cleared');
-  };
-
-  // ===== Waveform Visualization =====
-  function drawWaveform(buffer) {
-    let canvas = wave.querySelector('canvas');
-    if (!canvas) {
-      canvas = document.createElement('canvas');
-      wave.appendChild(canvas);
-    }
-    
-    const rect = wave.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    
-    const ctx2d = canvas.getContext('2d');
-    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-    
-    if (!buffer) return;
-    
-    const channelData = buffer.getChannelData(0);
-    const samples = channelData.length;
-    const step = Math.max(1, Math.floor(samples / canvas.width));
-    const midHeight = canvas.height / 2;
-    
-    ctx2d.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    
-    for (let x = 0; x < canvas.width; x++) {
-      let min = 1;
-      let max = -1;
-      
-      const start = x * step;
-      const end = Math.min(start + step, samples);
-      
-      for (let i = start; i < end; i++) {
-        const sample = channelData[i];
-        if (sample < min) min = sample;
-        if (sample > max) max = sample;
-      }
-      
-      const height = Math.max(1, (max - min) * midHeight);
-      const y = midHeight + min * midHeight;
-      
-      ctx2d.fillRect(x, y, 1, height);
-    }
-  }
-
-  // Handle window resize for waveform
-  new ResizeObserver(() => {
-    drawWaveform(audioBuffer);
-  }).observe(wave);
-
-  // ===== Playback Control =====
-  function getCurrentPlaybackTime() {
-    if (!audioBuffer) return 0;
-    if (!isPlaying) return currentTime;
-    
-    const elapsed = (ctx.currentTime - lastPlayTime) * sourceNode.playbackRate.value;
-    return Math.min(audioBuffer.duration, startOffset + elapsed);
-  }
-
-  function updateTimeDisplay() {
-    if (!audioBuffer) return;
-    
-    currentTime = getCurrentPlaybackTime();
-    curTime.textContent = formatTime(currentTime);
-    seek.value = currentTime;
-    updateProgressIndicator();
-    
-    if (isPlaying && currentTime < audioBuffer.duration) {
-      animationFrame = requestAnimationFrame(updateTimeDisplay);
-    }
-  }
-
-  playBtn.onclick = () => {
-    if (!audioBuffer) return;
-    
-    if (ctx.state === 'suspended') {
-      ctx.resume();
-    }
-    
-    if (!isPlaying) {
-      createAudioSource();
-      startOffset = currentTime;
-      sourceNode.start(0, startOffset);
-      lastPlayTime = ctx.currentTime;
-      isPlaying = true;
-      playBtn.textContent = '⏸';
-      updateTimeDisplay();
-    } else {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
-      currentTime = getCurrentPlaybackTime();
-      isPlaying = false;
-      playBtn.textContent = '▶';
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = null;
-      }
-    }
-  };
-
-  // Seek control
-  let isSeeking = false;
-  
-  seek.oninput = () => {
-    if (!audioBuffer) return;
-    isSeeking = true;
-    currentTime = parseFloat(seek.value);
-    curTime.textContent = formatTime(currentTime);
-    updateProgressIndicator();
-  };
-
-  seek.onchange = () => {
-    if (!audioBuffer) return;
-    
-    currentTime = parseFloat(seek.value);
-    
-    if (isPlaying) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
-      
-      createAudioSource();
-      startOffset = currentTime;
-      sourceNode.start(0, startOffset);
-      lastPlayTime = ctx.currentTime;
-    }
-    
-    isSeeking = false;
-  };
-
-  // ===== Live Effects =====
-  function updateMuffleFilter() {
-    const muffleValue = parseInt(muffle.value);
-    const isUnlocked = unlockBox && unlockBox.checked;
-    const maxFreq = 20000;
-    const minFreq = isUnlocked ? 60 : 300;
-    const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, muffleValue / 100));
-    
-    const frequency = maxFreq * Math.pow(minFreq / maxFreq, range);
-    muffleFilter.frequency.value = Math.max(60, frequency);
-    muffleLbl.textContent = `(${muffleValue}%)`;
-  }
-
-  function updateEchoEffect() {
-    const echoValue = parseInt(echo.value);
-    const isUnlocked = unlockBox && unlockBox.checked;
-    const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, echoValue / 100));
-    
-    const delayTime = 0.08 + (isUnlocked ? 1.2 : 0.42) * range;
-    const feedback = Math.min(0.95, (isUnlocked ? 0.95 : 0.85) * range);
-    const wetLevel = Math.min(1.2, (isUnlocked ? 1.2 : 0.8) * range);
-    
-    delayNode.delayTime.value = Math.min(2.0, delayTime);
-    feedbackGain.gain.value = feedback;
-    echoWetGain.gain.value = wetLevel;
-    echoLbl.textContent = `(${echoValue}%)`;
-  }
-
-  // Effect controls
+// Effect controls
   speed.oninput = () => {
     const speedValue = parseFloat(speed.value);
     speedLbl.textContent = `(${speedValue.toFixed(2)}×)`;
@@ -970,55 +348,7 @@
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
     
-    // Connect
-    source.connect(muffle);
-    muffle.connect(conv);
-    conv.connect(bassEQ);
-    bassEQ.connect(dryGain);
-    bassEQ.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
-    master.connect(offlineCtx.destination);
-    
-    source.start(0);
-    
-    renderProgressFill.style.width = '90%';
-    return await offlineCtx.startRendering();
-  }.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
-    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-    
-    const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
-    
     renderProgressFill.style.width = '70%';
-    
-    // Connect
-    source.connect(muffle);
-    muffle.connect(conv);
-    conv.connect(bassEQ);
-    bassEQ.connect(dryGain);
-    bassEQ.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
-    master.connect(offlineCtx.destination);
-    
-    source.start(0);
-    
-    renderProgressFill.style.width = '90%';
-    return await offlineCtx.startRendering();
-  }.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
-    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-    
-    const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
     
     // Connect
     source.connect(muffle);
@@ -1164,4 +494,631 @@
 })();
 </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Audio Remix (Beta)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink); font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06)}
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  main{padding:28px 0 40px}
+  .grid{display:grid; grid-template-columns:320px 1fr; gap:24px}
+  .panel{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+  .panel h2{margin:0; padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); font-size:1rem}
+  .list{max-height:420px; overflow:auto}
+  .fileRow{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.05)}
+  .fileRow.muted{color:var(--muted)}
+  .fileTitle{font-weight:600}
+  .fileMeta{color:var(--muted); font-size:.85rem}
+  .controls{padding:16px}
+  .knob{margin:14px 0}
+  .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
+  .knob small{color:var(--muted); margin-left:8px; font-weight:400}
+  input[type="range"]{width:100%}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .btn{background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+  .btnGhost{background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:9px 12px; font-weight:600; cursor:pointer}
+  .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; user-select:none; cursor:pointer}
+  
+  .wave-container{position:relative; height:140px}
+  .wave{height:140px; background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, rgba(106,17,203,.2), transparent 60%); position:relative}
+  .progress-indicator{position:absolute; top:0; bottom:0; width:2px; background:var(--brandB); z-index:10; transform:translateX(-50%); opacity:.8; box-shadow: 0 0 8px rgba(37,117,252,.6)}
+  
+  .timeline{display:flex; justify-content:space-between; font-size:.85rem; color:var(--muted); padding:6px 10px 0}
+  .playerBar{position:sticky; bottom:0; left:0; right:0; background:rgba(10,10,14,.8); backdrop-filter:saturate(140%) blur(10px); border-top:1px solid rgba(255,255,255,.08)}
+  .playerInner{max-width:1024px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:10px}
+  .play{width:42px; height:42px; border-radius:999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer}
+  .time{min-width:64px; text-align:center; font-variant-numeric:tabular-nums}
+  .grow{flex:1}
+  .muted{color:var(--muted)}
+  .tag{font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); color:#cbd5ff; cursor:pointer}
+  .unlockWrap{display:none; align-items:center; gap:8px}
+  .unlockWrap label{font-size:.85rem; color:var(--muted)}
+
+  /* Floating Gain (outside) */
+  .gainFloat{
+    position:fixed; right:10px; top:140px; z-index:60; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:10px 8px; border-radius:14px; background:rgba(21,21,27,.85); border:1px solid rgba(255,255,255,.09); box-shadow:var(--shadow);
+    backdrop-filter: blur(8px) saturate(140%);
+  }
+  .gainFloat .cap{font-size:.7rem; color:var(--muted)}
+  .gainFloat input[type="range"]{
+    writing-mode: bt-lr; -webkit-appearance: slider-vertical; appearance: slider-vertical;
+    width: 44px; height: 260px;
+  }
+  .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
+
+  /* Disclaimer */
+  .disclaimer{
+    background:rgba(255,69,0,.1); border:1px solid rgba(255,69,0,.3); border-radius:12px; padding:12px;
+    margin:16px 0; color:#ffb3b3; font-size:.85rem; line-height:1.4;
+  }
+  .disclaimer strong{color:#ff6b6b}
+
+  /* Progress bar styling */
+  .progress-bar{
+    width:100%; height:4px; background:rgba(255,255,255,.1); border-radius:2px; margin:8px 0;
+  }
+  .progress-fill{
+    height:100%; background:linear-gradient(90deg,var(--brandA),var(--brandB)); border-radius:2px;
+    transition:width .1s ease; width:0%;
+  }
+
+  @media (max-width:920px){ .grid{grid-template-columns:1fr} .gainFloat{display:none} }
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a><a href="/discordservers/">Servers</a><a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a><a href="/roblox">Roblox</a><a href="/contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <strong>⚠️ Disclaimer:</strong> NGP is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio remix tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
+    </div>
+
+    <div class="row" style="margin-bottom:6px; justify-content:space-between;">
+      <div class="row">
+        <button id="addBtn" class="btnGhost">+ Add file</button>
+        <button id="clearBtn" class="btnGhost">✕ Clear</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px">
+        <div class="unlockWrap" id="unlockWrap">
+          <input type="checkbox" id="unlockBox" />
+          <label for="unlockBox">Extra range</label>
+        </div>
+        <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Files -->
+      <section class="panel" aria-label="Files">
+        <h2>Files</h2>
+        <div class="list" id="fileList">
+          <div class="fileRow muted">No file yet. Click "Add file".</div>
+        </div>
+      </section>
+
+      <!-- Editor -->
+      <section class="panel" aria-label="Editor">
+        <h2 id="currentName">—</h2>
+        <div class="wave-container">
+          <div class="wave" id="wave"></div>
+          <div class="progress-indicator" id="progressIndicator" style="left:0%"></div>
+        </div>
+        <div class="timeline"><span id="tStart">0:00</span><span id="tEnd">0:00</span></div>
+
+        <div class="controls">
+          <div class="row" style="gap:12px;">
+            <span class="pill">Presets</span>
+            <button class="btnGhost" data-preset="slowed">Slowed+Reverb</button>
+            <button class="btnGhost" data-preset="nightcore">Nightcore</button>
+            <button class="btnGhost" data-preset="perfection">Slowed to Perfection</button>
+          </div>
+
+          <div class="knob">
+            <label>Speed <small id="speedLbl">(1.00×)</small></label>
+            <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
+            <div class="row" style="margin-top:6px;">
+              <input type="checkbox" id="preserve" />
+              <label for="preserve" class="muted">Keep original pitch when changing speed</label>
+            </div>
+          </div>
+
+          <div class="knob">
+            <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
+            <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
+          </div>
+
+          <div class="knob">
+            <label>Reverb <small id="reverbLbl">(0%)</small></label>
+            <input type="range" id="reverb" min="0" max="100" step="1" value="0" />
+          </div>
+
+          <div class="knob">
+            <label>Bass boost <small id="bassLbl">(0 dB)</small></label>
+            <input type="range" id="bass" min="0" max="18" step="1" value="0" />
+          </div>
+
+          <div class="knob">
+            <label>Muffle <small id="muffleLbl">(0%)</small></label>
+            <input type="range" id="muffle" min="0" max="100" step="1" value="0" />
+          </div>
+
+          <div class="knob">
+            <label>Echo <small id="echoLbl">(0%)</small></label>
+            <input type="range" id="echo" min="0" max="100" step="1" value="0" />
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button id="downloadBtn" class="btn" disabled>Download Remix</button>
+            <span class="muted" id="status">Ready</span>
+          </div>
+          
+          <div class="progress-bar" id="renderProgress" style="display:none">
+            <div class="progress-fill" id="renderProgressFill"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- Floating Gain -->
+<aside class="gainFloat" aria-label="Output Gain">
+  <span class="cap">+24</span>
+  <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
+  <span class="cap">-24</span>
+  <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
+</aside>
+
+<div class="playerBar">
+  <div class="playerInner">
+    <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
+    <div class="time" id="curTime">0:00</div>
+    <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
+    <div class="time" id="durTime">0:00</div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap"><small>© <span id="year"></span> NGP Studios — Audio Remix Tool (Beta)</small></div>
+</footer>
+
+<input type="file" id="fileInput" accept="audio/*" hidden />
+
+<script>
+(() => {
+  // ===== Grab UI =====
+  const $ = id => document.getElementById(id);
+  $('year').textContent = new Date().getFullYear();
+  const addBtn=$('addBtn'), clearBtn=$('clearBtn'), fileInput=$('fileInput');
+  const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
+  const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
+  const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
+  const speed=$('speed'), reverb=$('reverb'), bass=$('bass'), pitch=$('pitch');
+  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl'), pitchLbl=$('pitchLbl');
+  const muffle=$('muffle'), muffleLbl=$('muffleLbl');
+  const echo=$('echo'), echoLbl=$('echoLbl');
+  const preserve=$('preserve'), currentName=$('currentName');
+  const gainSlider=$('gainSlider'), gainLbl=$('gainLbl');
+  const freeTag=$('freeTag'), unlockWrap=$('unlockWrap'), unlockBox=$('unlockBox');
+  const progressIndicator=$('progressIndicator');
+  const renderProgress=$('renderProgress'), renderProgressFill=$('renderProgressFill');
+
+  // ===== Audio State =====
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let audioBuffer=null, sourceNode=null, isPlaying=false, currentTime=0, 
+      startOffset=0, lastPlayTime=0, animationFrame=null;
+
+  // ===== Audio Graph =====
+  const muffleFilter = ctx.createBiquadFilter();
+  muffleFilter.type = 'lowpass';
+  muffleFilter.frequency.value = 20000;
+  muffleFilter.Q.value = 0.7;
+
+  const convolver = ctx.createConvolver();
+  const bassFilter = ctx.createBiquadFilter();
+  bassFilter.type = 'lowshelf';
+  bassFilter.frequency.value = 140;
+
+  const dryGain = ctx.createGain();
+  dryGain.gain.value = 1;
+
+  // Echo chain
+  const delayNode = ctx.createDelay(2.0);
+  const feedbackGain = ctx.createGain();
+  const echoWetGain = ctx.createGain();
+  feedbackGain.gain.value = 0;
+  echoWetGain.gain.value = 0;
+
+  // Echo feedback loop
+  delayNode.connect(feedbackGain);
+  feedbackGain.connect(delayNode);
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.value = 1;
+
+  // Connect the audio graph
+  muffleFilter.connect(convolver);
+  convolver.connect(bassFilter);
+  bassFilter.connect(dryGain);
+  bassFilter.connect(delayNode);
+  delayNode.connect(echoWetGain);
+  dryGain.connect(masterGain);
+  echoWetGain.connect(masterGain);
+  masterGain.connect(ctx.destination);
+
+  // Initialize with dry convolver
+  convolver.buffer = createImpulseResponse(0.001, 0.1);
+
+  // ===== Helper Functions =====
+  const formatTime = (seconds) => {
+    const mins = Math.floor(Math.max(0, seconds) / 60);
+    const secs = Math.floor(Math.max(0, seconds) % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const dbToLinear = (db) => Math.pow(10, db / 20);
+
+  function setStatus(text) {
+    if (statusEl) statusEl.textContent = text;
+  }
+
+  function updateProgressIndicator() {
+    if (!audioBuffer) return;
+    const progress = currentTime / audioBuffer.duration;
+    progressIndicator.style.left = `${Math.min(100, Math.max(0, progress * 100))}%`;
+  }
+
+  // ===== Audio Processing =====
+  function createImpulseResponse(seconds = 1.5, decay = 2.5) {
+    const sampleRate = ctx.sampleRate;
+    const length = Math.max(1, Math.floor(seconds * sampleRate));
+    const impulse = ctx.createBuffer(2, length, sampleRate);
+    
+    for (let channel = 0; channel < 2; channel++) {
+      const channelData = impulse.getChannelData(channel);
+      for (let i = 0; i < length; i++) {
+        const n = length - i;
+        channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+      }
+    }
+    return impulse;
+  }
+
+  function createAudioSource() {
+    if (!audioBuffer) return;
+    
+    if (sourceNode) {
+      try {
+        sourceNode.stop();
+      } catch (e) {}
+      sourceNode.disconnect();
+    }
+    
+    sourceNode = ctx.createBufferSource();
+    sourceNode.buffer = audioBuffer;
+    
+    // Calculate playback rate from speed and pitch
+    const speedMultiplier = parseFloat(speed.value);
+    const pitchSemitones = parseFloat(pitch.value);
+    const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+    
+    // If preserve pitch is enabled, only apply speed, otherwise apply both
+    if (preserve.checked) {
+      sourceNode.playbackRate.value = speedMultiplier;
+    } else {
+      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+    }
+    
+    sourceNode.connect(muffleFilter);
+    
+    sourceNode.onended = () => {
+      if (isPlaying) {
+        isPlaying = false;
+        playBtn.textContent = '▶';
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+      }
+    };
+  }
+
+  // ===== File Loading =====
+  addBtn.onclick = () => fileInput.click();
+  
+  fileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setStatus('Loading file...');
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      
+      createAudioSource();
+      currentName.textContent = file.name;
+      drawWaveform(audioBuffer);
+      
+      tStart.textContent = '0:00';
+      tEnd.textContent = formatTime(audioBuffer.duration);
+      durTime.textContent = formatTime(audioBuffer.duration);
+      
+      seek.value = 0;
+      seek.max = audioBuffer.duration;
+      currentTime = 0;
+      updateProgressIndicator();
+      
+      const fileInfo = `${speed.value}× speed, ${pitch.value} semitones, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo`;
+      fileList.innerHTML = `
+        <div class="fileRow">
+          <div>
+            <div class="fileTitle">${file.name}</div>
+            <div class="fileMeta">${fileInfo}</div>
+          </div>
+          <div>♪</div>
+        </div>`;
+      
+      downloadBtn.disabled = false;
+      setStatus('Ready');
+      
+    } catch (error) {
+      console.error('Error loading file:', error);
+      setStatus('Failed to load file');
+    }
+  };
+
+  clearBtn.onclick = () => {
+    if (sourceNode) {
+      try {
+        sourceNode.stop();
+      } catch (e) {}
+      sourceNode.disconnect();
+    }
+    
+    sourceNode = null;
+    audioBuffer = null;
+    isPlaying = false;
+    currentTime = 0;
+    
+    fileList.innerHTML = '<div class="fileRow muted">No file yet. Click "Add file".</div>';
+    currentName.textContent = '—';
+    
+    const canvas = wave.querySelector('canvas');
+    if (canvas) {
+      const ctx2d = canvas.getContext('2d');
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    seek.value = 0;
+    durTime.textContent = '0:00';
+    tEnd.textContent = '0:00';
+    curTime.textContent = '0:00';
+    playBtn.textContent = '▶';
+    downloadBtn.disabled = true;
+    updateProgressIndicator();
+    
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    
+    setStatus('Cleared');
+  };
+
+  // ===== Waveform Visualization =====
+  function drawWaveform(buffer) {
+    let canvas = wave.querySelector('canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      wave.appendChild(canvas);
+    }
+    
+    const rect = wave.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    
+    const ctx2d = canvas.getContext('2d');
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (!buffer) return;
+    
+    const channelData = buffer.getChannelData(0);
+    const samples = channelData.length;
+    const step = Math.max(1, Math.floor(samples / canvas.width));
+    const midHeight = canvas.height / 2;
+    
+    ctx2d.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    
+    for (let x = 0; x < canvas.width; x++) {
+      let min = 1;
+      let max = -1;
+      
+      const start = x * step;
+      const end = Math.min(start + step, samples);
+      
+      for (let i = start; i < end; i++) {
+        const sample = channelData[i];
+        if (sample < min) min = sample;
+        if (sample > max) max = sample;
+      }
+      
+      const height = Math.max(1, (max - min) * midHeight);
+      const y = midHeight + min * midHeight;
+      
+      ctx2d.fillRect(x, y, 1, height);
+    }
+  }
+
+  // Handle window resize for waveform
+  new ResizeObserver(() => {
+    drawWaveform(audioBuffer);
+  }).observe(wave);
+
+  // ===== Playback Control =====
+  function getCurrentPlaybackTime() {
+    if (!audioBuffer) return 0;
+    if (!isPlaying) return currentTime;
+    
+    const elapsed = (ctx.currentTime - lastPlayTime) * sourceNode.playbackRate.value;
+    return Math.min(audioBuffer.duration, startOffset + elapsed);
+  }
+
+  function updateTimeDisplay() {
+    if (!audioBuffer) return;
+    
+    currentTime = getCurrentPlaybackTime();
+    curTime.textContent = formatTime(currentTime);
+    seek.value = currentTime;
+    updateProgressIndicator();
+    
+    if (isPlaying && currentTime < audioBuffer.duration) {
+      animationFrame = requestAnimationFrame(updateTimeDisplay);
+    }
+  }
+
+  playBtn.onclick = () => {
+    if (!audioBuffer) return;
+    
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    
+    if (!isPlaying) {
+      createAudioSource();
+      startOffset = currentTime;
+      sourceNode.start(0, startOffset);
+      lastPlayTime = ctx.currentTime;
+      isPlaying = true;
+      playBtn.textContent = '⏸';
+      updateTimeDisplay();
+    } else {
+      try {
+        sourceNode.stop();
+      } catch (e) {}
+      currentTime = getCurrentPlaybackTime();
+      isPlaying = false;
+      playBtn.textContent = '▶';
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+    }
+  };
+
+  // Seek control
+  let isSeeking = false;
+  
+  seek.oninput = () => {
+    if (!audioBuffer) return;
+    isSeeking = true;
+    currentTime = parseFloat(seek.value);
+    curTime.textContent = formatTime(currentTime);
+    updateProgressIndicator();
+  };
+
+  seek.onchange = () => {
+    if (!audioBuffer) return;
+    
+    currentTime = parseFloat(seek.value);
+    
+    if (isPlaying) {
+      try {
+        sourceNode.stop();
+      } catch (e) {}
+      
+      createAudioSource();
+      startOffset = currentTime;
+      sourceNode.start(0, startOffset);
+      lastPlayTime = ctx.currentTime;
+    }
+    
+    isSeeking = false;
+  };
+
+  // ===== Live Effects =====
+  function updateMuffleFilter() {
+    const muffleValue = parseInt(muffle.value);
+    const isUnlocked = unlockBox && unlockBox.checked;
+    const maxFreq = 20000;
+    const minFreq = isUnlocked ? 60 : 300;
+    const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, muffleValue / 100));
+    
+    const frequency = maxFreq * Math.pow(minFreq / maxFreq, range);
+    muffleFilter.frequency.value = Math.max(60, frequency);
+    muffleLbl.textContent = `(${muffleValue}%)`;
+  }
+
+  function updateEchoEffect() {
+    const echoValue = parseInt(echo.value);
+    const isUnlocked = unlockBox && unlockBox.checked;
+    const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, echoValue / 100));
+    
+    const delayTime = 0.08 + (isUnlocked ? 1.2 : 0.42) * range;
+    const feedback = Math.min(0.95, (isUnlocked ? 0.95 : 0.85) * range);
+    const wetLevel = Math.min(1.2, (isUnlocked ? 1.2 : 0.8) * range);
+    
+    delayNode.delayTime.value = Math.min(2.0, delayTime);
+    feedbackGain.gain.value = feedback;
+    echoWetGain.gain.value = wetLevel;
+    echoLbl.textContent = `(${echoValue}%)`;
+  }
+
+  // Effect controls
+  speed.oninput = () => {
+    const speedValue = parseFloat(speed.value);
+    speedLbl.textContent = `(${speedValue.toFixed(2)}×)`;
+    if (sourceNode) {
+      const pitchSemitones = parseFloat(pitch.value);
+      const pitchMult
