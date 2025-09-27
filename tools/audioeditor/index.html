@@ -393,8 +393,10 @@ try {
     const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
     
     if (elements.preserve.checked) {
+      // When preserving pitch, only apply speed change
       sourceNode.playbackRate.value = speedMultiplier;
     } else {
+      // When not preserving, apply both speed and pitch
       sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
     }
     
@@ -668,8 +670,9 @@ try {
       const pitchMultiplier = Math.pow(2, pitchValue / 12);
       
       if (elements.preserve.checked) {
-        // When preserving pitch, apply pitch independently
-        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+        // When preserving pitch, pitch slider doesn't affect live playback
+        // (it will only work in the final render)
+        sourceNode.playbackRate.value = speedMultiplier;
       } else {
         // When not preserving, combine speed and pitch
         sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
