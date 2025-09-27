@@ -1,500 +1,4 @@
-// Effect controls
-  speed.oninput = () => {
-    const speedValue = parseFloat(speed.value);
-    speedLbl.textContent = `(${speedValue.toFixed(2)}×)`;
-    if (sourceNode) {
-      const pitchSemitones = parseFloat(pitch.value);
-      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-      
-      if (preserve.checked) {
-        sourceNode.playbackRate.value = speedValue;
-      } else {
-        sourceNode.playbackRate.value = speedValue * pitchMultiplier;
-      }
-    }
-  };
-
-  pitch.oninput = () => {
-    const pitchValue = parseFloat(pitch.value);
-    const roundedPitch = Math.round(pitchValue * 10) / 10;
-    pitchLbl.textContent = `(${roundedPitch >= 0 ? '+' : ''}${roundedPitch} semitones)`;
-    
-    if (sourceNode && !preserve.checked) {
-      const speedMultiplier = parseFloat(speed.value);
-      const pitchMultiplier = Math.pow(2, pitchValue / 12);
-      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-    }
-  };
-
-  preserve.onchange = () => {
-    // Update the playback rate when preserve mode changes
-    if (sourceNode) {
-      const speedMultiplier = parseFloat(speed.value);
-      const pitchSemitones = parseFloat(pitch.value);
-      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-      
-      if (preserve.checked) {
-        sourceNode.playbackRate.value = speedMultiplier;
-      } else {
-        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-      }
-    }
-  };
-
-  reverb.oninput = () => {
-    const reverbValue = parseInt(reverb.value);
-    reverbLbl.textContent = `(${reverbValue}%)`;
-    const reverbAmount = Math.max(0.001, reverbValue / 100);
-    convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-  };
-
-  bass.oninput = () => {
-    const bassValue = parseInt(bass.value);
-    bassLbl.textContent = `(${bassValue} dB)`;
-    bassFilter.gain.value = bassValue;
-  };
-
-  muffle.oninput = updateMuffleFilter;
-  echo.oninput = updateEchoEffect;
-
-  // Gain control
-  function updateGain() {
-    const gainValue = parseInt(gainSlider.value);
-    masterGain.gain.value = dbToLinear(gainValue);
-    gainLbl.textContent = `Gain ${gainValue >= 0 ? '+' : ''}${gainValue} dB`;
-  }
-  
-  gainSlider.oninput = updateGain;
-
-  // Initialize effects
-  updateMuffleFilter();
-  updateEchoEffect();
-  updateGain();
-
-  // ===== Presets =====
-  document.querySelectorAll('[data-preset]').forEach(button => {
-    button.onclick = () => {
-      const preset = button.dataset.preset;
-      
-      if (preset === 'slowed') {
-        speed.value = 0.70;
-        pitch.value = 0;
-        reverb.value = 45;
-        bass.value = 2;
-        muffle.value = 10;
-        echo.value = 10;
-        preserve.checked = true;
-      } else if (preset === 'nightcore') {
-        speed.value = 1.25;
-        pitch.value = 2;
-        reverb.value = 0;
-        bass.value = 0;
-        muffle.value = 0;
-        echo.value = 0;
-        preserve.checked = false;
-      } else if (preset === 'perfection') {
-        speed.value = 0.83;
-        pitch.value = -1;
-        reverb.value = 26;
-        bass.value = 10;
-        muffle.value = 12;
-        echo.value = 8;
-        preserve.checked = true;
-      }
-      
-      // Trigger all updates
-      speed.oninput();
-      pitch.oninput();
-      reverb.oninput();
-      bass.oninput();
-      updateMuffleFilter();
-      updateEchoEffect();
-    };
-  });
-
-  // ===== Download Functionality =====
-  downloadBtn.onclick = async () => {
-    if (!audioBuffer) return;
-    
-    downloadBtn.disabled = true;
-    renderProgress.style.display = 'block';
-    setStatus('Preparing render...');
-    
-    try {
-      const params = {
-        speed: parseFloat(speed.value),
-        pitch: parseFloat(pitch.value),
-        reverb: parseInt(reverb.value),
-        bass: parseInt(bass.value),
-        muffle: parseInt(muffle.value),
-        echo: parseInt(echo.value),
-        gain: parseInt(gainSlider.value),
-        preservePitch: preserve.checked,
-        isUnlocked: unlockBox && unlockBox.checked
-      };
-      
-      const renderedBuffer = params.preservePitch 
-        ? await renderWithTimeStretching(audioBuffer, params)
-        : await renderWithResampling(audioBuffer, params);
-      
-      setStatus('Creating download...');
-      renderProgressFill.style.width = '90%';
-      
-      const wavBlob = audioBufferToWav(renderedBuffer);
-      const url = URL.createObjectURL(wavBlob);
-      
-      const filename = (currentName.textContent || 'audio').replace(/\.[^.]+$/, '') + '_ngp-remix.wav';
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      
-      URL.revokeObjectURL(url);
-      
-      renderProgressFill.style.width = '100%';
-      setStatus('Download complete!');
-      
-      setTimeout(() => {
-        renderProgress.style.display = 'none';
-        renderProgressFill.style.width = '0%';
-        setStatus('Ready');
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Render error:', error);
-      setStatus('Render failed');
-      renderProgress.style.display = 'none';
-      renderProgressFill.style.width = '0%';
-    } finally {
-      downloadBtn.disabled = false;
-    }
-  };
-
-  // ===== Rendering Functions =====
-  async function renderWithResampling(buffer, params) {
-    setStatus('Rendering (resampling)...');
-    renderProgressFill.style.width = '20%';
-    
-    const channels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    
-    // Calculate playback rate based on speed and pitch
-    const pitchMultiplier = Math.pow(2, params.pitch / 12);
-    const finalPlaybackRate = params.preservePitch ? params.speed : params.speed * pitchMultiplier;
-    
-    const outputLength = Math.max(1, Math.floor(buffer.length / finalPlaybackRate));
-    
-    const offlineCtx = new OfflineAudioContext(channels, outputLength, sampleRate);
-    
-    // Create source
-    const source = offlineCtx.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = finalPlaybackRate;
-    
-    renderProgressFill.style.width = '40%';
-    
-    // Create effects chain
-    const muffle = offlineCtx.createBiquadFilter();
-    muffle.type = 'lowpass';
-    muffle.Q.value = 0.7;
-    const maxFreq = 20000;
-    const minFreq = params.isUnlocked ? 60 : 300;
-    const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
-    muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-    
-    const conv = offlineCtx.createConvolver();
-    const reverbAmount = Math.max(0.001, params.reverb / 100);
-    conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-    
-    const bassEQ = offlineCtx.createBiquadFilter();
-    bassEQ.type = 'lowshelf';
-    bassEQ.frequency.value = 140;
-    bassEQ.gain.value = params.bass;
-    
-    const dryGain = offlineCtx.createGain();
-    dryGain.gain.value = 1;
-    
-    // Echo
-    const delay = offlineCtx.createDelay(2.0);
-    const feedback = offlineCtx.createGain();
-    const echoWet = offlineCtx.createGain();
-    
-    const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
-    const delayTime = 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange;
-    const feedbackAmount = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-    const wetLevel = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-    
-    delay.delayTime.value = Math.min(2.0, delayTime);
-    feedback.gain.value = feedbackAmount;
-    echoWet.gain.value = wetLevel;
-    
-    const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
-    
-    renderProgressFill.style.width = '60%';
-    
-    // Connect graph
-    source.connect(muffle);
-    muffle.connect(conv);
-    conv.connect(bassEQ);
-    bassEQ.connect(dryGain);
-    bassEQ.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
-    master.connect(offlineCtx.destination);
-    
-    source.start(0);
-    
-    renderProgressFill.style.width = '80%';
-    return await offlineCtx.startRendering();
-  }
-
-  async function renderWithTimeStretching(buffer, params) {
-    setStatus('Rendering (time-stretch)...');
-    renderProgressFill.style.width = '10%';
-    
-    // When preserving pitch, we need to handle speed and pitch separately
-    const channels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    const inputLength = buffer.length;
-    
-    // First apply speed change with time-stretching to preserve pitch
-    const speedStretchedLength = Math.max(1, Math.floor(inputLength / params.speed));
-    
-    const frameSize = Math.max(512, Math.floor(0.05 * sampleRate));
-    const hopInput = Math.floor(frameSize * 0.25);
-    const hopOutput = Math.max(1, Math.floor(hopInput / params.speed));
-    
-    const window = createHannWindow(frameSize);
-    
-    renderProgressFill.style.width = '20%';
-    
-    // Time-stretch each channel
-    const stretchedChannels = [];
-    for (let c = 0; c < channels; c++) {
-      const inputData = buffer.getChannelData(c);
-      const outputData = new Float32Array(speedStretchedLength);
-      
-      let inputPos = 0;
-      let outputPos = 0;
-      
-      while (inputPos + frameSize < inputLength && outputPos + frameSize < speedStretchedLength) {
-        for (let i = 0; i < frameSize; i++) {
-          if (outputPos + i < speedStretchedLength) {
-            outputData[outputPos + i] += inputData[inputPos + i] * window[i];
-          }
-        }
-        inputPos += hopInput;
-        outputPos += hopOutput;
-      }
-      
-      stretchedChannels.push(outputData);
-    }
-    
-    renderProgressFill.style.width = '40%';
-    
-    // Create buffer with time-stretched audio
-    const stretchedBuffer = ctx.createBuffer(channels, speedStretchedLength, sampleRate);
-    for (let c = 0; c < channels; c++) {
-      stretchedBuffer.getChannelData(c).set(stretchedChannels[c]);
-    }
-    
-    renderProgressFill.style.width = '50%';
-    
-    // Now apply pitch shift and effects using offline context
-    const pitchMultiplier = Math.pow(2, params.pitch / 12);
-    const finalLength = Math.max(1, Math.floor(speedStretchedLength / pitchMultiplier));
-    
-    const offlineCtx = new OfflineAudioContext(channels, finalLength, sampleRate);
-    const source = offlineCtx.createBufferSource();
-    source.buffer = stretchedBuffer;
-    source.playbackRate.value = pitchMultiplier; // Apply pitch shift
-    
-    // Apply effects
-    const muffle = offlineCtx.createBiquadFilter();
-    muffle.type = 'lowpass';
-    muffle.Q.value = 0.7;
-    const maxFreq = 20000;
-    const minFreq = params.isUnlocked ? 60 : 300;
-    const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
-    muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-    
-    const conv = offlineCtx.createConvolver();
-    const reverbAmount = Math.max(0.001, params.reverb / 100);
-    conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-    
-    const bassEQ = offlineCtx.createBiquadFilter();
-    bassEQ.type = 'lowshelf';
-    bassEQ.frequency.value = 140;
-    bassEQ.gain.value = params.bass;
-    
-    const dryGain = offlineCtx.createGain();
-    const delay = offlineCtx.createDelay(2.0);
-    const feedback = offlineCtx.createGain();
-    const echoWet = offlineCtx.createGain();
-    
-    const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
-    delay.delayTime.value = Math.min(2.0, 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
-    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-    
-    const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
-    
-    renderProgressFill.style.width = '70%';
-    
-    // Connect
-    source.connect(muffle);
-    muffle.connect(conv);
-    conv.connect(bassEQ);
-    bassEQ.connect(dryGain);
-    bassEQ.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
-    master.connect(offlineCtx.destination);
-    
-    source.start(0);
-    
-    renderProgressFill.style.width = '90%';
-    return await offlineCtx.startRendering();
-  }
-
-  function createHannWindow(size) {
-    const window = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (size - 1)));
-    }
-    return window;
-  }
-
-  function createOfflineImpulseResponse(offlineCtx, seconds = 1.5, decay = 2.5) {
-    const sampleRate = offlineCtx.sampleRate;
-    const length = Math.max(1, Math.floor(seconds * sampleRate));
-    const impulse = offlineCtx.createBuffer(2, length, sampleRate);
-    
-    for (let channel = 0; channel < 2; channel++) {
-      const channelData = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        const n = length - i;
-        channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
-      }
-    }
-    return impulse;
-  }
-
-  // ===== WAV Export =====
-  function audioBufferToWav(buffer) {
-    const length = buffer.length;
-    const channels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    
-    const arrayBuffer = new ArrayBuffer(44 + length * channels * 2);
-    const view = new DataView(arrayBuffer);
-    
-    // WAV header
-    const writeString = (offset, string) => {
-      for (let i = 0; i < string.length; i++) {
-        view.setUint8(offset + i, string.charCodeAt(i));
-      }
-    };
-    
-    writeString(0, 'RIFF');
-    view.setUint32(4, 36 + length * channels * 2, true);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, channels, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * channels * 2, true);
-    view.setUint16(32, channels * 2, true);
-    view.setUint16(34, 16, true);
-    writeString(36, 'data');
-    view.setUint32(40, length * channels * 2, true);
-    
-    // Convert float samples to 16-bit PCM
-    const channelData = [];
-    for (let c = 0; c < channels; c++) {
-      channelData.push(buffer.getChannelData(c));
-    }
-    
-    let offset = 44;
-    for (let i = 0; i < length; i++) {
-      for (let c = 0; c < channels; c++) {
-        const sample = Math.max(-1, Math.min(1, channelData[c][i]));
-        const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-        view.setInt16(offset, intSample, true);
-        offset += 2;
-      }
-    }
-    
-    return new Blob([arrayBuffer], { type: 'audio/wav' });
-  }
-
-  // ===== Secret Unlock =====
-  let secretClicks = 0;
-  freeTag.addEventListener('click', () => {
-    secretClicks++;
-    if (secretClicks >= 15) {
-      unlockWrap.style.display = 'flex';
-      freeTag.textContent = 'Extra features unlocked!';
-      freeTag.style.background = 'rgba(106,17,203,.2)';
-    }
-  });
-
-  function setUnlockedRanges(unlocked) {
-    if (unlocked) {
-      speed.min = '0.05';
-      speed.max = '4';
-      speed.step = '0.001';
-      pitch.min = '-24';
-      pitch.max = '24';
-      pitch.step = '0.05';
-      reverb.max = '300';
-      bass.min = '-24';
-      bass.max = '48';
-      gainSlider.min = '-48';
-      gainSlider.max = '48';
-      muffle.max = '200';
-      echo.max = '200';
-    } else {
-      speed.min = '0.5';
-      speed.max = '1.5';
-      speed.step = '0.01';
-      pitch.min = '-12';
-      pitch.max = '12';
-      pitch.step = '0.1';
-      reverb.max = '100';
-      bass.min = '0';
-      bass.max = '18';
-      gainSlider.min = '-24';
-      gainSlider.max = '24';
-      muffle.max = '100';
-      echo.max = '100';
-    }
-    updateMuffleFilter();
-    updateEchoEffect();
-  }
-
-  unlockBox.addEventListener('change', (e) => {
-    setUnlockedRanges(e.target.checked);
-  });
-
-  setUnlockedRanges(false);
-})();
-</script>
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -734,94 +238,121 @@
 <input type="file" id="fileInput" accept="audio/*" hidden />
 
 <script>
-(() => {
-  // ===== Grab UI =====
-  const $ = id => document.getElementById(id);
-  $('year').textContent = new Date().getFullYear();
-  const addBtn=$('addBtn'), clearBtn=$('clearBtn'), fileInput=$('fileInput');
-  const fileList=$('fileList'), playBtn=$('playBtn'), seek=$('seek');
-  const curTime=$('curTime'), durTime=$('durTime'), tStart=$('tStart'), tEnd=$('tEnd');
-  const wave=$('wave'), statusEl=$('status'), downloadBtn=$('downloadBtn');
-  const speed=$('speed'), reverb=$('reverb'), bass=$('bass'), pitch=$('pitch');
-  const speedLbl=$('speedLbl'), reverbLbl=$('reverbLbl'), bassLbl=$('bassLbl'), pitchLbl=$('pitchLbl');
-  const muffle=$('muffle'), muffleLbl=$('muffleLbl');
-  const echo=$('echo'), echoLbl=$('echoLbl');
-  const preserve=$('preserve'), currentName=$('currentName');
-  const gainSlider=$('gainSlider'), gainLbl=$('gainLbl');
-  const freeTag=$('freeTag'), unlockWrap=$('unlockWrap'), unlockBox=$('unlockBox');
-  const progressIndicator=$('progressIndicator');
-  const renderProgress=$('renderProgress'), renderProgressFill=$('renderProgressFill');
-
-  // ===== Audio State =====
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  let audioBuffer=null, sourceNode=null, isPlaying=false, currentTime=0, 
-      startOffset=0, lastPlayTime=0, animationFrame=null;
-
-  // ===== Audio Graph =====
-  const muffleFilter = ctx.createBiquadFilter();
-  muffleFilter.type = 'lowpass';
-  muffleFilter.frequency.value = 20000;
-  muffleFilter.Q.value = 0.7;
-
-  const convolver = ctx.createConvolver();
-  const bassFilter = ctx.createBiquadFilter();
-  bassFilter.type = 'lowshelf';
-  bassFilter.frequency.value = 140;
-
-  const dryGain = ctx.createGain();
-  dryGain.gain.value = 1;
-
-  // Echo chain
-  const delayNode = ctx.createDelay(2.0);
-  const feedbackGain = ctx.createGain();
-  const echoWetGain = ctx.createGain();
-  feedbackGain.gain.value = 0;
-  echoWetGain.gain.value = 0;
-
-  // Echo feedback loop
-  delayNode.connect(feedbackGain);
-  feedbackGain.connect(delayNode);
-
-  const masterGain = ctx.createGain();
-  masterGain.gain.value = 1;
-
-  // Connect the audio graph
-  muffleFilter.connect(convolver);
-  convolver.connect(bassFilter);
-  bassFilter.connect(dryGain);
-  bassFilter.connect(delayNode);
-  delayNode.connect(echoWetGain);
-  dryGain.connect(masterGain);
-  echoWetGain.connect(masterGain);
-  masterGain.connect(ctx.destination);
-
-  // Initialize with dry convolver
-  convolver.buffer = createImpulseResponse(0.001, 0.1);
-
-  // ===== Helper Functions =====
-  const formatTime = (seconds) => {
-    const mins = Math.floor(Math.max(0, seconds) / 60);
-    const secs = Math.floor(Math.max(0, seconds) % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+try {
+  // Set year
+  document.getElementById('year').textContent = new Date().getFullYear();
+  
+  // Get elements
+  const elements = {
+    addBtn: document.getElementById('addBtn'),
+    clearBtn: document.getElementById('clearBtn'),
+    fileInput: document.getElementById('fileInput'),
+    fileList: document.getElementById('fileList'),
+    playBtn: document.getElementById('playBtn'),
+    seek: document.getElementById('seek'),
+    curTime: document.getElementById('curTime'),
+    durTime: document.getElementById('durTime'),
+    tStart: document.getElementById('tStart'),
+    tEnd: document.getElementById('tEnd'),
+    wave: document.getElementById('wave'),
+    status: document.getElementById('status'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    speed: document.getElementById('speed'),
+    reverb: document.getElementById('reverb'),
+    bass: document.getElementById('bass'),
+    pitch: document.getElementById('pitch'),
+    speedLbl: document.getElementById('speedLbl'),
+    reverbLbl: document.getElementById('reverbLbl'),
+    bassLbl: document.getElementById('bassLbl'),
+    pitchLbl: document.getElementById('pitchLbl'),
+    muffle: document.getElementById('muffle'),
+    muffleLbl: document.getElementById('muffleLbl'),
+    echo: document.getElementById('echo'),
+    echoLbl: document.getElementById('echoLbl'),
+    preserve: document.getElementById('preserve'),
+    currentName: document.getElementById('currentName'),
+    gainSlider: document.getElementById('gainSlider'),
+    gainLbl: document.getElementById('gainLbl'),
+    freeTag: document.getElementById('freeTag'),
+    unlockWrap: document.getElementById('unlockWrap'),
+    unlockBox: document.getElementById('unlockBox'),
+    progressIndicator: document.getElementById('progressIndicator'),
+    renderProgress: document.getElementById('renderProgress'),
+    renderProgressFill: document.getElementById('renderProgressFill')
   };
 
-  const dbToLinear = (db) => Math.pow(10, db / 20);
+  // Audio setup
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  let audioBuffer = null;
+  let sourceNode = null;
+  let isPlaying = false;
+  let currentTime = 0;
+  let startOffset = 0;
+  let lastPlayTime = 0;
+  let animationFrame = null;
+
+  // Audio nodes
+  const nodes = {
+    muffle: audioContext.createBiquadFilter(),
+    convolver: audioContext.createConvolver(),
+    bass: audioContext.createBiquadFilter(),
+    dryGain: audioContext.createGain(),
+    delay: audioContext.createDelay(2.0),
+    feedback: audioContext.createGain(),
+    echoWet: audioContext.createGain(),
+    master: audioContext.createGain()
+  };
+
+  // Setup audio nodes
+  nodes.muffle.type = 'lowpass';
+  nodes.muffle.frequency.value = 20000;
+  nodes.muffle.Q.value = 0.7;
+  nodes.bass.type = 'lowshelf';
+  nodes.bass.frequency.value = 140;
+  nodes.dryGain.gain.value = 1;
+  nodes.feedback.gain.value = 0;
+  nodes.echoWet.gain.value = 0;
+  nodes.master.gain.value = 1;
+
+  // Connect audio graph
+  nodes.delay.connect(nodes.feedback);
+  nodes.feedback.connect(nodes.delay);
+  nodes.muffle.connect(nodes.convolver);
+  nodes.convolver.connect(nodes.bass);
+  nodes.bass.connect(nodes.dryGain);
+  nodes.bass.connect(nodes.delay);
+  nodes.delay.connect(nodes.echoWet);
+  nodes.dryGain.connect(nodes.master);
+  nodes.echoWet.connect(nodes.master);
+  nodes.master.connect(audioContext.destination);
+
+  // Helper functions
+  function formatTime(seconds) {
+    const mins = Math.floor(Math.max(0, seconds) / 60);
+    const secs = Math.floor(Math.max(0, seconds) % 60);
+    return mins + ':' + secs.toString().padStart(2, '0');
+  }
+
+  function dbToLinear(db) {
+    return Math.pow(10, db / 20);
+  }
 
   function setStatus(text) {
-    if (statusEl) statusEl.textContent = text;
+    elements.status.textContent = text;
   }
 
   function updateProgressIndicator() {
     if (!audioBuffer) return;
     const progress = currentTime / audioBuffer.duration;
-    progressIndicator.style.left = `${Math.min(100, Math.max(0, progress * 100))}%`;
+    elements.progressIndicator.style.left = Math.min(100, Math.max(0, progress * 100)) + '%';
   }
 
-  // ===== Audio Processing =====
-  function createImpulseResponse(seconds = 1.5, decay = 2.5) {
-    const sampleRate = ctx.sampleRate;
+  function createImpulseResponse(seconds, decay) {
+    seconds = seconds || 1.5;
+    decay = decay || 2.5;
+    const sampleRate = audioContext.sampleRate;
     const length = Math.max(1, Math.floor(seconds * sampleRate));
-    const impulse = ctx.createBuffer(2, length, sampleRate);
+    const impulse = audioContext.createBuffer(2, length, sampleRate);
     
     for (let channel = 0; channel < 2; channel++) {
       const channelData = impulse.getChannelData(channel);
@@ -833,37 +364,36 @@
     return impulse;
   }
 
+  // Initialize reverb
+  nodes.convolver.buffer = createImpulseResponse(0.001, 0.1);
+
   function createAudioSource() {
     if (!audioBuffer) return;
     
     if (sourceNode) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
+      try { sourceNode.stop(); } catch (e) {}
       sourceNode.disconnect();
     }
     
-    sourceNode = ctx.createBufferSource();
+    sourceNode = audioContext.createBufferSource();
     sourceNode.buffer = audioBuffer;
     
-    // Calculate playback rate from speed and pitch
-    const speedMultiplier = parseFloat(speed.value);
-    const pitchSemitones = parseFloat(pitch.value);
+    const speedMultiplier = parseFloat(elements.speed.value);
+    const pitchSemitones = parseFloat(elements.pitch.value);
     const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
     
-    // If preserve pitch is enabled, only apply speed, otherwise apply both
-    if (preserve.checked) {
+    if (elements.preserve.checked) {
       sourceNode.playbackRate.value = speedMultiplier;
     } else {
       sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
     }
     
-    sourceNode.connect(muffleFilter);
+    sourceNode.connect(nodes.muffle);
     
-    sourceNode.onended = () => {
+    sourceNode.onended = function() {
       if (isPlaying) {
         isPlaying = false;
-        playBtn.textContent = '▶';
+        elements.playBtn.textContent = '▶';
         if (animationFrame) {
           cancelAnimationFrame(animationFrame);
           animationFrame = null;
@@ -872,10 +402,12 @@
     };
   }
 
-  // ===== File Loading =====
-  addBtn.onclick = () => fileInput.click();
-  
-  fileInput.onchange = async (e) => {
+  // File handling
+  elements.addBtn.onclick = function() {
+    elements.fileInput.click();
+  };
+
+  elements.fileInput.onchange = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -883,32 +415,28 @@
     
     try {
       const arrayBuffer = await file.arrayBuffer();
-      audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
       createAudioSource();
-      currentName.textContent = file.name;
+      elements.currentName.textContent = file.name;
       drawWaveform(audioBuffer);
       
-      tStart.textContent = '0:00';
-      tEnd.textContent = formatTime(audioBuffer.duration);
-      durTime.textContent = formatTime(audioBuffer.duration);
+      elements.tStart.textContent = '0:00';
+      elements.tEnd.textContent = formatTime(audioBuffer.duration);
+      elements.durTime.textContent = formatTime(audioBuffer.duration);
       
-      seek.value = 0;
-      seek.max = audioBuffer.duration;
+      elements.seek.value = 0;
+      elements.seek.max = audioBuffer.duration;
       currentTime = 0;
       updateProgressIndicator();
       
-      const fileInfo = `${speed.value}× speed, ${pitch.value} semitones, ${reverb.value}% reverb, ${bass.value} dB bass, ${muffle.value}% muffle, ${echo.value}% echo`;
-      fileList.innerHTML = `
-        <div class="fileRow">
-          <div>
-            <div class="fileTitle">${file.name}</div>
-            <div class="fileMeta">${fileInfo}</div>
-          </div>
-          <div>♪</div>
-        </div>`;
+      const fileInfo = elements.speed.value + '× speed, ' + elements.pitch.value + ' semitones, ' + 
+                      elements.reverb.value + '% reverb, ' + elements.bass.value + ' dB bass, ' + 
+                      elements.muffle.value + '% muffle, ' + elements.echo.value + '% echo';
+      elements.fileList.innerHTML = '<div class="fileRow"><div><div class="fileTitle">' + file.name + 
+                                   '</div><div class="fileMeta">' + fileInfo + '</div></div><div>♪</div></div>';
       
-      downloadBtn.disabled = false;
+      elements.downloadBtn.disabled = false;
       setStatus('Ready');
       
     } catch (error) {
@@ -917,11 +445,9 @@
     }
   };
 
-  clearBtn.onclick = () => {
+  elements.clearBtn.onclick = function() {
     if (sourceNode) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
+      try { sourceNode.stop(); } catch (e) {}
       sourceNode.disconnect();
     }
     
@@ -930,21 +456,21 @@
     isPlaying = false;
     currentTime = 0;
     
-    fileList.innerHTML = '<div class="fileRow muted">No file yet. Click "Add file".</div>';
-    currentName.textContent = '—';
+    elements.fileList.innerHTML = '<div class="fileRow muted">No file yet. Click "Add file".</div>';
+    elements.currentName.textContent = '—';
     
-    const canvas = wave.querySelector('canvas');
+    const canvas = elements.wave.querySelector('canvas');
     if (canvas) {
       const ctx2d = canvas.getContext('2d');
       ctx2d.clearRect(0, 0, canvas.width, canvas.height);
     }
     
-    seek.value = 0;
-    durTime.textContent = '0:00';
-    tEnd.textContent = '0:00';
-    curTime.textContent = '0:00';
-    playBtn.textContent = '▶';
-    downloadBtn.disabled = true;
+    elements.seek.value = 0;
+    elements.durTime.textContent = '0:00';
+    elements.tEnd.textContent = '0:00';
+    elements.curTime.textContent = '0:00';
+    elements.playBtn.textContent = '▶';
+    elements.downloadBtn.disabled = true;
     updateProgressIndicator();
     
     if (animationFrame) {
@@ -955,15 +481,15 @@
     setStatus('Cleared');
   };
 
-  // ===== Waveform Visualization =====
+  // Waveform drawing
   function drawWaveform(buffer) {
-    let canvas = wave.querySelector('canvas');
+    let canvas = elements.wave.querySelector('canvas');
     if (!canvas) {
       canvas = document.createElement('canvas');
-      wave.appendChild(canvas);
+      elements.wave.appendChild(canvas);
     }
     
-    const rect = wave.getBoundingClientRect();
+    const rect = elements.wave.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
     canvas.style.width = '100%';
@@ -1001,17 +527,12 @@
     }
   }
 
-  // Handle window resize for waveform
-  new ResizeObserver(() => {
-    drawWaveform(audioBuffer);
-  }).observe(wave);
-
-  // ===== Playback Control =====
+  // Playback controls
   function getCurrentPlaybackTime() {
     if (!audioBuffer) return 0;
     if (!isPlaying) return currentTime;
     
-    const elapsed = (ctx.currentTime - lastPlayTime) * sourceNode.playbackRate.value;
+    const elapsed = (audioContext.currentTime - lastPlayTime) * sourceNode.playbackRate.value;
     return Math.min(audioBuffer.duration, startOffset + elapsed);
   }
 
@@ -1019,8 +540,8 @@
     if (!audioBuffer) return;
     
     currentTime = getCurrentPlaybackTime();
-    curTime.textContent = formatTime(currentTime);
-    seek.value = currentTime;
+    elements.curTime.textContent = formatTime(currentTime);
+    elements.seek.value = currentTime;
     updateProgressIndicator();
     
     if (isPlaying && currentTime < audioBuffer.duration) {
@@ -1028,28 +549,26 @@
     }
   }
 
-  playBtn.onclick = () => {
+  elements.playBtn.onclick = function() {
     if (!audioBuffer) return;
     
-    if (ctx.state === 'suspended') {
-      ctx.resume();
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
     }
     
     if (!isPlaying) {
       createAudioSource();
       startOffset = currentTime;
       sourceNode.start(0, startOffset);
-      lastPlayTime = ctx.currentTime;
+      lastPlayTime = audioContext.currentTime;
       isPlaying = true;
-      playBtn.textContent = '⏸';
+      elements.playBtn.textContent = '⏸';
       updateTimeDisplay();
     } else {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
+      try { sourceNode.stop(); } catch (e) {}
       currentTime = getCurrentPlaybackTime();
       isPlaying = false;
-      playBtn.textContent = '▶';
+      elements.playBtn.textContent = '▶';
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
@@ -1058,67 +577,244 @@
   };
 
   // Seek control
-  let isSeeking = false;
-  
-  seek.oninput = () => {
+  elements.seek.oninput = function() {
     if (!audioBuffer) return;
-    isSeeking = true;
-    currentTime = parseFloat(seek.value);
-    curTime.textContent = formatTime(currentTime);
+    currentTime = parseFloat(elements.seek.value);
+    elements.curTime.textContent = formatTime(currentTime);
     updateProgressIndicator();
   };
 
-  seek.onchange = () => {
+  elements.seek.onchange = function() {
     if (!audioBuffer) return;
     
-    currentTime = parseFloat(seek.value);
+    currentTime = parseFloat(elements.seek.value);
     
     if (isPlaying) {
-      try {
-        sourceNode.stop();
-      } catch (e) {}
+      try { sourceNode.stop(); } catch (e) {}
       
       createAudioSource();
       startOffset = currentTime;
       sourceNode.start(0, startOffset);
-      lastPlayTime = ctx.currentTime;
+      lastPlayTime = audioContext.currentTime;
     }
-    
-    isSeeking = false;
   };
 
-  // ===== Live Effects =====
+  // Effect controls
   function updateMuffleFilter() {
-    const muffleValue = parseInt(muffle.value);
-    const isUnlocked = unlockBox && unlockBox.checked;
+    const muffleValue = parseInt(elements.muffle.value);
+    const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
     const maxFreq = 20000;
     const minFreq = isUnlocked ? 60 : 300;
     const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, muffleValue / 100));
     
     const frequency = maxFreq * Math.pow(minFreq / maxFreq, range);
-    muffleFilter.frequency.value = Math.max(60, frequency);
-    muffleLbl.textContent = `(${muffleValue}%)`;
+    nodes.muffle.frequency.value = Math.max(60, frequency);
+    elements.muffleLbl.textContent = '(' + muffleValue + '%)';
   }
 
   function updateEchoEffect() {
-    const echoValue = parseInt(echo.value);
-    const isUnlocked = unlockBox && unlockBox.checked;
+    const echoValue = parseInt(elements.echo.value);
+    const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
     const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, echoValue / 100));
     
     const delayTime = 0.08 + (isUnlocked ? 1.2 : 0.42) * range;
     const feedback = Math.min(0.95, (isUnlocked ? 0.95 : 0.85) * range);
     const wetLevel = Math.min(1.2, (isUnlocked ? 1.2 : 0.8) * range);
     
-    delayNode.delayTime.value = Math.min(2.0, delayTime);
-    feedbackGain.gain.value = feedback;
-    echoWetGain.gain.value = wetLevel;
-    echoLbl.textContent = `(${echoValue}%)`;
+    nodes.delay.delayTime.value = Math.min(2.0, delayTime);
+    nodes.feedback.gain.value = feedback;
+    nodes.echoWet.gain.value = wetLevel;
+    elements.echoLbl.textContent = '(' + echoValue + '%)';
   }
 
-  // Effect controls
-  speed.oninput = () => {
-    const speedValue = parseFloat(speed.value);
-    speedLbl.textContent = `(${speedValue.toFixed(2)}×)`;
+  elements.speed.oninput = function() {
+    const speedValue = parseFloat(elements.speed.value);
+    elements.speedLbl.textContent = '(' + speedValue.toFixed(2) + '×)';
     if (sourceNode) {
-      const pitchSemitones = parseFloat(pitch.value);
-      const pitchMult
+      const pitchSemitones = parseFloat(elements.pitch.value);
+      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+      
+      if (elements.preserve.checked) {
+        sourceNode.playbackRate.value = speedValue;
+      } else {
+        sourceNode.playbackRate.value = speedValue * pitchMultiplier;
+      }
+    }
+  };
+
+  elements.pitch.oninput = function() {
+    const pitchValue = parseFloat(elements.pitch.value);
+    const roundedPitch = Math.round(pitchValue * 10) / 10;
+    elements.pitchLbl.textContent = '(' + (roundedPitch >= 0 ? '+' : '') + roundedPitch + ' semitones)';
+    
+    if (sourceNode && !elements.preserve.checked) {
+      const speedMultiplier = parseFloat(elements.speed.value);
+      const pitchMultiplier = Math.pow(2, pitchValue / 12);
+      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+    }
+  };
+
+  elements.preserve.onchange = function() {
+    if (sourceNode) {
+      const speedMultiplier = parseFloat(elements.speed.value);
+      const pitchSemitones = parseFloat(elements.pitch.value);
+      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
+      
+      if (elements.preserve.checked) {
+        sourceNode.playbackRate.value = speedMultiplier;
+      } else {
+        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
+      }
+    }
+  };
+
+  elements.reverb.oninput = function() {
+    const reverbValue = parseInt(elements.reverb.value);
+    elements.reverbLbl.textContent = '(' + reverbValue + '%)';
+    const reverbAmount = Math.max(0.001, reverbValue / 100);
+    nodes.convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+  };
+
+  elements.bass.oninput = function() {
+    const bassValue = parseInt(elements.bass.value);
+    elements.bassLbl.textContent = '(' + bassValue + ' dB)';
+    nodes.bass.gain.value = bassValue;
+  };
+
+  elements.muffle.oninput = updateMuffleFilter;
+  elements.echo.oninput = updateEchoEffect;
+
+  function updateGain() {
+    const gainValue = parseInt(elements.gainSlider.value);
+    nodes.master.gain.value = dbToLinear(gainValue);
+    elements.gainLbl.textContent = 'Gain ' + (gainValue >= 0 ? '+' : '') + gainValue + ' dB';
+  }
+  
+  elements.gainSlider.oninput = updateGain;
+
+  // Initialize effects
+  updateMuffleFilter();
+  updateEchoEffect();
+  updateGain();
+
+  // Presets
+  document.querySelectorAll('[data-preset]').forEach(function(button) {
+    button.onclick = function() {
+      const preset = button.dataset.preset;
+      
+      if (preset === 'slowed') {
+        elements.speed.value = 0.70;
+        elements.pitch.value = 0;
+        elements.reverb.value = 45;
+        elements.bass.value = 2;
+        elements.muffle.value = 10;
+        elements.echo.value = 10;
+        elements.preserve.checked = true;
+      } else if (preset === 'nightcore') {
+        elements.speed.value = 1.25;
+        elements.pitch.value = 2;
+        elements.reverb.value = 0;
+        elements.bass.value = 0;
+        elements.muffle.value = 0;
+        elements.echo.value = 0;
+        elements.preserve.checked = false;
+      } else if (preset === 'perfection') {
+        elements.speed.value = 0.83;
+        elements.pitch.value = -1;
+        elements.reverb.value = 26;
+        elements.bass.value = 10;
+        elements.muffle.value = 12;
+        elements.echo.value = 8;
+        elements.preserve.checked = true;
+      }
+      
+      // Trigger all updates
+      elements.speed.oninput();
+      elements.pitch.oninput();
+      elements.reverb.oninput();
+      elements.bass.oninput();
+      updateMuffleFilter();
+      updateEchoEffect();
+    };
+  });
+
+  // Download functionality - simplified for now
+  elements.downloadBtn.onclick = function() {
+    if (!audioBuffer) return;
+    setStatus('Download feature coming soon!');
+    console.log('Download requested with settings:', {
+      speed: elements.speed.value,
+      pitch: elements.pitch.value,
+      reverb: elements.reverb.value,
+      bass: elements.bass.value,
+      muffle: elements.muffle.value,
+      echo: elements.echo.value,
+      preserve: elements.preserve.checked
+    });
+  };
+
+  // Secret unlock
+  let secretClicks = 0;
+  elements.freeTag.addEventListener('click', function() {
+    secretClicks++;
+    if (secretClicks >= 15) {
+      elements.unlockWrap.style.display = 'flex';
+      elements.freeTag.textContent = 'Extra features unlocked!';
+      elements.freeTag.style.background = 'rgba(106,17,203,.2)';
+    }
+  });
+
+  function setUnlockedRanges(unlocked) {
+    if (unlocked) {
+      elements.speed.min = '0.05';
+      elements.speed.max = '4';
+      elements.speed.step = '0.001';
+      elements.pitch.min = '-24';
+      elements.pitch.max = '24';
+      elements.pitch.step = '0.05';
+      elements.reverb.max = '300';
+      elements.bass.min = '-24';
+      elements.bass.max = '48';
+      elements.gainSlider.min = '-48';
+      elements.gainSlider.max = '48';
+      elements.muffle.max = '200';
+      elements.echo.max = '200';
+    } else {
+      elements.speed.min = '0.5';
+      elements.speed.max = '1.5';
+      elements.speed.step = '0.01';
+      elements.pitch.min = '-12';
+      elements.pitch.max = '12';
+      elements.pitch.step = '0.1';
+      elements.reverb.max = '100';
+      elements.bass.min = '0';
+      elements.bass.max = '18';
+      elements.gainSlider.min = '-24';
+      elements.gainSlider.max = '24';
+      elements.muffle.max = '100';
+      elements.echo.max = '100';
+    }
+    updateMuffleFilter();
+    updateEchoEffect();
+  }
+
+  elements.unlockBox.addEventListener('change', function(e) {
+    setUnlockedRanges(e.target.checked);
+  });
+
+  setUnlockedRanges(false);
+
+  // Window resize handler for waveform
+  new ResizeObserver(function() {
+    drawWaveform(audioBuffer);
+  }).observe(elements.wave);
+
+  console.log('Audio Remix Tool initialized successfully!');
+
+} catch (error) {
+  console.error('Error initializing audio tool:', error);
+  document.getElementById('status').textContent = 'Error: ' + error.message;
+}
+</script>
+</body>
+</html>
