@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Intelligence — AI Systems</title>
+
+<!-- Open Graph / Social Media Preview Tags -->
+<meta property="og:title" content="NGP Intelligence — Our AI Systems" />
+<meta property="og:description" content="Explore NGP's AI systems, from Nirvana to future innovations. Cutting-edge intelligence for the community." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/ai" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<!-- Twitter Card Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Intelligence — Our AI Systems" />
+<meta name="twitter:description" content="Explore NGP's AI systems, from Nirvana to future innovations." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<!-- Additional SEO -->
+<meta name="description" content="Explore NGP's AI systems including Nirvana and future innovations. Cutting-edge intelligence for the community." />
+<meta name="keywords" content="NGP, AI, Nirvana, chatbot, artificial intelligence, development" />
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<!-- Favicon -->
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  /* Hero Section */
+  .hero{text-align:center; padding:80px 0 60px; position:relative}
+  .hero h2{
+    font-size:3.5rem; margin:0 0 16px; font-weight:700; line-height:1.1;
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .hero p{font-size:1.2rem; color:var(--muted); margin:0; max-width:600px; margin:0 auto}
+
+  /* AI Grid */
+  .ai-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:24px; padding:40px 0;
+  }
+
+  /* AI Card */
+  .ai-card{
+    background:var(--card); border-radius:var(--radius); padding:32px;
+    box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s ease, box-shadow .3s ease;
+    position:relative; overflow:hidden;
+  }
+  .ai-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 20px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.1);
+  }
+  .ai-card::before{
+    content:''; position:absolute; top:0; left:0; width:4px; height:100%;
+    background:linear-gradient(180deg, var(--brandA), var(--brandB));
+  }
+
+  .ai-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
+  .ai-name{font-size:1.5rem; font-weight:700; margin:0}
+  .ai-status{
+    font-size:.75rem; font-weight:500; padding:4px 12px; border-radius:20px;
+    background:rgba(255,165,0,.15); color:#ffa500; border:1px solid rgba(255,165,0,.3);
+  }
+
+  .ai-desc{color:var(--muted); line-height:1.6; margin:16px 0 20px}
+
+  .ai-features{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px}
+  .feature-badge{
+    font-size:.8rem; padding:6px 12px; border-radius:8px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink);
+  }
+
+  .ai-btn{
+    display:inline-block; padding:10px 24px; border-radius:10px;
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    color:var(--ink); text-decoration:none; font-weight:500;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .ai-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 8px 20px rgba(37,117,252,.4);
+  }
+  .ai-btn.disabled{
+    background:rgba(255,255,255,.1); cursor:not-allowed; opacity:.6;
+  }
+  .ai-btn.disabled:hover{transform:none; box-shadow:none}
+
+  /* Coming Soon Section */
+  .coming-soon{
+    text-align:center; padding:60px 0 80px;
+    border-top:1px solid rgba(255,255,255,.06); margin-top:40px;
+  }
+  .coming-soon h3{
+    font-size:2rem; margin:0 0 12px;
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .coming-soon p{color:var(--muted); font-size:1.1rem}
+
+  /* Footer */
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  /* Responsive */
+  @media (max-width: 768px){
+    .hero h2{font-size:2.5rem}
+    .hero p{font-size:1rem}
+    .ai-grid{grid-template-columns:1fr}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h2>NGP Intelligence</h2>
+    </section>
+
+    <!-- AI Cards -->
+    <section class="ai-grid">
+      <!-- Nirvana 1-Turbo -->
+      <article class="ai-card">
+        <div class="ai-header">
+          <h3 class="ai-name">Nirvana 1-Turbo</h3>
+          <span class="ai-status">In Development</span>
+        </div>
+        
+        <p class="ai-desc">
+          NGP's first AI system, designed to be our main intelligent assistant. Currently specialized in natural conversation, with plans to expand into code assistance, image generation, and more.
+        </p>
+
+        <div class="ai-features">
+          <span class="feature-badge">⚡ Fast Responses</span>
+          <span class="feature-badge">💬 Chat-Optimized</span>
+          <span class="feature-badge">🔒 Dev Access Only</span>
+        </div>
+
+        <a href="#" class="ai-btn disabled" aria-disabled="true">Coming in Alpha v2.5</a>
+      </article>
+    </section>
+
+    <!-- Coming Soon Teaser -->
+    <section class="coming-soon">
+      <h3>More Intelligence Coming Soon</h3>
+      <p>We're cooking up new AI systems. Stay tuned for updates on Discord.</p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
