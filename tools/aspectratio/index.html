@@ -608,17 +608,17 @@
               // Red stripe
               chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
               chunkCtx.fillRect(x0, stripeY, x1 - x0, stripeHeight);
-              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x0, stripeY, x1-x0, stripeHeight, r, 0, 0, a/255);
+              if (microMode) applyMicroscopeGlow(chunkCtx, x0, stripeY, x1-x0, stripeHeight, r, 0, 0, a/255);
               
               // Green stripe
               chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
               chunkCtx.fillRect(x1, stripeY, x2 - x1, stripeHeight);
-              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x1, stripeY, x2-x1, stripeHeight, 0, g, 0, a/255);
+              if (microMode) applyMicroscopeGlow(chunkCtx, x1, stripeY, x2-x1, stripeHeight, 0, g, 0, a/255);
               
               // Blue stripe
               chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
               chunkCtx.fillRect(x2, stripeY, x3 - x2, stripeHeight);
-              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x2, stripeY, x3-x2, stripeHeight, 0, 0, b, a/255);
+              if (microMode) applyMicroscopeGlow(chunkCtx, x2, stripeY, x3-x2, stripeHeight, 0, 0, b, a/255);
               
             } else if (layoutMode === "oledg8") {
               // PROPER OLED PenTile arrangement - no overlapping!
@@ -629,8 +629,6 @@
               // Scale dots based on detail level
               const baseDotRad = size/4.5;
               const dotRad = baseDotRad * Math.min(1, detailLevel * 1.2);
-              
-              // PenTile layout: RG on even rows, GB on odd rows, with offset
               if (oddRow === 0) {
                 // Even row: Red-Green pattern
                 const redX = px + size * 0.25;
@@ -642,14 +640,14 @@
                 chunkCtx.arc(redX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
                 chunkCtx.fill();
-                if (microscopeMode) applyMicroscopeGlow(chunkCtx, redX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, r, 0, 0, a/255);
+                if (microMode) applyMicroscopeGlow(chunkCtx, redX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, r, 0, 0, a/255);
                 
                 // Green dot
                 chunkCtx.beginPath();
                 chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
                 chunkCtx.fill();
-                if (microscopeMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
+                if (microMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
                 
               } else {
                 // Odd row: Green-Blue pattern (offset by half pixel)
@@ -662,14 +660,14 @@
                 chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
                 chunkCtx.fill();
-                if (microscopeMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
+                if (microMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
                 
                 // Blue dot
                 chunkCtx.beginPath();
                 chunkCtx.arc(blueX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
                 chunkCtx.fill();
-                if (microscopeMode) applyMicroscopeGlow(chunkCtx, blueX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, 0, b, a/255);
+                if (microMode) applyMicroscopeGlow(chunkCtx, blueX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, 0, b, a/255);
               }
               
             } else if (layoutMode === "spectral") {
@@ -835,10 +833,11 @@
         subpixelAlpha,
         detailLevel,
         screenPixelSize,
-        threshold
+        threshold,
+        microscopeMode // PASS MICROSCOPE MODE TO CHUNKS!
       };
       
-      const mode = `${blendFactor.toFixed(2)}-${subpixelAlpha.toFixed(2)}-${detailLevel.toFixed(2)}`;
+      const mode = `${blendFactor.toFixed(2)}-${subpixelAlpha.toFixed(2)}-${detailLevel.toFixed(2)}-${microscopeMode}`;
       
       let renderedChunks = 0;
       let cachedChunks = 0;
