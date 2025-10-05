@@ -12,10 +12,34 @@
       flex-direction: column;
       align-items: center;
       margin: 0;
-      height: 100vh;
+      padding: 0;
       user-select: none;
+      overflow-x: hidden;
     }
-    h2 { margin-top: 24px; }
+    h2 { 
+      margin: 12px 0 8px 0;
+      font-size: 1.3em;
+    }
+    .controls-wrapper {
+      width: 100%;
+      max-width: 1400px;
+      transition: all 0.3s ease;
+    }
+    .controls-wrapper.collapsed {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+    }
+    .toggle-controls {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 8px 0;
+      font-size: 0.9em;
+    }
     .input-row {
       margin: 16px 0 0 0;
       display: flex;
@@ -24,7 +48,7 @@
       align-items: center;
     }
     #container {
-      margin: 24px 0;
+      margin: 8px 0;
       border: 3px solid #000;
       background: #000;
       padding: 0;
@@ -218,23 +242,24 @@
     }
     .controls-section {
       background: #252525;
-      padding: 12px;
+      padding: 8px 12px;
       border-radius: 8px;
-      margin: 8px 0;
+      margin: 4px 0;
       border: 1px solid #333;
+      display: inline-block;
     }
     .controls-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      margin: 6px 0;
+      margin: 4px 0;
       flex-wrap: wrap;
     }
     .section-title {
       font-weight: bold;
       color: #0ff;
-      margin-bottom: 6px;
-      font-size: 0.9em;
+      margin-bottom: 4px;
+      font-size: 0.85em;
     }
     #microscopeToggle {
       background: #1a1a3a;
@@ -253,58 +278,70 @@
 </head>
 <body>
   <h2>Unlimited Pixel Grid – Ultra Performance Chunked Renderer</h2>
+  <button class="toggle-controls" onclick="toggleControls()">▼ Hide Controls</button>
   
   <!-- ORGANIZED CONTROLS -->
-  <div style="max-width: 1400px;">
+  <div class="controls-wrapper" id="controlsWrapper" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 10px;">
     <!-- Grid Settings -->
     <div class="controls-section">
-      <div class="section-title">📐 Grid Settings</div>
+      <div class="section-title">📐 Grid</div>
       <div class="controls-row">
-        <label for="w">Width:</label>
+        <label for="w">W:</label>
         <input id="w" type="number" value="12" min="1" max="8192">
-        <label for="h">Height:</label>
+        <label for="h">H:</label>
         <input id="h" type="number" value="8" min="1" max="8192">
-        <label for="pxsize">Pixel Size:</label>
+        <label for="pxsize">Size:</label>
         <input id="pxsize" type="number" value="40" min="2" max="200">
-        <button onclick="drawGrid()">Draw Grid</button>
+        <button onclick="drawGrid()">Draw</button>
       </div>
     </div>
 
     <!-- Display & Image -->
     <div class="controls-section">
-      <div class="section-title">🖼️ Display & Image</div>
+      <div class="section-title">🖼️ Image</div>
       <div class="controls-row">
         <label style="margin: 0;">
           <input type="file" id="imgInput" accept="image/*" style="display:none">
-          <button onclick="document.getElementById('imgInput').click()" type="button">📁 Load Image</button>
+          <button onclick="document.getElementById('imgInput').click()" type="button">📁 Load</button>
         </label>
         <select id="aspectChoice" title="How image fits grid">
           <option value="original">Fit to Image</option>
-          <option value="stretch">Stretch to Grid</option>
+          <option value="stretch">Stretch</option>
         </select>
+        <button onclick="clearImage()" type="button" id="clearBtn" style="display:none;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="controls-section">
+      <div class="section-title">🔬 Layout</div>
+      <div class="controls-row">
         <select id="layoutChoice" title="Subpixel layout">
-          <option value="lcd">LCD (Stripes)</option>
-          <option value="oledg8">OLED (PenTile)</option>
-          <option value="spectral">Spectral (Rainbow)</option>
+          <option value="lcd">LCD</option>
+          <option value="oledg8">OLED</option>
+          <option value="spectral">Spectral</option>
         </select>
-        <button onclick="clearImage()" type="button" id="clearBtn" style="display:none;">Clear Image</button>
+        <button id="microscopeToggle" onclick="toggleMicroscope()">🔬 Microscope</button>
       </div>
     </div>
 
     <!-- View Settings -->
     <div class="controls-section">
-      <div class="section-title">👁️ View Settings</div>
+      <div class="section-title">👁️ View</div>
       <div class="controls-row">
-        <button id="toggleMode" onclick="toggleBlendMode()">Mode: Subpixel</button>
+        <button id="toggleMode" onclick="toggleBlendMode()">Subpixel</button>
         <select id="lodChoice" title="Level of Detail mode">
-          <option value="performance">LoD: Performance</option>
-          <option value="full">LoD: Full Detail</option>
-          <option value="custom">LoD: Custom</option>
+          <option value="performance">LoD: Auto</option>
+          <option value="full">LoD: Full</option>
         </select>
-        <label id="thresholdLabel" style="display:none;">Threshold:</label>
-        <input id="lodThreshold" type="number" value="8" min="1" max="50" style="width: 3em; display:none;">
-        <button id="microscopeToggle" onclick="toggleMicroscope()">🔬 Microscope Vision</button>
-        <button id="pixelEditor" onclick="togglePixelEditor()">🎨 Pixel Editor</button>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div class="controls-section">
+      <div class="section-title">🛠️ Tools</div>
+      <div class="controls-row">
+        <button id="pixelEditor" onclick="togglePixelEditor()">🎨 Editor</button>
       </div>
     </div>
   </div>
@@ -496,9 +533,9 @@
     
     // 🔬 Apply microscope glow effect to context
     function applyMicroscopeGlow(ctx, x, y, width, height, r, g, b, alpha) {
-      if (!microscopeMode) return;
+      if (!microscopeMode || alpha <= 0) return;
       
-      const glowSize = Math.max(width, height) * 0.4 * glowIntensity;
+      const glowSize = Math.max(width, height) * 0.5;
       const centerX = x + width / 2;
       const centerY = y + height / 2;
       
@@ -509,14 +546,18 @@
       );
       
       const brightness = (r + g + b) / (255 * 3);
-      const glowAlpha = alpha * brightness * glowIntensity;
+      const adjustedAlpha = Math.min(1, alpha * brightness * 1.5);
       
-      gradient.addColorStop(0, `rgba(${r},${g},${b},${glowAlpha})`);
-      gradient.addColorStop(0.5, `rgba(${r},${g},${b},${glowAlpha * 0.5})`);
+      gradient.addColorStop(0, `rgba(${r},${g},${b},${adjustedAlpha * 0.8})`);
+      gradient.addColorStop(0.3, `rgba(${r},${g},${b},${adjustedAlpha * 0.5})`);
+      gradient.addColorStop(0.7, `rgba(${r},${g},${b},${adjustedAlpha * 0.2})`);
       gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
       
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
       ctx.fillStyle = gradient;
       ctx.fillRect(x - glowSize, y - glowSize, width + glowSize * 2, height + glowSize * 2);
+      ctx.restore();
     }
     
     // Enhanced rendering with smooth transitions
@@ -702,28 +743,12 @@
 
     document.getElementById('lodChoice').addEventListener('change', function() {
       lodMode = this.value;
-      const thresholdInput = document.getElementById('lodThreshold');
-      const thresholdLabel = document.getElementById('thresholdLabel');
-      if (lodMode === 'custom') {
-        thresholdInput.style.display = '';
-        thresholdLabel.style.display = '';
-      } else {
-        thresholdInput.style.display = 'none';
-        thresholdLabel.style.display = 'none';
-      }
-      chunkCache.clear();
-      requestRender();
-    });
-
-    document.getElementById('lodThreshold').addEventListener('input', function() {
-      lodThreshold = Math.max(1, parseInt(this.value) || 8);
       chunkCache.clear();
       requestRender();
     });
 
     function getLodThreshold() {
-      if (lodMode === 'custom') return lodThreshold;
-      else if (lodMode === 'performance') return 8;
+      if (lodMode === 'performance') return 8;
       else return 0;
     }
 
@@ -862,15 +887,27 @@
       document.getElementById('pixelInfo').textContent = `Pixels: ${totalPixels} visible | Cache: ${Math.round(chunkCache.size * 0.1)}MB`;
     }
 
+    function toggleControls() {
+      const wrapper = document.getElementById('controlsWrapper');
+      const btn = event.target;
+      if (wrapper.classList.contains('collapsed')) {
+        wrapper.classList.remove('collapsed');
+        btn.textContent = '▼ Hide Controls';
+      } else {
+        wrapper.classList.add('collapsed');
+        btn.textContent = '▶ Show Controls';
+      }
+    }
+
     function toggleMicroscope() {
       microscopeMode = !microscopeMode;
       const btn = document.getElementById('microscopeToggle');
       if (microscopeMode) {
         btn.classList.add('active');
-        btn.textContent = '🔬 Microscope: ON';
+        btn.textContent = '🔬 ON';
       } else {
         btn.classList.remove('active');
-        btn.textContent = '🔬 Microscope Vision';
+        btn.textContent = '🔬 Microscope';
       }
       chunkCache.clear();
       requestRender();
