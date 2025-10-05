@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Unlimited Pixel Grid – Ultra Performance Chunked Renderer</title>
+  <title>Pixel Grid Simulator with Microscope Vision</title>
   <style>
     body {
       background: #1a1a1a;
@@ -12,1302 +12,315 @@
       flex-direction: column;
       align-items: center;
       margin: 0;
-      padding: 0;
+      padding: 10px;
       user-select: none;
-      overflow-x: hidden;
     }
-    h2 { 
-      margin: 12px 0 8px 0;
-      font-size: 1.3em;
-    }
-    .controls-wrapper {
-      width: 100%;
-      max-width: 1400px;
-      transition: all 0.3s ease;
-    }
-    .controls-wrapper.collapsed {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-    }
-    .toggle-controls {
-      background: #333;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 6px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin: 8px 0;
-      font-size: 0.9em;
-    }
-    .input-row {
-      margin: 16px 0 0 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-    #container {
-      margin: 8px 0;
-      border: 3px solid #000;
-      background: #000;
-      padding: 0;
-      overflow: hidden;
-      box-shadow: 0 6px 32px #000b;
-      border-radius: 14px;
-      position: relative;
-    }
-    canvas {
-      background: #000;
-      display: block;
-      cursor: grab;
-      outline: none;
-    }
-    .tip {
-      color: #aaa;
-      font-size: 0.98em;
-      margin-bottom: 6px;
-    }
-    button, input, label, select {
-      font-size: 1em;
-    }
-    input[type="number"] { width: 4em; }
-    input[type="file"] { color: #fff; }
-    #aspectChoice, #layoutChoice, #lodChoice {
-      background: #232323;
-      color: #fff;
-      border: 1px solid #555;
-      border-radius: 6px;
-      margin-left: 7px;
-      padding: 2px 7px;
-    }
-    #toggleMode, #pixelEditor {
-      margin-left: 16px;
-      background: #111;
-      color: #fff;
-      border: 1px solid #333;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px 12px;
-    }
-    .editor-panel {
-      position: fixed;
-      top: 50px;
-      right: 20px;
-      width: 280px;
-      background: #2a2a2a;
-      border: 2px solid #444;
-      border-radius: 10px;
-      padding: 15px;
-      display: none;
-      z-index: 1000;
-      font-size: 0.9em;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-    }
-    .editor-section {
-      margin-bottom: 15px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 10px;
-    }
-    .editor-section h3 {
-      margin: 0 0 8px 0;
-      color: #0ff;
-      font-size: 1em;
-    }
-    .pixel-info {
-      font-family: monospace;
-      font-size: 0.85em;
-    }
-    .color-slider {
-      width: 100%;
-      margin: 4px 0;
-      background: #333;
-      height: 6px;
-      border-radius: 3px;
-      appearance: none;
-    }
-    .color-slider::-webkit-slider-thumb {
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #fff;
-      cursor: pointer;
-    }
-    .tool-buttons {
-      display: flex;
-      gap: 8px;
-      margin: 8px 0;
-    }
-    .tool-btn {
-      padding: 8px 12px;
-      background: #444;
-      border: 1px solid #666;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1.2em;
-      transition: all 0.2s;
-    }
-    .tool-btn.active {
-      background: #0aa;
-      border-color: #0ff;
-    }
-    .tool-btn:hover {
-      background: #555;
-    }
-    .color-display {
-      width: 60px;
-      height: 30px;
-      border: 2px solid #666;
-      border-radius: 4px;
-      margin: 5px 0;
-      cursor: pointer;
-    }
-    .brush-sizes {
-      display: flex;
-      gap: 5px;
-      margin: 5px 0;
-    }
-    .brush-size {
-      width: 24px;
-      height: 24px;
-      border: 2px solid #666;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #333;
-    }
-    .brush-size.active {
-      border-color: #0ff;
-      background: #0aa;
-    }
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      background: none;
-      border: none;
-      color: #aaa;
-      font-size: 1.4em;
-      cursor: pointer;
-      padding: 0;
-      width: 20px;
-      height: 20px;
-    }
-    .performance-info {
-      color: #888;
-      font-size: 0.9em;
-      margin-top: 4px;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .loading-bar {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      height: 4px;
-      background: #333;
-      border-radius: 2px;
-      overflow: hidden;
-      display: none;
-    }
-    .loading-progress {
-      height: 100%;
-      background: linear-gradient(90deg, #00ff88, #0088ff);
-      width: 0%;
-      transition: width 0.1s ease;
-    }
-    .fps-counter {
-      position: absolute;
-      top: 20px;
-      right: 15px;
-      background: rgba(0,0,0,0.7);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.9em;
-      color: #0ff;
-    }
-    .microscope-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      display: none;
-    }
-    .controls-section {
-      background: #252525;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin: 4px 0;
-      border: 1px solid #333;
-      display: inline-block;
-    }
-    .controls-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      margin: 4px 0;
-      flex-wrap: wrap;
-    }
-    .section-title {
-      font-weight: bold;
-      color: #0ff;
-      margin-bottom: 4px;
-      font-size: 0.85em;
-    }
-    #microscopeToggle {
-      background: #1a1a3a;
-      color: #fff;
-      border: 2px solid #5555ff;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 4px 12px;
-    }
-    #microscopeToggle.active {
-      background: #3333aa;
-      border-color: #8888ff;
-      box-shadow: 0 0 10px #5555ff;
-    }
+    h2 { margin: 10px 0; font-size: 1.2em; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; align-items: center; }
+    button, select { background: #333; color: #fff; border: 1px solid #555; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+    input[type="number"] { width: 60px; background: #333; color: #fff; border: 1px solid #555; padding: 4px; }
+    input[type="file"] { display: none; }
+    #microscopeToggle.active { background: #33a; border-color: #88f; box-shadow: 0 0 8px #55f; }
+    #container { border: 3px solid #000; background: #000; border-radius: 10px; position: relative; }
+    canvas { background: #000; display: block; cursor: grab; }
+    .info { color: #888; font-size: 0.85em; margin: 5px 0; }
   </style>
 </head>
 <body>
-  <h2>Unlimited Pixel Grid – Ultra Performance Chunked Renderer</h2>
-  <button class="toggle-controls" onclick="toggleControls()">▼ Hide Controls</button>
+  <h2>Pixel Grid with Microscope Vision</h2>
+  <div class="controls">
+    <label>W: <input id="w" type="number" value="12" min="1" max="2000"></label>
+    <label>H: <input id="h" type="number" value="8" min="1" max="2000"></label>
+    <label>Size: <input id="pxsize" type="number" value="40" min="2" max="200"></label>
+    <button onclick="drawGrid()">Draw</button>
+    <label><input type="file" id="imgInput" accept="image/*"><button onclick="document.getElementById('imgInput').click()">Load Image</button></label>
+    <select id="layoutChoice"><option value="lcd">LCD</option><option value="oled">OLED</option><option value="spectral">Spectral</option></select>
+    <button id="microscopeToggle" onclick="toggleMicroscope()">🔬 Microscope</button>
+  </div>
+  <div class="info" id="info">FPS: -- | Pixels: --</div>
+  <div id="container"><canvas id="canvas" width="800" height="600"></canvas></div>
   
-  <!-- ORGANIZED CONTROLS -->
-  <div class="controls-wrapper" id="controlsWrapper" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 10px;">
-    <!-- Grid Settings -->
-    <div class="controls-section">
-      <div class="section-title">📐 Grid</div>
-      <div class="controls-row">
-        <label for="w">W:</label>
-        <input id="w" type="number" value="12" min="1" max="8192">
-        <label for="h">H:</label>
-        <input id="h" type="number" value="8" min="1" max="8192">
-        <label for="pxsize">Size:</label>
-        <input id="pxsize" type="number" value="40" min="2" max="200">
-        <button onclick="drawGrid()">Draw</button>
-      </div>
-    </div>
-
-    <!-- Display & Image -->
-    <div class="controls-section">
-      <div class="section-title">🖼️ Image</div>
-      <div class="controls-row">
-        <label style="margin: 0;">
-          <input type="file" id="imgInput" accept="image/*" style="display:none">
-          <button onclick="document.getElementById('imgInput').click()" type="button">📁 Load</button>
-        </label>
-        <select id="aspectChoice" title="How image fits grid">
-          <option value="original">Fit to Image</option>
-          <option value="stretch">Stretch</option>
-        </select>
-        <button onclick="clearImage()" type="button" id="clearBtn" style="display:none;">Clear</button>
-      </div>
-    </div>
-
-    <!-- Layout -->
-    <div class="controls-section">
-      <div class="section-title">🔬 Layout</div>
-      <div class="controls-row">
-        <select id="layoutChoice" title="Subpixel layout">
-          <option value="lcd">LCD</option>
-          <option value="oledg8">OLED</option>
-          <option value="spectral">Spectral</option>
-        </select>
-        <button id="microscopeToggle" onclick="toggleMicroscope()">🔬 Microscope</button>
-      </div>
-    </div>
-
-    <!-- View Settings -->
-    <div class="controls-section">
-      <div class="section-title">👁️ View</div>
-      <div class="controls-row">
-        <button id="toggleMode" onclick="toggleBlendMode()">Subpixel</button>
-        <select id="lodChoice" title="Level of Detail mode">
-          <option value="performance">LoD: Auto</option>
-          <option value="full">LoD: Full</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Tools -->
-    <div class="controls-section">
-      <div class="section-title">🛠️ Tools</div>
-      <div class="controls-row">
-        <button id="pixelEditor" onclick="togglePixelEditor()">🎨 Editor</button>
-      </div>
-    </div>
-  </div>
-  <div class="tip">
-    <b>Tips:</b> Load massive images (1000x1000+), use 🔬 Microscope Vision for realistic glowing subpixels!
-    <div class="performance-info">
-      <span id="perfInfo">Rendering mode: Full Detail</span>
-      <span id="chunkInfo">Chunks: 0 visible, 0 cached</span>
-      <span id="pixelInfo">Pixels: 0 visible</span>
-    </div>
-  </div>
-  <div id="container">
-    <div class="loading-bar" id="loadingBar">
-      <div class="loading-progress" id="loadingProgress"></div>
-    </div>
-    <div class="fps-counter" id="fpsCounter">FPS: --</div>
-    <canvas id="microscopeOverlay" class="microscope-overlay"></canvas>
-    <canvas id="pixelCanvas" width="800" height="600" tabindex="1"></canvas>
-  </div>
-
-  <!-- 🎨 PIXEL EDITOR PANEL 🎨 -->
-  <div class="editor-panel" id="editorPanel">
-    <button class="close-btn" onclick="togglePixelEditor()">×</button>
-    
-    <div class="editor-section">
-      <h3>🎯 Pixel Info</h3>
-      <div class="pixel-info" id="pixelInfo">
-        Click a pixel to inspect!
-      </div>
-    </div>
-
-    <div class="editor-section">
-      <h3>🎨 Color Editor</h3>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div class="color-display" id="colorDisplay" style="background: rgb(255,0,0);"></div>
-        <div style="flex: 1;">
-          <div>R: <span id="redValue">255</span></div>
-          <input type="range" class="color-slider" id="redSlider" min="0" max="255" value="255" style="background: linear-gradient(90deg, #000, #f00);">
-          <div>G: <span id="greenValue">0</span></div>
-          <input type="range" class="color-slider" id="greenSlider" min="0" max="255" value="0" style="background: linear-gradient(90deg, #000, #0f0);">
-          <div>B: <span id="blueValue">0</span></div>
-          <input type="range" class="color-slider" id="blueSlider" min="0" max="255" value="0" style="background: linear-gradient(90deg, #000, #00f);">
-        </div>
-      </div>
-    </div>
-
-    <div class="editor-section">
-      <h3>🛠️ Tools</h3>
-      <div style="margin-bottom: 8px; color: #aaa; font-size: 0.8em;">
-        Select a tool to start editing pixels!
-      </div>
-      <div class="tool-buttons">
-        <button class="tool-btn" id="paintTool" onclick="setTool('paint')" title="Paint pixels">🖌️</button>
-        <button class="tool-btn" id="pickerTool" onclick="setTool('picker')" title="Pick color from pixel">👁️</button>
-        <button class="tool-btn" id="fillTool" onclick="setTool('fill')" title="Fill area with color">🪣</button>
-        <button class="tool-btn active" id="panTool" onclick="setTool('pan')" title="Pan and zoom (default)">✋</button>
-      </div>
-      
-      <div>Brush Size:</div>
-      <div class="brush-sizes">
-        <div class="brush-size active" onclick="setBrushSize(1)" id="brush1">●</div>
-        <div class="brush-size" onclick="setBrushSize(2)" id="brush2">●</div>
-        <div class="brush-size" onclick="setBrushSize(3)" id="brush3">●</div>
-        <div class="brush-size" onclick="setBrushSize(5)" id="brush5">●</div>
-      </div>
-    </div>
-
-    <div class="editor-section">
-      <h3>⚡ Quick Colors</h3>
-      <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-        <div class="color-display" style="background: #ff0000; width:30px; height:20px;" onclick="setQuickColor(255,0,0)"></div>
-        <div class="color-display" style="background: #00ff00; width:30px; height:20px;" onclick="setQuickColor(0,255,0)"></div>
-        <div class="color-display" style="background: #0000ff; width:30px; height:20px;" onclick="setQuickColor(0,0,255)"></div>
-        <div class="color-display" style="background: #ffff00; width:30px; height:20px;" onclick="setQuickColor(255,255,0)"></div>
-        <div class="color-display" style="background: #ff00ff; width:30px; height:20px;" onclick="setQuickColor(255,0,255)"></div>
-        <div class="color-display" style="background: #00ffff; width:30px; height:20px;" onclick="setQuickColor(0,255,255)"></div>
-        <div class="color-display" style="background: #ffffff; width:30px; height:20px;" onclick="setQuickColor(255,255,255)"></div>
-        <div class="color-display" style="background: #000000; width:30px; height:20px;" onclick="setQuickColor(0,0,0)"></div>
-      </div>
-    </div>
-  </div>
   <script>
-    // Core variables
-    let gridWidth = 12, gridHeight = 8, pxSize = 40;
-    let zoom = 1.0, minZoom = 0.01, maxZoom = 32;
-    let offsetX = 0, offsetY = 0, isPanning = false, startPan = {x:0, y:0}, panStartOffset = {x:0, y:0};
-    let blendMode = false;
-    let layoutMode = "lcd";
-    let lodMode = "performance";
-    let lodThreshold = 8;
-    
-    const canvas = document.getElementById('pixelCanvas');
+    let W=12, H=8, pxSize=40, zoom=1, offX=0, offY=0, isPan=false, startPan={x:0,y:0}, startOff={x:0,y:0};
+    let layout="lcd", microMode=false, imgPix=null, imgLoaded=false;
+    const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let imagePixels = null;
-    let imageLoaded = false;
-    
-    // CHUNKING SYSTEM
-    const CHUNK_SIZE = 64; // pixels per chunk
-    let chunks = new Map(); // Map of "x,y" -> chunk data
-    let chunkCache = new Map(); // Map of "x,y,zoom,mode" -> rendered canvas
-    let renderQueue = []; // chunks to render
-    let isRendering = false;
-    let renderBudget = 8; // max chunks to render per frame
-    let totalChunks = 0;
-    let loadedChunks = 0;
-    
-    // FPS tracking
-    let lastFrameTime = 0;
-    let frameCount = 0;
-    let fps = 0;
-    
-    // 🎨 PIXEL EDITOR VARIABLES 🎨
-    let editorOpen = false;
-    let currentTool = 'pan'; // Default to pan mode!
-    let brushSize = 1;
-    let currentColor = {r: 255, g: 0, b: 0};
-    let selectedPixel = {x: -1, y: -1};
-    let isDrawing = false;
-    
-    // 🔬 MICROSCOPE VISION VARIABLES 🔬
-    let microscopeMode = false;
-    let glowIntensity = 0.6;
-    
-    // Chunk management
-    function getChunkKey(chunkX, chunkY) {
-      return `${chunkX},${chunkY}`;
-    }
-    
-    function getCacheKey(chunkX, chunkY, zoom, mode, layout) {
-      return `${chunkX},${chunkY},${zoom.toFixed(2)},${mode},${layout}`;
-    }
-    
-    function createChunk(chunkX, chunkY) {
-      const startX = chunkX * CHUNK_SIZE;
-      const startY = chunkY * CHUNK_SIZE;
-      const endX = Math.min(startX + CHUNK_SIZE, gridWidth);
-      const endY = Math.min(startY + CHUNK_SIZE, gridHeight);
-      
-      const chunk = {
-        x: chunkX,
-        y: chunkY,
-        startX, startY, endX, endY,
-        pixels: [],
-        loaded: false
-      };
-      
-      // Load pixel data for this chunk
-      for (let y = startY; y < endY; y++) {
-        chunk.pixels[y - startY] = [];
-        for (let x = startX; x < endX; x++) {
-          if (imageLoaded && imagePixels && imagePixels[y] && imagePixels[y][x]) {
-            chunk.pixels[y - startY][x - startX] = imagePixels[y][x];
-          } else {
-            chunk.pixels[y - startY][x - startX] = {r: 255, g: 255, b: 255, a: 255};
-          }
-        }
-      }
-      
-      chunk.loaded = true;
-      return chunk;
-    }
-    
-    function getVisibleChunks() {
-      const viewLeft = -offsetX / (pxSize * zoom);
-      const viewTop = -offsetY / (pxSize * zoom);
-      const viewRight = (canvas.width - offsetX) / (pxSize * zoom);
-      const viewBottom = (canvas.height - offsetY) / (pxSize * zoom);
-      
-      const chunkLeft = Math.max(0, Math.floor(viewLeft / CHUNK_SIZE));
-      const chunkTop = Math.max(0, Math.floor(viewTop / CHUNK_SIZE));
-      const chunkRight = Math.min(Math.ceil(gridWidth / CHUNK_SIZE), Math.ceil(viewRight / CHUNK_SIZE));
-      const chunkBottom = Math.min(Math.ceil(gridHeight / CHUNK_SIZE), Math.ceil(viewBottom / CHUNK_SIZE));
-      
-      const visibleChunks = [];
-      for (let cy = chunkTop; cy < chunkBottom; cy++) {
-        for (let cx = chunkLeft; cx < chunkRight; cx++) {
-          visibleChunks.push({x: cx, y: cy});
-        }
-      }
-      
-      return visibleChunks;
-    }
-    
-    // Smooth interpolation function
-    function smoothstep(min, max, value) {
-      const t = Math.max(0, Math.min(1, (value - min) / (max - min)));
-      return t * t * (3.0 - 2.0 * t);
-    }
-    
-    // 🔬 Apply microscope glow effect to context
-    function applyMicroscopeGlow(ctx, x, y, width, height, r, g, b, alpha) {
-      if (!microscopeMode || alpha <= 0) return;
-      
-      const glowSize = Math.max(width, height) * 0.5;
-      const centerX = x + width / 2;
-      const centerY = y + height / 2;
-      
-      // Create radial gradient glow
-      const gradient = ctx.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, glowSize
-      );
-      
-      const brightness = (r + g + b) / (255 * 3);
-      const adjustedAlpha = Math.min(1, alpha * brightness * 1.5);
-      
-      gradient.addColorStop(0, `rgba(${r},${g},${b},${adjustedAlpha * 0.8})`);
-      gradient.addColorStop(0.3, `rgba(${r},${g},${b},${adjustedAlpha * 0.5})`);
-      gradient.addColorStop(0.7, `rgba(${r},${g},${b},${adjustedAlpha * 0.2})`);
-      gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
-      
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = gradient;
-      ctx.fillRect(x - glowSize, y - glowSize, width + glowSize * 2, height + glowSize * 2);
-      ctx.restore();
-    }
-    
-    // Enhanced rendering with smooth transitions
-    function renderChunkToCanvas(chunk, renderMode, transitionInfo) {
-      const chunkCanvas = document.createElement('canvas');
-      const chunkSize = pxSize * zoom;
-      chunkCanvas.width = (chunk.endX - chunk.startX) * chunkSize;
-      chunkCanvas.height = (chunk.endY - chunk.startY) * chunkSize;
-      const chunkCtx = chunkCanvas.getContext('2d');
-      
-      const { blendFactor, subpixelAlpha, detailLevel } = transitionInfo;
-      
-      for (let y = 0; y < chunk.endY - chunk.startY; y++) {
-        for (let x = 0; x < chunk.endX - chunk.startX; x++) {
-          const px = x * chunkSize;
-          const py = y * chunkSize;
-          const size = chunkSize;
-          const pixel = chunk.pixels[y] && chunk.pixels[y][x] ? chunk.pixels[y][x] : {r:255,g:255,b:255,a:255};
-          const {r, g, b, a} = pixel;
-          
-          chunkCtx.fillStyle = "#000";
-          chunkCtx.fillRect(px, py, size, size);
-          
-          // SMOOTH TRANSITION MAGIC! 🔥
-          if (blendFactor > 0) {
-            // Draw blended base layer
-            chunkCtx.globalAlpha = blendFactor;
-            chunkCtx.fillStyle = `rgba(${r},${g},${b},${a/255})`;
-            chunkCtx.fillRect(px, py, size, size);
-            chunkCtx.globalAlpha = 1.0;
-          }
-          
-          if (subpixelAlpha > 0) {
-            chunkCtx.globalAlpha = subpixelAlpha;
-            
-            if (layoutMode === "lcd") {
-              // LCD stripes with smooth transition
-              const stripeWidth = size / 3;
-              const x0 = Math.round(px);
-              const x1 = Math.round(px + stripeWidth);
-              const x2 = Math.round(px + 2 * stripeWidth);
-              const x3 = Math.round(px + size);
-              
-              // Animate stripe emergence based on detail level
-              const stripeHeight = size * Math.min(1, detailLevel * 1.5);
-              const stripeY = py + (size - stripeHeight) / 2;
-              
-              // Red stripe
-              chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
-              chunkCtx.fillRect(x0, stripeY, x1 - x0, stripeHeight);
-              if (microMode) applyMicroscopeGlow(chunkCtx, x0, stripeY, x1-x0, stripeHeight, r, 0, 0, a/255);
-              
-              // Green stripe
-              chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
-              chunkCtx.fillRect(x1, stripeY, x2 - x1, stripeHeight);
-              if (microMode) applyMicroscopeGlow(chunkCtx, x1, stripeY, x2-x1, stripeHeight, 0, g, 0, a/255);
-              
-              // Blue stripe
-              chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
-              chunkCtx.fillRect(x2, stripeY, x3 - x2, stripeHeight);
-              if (microMode) applyMicroscopeGlow(chunkCtx, x2, stripeY, x3-x2, stripeHeight, 0, 0, b, a/255);
-              
-            } else if (layoutMode === "oledg8") {
-              // PROPER OLED PenTile arrangement - no overlapping!
-              const actualY = chunk.startY + y;
-              const actualX = chunk.startX + x;
-              const oddRow = actualY % 2;
-              
-              // Scale dots based on detail level
-              const baseDotRad = size/4.5;
-              const dotRad = baseDotRad * Math.min(1, detailLevel * 1.2);
-              if (oddRow === 0) {
-                // Even row: Red-Green pattern
-                const redX = px + size * 0.25;
-                const greenX = px + size * 0.75;
-                const dotY = py + size * 0.5;
-                
-                // Red dot
-                chunkCtx.beginPath();
-                chunkCtx.arc(redX, dotY, dotRad, 0, 2*Math.PI);
-                chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
-                chunkCtx.fill();
-                if (microMode) applyMicroscopeGlow(chunkCtx, redX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, r, 0, 0, a/255);
-                
-                // Green dot
-                chunkCtx.beginPath();
-                chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
-                chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
-                chunkCtx.fill();
-                if (microMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
-                
-              } else {
-                // Odd row: Green-Blue pattern (offset by half pixel)
-                const greenX = px + size * 0.25;
-                const blueX = px + size * 0.75;
-                const dotY = py + size * 0.5;
-                
-                // Green dot (shared between rows)
-                chunkCtx.beginPath();
-                chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
-                chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
-                chunkCtx.fill();
-                if (microMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
-                
-                // Blue dot
-                chunkCtx.beginPath();
-                chunkCtx.arc(blueX, dotY, dotRad, 0, 2*Math.PI);
-                chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
-                chunkCtx.fill();
-                if (microMode) applyMicroscopeGlow(chunkCtx, blueX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, 0, b, a/255);
-              }
-              
-            } else if (layoutMode === "spectral") {
-              // Spectral bars with smooth emergence
-              const spectralColors = [
-                [255,0,0], [255,128,0], [255,255,0], [0,255,0],
-                [0,255,255], [0,0,255], [128,0,255]
-              ];
-              const levels = rgbToSpectralLevels(r, g, b);
-              
-              for(let i = 0; i < spectralColors.length; i++) {
-                // Animate bars appearing in sequence
-                const barAppearance = Math.max(0, Math.min(1, (detailLevel * 2) - (i * 0.2)));
-                if (barAppearance > 0) {
-                  const barAlpha = levels[i] * (a/255) * barAppearance;
-                  chunkCtx.fillStyle = `rgba(${spectralColors[i][0]},${spectralColors[i][1]},${spectralColors[i][2]},${barAlpha.toFixed(3)})`;
-                  
-                  const fullBarHeight = size / spectralColors.length;
-                  const barHeight = fullBarHeight * barAppearance;
-                  const y0 = py + Math.round(i * fullBarHeight) + (fullBarHeight - barHeight) / 2;
-                  
-                  chunkCtx.fillRect(px, y0, size, barHeight);
-                }
-              }
-            }
-            
-            chunkCtx.globalAlpha = 1.0;
-          }
-          
-          // Outline with smooth transition
-          if (size > 4 && subpixelAlpha > 0.3) {
-            chunkCtx.globalAlpha = subpixelAlpha;
-            chunkCtx.strokeStyle = "#000";
-            chunkCtx.lineWidth = Math.max(1, zoom*2);
-            chunkCtx.strokeRect(px, py, size, size);
-            chunkCtx.globalAlpha = 1.0;
-          }
-        }
-      }
-      
-      return chunkCanvas;
-    }
+    let fps=0, lastT=0, frames=0;
 
-    function resizeCanvas() {
-      let w = Math.min(window.innerWidth - 50, 1400), h = Math.min(window.innerHeight - 240, 850);
-      canvas.width = w; canvas.height = h;
-      chunkCache.clear(); // Clear cache on resize
-      requestRender();
+    function resize() {
+      canvas.width = Math.min(window.innerWidth-40, 1200);
+      canvas.height = Math.min(window.innerHeight-200, 700);
+      draw();
     }
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', resize);
 
     function drawGrid() {
-      gridWidth = Math.max(1, parseInt(document.getElementById('w').value) || 12);
-      gridHeight = Math.max(1, parseInt(document.getElementById('h').value) || 8);
-      pxSize = Math.max(2, parseInt(document.getElementById('pxsize').value) || 40);
-      zoom = 1.0;
-      offsetX = offsetY = 0;
-      imagePixels = null; 
-      imageLoaded = false;
-      chunks.clear();
-      chunkCache.clear();
-      document.getElementById('clearBtn').style.display = "none";
-      requestRender();
+      W = Math.max(1, parseInt(document.getElementById('w').value)||12);
+      H = Math.max(1, parseInt(document.getElementById('h').value)||8);
+      pxSize = Math.max(2, parseInt(document.getElementById('pxsize').value)||40);
+      zoom=1; offX=offY=0; imgPix=null; imgLoaded=false;
+      draw();
     }
 
-    document.getElementById('layoutChoice').addEventListener('change', function() {
-      layoutMode = this.value;
-      chunkCache.clear();
-      requestRender();
+    document.getElementById('layoutChoice').addEventListener('change', e => {
+      layout = e.target.value;
+      draw();
     });
-
-    document.getElementById('lodChoice').addEventListener('change', function() {
-      lodMode = this.value;
-      chunkCache.clear();
-      requestRender();
-    });
-
-    function getLodThreshold() {
-      if (lodMode === 'performance') return 8;
-      else return 0;
-    }
-
-    function rgbToSpectralLevels(r, g, b) {
-      r /= 255; g /= 255; b /= 255;
-      return [
-        r, Math.max(r, g) * 0.8, (r + g) / 2, g,
-        (g + b) / 2, b, Math.max(b, r) * 0.7
-      ];
-    }
-
-    let renderRequestId = null;
-    function requestRender() {
-      if (renderRequestId) return;
-      renderRequestId = requestAnimationFrame(render);
-    }
-
-    function render() {
-      renderRequestId = null;
-      
-      // FPS calculation
-      const now = performance.now();
-      if (now - lastFrameTime >= 1000) {
-        fps = Math.round(frameCount * 1000 / (now - lastFrameTime));
-        document.getElementById('fpsCounter').textContent = `FPS: ${fps}`;
-        frameCount = 0;
-        lastFrameTime = now;
-      }
-      frameCount++;
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const visibleChunks = getVisibleChunks();
-      const screenPixelSize = pxSize * zoom;
-      const threshold = getLodThreshold();
-      
-      // 🔥 SMOOTH TRANSITION CALCULATION 🔥 (Fixed!)
-      const blendZoneStart = threshold * 0.3;
-      const blendZoneEnd = threshold * 1.5;
-      
-      // Calculate smooth interpolation factors
-      let blendFactor = 0;
-      let subpixelAlpha = 1;
-      let detailLevel = 1;
-      let renderMode = "Full Detail";
-      
-      if (lodMode !== 'full' && !blendMode) {
-        if (screenPixelSize < blendZoneStart) {
-          // Pure blended mode
-          blendFactor = 1.0;
-          subpixelAlpha = 0.0;
-          renderMode = "LoD: Pure Blended";
-        } else if (screenPixelSize < blendZoneEnd) {
-          // SMOOTH TRANSITION ZONE! 🌟
-          const t = (screenPixelSize - blendZoneStart) / (blendZoneEnd - blendZoneStart);
-          const smoothT = smoothstep(0, 1, t);
-          
-          blendFactor = Math.max(0, 1.0 - smoothT);
-          subpixelAlpha = Math.max(0.2, smoothT); // Minimum 20% subpixel visibility
-          detailLevel = smoothT;
-          renderMode = `LoD: Transitioning (${Math.round(smoothT*100)}% detail)`;
-        } else {
-          // Full subpixel mode
-          blendFactor = 0.0;
-          subpixelAlpha = 1.0;
-          detailLevel = 1.0;
-          renderMode = "Full Detail";
-        }
-      } else if (blendMode) {
-        blendFactor = 1.0;
-        subpixelAlpha = 0.0;
-        renderMode = "Manual Blended";
-      } else {
-        // LoD mode is 'full' - always show subpixels
-        blendFactor = 0.0;
-        subpixelAlpha = 1.0;
-        detailLevel = 1.0;
-        renderMode = "Full Detail (LoD Disabled)";
-      }
-      
-      // Create transition info object
-      const transitionInfo = {
-        blendFactor,
-        subpixelAlpha,
-        detailLevel,
-        screenPixelSize,
-        threshold,
-        microscopeMode // PASS MICROSCOPE MODE TO CHUNKS!
-      };
-      
-      const mode = `${blendFactor.toFixed(2)}-${subpixelAlpha.toFixed(2)}-${detailLevel.toFixed(2)}-${microscopeMode}`;
-      
-      let renderedChunks = 0;
-      let cachedChunks = 0;
-      
-      // Render visible chunks with smooth transitions
-      for (const {x: chunkX, y: chunkY} of visibleChunks) {
-        const chunkKey = getChunkKey(chunkX, chunkY);
-        const cacheKey = getCacheKey(chunkX, chunkY, screenPixelSize, mode, layoutMode);
-        
-        // Get or create chunk
-        let chunk = chunks.get(chunkKey);
-        if (!chunk) {
-          chunk = createChunk(chunkX, chunkY);
-          chunks.set(chunkKey, chunk);
-        }
-        
-        // Get or create cached render with transition info
-        let cachedRender = chunkCache.get(cacheKey);
-        if (!cachedRender) {
-          cachedRender = renderChunkToCanvas(chunk, renderMode, transitionInfo);
-          chunkCache.set(cacheKey, cachedRender);
-        } else {
-          cachedChunks++;
-        }
-        
-        // Draw cached render
-        const px = offsetX + chunk.startX * pxSize * zoom;
-        const py = offsetY + chunk.startY * pxSize * zoom;
-        ctx.drawImage(cachedRender, px, py);
-        renderedChunks++;
-      }
-      
-      // Draw grid border
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(offsetX, offsetY, gridWidth*pxSize*zoom, gridHeight*pxSize*zoom);
-      
-      // Update info
-      const totalPixels = visibleChunks.reduce((sum, {x, y}) => {
-        const chunk = chunks.get(getChunkKey(x, y));
-        return sum + (chunk ? (chunk.endX - chunk.startX) * (chunk.endY - chunk.startY) : 0);
-      }, 0);
-      
-      document.getElementById('perfInfo').textContent = `Rendering: ${renderMode} | Screen pixel: ${screenPixelSize.toFixed(1)}px`;
-      document.getElementById('chunkInfo').textContent = `Chunks: ${renderedChunks} visible, ${cachedChunks} cached, ${chunkCache.size} total cache`;
-      document.getElementById('pixelInfo').textContent = `Pixels: ${totalPixels} visible | Cache: ${Math.round(chunkCache.size * 0.1)}MB`;
-    }
-
-    function toggleControls() {
-      const wrapper = document.getElementById('controlsWrapper');
-      const btn = event.target;
-      if (wrapper.classList.contains('collapsed')) {
-        wrapper.classList.remove('collapsed');
-        btn.textContent = '▼ Hide Controls';
-      } else {
-        wrapper.classList.add('collapsed');
-        btn.textContent = '▶ Show Controls';
-      }
-    }
 
     function toggleMicroscope() {
-      microscopeMode = !microscopeMode;
+      microMode = !microMode;
       const btn = document.getElementById('microscopeToggle');
-      if (microscopeMode) {
+      if(microMode) {
         btn.classList.add('active');
         btn.textContent = '🔬 ON';
       } else {
         btn.classList.remove('active');
         btn.textContent = '🔬 Microscope';
       }
-      chunkCache.clear();
-      requestRender();
+      draw();
     }
 
-    function toggleBlendMode() {
-      blendMode = !blendMode;
-      document.getElementById('toggleMode').textContent = "Mode: " + (blendMode ? "Blended" : "Subpixel");
-      chunkCache.clear();
-      requestRender();
-    }
-
-    // Event handlers
-    canvas.addEventListener('wheel', (e) => {
-      if (currentTool !== 'pan') return; // Only zoom in pan mode
-      e.preventDefault();
-      let mx = e.offsetX, my = e.offsetY;
-      let zoomStep = (e.ctrlKey ? 0.3 : 0.1);
-      let oldZoom = zoom;
-      if (e.deltaY < 0) zoom = Math.min(maxZoom, zoom + zoomStep * zoom);
-      else zoom = Math.max(minZoom, zoom - zoomStep * zoom);
-      offsetX = mx - ((mx - offsetX) * (zoom / oldZoom));
-      offsetY = my - ((my - offsetY) * (zoom / oldZoom));
-      requestRender();
-    }, { passive: false });
-
-    canvas.addEventListener('mousedown', (e) => {
-      const pixel = getPixelAtMouse(e.clientX, e.clientY);
-      
-      if (currentTool === 'picker') {
-        // Color picker tool
-        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-          selectedPixel = pixel;
-          if (imageLoaded && imagePixels && imagePixels[pixel.y] && imagePixels[pixel.y][pixel.x]) {
-            const pickedColor = imagePixels[pixel.y][pixel.x];
-            currentColor = {r: pickedColor.r, g: pickedColor.g, b: pickedColor.b};
-            updateColorDisplay();
-            updateSliders();
-          }
-          updatePixelInfo();
-        }
-      } else if (currentTool === 'paint') {
-        // Paint tool
-        isDrawing = true;
-        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-          paintBrush(pixel.x, pixel.y);
-          requestRender();
-        }
-      } else if (currentTool === 'fill') {
-        // Fill tool - simple flood fill
-        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-          floodFill(pixel.x, pixel.y, currentColor);
-          requestRender();
-        }
-      } else if (currentTool === 'pan') {
-        // Pan mode
-        isPanning = true;
-        startPan = {x: e.clientX, y: e.clientY};
-        panStartOffset = {x: offsetX, y: offsetY};
-        canvas.style.cursor = "grabbing";
+    function draw() {
+      const now = performance.now();
+      if(now - lastT >= 1000) {
+        fps = Math.round(frames * 1000 / (now - lastT));
+        frames = 0;
+        lastT = now;
       }
+      frames++;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      const size = pxSize * zoom;
+      const xStart = Math.max(0, Math.floor(-offX / size));
+      const yStart = Math.max(0, Math.floor(-offY / size));
+      const xEnd = Math.min(W, Math.ceil((canvas.width - offX) / size));
+      const yEnd = Math.min(H, Math.ceil((canvas.height - offY) / size));
+      
+      for(let y = yStart; y < yEnd; y++) {
+        for(let x = xStart; x < xEnd; x++) {
+          const px = offX + x * size;
+          const py = offY + y * size;
+          let r=255, g=255, b=255, a=255;
+          if(imgLoaded && imgPix && imgPix[y] && imgPix[y][x]) {
+            ({r,g,b,a} = imgPix[y][x]);
+          }
+          
+          ctx.fillStyle = "#000";
+          ctx.fillRect(px, py, size, size);
+          
+          if(layout === "lcd") {
+            const x0 = Math.round(px);
+            const x1 = Math.round(px + size/3);
+            const x2 = Math.round(px + 2*size/3);
+            const x3 = Math.round(px + size);
+            
+            ctx.fillStyle = `rgba(${r},0,0,${a/255})`;
+            ctx.fillRect(x0, py, x1-x0, size);
+            ctx.fillStyle = `rgba(0,${g},0,${a/255})`;
+            ctx.fillRect(x1, py, x2-x1, size);
+            ctx.fillStyle = `rgba(0,0,${b},${a/255})`;
+            ctx.fillRect(x2, py, x3-x2, size);
+            
+            if(microMode && size > 5) {
+              ctx.save();
+              ctx.globalCompositeOperation = 'lighter';
+              
+              const rg = ctx.createRadialGradient(x0+(x1-x0)/2, py+size/2, 0, x0+(x1-x0)/2, py+size/2, size*0.7);
+              rg.addColorStop(0, `rgba(${r},0,0,0.4)`);
+              rg.addColorStop(1, 'rgba(255,0,0,0)');
+              ctx.fillStyle = rg;
+              ctx.fillRect(x0-size*0.3, py-size*0.3, (x1-x0)+size*0.6, size+size*0.6);
+              
+              const gg = ctx.createRadialGradient(x1+(x2-x1)/2, py+size/2, 0, x1+(x2-x1)/2, py+size/2, size*0.7);
+              gg.addColorStop(0, `rgba(0,${g},0,0.4)`);
+              gg.addColorStop(1, 'rgba(0,255,0,0)');
+              ctx.fillStyle = gg;
+              ctx.fillRect(x1-size*0.3, py-size*0.3, (x2-x1)+size*0.6, size+size*0.6);
+              
+              const bg = ctx.createRadialGradient(x2+(x3-x2)/2, py+size/2, 0, x2+(x3-x2)/2, py+size/2, size*0.7);
+              bg.addColorStop(0, `rgba(0,0,${b},0.4)`);
+              bg.addColorStop(1, 'rgba(0,0,255,0)');
+              ctx.fillStyle = bg;
+              ctx.fillRect(x2-size*0.3, py-size*0.3, (x3-x2)+size*0.6, size+size*0.6);
+              
+              ctx.restore();
+            }
+          } else if(layout === "oled") {
+            const oddRow = y % 2;
+            const rad = size/4.5;
+            const dotY = py + size*0.5;
+            
+            if(oddRow === 0) {
+              const rx = px + size*0.25;
+              const gx = px + size*0.75;
+              
+              ctx.beginPath();
+              ctx.arc(rx, dotY, rad, 0, 2*Math.PI);
+              ctx.fillStyle = `rgba(${r},0,0,${a/255})`;
+              ctx.fill();
+              
+              ctx.beginPath();
+              ctx.arc(gx, dotY, rad, 0, 2*Math.PI);
+              ctx.fillStyle = `rgba(0,${g},0,${a/255})`;
+              ctx.fill();
+              
+              if(microMode && size > 5) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                const rg = ctx.createRadialGradient(rx, dotY, 0, rx, dotY, rad*2);
+                rg.addColorStop(0, `rgba(${r},0,0,0.5)`);
+                rg.addColorStop(1, 'rgba(255,0,0,0)');
+                ctx.fillStyle = rg;
+                ctx.fillRect(rx-rad*2, dotY-rad*2, rad*4, rad*4);
+                
+                const gg = ctx.createRadialGradient(gx, dotY, 0, gx, dotY, rad*2);
+                gg.addColorStop(0, `rgba(0,${g},0,0.5)`);
+                gg.addColorStop(1, 'rgba(0,255,0,0)');
+                ctx.fillStyle = gg;
+                ctx.fillRect(gx-rad*2, dotY-rad*2, rad*4, rad*4);
+                ctx.restore();
+              }
+            } else {
+              const gx = px + size*0.25;
+              const bx = px + size*0.75;
+              
+              ctx.beginPath();
+              ctx.arc(gx, dotY, rad, 0, 2*Math.PI);
+              ctx.fillStyle = `rgba(0,${g},0,${a/255})`;
+              ctx.fill();
+              
+              ctx.beginPath();
+              ctx.arc(bx, dotY, rad, 0, 2*Math.PI);
+              ctx.fillStyle = `rgba(0,0,${b},${a/255})`;
+              ctx.fill();
+              
+              if(microMode && size > 5) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                const gg = ctx.createRadialGradient(gx, dotY, 0, gx, dotY, rad*2);
+                gg.addColorStop(0, `rgba(0,${g},0,0.5)`);
+                gg.addColorStop(1, 'rgba(0,255,0,0)');
+                ctx.fillStyle = gg;
+                ctx.fillRect(gx-rad*2, dotY-rad*2, rad*4, rad*4);
+                
+                const bg = ctx.createRadialGradient(bx, dotY, 0, bx, dotY, rad*2);
+                bg.addColorStop(0, `rgba(0,0,${b},0.5)`);
+                bg.addColorStop(1, 'rgba(0,0,255,0)');
+                ctx.fillStyle = bg;
+                ctx.fillRect(bx-rad*2, dotY-rad*2, rad*4, rad*4);
+                ctx.restore();
+              }
+            }
+          } else if(layout === "spectral") {
+            const colors = [[255,0,0], [255,128,0], [255,255,0], [0,255,0], [0,255,255], [0,0,255], [128,0,255]];
+            r/=255; g/=255; b/=255;
+            const levels = [r, Math.max(r,g)*0.8, (r+g)/2, g, (g+b)/2, b, Math.max(b,r)*0.7];
+            
+            for(let i=0; i<colors.length; i++) {
+              const alpha = levels[i] * (a/255);
+              ctx.fillStyle = `rgba(${colors[i][0]},${colors[i][1]},${colors[i][2]},${alpha})`;
+              const y0 = py + Math.round(i*size/colors.length);
+              const y1 = py + Math.round((i+1)*size/colors.length);
+              ctx.fillRect(px, y0, size, y1-y0);
+              
+              if(microMode && size > 5) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                const sg = ctx.createRadialGradient(px+size/2, (y0+y1)/2, 0, px+size/2, (y0+y1)/2, size*0.6);
+                sg.addColorStop(0, `rgba(${colors[i][0]},${colors[i][1]},${colors[i][2]},${alpha*0.5})`);
+                sg.addColorStop(1, `rgba(${colors[i][0]},${colors[i][1]},${colors[i][2]},0)`);
+                ctx.fillStyle = sg;
+                ctx.fillRect(px-size*0.3, y0-size*0.3, size+size*0.6, (y1-y0)+size*0.6);
+                ctx.restore();
+              }
+            }
+          }
+          
+          if(size > 4) {
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = Math.max(1, zoom*2);
+            ctx.strokeRect(Math.round(px), Math.round(py), Math.round(size), Math.round(size));
+          }
+        }
+      }
+      
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(offX, offY, W*pxSize*zoom, H*pxSize*zoom);
+      
+      document.getElementById('info').textContent = `FPS: ${fps} | Pixels: ${(xEnd-xStart)*(yEnd-yStart)} | ${microMode?'Microscope ON':'Normal'}`;
+    }
+
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const mx = e.offsetX, my = e.offsetY;
+      const oldZoom = zoom;
+      zoom = e.deltaY < 0 ? Math.min(32, zoom*1.1) : Math.max(0.01, zoom*0.9);
+      offX = mx - ((mx - offX) * (zoom / oldZoom));
+      offY = my - ((my - offY) * (zoom / oldZoom));
+      draw();
+    }, {passive: false});
+
+    canvas.addEventListener('mousedown', e => {
+      isPan = true;
+      startPan = {x: e.clientX, y: e.clientY};
+      startOff = {x: offX, y: offY};
+      canvas.style.cursor = "grabbing";
     });
 
-    window.addEventListener('mousemove', (e) => {
-      if (isDrawing && currentTool === 'paint') {
-        const pixel = getPixelAtMouse(e.clientX, e.clientY);
-        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-          paintBrush(pixel.x, pixel.y);
-          requestRender();
-        }
-      } else if (isPanning && currentTool === 'pan') {
-        offsetX = panStartOffset.x + (e.clientX - startPan.x);
-        offsetY = panStartOffset.y + (e.clientY - startPan.y);
-        requestRender();
-      }
+    window.addEventListener('mousemove', e => {
+      if(!isPan) return;
+      offX = startOff.x + (e.clientX - startPan.x);
+      offY = startOff.y + (e.clientY - startPan.y);
+      draw();
     });
 
     window.addEventListener('mouseup', () => {
-      isDrawing = false;
-      isPanning = false;
-      if (currentTool === 'pan') {
-        canvas.style.cursor = 'grab';
-      }
+      isPan = false;
+      canvas.style.cursor = "grab";
     });
 
-    // Click to select pixel for info
-    canvas.addEventListener('click', (e) => {
-      if (currentTool === 'pan') {
-        // In pan mode, clicking selects pixels for inspection
-        const pixel = getPixelAtMouse(e.clientX, e.clientY);
-        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-          selectedPixel = pixel;
-          if (editorOpen) {
-            updatePixelInfo();
-          }
-        }
-      }
-      canvas.focus();
-    });
-
-    // Simple flood fill function
-    function floodFill(startX, startY, newColor) {
-      if (!imagePixels || !imagePixels[startY] || !imagePixels[startY][startX]) return;
-      
-      const originalColor = imagePixels[startY][startX];
-      if (originalColor.r === newColor.r && originalColor.g === newColor.g && originalColor.b === newColor.b) return;
-      
-      const stack = [{x: startX, y: startY}];
-      const visited = new Set();
-      
-      while (stack.length > 0) {
-        const {x, y} = stack.pop();
-        const key = `${x},${y}`;
-        
-        if (visited.has(key) || x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) continue;
-        if (!imagePixels[y] || !imagePixels[y][x]) continue;
-        
-        const currentPixel = imagePixels[y][x];
-        if (currentPixel.r !== originalColor.r || currentPixel.g !== originalColor.g || currentPixel.b !== originalColor.b) continue;
-        
-        visited.add(key);
-        setPixelColor(x, y, newColor);
-        
-        // Add neighbors
-        stack.push({x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1});
-      }
-    }
-
-    canvas.addEventListener('keydown', (e) => {
-      let amt = 100;
-      if (e.key === "ArrowLeft") offsetX += amt;
-      if (e.key === "ArrowRight") offsetX -= amt;
-      if (e.key === "ArrowUp") offsetY += amt;
-      if (e.key === "ArrowDown") offsetY -= amt;
-      requestRender();
-    });
-
-
-
-    // Image loading with progress
-    document.getElementById('imgInput').addEventListener('change', function(evt) {
-      if (!evt.target.files.length) return;
-      
-      const file = evt.target.files[0];
-      const img = new window.Image();
+    document.getElementById('imgInput').addEventListener('change', function(e) {
+      if(!e.target.files.length) return;
+      const file = e.target.files[0];
+      const img = new Image();
       const reader = new FileReader();
-      
-      document.getElementById('loadingBar').style.display = 'block';
-      
-      reader.onload = function(e) {
+      reader.onload = function(ev) {
         img.onload = function() {
-          let aspectMode = document.getElementById('aspectChoice').value;
-          let targetW = gridWidth, targetH = gridHeight;
+          W = img.width;
+          H = img.height;
+          document.getElementById('w').value = W;
+          document.getElementById('h').value = H;
           
-          if (aspectMode === "original") {
-            gridWidth = img.width;
-            gridHeight = img.height;
-            document.getElementById('w').value = gridWidth;
-            document.getElementById('h').value = gridHeight;
-            targetW = gridWidth; targetH = gridHeight;
-          }
+          const tmp = document.createElement('canvas');
+          tmp.width = W;
+          tmp.height = H;
+          const tmpCtx = tmp.getContext('2d');
+          tmpCtx.drawImage(img, 0, 0);
+          const data = tmpCtx.getImageData(0, 0, W, H);
           
-          // Process image in chunks to avoid blocking
-          const tmpCanvas = document.createElement('canvas');
-          tmpCanvas.width = targetW;
-          tmpCanvas.height = targetH;
-          const tmpCtx = tmpCanvas.getContext('2d');
-          tmpCtx.imageSmoothingEnabled = false;
-          
-          if (aspectMode === "original") {
-            tmpCtx.drawImage(img, 0, 0);
-          } else {
-            tmpCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, targetW, targetH);
-          }
-          
-          const imgData = tmpCtx.getImageData(0, 0, targetW, targetH);
-          imagePixels = [];
-          
-          // Process in chunks to show progress
-          let processed = 0;
-          const total = targetH;
-          
-          function processChunk() {
-            const chunkSize = Math.min(50, total - processed);
-            for (let y = processed; y < processed + chunkSize; y++) {
-              imagePixels[y] = [];
-              for (let x = 0; x < targetW; x++) {
-                let i = (y * targetW + x) * 4;
-                imagePixels[y][x] = {
-                  r: imgData.data[i],
-                  g: imgData.data[i+1],
-                  b: imgData.data[i+2],
-                  a: imgData.data[i+3]
-                };
-              }
-            }
-            processed += chunkSize;
-            
-            const progress = (processed / total) * 100;
-            document.getElementById('loadingProgress').style.width = progress + '%';
-            
-            if (processed < total) {
-              setTimeout(processChunk, 1); // Don't block UI
-            } else {
-              // Done loading!
-              imageLoaded = true;
-              chunks.clear();
-              chunkCache.clear();
-              document.getElementById('clearBtn').style.display = "";
-              document.getElementById('loadingBar').style.display = 'none';
-              zoom = 0.5; // Start zoomed out for big images
-              offsetX = offsetY = 0;
-              requestRender();
+          imgPix = [];
+          for(let y=0; y<H; y++) {
+            imgPix[y] = [];
+            for(let x=0; x<W; x++) {
+              const i = (y*W + x)*4;
+              imgPix[y][x] = {r: data.data[i], g: data.data[i+1], b: data.data[i+2], a: data.data[i+3]};
             }
           }
-          
-          processChunk();
+          imgLoaded = true;
+          zoom = 0.5;
+          offX = offY = 0;
+          draw();
         }
-        img.src = e.target.result;
+        img.src = ev.target.result;
       }
       reader.readAsDataURL(file);
     });
 
-    function clearImage() {
-      imagePixels = null;
-      imageLoaded = false;
-      chunks.clear();
-      chunkCache.clear();
-      document.getElementById('clearBtn').style.display = "none";
-      requestRender();
-    }
-
-    // Cleanup old cache entries periodically
-    setInterval(() => {
-      if (chunkCache.size > 1000) {
-        const keys = Array.from(chunkCache.keys());
-        const toDelete = keys.slice(0, keys.length - 500);
-        toDelete.forEach(key => chunkCache.delete(key));
-      }
-    }, 10000);
-
-    // 🎨 PIXEL EDITOR FUNCTIONS 🎨
-    function togglePixelEditor() {
-      editorOpen = !editorOpen;
-      document.getElementById('editorPanel').style.display = editorOpen ? 'block' : 'none';
-      if (editorOpen) {
-        updatePixelInfo();
-      }
-    }
-
-    function setTool(tool) {
-      currentTool = tool;
-      document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tool + 'Tool').classList.add('active');
-      
-      // Change cursor based on tool
-      if (tool === 'picker') {
-        canvas.style.cursor = 'crosshair';
-      } else if (tool === 'paint') {
-        canvas.style.cursor = 'crosshair';
-      } else if (tool === 'fill') {
-        canvas.style.cursor = 'crosshair';
-      } else {
-        canvas.style.cursor = 'grab';
-      }
-    }
-
-    function setBrushSize(size) {
-      brushSize = size;
-      document.querySelectorAll('.brush-size').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('brush' + size).classList.add('active');
-    }
-
-    function setQuickColor(r, g, b) {
-      currentColor = {r, g, b};
-      updateColorDisplay();
-      updateSliders();
-    }
-
-    function updateColorDisplay() {
-      const colorDisplay = document.getElementById('colorDisplay');
-      colorDisplay.style.background = `rgb(${currentColor.r},${currentColor.g},${currentColor.b})`;
-    }
-
-    function updateSliders() {
-      document.getElementById('redSlider').value = currentColor.r;
-      document.getElementById('greenSlider').value = currentColor.g;
-      document.getElementById('blueSlider').value = currentColor.b;
-      document.getElementById('redValue').textContent = currentColor.r;
-      document.getElementById('greenValue').textContent = currentColor.g;
-      document.getElementById('blueValue').textContent = currentColor.b;
-    }
-
-    function updatePixelInfo() {
-      if (selectedPixel.x >= 0 && selectedPixel.y >= 0) {
-        let pixel = {r: 255, g: 255, b: 255, a: 255};
-        if (imageLoaded && imagePixels && imagePixels[selectedPixel.y] && imagePixels[selectedPixel.y][selectedPixel.x]) {
-          pixel = imagePixels[selectedPixel.y][selectedPixel.x];
-        }
-        
-        document.getElementById('pixelInfo').innerHTML = `
-          <div>Pixel (${selectedPixel.x}, ${selectedPixel.y})</div>
-          <div>RGB(${pixel.r}, ${pixel.g}, ${pixel.b})</div>
-          <div style="margin-top: 8px;">
-            <div>🔴 Red: ${'█'.repeat(Math.round(pixel.r/25.5))}${'░'.repeat(10-Math.round(pixel.r/25.5))} ${pixel.r}</div>
-            <div>🟢 Green: ${'█'.repeat(Math.round(pixel.g/25.5))}${'░'.repeat(10-Math.round(pixel.g/25.5))} ${pixel.g}</div>
-            <div>🔵 Blue: ${'█'.repeat(Math.round(pixel.b/25.5))}${'░'.repeat(10-Math.round(pixel.b/25.5))} ${pixel.b}</div>
-          </div>
-        `;
-      }
-    }
-
-    function getPixelAtMouse(mouseX, mouseY) {
-      // Get the canvas position relative to the viewport
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = mouseX - rect.left;
-      const canvasY = mouseY - rect.top;
-      
-      // Convert canvas coordinates to pixel coordinates
-      const pixelX = Math.floor((-offsetX + canvasX) / (pxSize * zoom));
-      const pixelY = Math.floor((-offsetY + canvasY) / (pxSize * zoom));
-      return {x: pixelX, y: pixelY};
-    }
-
-    function setPixelColor(pixelX, pixelY, color) {
-      if (pixelX < 0 || pixelX >= gridWidth || pixelY < 0 || pixelY >= gridHeight) return;
-      
-      // Initialize imagePixels if needed
-      if (!imagePixels) {
-        imagePixels = [];
-        for (let y = 0; y < gridHeight; y++) {
-          imagePixels[y] = [];
-          for (let x = 0; x < gridWidth; x++) {
-            imagePixels[y][x] = {r: 255, g: 255, b: 255, a: 255};
-          }
-        }
-        imageLoaded = true;
-      }
-      
-      if (!imagePixels[pixelY]) imagePixels[pixelY] = [];
-      imagePixels[pixelY][pixelX] = {r: color.r, g: color.g, b: color.b, a: 255};
-      
-      // Clear relevant chunks from cache
-      const chunkX = Math.floor(pixelX / CHUNK_SIZE);
-      const chunkY = Math.floor(pixelY / CHUNK_SIZE);
-      const chunkKey = getChunkKey(chunkX, chunkY);
-      
-      // Update the chunk data
-      const chunk = chunks.get(chunkKey);
-      if (chunk) {
-        const localX = pixelX - chunk.startX;
-        const localY = pixelY - chunk.startY;
-        if (chunk.pixels[localY]) {
-          chunk.pixels[localY][localX] = {r: color.r, g: color.g, b: color.b, a: 255};
-        }
-      }
-      
-      // Clear cache entries for this chunk
-      const keysToDelete = [];
-      for (const key of chunkCache.keys()) {
-        if (key.startsWith(`${chunkX},${chunkY},`)) {
-          keysToDelete.push(key);
-        }
-      }
-      keysToDelete.forEach(key => chunkCache.delete(key));
-    }
-
-    function paintBrush(centerX, centerY) {
-      const halfSize = Math.floor(brushSize / 2);
-      for (let dy = -halfSize; dy <= halfSize; dy++) {
-        for (let dx = -halfSize; dx <= halfSize; dx++) {
-          const distance = Math.sqrt(dx*dx + dy*dy);
-          if (distance <= halfSize) {
-            setPixelColor(centerX + dx, centerY + dy, currentColor);
-          }
-        }
-      }
-    }
-
-    // Color slider events
-    document.getElementById('redSlider').addEventListener('input', function() {
-      currentColor.r = parseInt(this.value);
-      document.getElementById('redValue').textContent = currentColor.r;
-      updateColorDisplay();
-    });
-
-    document.getElementById('greenSlider').addEventListener('input', function() {
-      currentColor.g = parseInt(this.value);
-      document.getElementById('greenValue').textContent = currentColor.g;
-      updateColorDisplay();
-    });
-
-    document.getElementById('blueSlider').addEventListener('input', function() {
-      currentColor.b = parseInt(this.value);
-      document.getElementById('blueValue').textContent = currentColor.b;
-      updateColorDisplay();
-    });
-
-    // Initial setup
-    resizeCanvas();
+    resize();
     drawGrid();
+    setInterval(draw, 16);
   </script>
 </body>
 </html>
