@@ -207,44 +207,109 @@
       font-size: 0.9em;
       color: #0ff;
     }
+    .microscope-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+    .controls-section {
+      background: #252525;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 8px 0;
+      border: 1px solid #333;
+    }
+    .controls-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 6px 0;
+      flex-wrap: wrap;
+    }
+    .section-title {
+      font-weight: bold;
+      color: #0ff;
+      margin-bottom: 6px;
+      font-size: 0.9em;
+    }
+    #microscopeToggle {
+      background: #1a1a3a;
+      color: #fff;
+      border: 2px solid #5555ff;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 4px 12px;
+    }
+    #microscopeToggle.active {
+      background: #3333aa;
+      border-color: #8888ff;
+      box-shadow: 0 0 10px #5555ff;
+    }
   </style>
 </head>
 <body>
   <h2>Unlimited Pixel Grid – Ultra Performance Chunked Renderer</h2>
-  <div class="input-row">
-    <label for="w">Width:</label>
-    <input id="w" type="number" value="12" min="1" max="8192">
-    <label for="h">Height:</label>
-    <input id="h" type="number" value="8" min="1" max="8192">
-    <label for="pxsize">Pixel Size:</label>
-    <input id="pxsize" type="number" value="40" min="2" max="200">
-    <button onclick="drawGrid()">Draw</button>
-    <label style="margin-left:18px;">
-      <input type="file" id="imgInput" accept="image/*" style="display:none">
-      <button onclick="document.getElementById('imgInput').click()" type="button">Load Image</button>
-    </label>
-    <select id="aspectChoice" title="How image fits grid">
-      <option value="original">Fit to Image</option>
-      <option value="stretch">Stretch to Current Grid</option>
-    </select>
-    <select id="layoutChoice" title="Subpixel layout">
-      <option value="lcd">LCD (Stripes)</option>
-      <option value="oledg8">OLED (G8 Offset Hex Dots)</option>
-      <option value="spectral">Spectral Tuned (Rainbow)</option>
-    </select>
-    <button onclick="clearImage()" type="button" id="clearBtn" style="display:none;">Clear Image</button>
-    <button id="toggleMode" onclick="toggleBlendMode()">Mode: Subpixel</button>
-    <button id="pixelEditor" onclick="togglePixelEditor()">🎨 Pixel Editor</button>
-    <select id="lodChoice" title="Level of Detail mode">
-      <option value="performance">LoD: Performance</option>
-      <option value="full">LoD: Full Detail</option>
-      <option value="custom">LoD: Custom</option>
-    </select>
-    <label style="margin-left: 8px;" id="thresholdLabel">Threshold:</label>
-    <input id="lodThreshold" type="number" value="8" min="1" max="50" style="width: 3em; display:none;">
+  
+  <!-- ORGANIZED CONTROLS -->
+  <div style="max-width: 1400px;">
+    <!-- Grid Settings -->
+    <div class="controls-section">
+      <div class="section-title">📐 Grid Settings</div>
+      <div class="controls-row">
+        <label for="w">Width:</label>
+        <input id="w" type="number" value="12" min="1" max="8192">
+        <label for="h">Height:</label>
+        <input id="h" type="number" value="8" min="1" max="8192">
+        <label for="pxsize">Pixel Size:</label>
+        <input id="pxsize" type="number" value="40" min="2" max="200">
+        <button onclick="drawGrid()">Draw Grid</button>
+      </div>
+    </div>
+
+    <!-- Display & Image -->
+    <div class="controls-section">
+      <div class="section-title">🖼️ Display & Image</div>
+      <div class="controls-row">
+        <label style="margin: 0;">
+          <input type="file" id="imgInput" accept="image/*" style="display:none">
+          <button onclick="document.getElementById('imgInput').click()" type="button">📁 Load Image</button>
+        </label>
+        <select id="aspectChoice" title="How image fits grid">
+          <option value="original">Fit to Image</option>
+          <option value="stretch">Stretch to Grid</option>
+        </select>
+        <select id="layoutChoice" title="Subpixel layout">
+          <option value="lcd">LCD (Stripes)</option>
+          <option value="oledg8">OLED (PenTile)</option>
+          <option value="spectral">Spectral (Rainbow)</option>
+        </select>
+        <button onclick="clearImage()" type="button" id="clearBtn" style="display:none;">Clear Image</button>
+      </div>
+    </div>
+
+    <!-- View Settings -->
+    <div class="controls-section">
+      <div class="section-title">👁️ View Settings</div>
+      <div class="controls-row">
+        <button id="toggleMode" onclick="toggleBlendMode()">Mode: Subpixel</button>
+        <select id="lodChoice" title="Level of Detail mode">
+          <option value="performance">LoD: Performance</option>
+          <option value="full">LoD: Full Detail</option>
+          <option value="custom">LoD: Custom</option>
+        </select>
+        <label id="thresholdLabel" style="display:none;">Threshold:</label>
+        <input id="lodThreshold" type="number" value="8" min="1" max="50" style="width: 3em; display:none;">
+        <button id="microscopeToggle" onclick="toggleMicroscope()">🔬 Microscope Vision</button>
+        <button id="pixelEditor" onclick="togglePixelEditor()">🎨 Pixel Editor</button>
+      </div>
+    </div>
   </div>
   <div class="tip">
-    <b>Tips:</b> Try loading MASSIVE images (1000x1000+)! Chunked rendering keeps it smooth at 30+ FPS.
+    <b>Tips:</b> Load massive images (1000x1000+), use 🔬 Microscope Vision for realistic glowing subpixels!
     <div class="performance-info">
       <span id="perfInfo">Rendering mode: Full Detail</span>
       <span id="chunkInfo">Chunks: 0 visible, 0 cached</span>
@@ -256,6 +321,7 @@
       <div class="loading-progress" id="loadingProgress"></div>
     </div>
     <div class="fps-counter" id="fpsCounter">FPS: --</div>
+    <canvas id="microscopeOverlay" class="microscope-overlay"></canvas>
     <canvas id="pixelCanvas" width="800" height="600" tabindex="1"></canvas>
   </div>
 
@@ -358,6 +424,10 @@
     let selectedPixel = {x: -1, y: -1};
     let isDrawing = false;
     
+    // 🔬 MICROSCOPE VISION VARIABLES 🔬
+    let microscopeMode = false;
+    let glowIntensity = 0.6;
+    
     // Chunk management
     function getChunkKey(chunkX, chunkY) {
       return `${chunkX},${chunkY}`;
@@ -424,6 +494,31 @@
       return t * t * (3.0 - 2.0 * t);
     }
     
+    // 🔬 Apply microscope glow effect to context
+    function applyMicroscopeGlow(ctx, x, y, width, height, r, g, b, alpha) {
+      if (!microscopeMode) return;
+      
+      const glowSize = Math.max(width, height) * 0.4 * glowIntensity;
+      const centerX = x + width / 2;
+      const centerY = y + height / 2;
+      
+      // Create radial gradient glow
+      const gradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, glowSize
+      );
+      
+      const brightness = (r + g + b) / (255 * 3);
+      const glowAlpha = alpha * brightness * glowIntensity;
+      
+      gradient.addColorStop(0, `rgba(${r},${g},${b},${glowAlpha})`);
+      gradient.addColorStop(0.5, `rgba(${r},${g},${b},${glowAlpha * 0.5})`);
+      gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x - glowSize, y - glowSize, width + glowSize * 2, height + glowSize * 2);
+    }
+    
     // Enhanced rendering with smooth transitions
     function renderChunkToCanvas(chunk, renderMode, transitionInfo) {
       const chunkCanvas = document.createElement('canvas');
@@ -469,12 +564,20 @@
               const stripeHeight = size * Math.min(1, detailLevel * 1.5);
               const stripeY = py + (size - stripeHeight) / 2;
               
+              // Red stripe
               chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
               chunkCtx.fillRect(x0, stripeY, x1 - x0, stripeHeight);
+              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x0, stripeY, x1-x0, stripeHeight, r, 0, 0, a/255);
+              
+              // Green stripe
               chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
               chunkCtx.fillRect(x1, stripeY, x2 - x1, stripeHeight);
+              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x1, stripeY, x2-x1, stripeHeight, 0, g, 0, a/255);
+              
+              // Blue stripe
               chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
               chunkCtx.fillRect(x2, stripeY, x3 - x2, stripeHeight);
+              if (microscopeMode) applyMicroscopeGlow(chunkCtx, x2, stripeY, x3-x2, stripeHeight, 0, 0, b, a/255);
               
             } else if (layoutMode === "oledg8") {
               // PROPER OLED PenTile arrangement - no overlapping!
@@ -498,12 +601,14 @@
                 chunkCtx.arc(redX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(${r},0,0,${a/255})`;
                 chunkCtx.fill();
+                if (microscopeMode) applyMicroscopeGlow(chunkCtx, redX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, r, 0, 0, a/255);
                 
                 // Green dot
                 chunkCtx.beginPath();
                 chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
                 chunkCtx.fill();
+                if (microscopeMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
                 
               } else {
                 // Odd row: Green-Blue pattern (offset by half pixel)
@@ -516,12 +621,14 @@
                 chunkCtx.arc(greenX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,${g},0,${a/255})`;
                 chunkCtx.fill();
+                if (microscopeMode) applyMicroscopeGlow(chunkCtx, greenX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, g, 0, a/255);
                 
                 // Blue dot
                 chunkCtx.beginPath();
                 chunkCtx.arc(blueX, dotY, dotRad, 0, 2*Math.PI);
                 chunkCtx.fillStyle = `rgba(0,0,${b},${a/255})`;
                 chunkCtx.fill();
+                if (microscopeMode) applyMicroscopeGlow(chunkCtx, blueX-dotRad, dotY-dotRad, dotRad*2, dotRad*2, 0, 0, b, a/255);
               }
               
             } else if (layoutMode === "spectral") {
@@ -753,6 +860,20 @@
       document.getElementById('perfInfo').textContent = `Rendering: ${renderMode} | Screen pixel: ${screenPixelSize.toFixed(1)}px`;
       document.getElementById('chunkInfo').textContent = `Chunks: ${renderedChunks} visible, ${cachedChunks} cached, ${chunkCache.size} total cache`;
       document.getElementById('pixelInfo').textContent = `Pixels: ${totalPixels} visible | Cache: ${Math.round(chunkCache.size * 0.1)}MB`;
+    }
+
+    function toggleMicroscope() {
+      microscopeMode = !microscopeMode;
+      const btn = document.getElementById('microscopeToggle');
+      if (microscopeMode) {
+        btn.classList.add('active');
+        btn.textContent = '🔬 Microscope: ON';
+      } else {
+        btn.classList.remove('active');
+        btn.textContent = '🔬 Microscope Vision';
+      }
+      chunkCache.clear();
+      requestRender();
     }
 
     function toggleBlendMode() {
