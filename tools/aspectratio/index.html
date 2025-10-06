@@ -287,11 +287,14 @@
 
     <div class="editor-section">
       <h3>🛠️ Tools</h3>
+      <div style="margin-bottom: 8px; color: #aaa; font-size: 0.8em;">
+        Select a tool to start editing pixels!
+      </div>
       <div class="tool-buttons">
-        <button class="tool-btn active" id="paintTool" onclick="setTool('paint')" title="Paint">🖌️</button>
-        <button class="tool-btn" id="pickerTool" onclick="setTool('picker')" title="Color Picker">👁️</button>
-        <button class="tool-btn" id="fillTool" onclick="setTool('fill')" title="Fill">🪣</button>
-        <button class="tool-btn" id="eraseTool" onclick="setTool('erase')" title="Eraser">🧽</button>
+        <button class="tool-btn" id="paintTool" onclick="setTool('paint')" title="Paint pixels">🖌️</button>
+        <button class="tool-btn" id="pickerTool" onclick="setTool('picker')" title="Pick color from pixel">👁️</button>
+        <button class="tool-btn" id="fillTool" onclick="setTool('fill')" title="Fill area with color">🪣</button>
+        <button class="tool-btn active" id="panTool" onclick="setTool('pan')" title="Pan and zoom (default)">✋</button>
       </div>
       
       <div>Brush Size:</div>
@@ -349,7 +352,7 @@
     
     // 🎨 PIXEL EDITOR VARIABLES 🎨
     let editorOpen = false;
-    let currentTool = 'paint';
+    let currentTool = 'pan'; // Default to pan mode!
     let brushSize = 1;
     let currentColor = {r: 255, g: 0, b: 0};
     let selectedPixel = {x: -1, y: -1};
@@ -761,7 +764,7 @@
 
     // Event handlers
     canvas.addEventListener('wheel', (e) => {
-      if (currentTool === 'paint' || currentTool === 'picker') return; // Don't zoom while using tools
+      if (currentTool !== 'pan') return; // Only zoom in pan mode
       e.preventDefault();
       let mx = e.offsetX, my = e.offsetY;
       let zoomStep = (e.ctrlKey ? 0.3 : 0.1);
@@ -774,7 +777,7 @@
     }, { passive: false });
 
     canvas.addEventListener('mousedown', (e) => {
-      const pixel = getPixelAtMouse(e.offsetX, e.offsetY);
+      const pixel = getPixelAtMouse(e.clientX, e.clientY);
       
       if (currentTool === 'picker') {
         // Color picker tool
@@ -801,7 +804,7 @@
           floodFill(pixel.x, pixel.y, currentColor);
           requestRender();
         }
-      } else {
+      } else if (currentTool === 'pan') {
         // Pan mode
         isPanning = true;
         startPan = {x: e.clientX, y: e.clientY};
@@ -812,12 +815,12 @@
 
     window.addEventListener('mousemove', (e) => {
       if (isDrawing && currentTool === 'paint') {
-        const pixel = getPixelAtMouse(e.offsetX - canvas.getBoundingClientRect().left, e.offsetY - canvas.getBoundingClientRect().top);
+        const pixel = getPixelAtMouse(e.clientX, e.clientY);
         if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
           paintBrush(pixel.x, pixel.y);
           requestRender();
         }
-      } else if (isPanning && currentTool !== 'paint' && currentTool !== 'picker') {
+      } else if (isPanning && currentTool === 'pan') {
         offsetX = panStartOffset.x + (e.clientX - startPan.x);
         offsetY = panStartOffset.y + (e.clientY - startPan.y);
         requestRender();
@@ -827,16 +830,21 @@
     window.addEventListener('mouseup', () => {
       isDrawing = false;
       isPanning = false;
-      canvas.style.cursor = currentTool === 'picker' ? 'crosshair' : (currentTool === 'paint' ? 'crosshair' : 'grab');
+      if (currentTool === 'pan') {
+        canvas.style.cursor = 'grab';
+      }
     });
 
     // Click to select pixel for info
     canvas.addEventListener('click', (e) => {
-      const pixel = getPixelAtMouse(e.offsetX, e.offsetY);
-      if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
-        selectedPixel = pixel;
-        if (editorOpen) {
-          updatePixelInfo();
+      if (currentTool === 'pan') {
+        // In pan mode, clicking selects pixels for inspection
+        const pixel = getPixelAtMouse(e.clientX, e.clientY);
+        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+          selectedPixel = pixel;
+          if (editorOpen) {
+            updatePixelInfo();
+          }
         }
       }
       canvas.focus();
@@ -879,7 +887,7 @@
       requestRender();
     });
 
-    canvas.addEventListener('click', () => canvas.focus());
+
 
     // Image loading with progress
     document.getElementById('imgInput').addEventListener('change', function(evt) {
@@ -1002,6 +1010,8 @@
         canvas.style.cursor = 'crosshair';
       } else if (tool === 'paint') {
         canvas.style.cursor = 'crosshair';
+      } else if (tool === 'fill') {
+        canvas.style.cursor = 'crosshair';
       } else {
         canvas.style.cursor = 'grab';
       }
@@ -1053,8 +1063,14 @@
     }
 
     function getPixelAtMouse(mouseX, mouseY) {
-      const pixelX = Math.floor((-offsetX + mouseX) / (pxSize * zoom));
-      const pixelY = Math.floor((-offsetY + mouseY) / (pxSize * zoom));
+      // Get the canvas position relative to the viewport
+      const rect = canvas.getBoundingClientRect();
+      const canvasX = mouseX - rect.left;
+      const canvasY = mouseY - rect.top;
+      
+      // Convert canvas coordinates to pixel coordinates
+      const pixelX = Math.floor((-offsetX + canvasX) / (pxSize * zoom));
+      const pixelY = Math.floor((-offsetY + canvasY) / (pxSize * zoom));
       return {x: pixelX, y: pixelY};
     }
 
