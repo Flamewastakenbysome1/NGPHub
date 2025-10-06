@@ -347,6 +347,14 @@
     let frameCount = 0;
     let fps = 0;
     
+    // 🎨 PIXEL EDITOR VARIABLES 🎨
+    let editorOpen = false;
+    let currentTool = 'paint';
+    let brushSize = 1;
+    let currentColor = {r: 255, g: 0, b: 0};
+    let selectedPixel = {x: -1, y: -1};
+    let isDrawing = false;
+    
     // Chunk management
     function getChunkKey(chunkX, chunkY) {
       return `${chunkX},${chunkY}`;
@@ -753,6 +761,7 @@
 
     // Event handlers
     canvas.addEventListener('wheel', (e) => {
+      if (currentTool === 'paint' || currentTool === 'picker') return; // Don't zoom while using tools
       e.preventDefault();
       let mx = e.offsetX, my = e.offsetY;
       let zoomStep = (e.ctrlKey ? 0.3 : 0.1);
@@ -765,23 +774,101 @@
     }, { passive: false });
 
     canvas.addEventListener('mousedown', (e) => {
-      isPanning = true;
-      startPan = {x: e.clientX, y: e.clientY};
-      panStartOffset = {x: offsetX, y: offsetY};
-      canvas.style.cursor = "grabbing";
+      const pixel = getPixelAtMouse(e.offsetX, e.offsetY);
+      
+      if (currentTool === 'picker') {
+        // Color picker tool
+        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+          selectedPixel = pixel;
+          if (imageLoaded && imagePixels && imagePixels[pixel.y] && imagePixels[pixel.y][pixel.x]) {
+            const pickedColor = imagePixels[pixel.y][pixel.x];
+            currentColor = {r: pickedColor.r, g: pickedColor.g, b: pickedColor.b};
+            updateColorDisplay();
+            updateSliders();
+          }
+          updatePixelInfo();
+        }
+      } else if (currentTool === 'paint') {
+        // Paint tool
+        isDrawing = true;
+        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+          paintBrush(pixel.x, pixel.y);
+          requestRender();
+        }
+      } else if (currentTool === 'fill') {
+        // Fill tool - simple flood fill
+        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+          floodFill(pixel.x, pixel.y, currentColor);
+          requestRender();
+        }
+      } else {
+        // Pan mode
+        isPanning = true;
+        startPan = {x: e.clientX, y: e.clientY};
+        panStartOffset = {x: offsetX, y: offsetY};
+        canvas.style.cursor = "grabbing";
+      }
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (!isPanning) return;
-      offsetX = panStartOffset.x + (e.clientX - startPan.x);
-      offsetY = panStartOffset.y + (e.clientY - startPan.y);
-      requestRender();
+      if (isDrawing && currentTool === 'paint') {
+        const pixel = getPixelAtMouse(e.offsetX - canvas.getBoundingClientRect().left, e.offsetY - canvas.getBoundingClientRect().top);
+        if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+          paintBrush(pixel.x, pixel.y);
+          requestRender();
+        }
+      } else if (isPanning && currentTool !== 'paint' && currentTool !== 'picker') {
+        offsetX = panStartOffset.x + (e.clientX - startPan.x);
+        offsetY = panStartOffset.y + (e.clientY - startPan.y);
+        requestRender();
+      }
     });
 
     window.addEventListener('mouseup', () => {
+      isDrawing = false;
       isPanning = false;
-      canvas.style.cursor = "grab";
+      canvas.style.cursor = currentTool === 'picker' ? 'crosshair' : (currentTool === 'paint' ? 'crosshair' : 'grab');
     });
+
+    // Click to select pixel for info
+    canvas.addEventListener('click', (e) => {
+      const pixel = getPixelAtMouse(e.offsetX, e.offsetY);
+      if (pixel.x >= 0 && pixel.x < gridWidth && pixel.y >= 0 && pixel.y < gridHeight) {
+        selectedPixel = pixel;
+        if (editorOpen) {
+          updatePixelInfo();
+        }
+      }
+      canvas.focus();
+    });
+
+    // Simple flood fill function
+    function floodFill(startX, startY, newColor) {
+      if (!imagePixels || !imagePixels[startY] || !imagePixels[startY][startX]) return;
+      
+      const originalColor = imagePixels[startY][startX];
+      if (originalColor.r === newColor.r && originalColor.g === newColor.g && originalColor.b === newColor.b) return;
+      
+      const stack = [{x: startX, y: startY}];
+      const visited = new Set();
+      
+      while (stack.length > 0) {
+        const {x, y} = stack.pop();
+        const key = `${x},${y}`;
+        
+        if (visited.has(key) || x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) continue;
+        if (!imagePixels[y] || !imagePixels[y][x]) continue;
+        
+        const currentPixel = imagePixels[y][x];
+        if (currentPixel.r !== originalColor.r || currentPixel.g !== originalColor.g || currentPixel.b !== originalColor.b) continue;
+        
+        visited.add(key);
+        setPixelColor(x, y, newColor);
+        
+        // Add neighbors
+        stack.push({x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1});
+      }
+    }
 
     canvas.addEventListener('keydown', (e) => {
       let amt = 100;
@@ -895,6 +982,155 @@
         toDelete.forEach(key => chunkCache.delete(key));
       }
     }, 10000);
+
+    // 🎨 PIXEL EDITOR FUNCTIONS 🎨
+    function togglePixelEditor() {
+      editorOpen = !editorOpen;
+      document.getElementById('editorPanel').style.display = editorOpen ? 'block' : 'none';
+      if (editorOpen) {
+        updatePixelInfo();
+      }
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tool + 'Tool').classList.add('active');
+      
+      // Change cursor based on tool
+      if (tool === 'picker') {
+        canvas.style.cursor = 'crosshair';
+      } else if (tool === 'paint') {
+        canvas.style.cursor = 'crosshair';
+      } else {
+        canvas.style.cursor = 'grab';
+      }
+    }
+
+    function setBrushSize(size) {
+      brushSize = size;
+      document.querySelectorAll('.brush-size').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('brush' + size).classList.add('active');
+    }
+
+    function setQuickColor(r, g, b) {
+      currentColor = {r, g, b};
+      updateColorDisplay();
+      updateSliders();
+    }
+
+    function updateColorDisplay() {
+      const colorDisplay = document.getElementById('colorDisplay');
+      colorDisplay.style.background = `rgb(${currentColor.r},${currentColor.g},${currentColor.b})`;
+    }
+
+    function updateSliders() {
+      document.getElementById('redSlider').value = currentColor.r;
+      document.getElementById('greenSlider').value = currentColor.g;
+      document.getElementById('blueSlider').value = currentColor.b;
+      document.getElementById('redValue').textContent = currentColor.r;
+      document.getElementById('greenValue').textContent = currentColor.g;
+      document.getElementById('blueValue').textContent = currentColor.b;
+    }
+
+    function updatePixelInfo() {
+      if (selectedPixel.x >= 0 && selectedPixel.y >= 0) {
+        let pixel = {r: 255, g: 255, b: 255, a: 255};
+        if (imageLoaded && imagePixels && imagePixels[selectedPixel.y] && imagePixels[selectedPixel.y][selectedPixel.x]) {
+          pixel = imagePixels[selectedPixel.y][selectedPixel.x];
+        }
+        
+        document.getElementById('pixelInfo').innerHTML = `
+          <div>Pixel (${selectedPixel.x}, ${selectedPixel.y})</div>
+          <div>RGB(${pixel.r}, ${pixel.g}, ${pixel.b})</div>
+          <div style="margin-top: 8px;">
+            <div>🔴 Red: ${'█'.repeat(Math.round(pixel.r/25.5))}${'░'.repeat(10-Math.round(pixel.r/25.5))} ${pixel.r}</div>
+            <div>🟢 Green: ${'█'.repeat(Math.round(pixel.g/25.5))}${'░'.repeat(10-Math.round(pixel.g/25.5))} ${pixel.g}</div>
+            <div>🔵 Blue: ${'█'.repeat(Math.round(pixel.b/25.5))}${'░'.repeat(10-Math.round(pixel.b/25.5))} ${pixel.b}</div>
+          </div>
+        `;
+      }
+    }
+
+    function getPixelAtMouse(mouseX, mouseY) {
+      const pixelX = Math.floor((-offsetX + mouseX) / (pxSize * zoom));
+      const pixelY = Math.floor((-offsetY + mouseY) / (pxSize * zoom));
+      return {x: pixelX, y: pixelY};
+    }
+
+    function setPixelColor(pixelX, pixelY, color) {
+      if (pixelX < 0 || pixelX >= gridWidth || pixelY < 0 || pixelY >= gridHeight) return;
+      
+      // Initialize imagePixels if needed
+      if (!imagePixels) {
+        imagePixels = [];
+        for (let y = 0; y < gridHeight; y++) {
+          imagePixels[y] = [];
+          for (let x = 0; x < gridWidth; x++) {
+            imagePixels[y][x] = {r: 255, g: 255, b: 255, a: 255};
+          }
+        }
+        imageLoaded = true;
+      }
+      
+      if (!imagePixels[pixelY]) imagePixels[pixelY] = [];
+      imagePixels[pixelY][pixelX] = {r: color.r, g: color.g, b: color.b, a: 255};
+      
+      // Clear relevant chunks from cache
+      const chunkX = Math.floor(pixelX / CHUNK_SIZE);
+      const chunkY = Math.floor(pixelY / CHUNK_SIZE);
+      const chunkKey = getChunkKey(chunkX, chunkY);
+      
+      // Update the chunk data
+      const chunk = chunks.get(chunkKey);
+      if (chunk) {
+        const localX = pixelX - chunk.startX;
+        const localY = pixelY - chunk.startY;
+        if (chunk.pixels[localY]) {
+          chunk.pixels[localY][localX] = {r: color.r, g: color.g, b: color.b, a: 255};
+        }
+      }
+      
+      // Clear cache entries for this chunk
+      const keysToDelete = [];
+      for (const key of chunkCache.keys()) {
+        if (key.startsWith(`${chunkX},${chunkY},`)) {
+          keysToDelete.push(key);
+        }
+      }
+      keysToDelete.forEach(key => chunkCache.delete(key));
+    }
+
+    function paintBrush(centerX, centerY) {
+      const halfSize = Math.floor(brushSize / 2);
+      for (let dy = -halfSize; dy <= halfSize; dy++) {
+        for (let dx = -halfSize; dx <= halfSize; dx++) {
+          const distance = Math.sqrt(dx*dx + dy*dy);
+          if (distance <= halfSize) {
+            setPixelColor(centerX + dx, centerY + dy, currentColor);
+          }
+        }
+      }
+    }
+
+    // Color slider events
+    document.getElementById('redSlider').addEventListener('input', function() {
+      currentColor.r = parseInt(this.value);
+      document.getElementById('redValue').textContent = currentColor.r;
+      updateColorDisplay();
+    });
+
+    document.getElementById('greenSlider').addEventListener('input', function() {
+      currentColor.g = parseInt(this.value);
+      document.getElementById('greenValue').textContent = currentColor.g;
+      updateColorDisplay();
+    });
+
+    document.getElementById('blueSlider').addEventListener('input', function() {
+      currentColor.b = parseInt(this.value);
+      document.getElementById('blueValue').textContent = currentColor.b;
+      updateColorDisplay();
+    });
 
     // Initial setup
     resizeCanvas();
