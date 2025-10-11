@@ -245,14 +245,19 @@
 
   // Check server status on load
   async function checkServerStatus() {
+    console.log('🔍 Checking server at:', API_URL);
     try {
+      console.log('📡 Fetching /api/health...');
       const response = await fetch(`${API_URL}/api/health`, {
         method: 'GET',
         mode: 'cors'
       });
       
+      console.log('📥 Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Server data:', data);
         statusDot.className = 'status-dot online';
         statusText.textContent = 'Server Online';
         statusDetails.textContent = `Model: ${data.model} • Ollama: ${data.ollama_status}`;
@@ -264,15 +269,16 @@
           showError('Ollama is not running. AI responses will fail.');
         }
       } else {
-        throw new Error('Server returned error');
+        throw new Error('Server returned error: ' + response.status);
       }
     } catch (error) {
+      console.error('❌ Server check failed:', error);
       statusDot.className = 'status-dot offline';
       statusText.textContent = 'Server Offline';
       statusDetails.textContent = 'Flame\'s PC might be sleeping 💤';
       userInput.disabled = true;
       sendBtn.disabled = true;
-      showError('Cannot connect to Nirvana server. The server might be down or your PC might be offline.');
+      showError('Cannot connect to Nirvana server. Error: ' + error.message);
     }
   }
 
