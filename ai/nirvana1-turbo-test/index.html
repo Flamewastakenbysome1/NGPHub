@@ -49,7 +49,7 @@
   nav a:hover{background:rgba(255,255,255,.06)}
 
   /* Main Chat Container */
-  main{padding:24px 0 80px; min-height:calc(100vh - 200px)}
+  main{padding:24px 0 40px; min-height:calc(100vh - 120px)}
   
   .status-bar{
     background:var(--card); border-radius:var(--radius);
@@ -67,10 +67,17 @@
     0%,100%{opacity:1} 50%{opacity:.5}
   }
 
+  .disclaimer{
+    background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
+    border-radius:var(--radius); padding:12px 16px; margin-bottom:20px;
+    display:flex; align-items:center; gap:10px; font-size:.9rem;
+  }
+
   .chat-container{
     background:var(--card); border-radius:var(--radius);
     box-shadow:var(--shadow); overflow:hidden;
-    display:flex; flex-direction:column; height:600px;
+    display:flex; flex-direction:column; 
+    height:calc(100vh - 280px); min-height:500px;
   }
   
   .chat-header{
@@ -188,6 +195,11 @@
     </div>
 
     <div id="errorBanner" class="error-banner" style="display:none"></div>
+
+    <div class="disclaimer">
+      <span style="font-size:1.2rem">⚠️</span>
+      <span><strong>Note:</strong> Nirvana can make mistakes. Always verify important information.</span>
+    </div>
 
     <div class="chat-container">
       <div class="chat-header">
