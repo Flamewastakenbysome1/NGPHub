@@ -250,7 +250,10 @@
       console.log('📡 Fetching /api/health...');
       const response = await fetch(`${API_URL}/api/health`, {
         method: 'GET',
-        mode: 'cors'
+        mode: 'cors',
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
       });
       
       console.log('📥 Response status:', response.status);
@@ -350,7 +353,10 @@
     try {
       const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         mode: 'cors',
         body: JSON.stringify({
           message: message,
