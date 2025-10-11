@@ -157,6 +157,15 @@
   .send-btn:hover{transform:scale(1.05)}
   .send-btn:disabled{opacity:.5; cursor:not-allowed}
 
+  .continue-btn{
+    background:linear-gradient(135deg, var(--warning), #f97316);
+    color:white; border:none; padding:10px 20px;
+    border-radius:10px; font-weight:600; cursor:pointer;
+    margin-top:8px; font-size:.9rem;
+    transition:transform .2s;
+  }
+  .continue-btn:hover{transform:scale(1.05)}
+
   .error-banner{
     background:var(--error); color:white; padding:12px 20px;
     border-radius:var(--radius); margin-bottom:20px;
@@ -302,7 +311,7 @@
     errorBanner.style.display = 'block';
   }
 
-  function addMessage(content, isUser = false) {
+  function addMessage(content, isUser = false, isStreaming = false) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${isUser ? 'user' : 'ai'}`;
     
@@ -312,12 +321,20 @@
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
+    
+    if (isStreaming) {
+      msgDiv.id = 'streamingMessage';
+      contentDiv.id = 'streamingContent';
+    }
+    
     contentDiv.textContent = content;
     
     msgDiv.appendChild(avatar);
     msgDiv.appendChild(contentDiv);
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return contentDiv;
   }
 
   function showTyping() {
@@ -344,13 +361,16 @@
     if (typingIndicator) typingIndicator.remove();
   }
 
-  async function sendMessage() {
-    const message = userInput.value.trim();
-    if (!message || isTyping) return;
-
-    // Add user message to chat
-    addMessage(message, true);
-    userInput.value = '';
+  async function sendMessage(continueGeneration = false) {
+    let message = userInput.value.trim();
+    
+    if (!continueGeneration && (!message || isTyping)) return;
+    
+    // Only add user message if not continuing
+    if (!continueGeneration) {
+      addMessage(message, true);
+      userInput.value = '';
+    }
 
     isTyping = true;
     sendBtn.disabled = true;
@@ -366,20 +386,64 @@
         },
         mode: 'cors',
         body: JSON.stringify({
-          message: message,
-          user_id: userId
-          // History is now managed server-side!
+          message: continueGeneration ? "" : message,
+          user_id: userId,
+          continue: continueGeneration
         })
       });
 
       hideTyping();
 
       if (response.ok) {
-        const data = await response.json();
-        addMessage(data.response);
-        // Server handles history now, no need to track it client-side
+        // Handle streaming response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = "";
+        let streamingContent = null;
+        
+        while (true) {
+          const {done, value} = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.chunk) {
+                // Create streaming message if it doesn't exist
+                if (!streamingContent) {
+                  streamingContent = addMessage('', false, true);
+                }
+                
+                fullResponse += data.chunk;
+                streamingContent.textContent = fullResponse;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+              }
+              
+              if (data.done) {
+                // Remove streaming ID
+                const streamingMsg = document.getElementById('streamingMessage');
+                if (streamingMsg) {
+                  streamingMsg.id = '';
+                  const content = document.getElementById('streamingContent');
+                  if (content) content.id = '';
+                }
+                
+                // Check if hit token limit
+                if (data.token_limit) {
+                  showContinueButton();
+                }
+              }
+            }
+          }
+        }
       } else if (response.status === 429) {
         addMessage('⚠️ Rate limit exceeded! You\'ve sent too many messages. Please wait a bit.');
+      } else if (response.status === 401) {
+        addMessage('❌ Authentication error. Please refresh the page.');
       } else {
         throw new Error('API request failed');
       }
@@ -391,6 +455,35 @@
       isTyping = false;
       sendBtn.disabled = false;
     }
+  }
+
+  function showContinueButton() {
+    const continueDiv = document.createElement('div');
+    continueDiv.className = 'message ai';
+    continueDiv.style.maxWidth = '100%';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.style.background = 'rgba(245,158,11,.15)';
+    content.style.borderLeft = '3px solid var(--warning)';
+    
+    const text = document.createElement('div');
+    text.textContent = '⚠️ Nirvana has ran out of generation tokens.';
+    text.style.marginBottom = '10px';
+    
+    const btn = document.createElement('button');
+    btn.className = 'continue-btn';
+    btn.textContent = 'Continue Generation';
+    btn.onclick = () => {
+      continueDiv.remove();
+      sendMessage(true);
+    };
+    
+    content.appendChild(text);
+    content.appendChild(btn);
+    continueDiv.appendChild(content);
+    chatMessages.appendChild(continueDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   // Event listeners
