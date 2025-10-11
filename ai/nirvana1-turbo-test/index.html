@@ -192,7 +192,7 @@
     <div class="chat-container">
       <div class="chat-header">
         <h2>🔥 Nirvana 1-Turbo</h2>
-        <p>Testing Phase — Powered by Gemma3:12b</p>
+        <p>NGP's AI Assistant — Powered by Local Intelligence</p>
       </div>
 
       <div class="chat-messages" id="chatMessages">
@@ -223,7 +223,7 @@
 
 <footer>
   <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha • Nirvana 1-Turbo Test</small>
+    <small>© 2025 NGP — Alpha</small>
   </div>
 </footer>
 
@@ -263,7 +263,7 @@
         console.log('✅ Server data:', data);
         statusDot.className = 'status-dot online';
         statusText.textContent = 'Server Online';
-        statusDetails.textContent = `Model: ${data.model} • Ollama: ${data.ollama_status}`;
+        statusDetails.textContent = 'Nirvana 1-Turbo is ready';
         userInput.disabled = false;
         sendBtn.disabled = false;
         errorBanner.style.display = 'none';
@@ -403,8 +403,6 @@
   // Check status every 30 seconds
   checkServerStatus();
   setInterval(checkServerStatus, 30000);
-
-  document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
