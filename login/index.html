@@ -29,9 +29,6 @@
 <!-- Favicon (tab bar icon) -->
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
 
-<!-- Auth0 SDK -->
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
-
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
@@ -109,8 +106,8 @@
       <a href="/docs/">Docs</a>
       <a href="/roblox">Roblox</a>
       <a href="/contact">Contact</a>
-      <button id="nav-login-btn" onclick="login()" style="display:none">Login</button>
-      <button id="nav-logout-btn" onclick="logout()" style="display:none">Logout</button>
+      <button id="nav-login-btn" style="display:none">Login</button>
+      <button id="nav-logout-btn" style="display:none">Logout</button>
     </nav>
   </div>
 </header>
@@ -121,7 +118,7 @@
       <div class="user-card">
         <h2>Welcome to NGP Hub</h2>
         <p>Sign in to access your account and unlock all features</p>
-        <button class="btn" onclick="login()">Sign In</button>
+        <button class="btn" id="login-btn">Sign In</button>
       </div>
     </div>
 
@@ -130,7 +127,7 @@
         <img id="user-avatar" src="" alt="User Avatar" />
         <h2 id="user-name"></h2>
         <p id="user-email"></p>
-        <button class="btn" onclick="logout()">Sign Out</button>
+        <button class="btn" id="logout-btn">Sign Out</button>
       </div>
     </div>
   </div>
@@ -142,14 +139,27 @@
   </div>
 </footer>
 
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  let auth0Client = null;
+  let auth0Client;
+  let loginBtn, logoutBtn, navLoginBtn, navLogoutBtn;
+  let loggedOutDiv, loggedInDiv;
 
-  // Initialize Auth0
-  async function initAuth0() {
-    auth0Client = await auth0.createAuth0Client({
+  document.addEventListener('DOMContentLoaded', init, false);
+
+  async function init() {
+    // Get all the elements
+    loginBtn = document.getElementById('login-btn');
+    logoutBtn = document.getElementById('logout-btn');
+    navLoginBtn = document.getElementById('nav-login-btn');
+    navLogoutBtn = document.getElementById('nav-logout-btn');
+    loggedOutDiv = document.getElementById('logged-out');
+    loggedInDiv = document.getElementById('logged-in');
+
+    // Create Auth0 client
+    auth0Client = await createAuth0Client({
       domain: 'dev-8lzpwtm5mklzb75m.us.auth0.com',
       clientId: 'eXha4ODZFa68z2aXOD7Ki6t1MZJhVONh',
       authorizationParams: {
@@ -157,59 +167,68 @@
       }
     });
 
-    // Check if user is returning from login
-    if (window.location.search.includes('code=') && 
-        window.location.search.includes('state=')) {
+    // Handle coming back from login
+    if (location.search.includes("state=") && 
+        (location.search.includes("code=") || location.search.includes("error="))) {
       await auth0Client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, '/');
+      window.history.replaceState({}, document.title, "/");
     }
 
-    // Update UI based on auth state
-    await updateUI();
-  }
-
-  // Update UI based on whether user is logged in
-  async function updateUI() {
+    // Check if authenticated
     const isAuthenticated = await auth0Client.isAuthenticated();
-    
-    if (isAuthenticated) {
-      const user = await auth0Client.getUser();
-      console.log('User logged in:', user);
-      
-      // Show logged-in UI
-      document.getElementById('logged-out').style.display = 'none';
-      document.getElementById('logged-in').style.display = 'block';
-      document.getElementById('nav-login-btn').style.display = 'none';
-      document.getElementById('nav-logout-btn').style.display = 'block';
-      
-      document.getElementById('user-avatar').src = user.picture;
-      document.getElementById('user-name').textContent = user.name;
-      document.getElementById('user-email').textContent = user.email;
+    console.log('isAuthenticated:', isAuthenticated);
+
+    if (!isAuthenticated) {
+      // Show login UI
+      loggedOutDiv.style.display = 'block';
+      loggedInDiv.style.display = 'none';
+      navLoginBtn.style.display = 'block';
+      navLogoutBtn.style.display = 'none';
     } else {
-      // Show logged-out UI
-      document.getElementById('logged-out').style.display = 'block';
-      document.getElementById('logged-in').style.display = 'none';
-      document.getElementById('nav-login-btn').style.display = 'block';
-      document.getElementById('nav-logout-btn').style.display = 'none';
+      // Show logged in UI
+      loggedOutDiv.style.display = 'none';
+      loggedInDiv.style.display = 'block';
+      navLoginBtn.style.display = 'none';
+      navLogoutBtn.style.display = 'block';
+
+      // Get user profile
+      const userProfile = await auth0Client.getUser();
+      console.log('User profile:', userProfile);
+      
+      document.getElementById('user-avatar').src = userProfile.picture;
+      document.getElementById('user-name').textContent = userProfile.name;
+      document.getElementById('user-email').textContent = userProfile.email;
     }
-  }
 
-  // Login function
-  async function login() {
-    await auth0Client.loginWithRedirect();
-  }
+    // Add event listeners
+    loginBtn.addEventListener('click', e => {
+      e.preventDefault();
+      auth0Client.loginWithRedirect();
+    });
 
-  // Logout function
-  async function logout() {
-    await auth0Client.logout({
-      logoutParams: {
-        returnTo: window.location.origin
-      }
+    navLoginBtn.addEventListener('click', e => {
+      e.preventDefault();
+      auth0Client.loginWithRedirect();
+    });
+
+    logoutBtn.addEventListener('click', e => {
+      e.preventDefault();
+      auth0Client.logout({
+        logoutParams: {
+          returnTo: window.location.origin
+        }
+      });
+    });
+
+    navLogoutBtn.addEventListener('click', e => {
+      e.preventDefault();
+      auth0Client.logout({
+        logoutParams: {
+          returnTo: window.location.origin
+        }
+      });
     });
   }
-
-  // Initialize when page loads
-  window.addEventListener('load', initAuth0);
 </script>
 </body>
 </html>
