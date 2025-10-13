@@ -46,6 +46,7 @@
     scroll-behavior:smooth;
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+  .hidden{display:none}
 
   /* Header */
   header{
@@ -106,34 +107,28 @@
       <a href="/docs/">Docs</a>
       <a href="/roblox">Roblox</a>
       <a href="/contact">Contact</a>
-      <button id="nav-login-btn" style="display:none">Login</button>
-      <button id="nav-logout-btn" style="display:none">Logout</button>
+      <button id="btn-login" disabled="true">Login</button>
+      <button id="btn-logout" disabled="true" class="hidden">Logout</button>
     </nav>
   </div>
 </header>
 
 <main>
   <div class="wrap">
-    <div id="loading">
-      <div class="user-card">
-        <h2>Loading...</h2>
-      </div>
-    </div>
-
-    <div id="logged-out" style="display:none">
+    <div id="logged-out-content">
       <div class="user-card">
         <h2>Welcome to NGP Hub</h2>
         <p>Sign in to access your account and unlock all features</p>
-        <button class="btn" id="login-btn">Sign In</button>
+        <button class="btn" id="main-login-btn" disabled="true">Sign In</button>
       </div>
     </div>
 
-    <div id="logged-in" style="display:none">
+    <div id="gated-content" class="hidden">
       <div class="user-card">
         <img id="user-avatar" src="" alt="User Avatar" />
         <h2 id="user-name"></h2>
         <p id="user-email"></p>
-        <button class="btn" id="logout-btn">Sign Out</button>
+        <button class="btn" id="main-logout-btn">Sign Out</button>
       </div>
     </div>
   </div>
@@ -145,105 +140,89 @@
   </div>
 </footer>
 
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  let auth0Client;
-  let loginBtn, logoutBtn, navLoginBtn, navLogoutBtn;
-  let loggedOutDiv, loggedInDiv;
+  let auth0Client = null;
 
-  document.addEventListener('DOMContentLoaded', init, false);
+  const configureClient = async () => {
+    auth0Client = await auth0.createAuth0Client({
+      domain: 'dev-8lzpwtm5mklzb75m.us.auth0.com',
+      clientId: 'eXha4ODZFa68z2aXOD7Ki6t1MZJhVONh'
+    });
+  };
 
-  async function init() {
-    // Get all the elements
-    const loadingDiv = document.getElementById('loading');
-    loginBtn = document.getElementById('login-btn');
-    logoutBtn = document.getElementById('logout-btn');
-    navLoginBtn = document.getElementById('nav-login-btn');
-    navLogoutBtn = document.getElementById('nav-logout-btn');
-    loggedOutDiv = document.getElementById('logged-out');
-    loggedInDiv = document.getElementById('logged-in');
-
-    try {
-      // Create Auth0 client
-      auth0Client = await auth0.createAuth0Client({
-        domain: 'dev-8lzpwtm5mklzb75m.us.auth0.com',
-        clientId: 'eXha4ODZFa68z2aXOD7Ki6t1MZJhVONh',
-        authorizationParams: {
-          redirect_uri: window.location.origin
-        }
-      });
-
-      // Handle coming back from login
-      if (location.search.includes("state=") && 
-          (location.search.includes("code=") || location.search.includes("error="))) {
-        await auth0Client.handleRedirectCallback();
-        window.history.replaceState({}, document.title, "/");
-      }
-
-      // Check if authenticated
-      const isAuthenticated = await auth0Client.isAuthenticated();
-      console.log('isAuthenticated:', isAuthenticated);
-
-      // Hide loading
-      loadingDiv.style.display = 'none';
-
-      if (!isAuthenticated) {
-        // Show login UI
-        loggedOutDiv.style.display = 'block';
-        loggedInDiv.style.display = 'none';
-        navLoginBtn.style.display = 'block';
-        navLogoutBtn.style.display = 'none';
-      } else {
-        // Show logged in UI
-        loggedOutDiv.style.display = 'none';
-        loggedInDiv.style.display = 'block';
-        navLoginBtn.style.display = 'none';
-        navLogoutBtn.style.display = 'block';
-
-        // Get user profile
-        const userProfile = await auth0Client.getUser();
-        console.log('User profile:', userProfile);
-        
-        document.getElementById('user-avatar').src = userProfile.picture;
-        document.getElementById('user-name').textContent = userProfile.name;
-        document.getElementById('user-email').textContent = userProfile.email;
-      }
-
-      // Add event listeners
-      loginBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth0Client.loginWithRedirect();
-      });
-
-      navLoginBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth0Client.loginWithRedirect();
-      });
-
-      logoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth0Client.logout({
-          logoutParams: {
-            returnTo: window.location.origin
-          }
-        });
-      });
-
-      navLogoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth0Client.logout({
-          logoutParams: {
-            returnTo: window.location.origin
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Auth0 init error:', error);
-      loadingDiv.innerHTML = '<div class="user-card"><h2>Error loading Auth0</h2><p>' + error.message + '</p></div>';
+  const updateUI = async () => {
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    
+    document.getElementById("btn-logout").disabled = !isAuthenticated;
+    document.getElementById("btn-login").disabled = isAuthenticated;
+    document.getElementById("main-login-btn").disabled = isAuthenticated;
+    
+    if (isAuthenticated) {
+      document.getElementById("btn-logout").classList.remove("hidden");
+      document.getElementById("btn-login").classList.add("hidden");
+      document.getElementById("gated-content").classList.remove("hidden");
+      document.getElementById("logged-out-content").classList.add("hidden");
+      
+      const user = await auth0Client.getUser();
+      console.log('User profile:', user);
+      
+      document.getElementById('user-avatar').src = user.picture;
+      document.getElementById('user-name').textContent = user.name;
+      document.getElementById('user-email').textContent = user.email;
+    } else {
+      document.getElementById("btn-logout").classList.add("hidden");
+      document.getElementById("btn-login").classList.remove("hidden");
+      document.getElementById("gated-content").classList.add("hidden");
+      document.getElementById("logged-out-content").classList.remove("hidden");
     }
-  }
+  };
+
+  const login = async () => {
+    await auth0Client.loginWithRedirect({
+      authorizationParams: {
+        redirect_uri: window.location.origin
+      }
+    });
+  };
+
+  const logout = () => {
+    auth0Client.logout({
+      logoutParams: {
+        returnTo: window.location.origin
+      }
+    });
+  };
+
+  window.onload = async () => {
+    await configureClient();
+    
+    updateUI();
+    
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    
+    if (isAuthenticated) {
+      console.log("User is already authenticated");
+      return;
+    }
+    
+    const query = window.location.search;
+    if (query.includes("code=") && query.includes("state=")) {
+      await auth0Client.handleRedirectCallback();
+      updateUI();
+      window.history.replaceState({}, document.title, "/");
+    }
+  };
+
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-login').addEventListener('click', login);
+    document.getElementById('main-login-btn').addEventListener('click', login);
+    document.getElementById('btn-logout').addEventListener('click', logout);
+    document.getElementById('main-logout-btn').addEventListener('click', logout);
+  });
 </script>
 </body>
 </html>
