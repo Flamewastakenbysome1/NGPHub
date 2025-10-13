@@ -114,6 +114,12 @@
 
 <main>
   <div class="wrap">
+    <div id="loading">
+      <div class="user-card">
+        <h2>Loading...</h2>
+      </div>
+    </div>
+
     <div id="logged-out" style="display:none">
       <div class="user-card">
         <h2>Welcome to NGP Hub</h2>
@@ -139,7 +145,7 @@
   </div>
 </footer>
 
-<script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -151,6 +157,7 @@
 
   async function init() {
     // Get all the elements
+    const loadingDiv = document.getElementById('loading');
     loginBtn = document.getElementById('login-btn');
     logoutBtn = document.getElementById('logout-btn');
     navLoginBtn = document.getElementById('nav-login-btn');
@@ -158,76 +165,84 @@
     loggedOutDiv = document.getElementById('logged-out');
     loggedInDiv = document.getElementById('logged-in');
 
-    // Create Auth0 client
-    auth0Client = await createAuth0Client({
-      domain: 'dev-8lzpwtm5mklzb75m.us.auth0.com',
-      clientId: 'eXha4ODZFa68z2aXOD7Ki6t1MZJhVONh',
-      authorizationParams: {
-        redirect_uri: window.location.origin
+    try {
+      // Create Auth0 client
+      auth0Client = await createAuth0Client({
+        domain: 'dev-8lzpwtm5mklzb75m.us.auth0.com',
+        clientId: 'eXha4ODZFa68z2aXOD7Ki6t1MZJhVONh',
+        authorizationParams: {
+          redirect_uri: window.location.origin
+        }
+      });
+
+      // Handle coming back from login
+      if (location.search.includes("state=") && 
+          (location.search.includes("code=") || location.search.includes("error="))) {
+        await auth0Client.handleRedirectCallback();
+        window.history.replaceState({}, document.title, "/");
       }
-    });
 
-    // Handle coming back from login
-    if (location.search.includes("state=") && 
-        (location.search.includes("code=") || location.search.includes("error="))) {
-      await auth0Client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, "/");
-    }
+      // Check if authenticated
+      const isAuthenticated = await auth0Client.isAuthenticated();
+      console.log('isAuthenticated:', isAuthenticated);
 
-    // Check if authenticated
-    const isAuthenticated = await auth0Client.isAuthenticated();
-    console.log('isAuthenticated:', isAuthenticated);
+      // Hide loading
+      loadingDiv.style.display = 'none';
 
-    if (!isAuthenticated) {
-      // Show login UI
-      loggedOutDiv.style.display = 'block';
-      loggedInDiv.style.display = 'none';
-      navLoginBtn.style.display = 'block';
-      navLogoutBtn.style.display = 'none';
-    } else {
-      // Show logged in UI
-      loggedOutDiv.style.display = 'none';
-      loggedInDiv.style.display = 'block';
-      navLoginBtn.style.display = 'none';
-      navLogoutBtn.style.display = 'block';
+      if (!isAuthenticated) {
+        // Show login UI
+        loggedOutDiv.style.display = 'block';
+        loggedInDiv.style.display = 'none';
+        navLoginBtn.style.display = 'block';
+        navLogoutBtn.style.display = 'none';
+      } else {
+        // Show logged in UI
+        loggedOutDiv.style.display = 'none';
+        loggedInDiv.style.display = 'block';
+        navLoginBtn.style.display = 'none';
+        navLogoutBtn.style.display = 'block';
 
-      // Get user profile
-      const userProfile = await auth0Client.getUser();
-      console.log('User profile:', userProfile);
-      
-      document.getElementById('user-avatar').src = userProfile.picture;
-      document.getElementById('user-name').textContent = userProfile.name;
-      document.getElementById('user-email').textContent = userProfile.email;
-    }
+        // Get user profile
+        const userProfile = await auth0Client.getUser();
+        console.log('User profile:', userProfile);
+        
+        document.getElementById('user-avatar').src = userProfile.picture;
+        document.getElementById('user-name').textContent = userProfile.name;
+        document.getElementById('user-email').textContent = userProfile.email;
+      }
 
-    // Add event listeners
-    loginBtn.addEventListener('click', e => {
-      e.preventDefault();
-      auth0Client.loginWithRedirect();
-    });
-
-    navLoginBtn.addEventListener('click', e => {
-      e.preventDefault();
-      auth0Client.loginWithRedirect();
-    });
-
-    logoutBtn.addEventListener('click', e => {
-      e.preventDefault();
-      auth0Client.logout({
-        logoutParams: {
-          returnTo: window.location.origin
-        }
+      // Add event listeners
+      loginBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth0Client.loginWithRedirect();
       });
-    });
 
-    navLogoutBtn.addEventListener('click', e => {
-      e.preventDefault();
-      auth0Client.logout({
-        logoutParams: {
-          returnTo: window.location.origin
-        }
+      navLoginBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth0Client.loginWithRedirect();
       });
-    });
+
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth0Client.logout({
+          logoutParams: {
+            returnTo: window.location.origin
+          }
+        });
+      });
+
+      navLogoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth0Client.logout({
+          logoutParams: {
+            returnTo: window.location.origin
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Auth0 init error:', error);
+      loadingDiv.innerHTML = '<div class="user-card"><h2>Error loading Auth0</h2><p>' + error.message + '</p></div>';
+    }
   }
 </script>
 </body>
