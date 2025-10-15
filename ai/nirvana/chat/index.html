@@ -459,6 +459,7 @@
     dots.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
     
     const text = document.createElement('span');
+    text.id = 'thinkingText';
     text.textContent = 'Pondering About The Physics Of Token Prediction...';
     
     thinkingDiv.appendChild(dots);
@@ -504,7 +505,28 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
-    return contentWrapper;
+    return {wrapper: contentWrapper, startTime: Date.now()};
+  }
+
+  function stopThinkingIndicator(startTime) {
+    const thinkingDiv = document.getElementById('thinkingIndicator');
+    const dots = thinkingDiv?.querySelector('.thinking-dots');
+    const text = document.getElementById('thinkingText');
+    
+    if (thinkingDiv && dots && text) {
+      // Calculate thinking time
+      const thinkTime = ((Date.now() - startTime) / 1000).toFixed(1);
+      
+      // Remove animated dots
+      dots.remove();
+      
+      // Update text
+      text.textContent = `Thought for ${thinkTime} seconds`;
+      
+      // Remove animation and change style to indicate it's done
+      thinkingDiv.style.opacity = '0.7';
+      thinkingDiv.style.cursor = 'default';
+    }
   }
 
   function removeThinkingIndicator() {
@@ -555,11 +577,11 @@
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
-        let contentWrapper = null;
+        let thinkingData = null;
         let streamingContent = null;
         
         // Show thinking indicator immediately
-        contentWrapper = addThinkingIndicator();
+        thinkingData = addThinkingIndicator();
         
         while (true) {
           const {done, value} = await reader.read();
@@ -573,12 +595,17 @@
               const data = JSON.parse(line.slice(6));
               
               if (data.chunk) {
+                // Stop thinking animation and show "Thought for X seconds"
+                if (thinkingData && !streamingContent) {
+                  stopThinkingIndicator(thinkingData.startTime);
+                }
+                
                 // Create streaming content if it doesn't exist
                 if (!streamingContent) {
                   streamingContent = document.createElement('div');
                   streamingContent.className = 'message-content';
                   streamingContent.id = 'streamingContent';
-                  contentWrapper.appendChild(streamingContent);
+                  thinkingData.wrapper.appendChild(streamingContent);
                 }
                 
                 fullResponse += data.chunk;
@@ -590,9 +617,6 @@
               }
               
               if (data.done) {
-                // Remove thinking indicator when done
-                removeThinkingIndicator();
-                
                 // Remove streaming IDs
                 const streamingMsg = document.getElementById('streamingMessageContainer');
                 if (streamingMsg) {
