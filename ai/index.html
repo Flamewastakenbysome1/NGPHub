@@ -111,7 +111,19 @@
     font-weight:600; opacity:.6; cursor:default;
   }
   .version-pill small{font-size:.75rem; font-weight:400}
-  .version-pill.active{
+  .version-pill.in-dev{
+    background:rgba(255,165,0,.08);
+    border-color:rgba(255,165,0,.2);
+    opacity:.7;
+  }
+  .version-pill.current{
+    background:rgba(255,165,0,.15);
+    border-color:rgba(255,165,0,.4);
+    opacity:1;
+  }
+  .version-pill.completed{
+    background:rgba(255,255,255,.05);
+    border-color:rgba(255,255,255,.15);
     opacity:.8;
   }
 
@@ -206,21 +218,21 @@
     <article class="main-ai-card">
       <div class="ai-header">
         <h3 class="ai-name">Nirvana</h3>
-        <span class="ai-status" style="display:inline-block; margin-bottom:16px">🚧 In Development</span>
+        <span class="ai-status" style="display:inline-block; margin-bottom:16px; background:rgba(255,165,0,.15); color:#ffa500; border:1px solid rgba(255,165,0,.3)">🔒 Dev Access Only</span>
         <p class="ai-desc">
-          NGP's flagship AI system, designed to be the ultimate intelligent assistant. 
-          Specialized in natural conversation with plans to expand into code assistance, 
-          image generation, and advanced reasoning.
+          NGP's flagship AI system in active development. 
+          Currently accessible only to NGP developers for testing and improvement.
+          Public release planned for version 2.5-turbo.
         </p>
       </div>
 
       <!-- Version Pills (the circles!) -->
-      <h4 class="versions-title">Planned Versions</h4>
+      <h4 class="versions-title">Versions</h4>
       <div class="version-pills">
-        <div class="version-pill active">1 <small style="opacity:.7">(Coming Soon)</small></div>
-        <div class="version-pill">1-turbo <small style="opacity:.7">(Planned)</small></div>
-        <div class="version-pill">1.3-thinking <small style="opacity:.7">(Planned)</small></div>
-        <div class="version-pill">1.5-thinking <small style="opacity:.7">(Planned)</small></div>
+        <div class="version-pill completed">1</div>
+        <div class="version-pill completed">1-turbo</div>
+        <div class="version-pill completed">1.3-thinking</div>
+        <div class="version-pill current">1.5-thinking <small style="opacity:.9">⚙️ In Dev</small></div>
       </div>
 
       <!-- Features Grid -->
@@ -252,7 +264,8 @@
 
       <!-- CTA Button -->
       <div class="btn-container">
-        <a href="#" class="ai-btn disabled" aria-disabled="true">Coming in Alpha v2.5</a>
+        <a href="#" class="ai-btn disabled" aria-disabled="true">Public Release: Nirvana 2.5-turbo</a>
+        <p style="margin-top:12px; color:var(--muted); font-size:.9rem">Currently dev access only • Follow progress on Discord</p>
       </div>
     </article>
 
