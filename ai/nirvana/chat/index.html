@@ -22,7 +22,7 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
   import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-  import { getFirestore, collection, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+  import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
@@ -36,6 +36,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const authLink = document.getElementById('auth-link');
 
   window.currentUser = null;
   window.currentChatId = 'chat_' + Date.now();
@@ -44,7 +45,19 @@
     window.currentUser = user;
     if (user) {
       console.log('User logged in:', user.email);
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.onclick = async (e) => {
+        e.preventDefault();
+        if (confirm('Logout?')) {
+          await auth.signOut();
+          window.location.reload();
+        }
+      };
       loadChatList();
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
     }
   });
 
@@ -65,10 +78,69 @@
       const item = document.createElement('div');
       item.className = 'chat-item';
       if (docSnap.id === window.currentChatId) item.classList.add('active');
-      item.textContent = chat.title || 'Untitled Chat';
+      
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'chat-title';
+      titleSpan.contentEditable = true;
+      titleSpan.textContent = chat.title || 'Untitled Chat';
+      titleSpan.onclick = (e) => {
+        e.stopPropagation();
+        if (!titleSpan.dataset.editing) {
+          titleSpan.dataset.editing = 'true';
+          titleSpan.focus();
+        }
+      };
+      titleSpan.onblur = async () => {
+        delete titleSpan.dataset.editing;
+        await window.renameChat(docSnap.id, titleSpan.textContent.trim());
+      };
+      titleSpan.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          titleSpan.blur();
+        }
+      };
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-chat-btn';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.onclick = async (e) => {
+        e.stopPropagation();
+        if (confirm('Delete this chat?')) {
+          await window.deleteChat(docSnap.id);
+        }
+      };
+      
+      item.appendChild(titleSpan);
+      item.appendChild(deleteBtn);
       item.onclick = () => window.switchToChat(docSnap.id, chat.messages);
       chatList.appendChild(item);
     });
+  };
+
+  // Rename chat
+  window.renameChat = async function(chatId, newTitle) {
+    if (!window.currentUser || !newTitle) return;
+    
+    const chatRef = doc(db, 'users', window.currentUser.uid, 'chats', chatId);
+    await setDoc(chatRef, {
+      title: newTitle,
+      updated_at: serverTimestamp()
+    }, { merge: true });
+  };
+
+  // Delete chat
+  window.deleteChat = async function(chatId) {
+    if (!window.currentUser) return;
+    
+    const chatRef = doc(db, 'users', window.currentUser.uid, 'chats', chatId);
+    await deleteDoc(chatRef);
+    
+    if (chatId === window.currentChatId) {
+      window.createNewChat();
+    } else {
+      loadChatList();
+    }
   };
 
   // Switch to a different chat
@@ -116,6 +188,8 @@
       messages: messages,
       updated_at: serverTimestamp()
     }, { merge: true });
+    
+    loadChatList();
   };
 </script>
 
@@ -154,11 +228,27 @@
   .chat-item{
     background:rgba(255,255,255,.03); padding:10px 12px;
     border-radius:8px; cursor:pointer; transition:all .2s;
-    font-size:.9rem; white-space:nowrap; overflow:hidden;
-    text-overflow:ellipsis;
+    font-size:.9rem; display:flex; align-items:center;
+    justify-content:space-between; gap:8px;
   }
   .chat-item:hover{background:rgba(255,255,255,.08)}
   .chat-item.active{background:linear-gradient(135deg, var(--brandA), var(--brandB))}
+  
+  .chat-title{
+    flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .chat-title:focus{
+    outline:none; background:rgba(255,255,255,.1); padding:2px 6px;
+    border-radius:4px;
+  }
+  
+  .delete-chat-btn{
+    background:var(--error); color:white; border:none;
+    padding:4px 8px; border-radius:4px; font-size:.75rem;
+    cursor:pointer; opacity:0; transition:opacity .2s;
+  }
+  .chat-item:hover .delete-chat-btn{opacity:1}
+  .delete-chat-btn:hover{background:#dc2626}
 
   /* Header */
   header{
@@ -377,6 +467,7 @@
       <a href="/docs/">Docs</a>
       <a href="/roblox">Roblox</a>
       <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
     </nav>
   </div>
 </header>
@@ -836,45 +927,6 @@
   // Check status every 30 seconds
   checkServerStatus();
   setInterval(checkServerStatus, 30000);
-
-  // Load chat list
-  async function loadChatList() {
-    if (!window.currentUser) return;
-    
-    const chatsRef = window.firebase.firestore().collection('users').doc(window.currentUser.uid).collection('chats');
-    const snapshot = await chatsRef.orderBy('updated_at', 'desc').get();
-    
-    const chatList = document.getElementById('chatList');
-    chatList.innerHTML = '';
-    
-    snapshot.forEach(doc => {
-      const chat = doc.data();
-      const item = document.createElement('div');
-      item.className = 'chat-item';
-      if (doc.id === window.currentChatId) item.classList.add('active');
-      item.textContent = chat.title || 'Untitled Chat';
-      item.onclick = () => switchToChat(doc.id);
-      chatList.appendChild(item);
-    });
-  }
-
-  function createNewChat() {
-    window.currentChatId = 'chat_' + Date.now();
-    chatMessages.innerHTML = '';
-    addMessage("Hey! I'm Nirvana 1.5-thinking, NGP's advanced AI assistant with enhanced reasoning capabilities. I'm running locally on Flame's PC with that fresh new RTX 5060 Ti! 🔥<br><br>Ask me anything about coding, game dev, or just chat - I think deeper now!", false);
-    loadChatList();
-  }
-
-  async function switchToChat(chatId) {
-    window.currentChatId = chatId;
-    // TODO: Load messages from this chat
-    loadChatList();
-  }
-
-  // Load chats when user logs in
-  if (window.currentUser) {
-    loadChatList();
-  }
 </script>
 </body>
 </html>
