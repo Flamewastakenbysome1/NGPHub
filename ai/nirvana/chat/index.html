@@ -90,29 +90,12 @@
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
-  /* Header */
-  header{
-    position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
-    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
-  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-img{width:28px; height:28px; border-radius:10px; box-shadow:var(--shadow)}
-  .logo h1{font-size:1.05rem; margin:0}
-  nav{display:flex; gap:6px; flex-wrap:wrap}
-  nav a{
-    color:var(--ink); text-decoration:none; font-weight:500;
-    padding:8px 10px; border-radius:10px; opacity:.9
-  }
-  nav a:hover{background:rgba(255,255,255,.06)}
-
-  /* Main Chat Container */
-  main{padding:24px 0 40px; min-height:calc(100vh - 120px); display:flex; gap:20px}
-  
+  /* Sidebar */
   .sidebar{
-    width:280px; background:var(--card); border-radius:var(--radius);
+    position:fixed; left:0; top:60px; bottom:0;
+    width:280px; background:var(--card); 
     padding:16px; display:flex; flex-direction:column; gap:12px;
-    max-height:calc(100vh - 200px); overflow-y:auto;
+    overflow-y:auto; border-right:1px solid rgba(255,255,255,.08);
   }
   
   .new-chat-btn{
@@ -130,8 +113,25 @@
   }
   .chat-item:hover{background:rgba(255,255,255,.08)}
   .chat-item.active{background:linear-gradient(135deg, var(--brandA), var(--brandB))}
-  
-  .chat-container-wrapper{flex:1; display:flex; flex-direction:column}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0}
+  nav{display:flex; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover{background:rgba(255,255,255,.06)}
+
+  /* Main Chat Container */
+  main{padding:24px 0 40px; min-height:calc(100vh - 120px); margin-left:280px}
   
   .status-bar{
     background:var(--card); border-radius:var(--radius);
@@ -336,16 +336,15 @@
 </header>
 
 <main>
-  <div class="wrap" style="display:flex; gap:20px; width:100%">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <button class="new-chat-btn" onclick="createNewChat()">+ New Chat</button>
-      <div id="chatList"></div>
-    </div>
+  <!-- Sidebar (fixed left) -->
+  <div class="sidebar">
+    <button class="new-chat-btn" onclick="createNewChat()">+ New Chat</button>
+    <div id="chatList"></div>
+  </div>
 
-    <!-- Chat area -->
-    <div class="chat-container-wrapper">
-      <div class="status-bar">
+  <!-- Chat area -->
+  <div class="wrap">
+    <div class="status-bar">
       <div class="status-dot" id="statusDot"></div>
       <div>
         <strong id="statusText">Checking server...</strong>
