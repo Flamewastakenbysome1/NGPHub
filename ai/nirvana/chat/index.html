@@ -18,6 +18,61 @@
 <!-- Markdown parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  import { getFirestore, collection, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.currentUser = null;
+  window.currentChatId = 'chat_' + Date.now();
+
+  onAuthStateChanged(auth, (user) => {
+    window.currentUser = user;
+    if (user) {
+      console.log('User logged in:', user.email);
+    }
+  });
+
+  // Save message to Firestore
+  window.saveMessageToFirestore = async function(role, content) {
+    if (!window.currentUser) return;
+    
+    const chatRef = doc(db, 'users', window.currentUser.uid, 'chats', window.currentChatId);
+    const chatDoc = await getDoc(chatRef);
+    
+    let messages = [];
+    if (chatDoc.exists()) {
+      messages = chatDoc.data().messages || [];
+    }
+    
+    messages.push({
+      role: role,
+      content: content,
+      timestamp: new Date().toISOString()
+    });
+    
+    await setDoc(chatRef, {
+      title: messages[0]?.content.substring(0, 50) || "New Chat",
+      messages: messages,
+      updated_at: serverTimestamp()
+    }, { merge: true });
+  };
+</script>
+
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
@@ -548,6 +603,11 @@
     if (!continueGeneration) {
       addMessage(message, true);
       userInput.value = '';
+      
+      // Save user message to Firestore
+      if (window.saveMessageToFirestore) {
+        await window.saveMessageToFirestore('user', message);
+      }
     }
 
     isTyping = true;
@@ -617,6 +677,11 @@
               }
               
               if (data.done) {
+                // Save AI response to Firestore
+                if (window.saveMessageToFirestore && fullResponse) {
+                  await window.saveMessageToFirestore('assistant', fullResponse);
+                }
+                
                 // Remove streaming IDs
                 const streamingMsg = document.getElementById('streamingMessageContainer');
                 if (streamingMsg) {
