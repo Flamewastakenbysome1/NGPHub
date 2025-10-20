@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Example Page with Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  /* Content */
+  main{padding:60px 0; min-height:calc(100vh - 200px)}
+  .card{
+    background:var(--card); border-radius:var(--radius); padding:32px;
+    box-shadow:var(--shadow); margin-bottom:24px;
+  }
+  .card h2{margin:0 0 16px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
+  .btn{
+    padding:12px 24px; border:none; border-radius:10px; font-weight:600;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; cursor:pointer;
+    transition:transform .2s; font-family:inherit; font-size:1rem; margin-right:12px;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(0)}
+  textarea{
+    width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.03); color:var(--ink); font-family:inherit; font-size:1rem;
+    min-height:100px; resize:vertical; margin-bottom:12px;
+  }
+  textarea:focus{outline:none; border-color:var(--brandB); box-shadow:var(--ring)}
+  .status{padding:12px; border-radius:8px; margin-bottom:16px; font-size:.9rem}
+  .status.loading{background:rgba(255,255,255,.05); color:var(--muted)}
+  .status.success{background:rgba(50,255,100,.1); border:1px solid rgba(50,255,100,.3); color:#51cf66}
+  .status.error{background:rgba(255,50,50,.1); border:1px solid rgba(255,50,50,.3); color:#ff6b6b}
+
+  /* Footer */
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login.html" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="card">
+      <h2>Login Test Page</h2>
+      <p>This page demonstrates Firebase authentication and data saving!</p>
+      <div id="user-status" class="status loading">Checking login status...</div>
+    </div>
+
+    <div class="card">
+      <h2>Save & Load Your Notes</h2>
+      <p>Type something below and click "Save to Cloud". Your data will be saved to your account and won't disappear on refresh!</p>
+      
+      <textarea id="notes" placeholder="Type your notes here..."></textarea>
+      <button class="btn" onclick="saveNotes()">Save to Cloud</button>
+      <button class="btn" onclick="loadNotes()">Load from Cloud</button>
+      
+      <div id="save-status"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<script type="module">
+  // Import Firebase
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  
+  const authLink = document.getElementById('auth-link');
+  const userStatus = document.getElementById('user-status');
+
+  // Check if user is logged in
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // User IS logged in
+      userStatus.className = 'status success';
+      userStatus.textContent = `✅ Logged in as: ${user.email}`;
+      
+      // Change "Login" to username
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      
+      // Click to logout
+      authLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (confirm('Logout?')) {
+          await signOut(auth);
+          window.location.reload();
+        }
+      });
+
+      // Auto-load their saved notes
+      await loadNotes();
+      
+    } else {
+      // User is NOT logged in
+      userStatus.className = 'status error';
+      userStatus.textContent = '❌ Not logged in. Please login to save data!';
+      
+      authLink.textContent = 'Login';
+      authLink.href = '/login.html';
+    }
+  });
+
+  // SAVE data function
+  window.saveNotes = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please login first!');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    const notes = document.getElementById('notes').value;
+    const saveStatus = document.getElementById('save-status');
+    
+    try {
+      saveStatus.className = 'status loading';
+      saveStatus.textContent = 'Saving to cloud...';
+      
+      // Save to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        notes: notes,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      
+      saveStatus.className = 'status success';
+      saveStatus.textContent = '✅ Saved successfully! Refresh the page to test - your notes will still be here!';
+      
+    } catch (error) {
+      console.error('Save error:', error);
+      saveStatus.className = 'status error';
+      saveStatus.textContent = '❌ Failed to save: ' + error.message;
+    }
+  };
+
+  // LOAD data function
+  window.loadNotes = async function() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const saveStatus = document.getElementById('save-status');
+    
+    try {
+      saveStatus.className = 'status loading';
+      saveStatus.textContent = 'Loading from cloud...';
+      
+      // Load from Firestore
+      const docSnap = await getDoc(doc(db, 'users', user.uid));
+      
+      if (docSnap.exists() && docSnap.data().notes) {
+        document.getElementById('notes').value = docSnap.data().notes;
+        saveStatus.className = 'status success';
+        saveStatus.textContent = '✅ Loaded your saved notes!';
+      } else {
+        saveStatus.className = 'status';
+        saveStatus.textContent = 'No saved notes found.';
+      }
+      
+    } catch (error) {
+      console.error('Load error:', error);
+      saveStatus.className = 'status error';
+      saveStatus.textContent = '❌ Failed to load: ' + error.message;
+    }
+  };
+</script>
+
+</body>
+</html>
