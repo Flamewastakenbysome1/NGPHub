@@ -44,8 +44,54 @@
     window.currentUser = user;
     if (user) {
       console.log('User logged in:', user.email);
+      loadChatList();
     }
   });
+
+  // Load chat list from Firestore
+  window.loadChatList = async function() {
+    if (!window.currentUser) return;
+    
+    const chatsRef = collection(db, 'users', window.currentUser.uid, 'chats');
+    const { query: firestoreQuery, orderBy: firestoreOrderBy, getDocs: firestoreGetDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const q = firestoreQuery(chatsRef, firestoreOrderBy('updated_at', 'desc'));
+    const snapshot = await firestoreGetDocs(q);
+    
+    const chatList = document.getElementById('chatList');
+    chatList.innerHTML = '';
+    
+    snapshot.forEach(docSnap => {
+      const chat = docSnap.data();
+      const item = document.createElement('div');
+      item.className = 'chat-item';
+      if (docSnap.id === window.currentChatId) item.classList.add('active');
+      item.textContent = chat.title || 'Untitled Chat';
+      item.onclick = () => window.switchToChat(docSnap.id, chat.messages);
+      chatList.appendChild(item);
+    });
+  };
+
+  // Switch to a different chat
+  window.switchToChat = function(chatId, messages) {
+    window.currentChatId = chatId;
+    chatMessages.innerHTML = '';
+    
+    if (messages && messages.length > 0) {
+      messages.forEach(msg => {
+        addMessage(msg.content, msg.role === 'user');
+      });
+    }
+    
+    loadChatList();
+  };
+
+  // Create new chat
+  window.createNewChat = function() {
+    window.currentChatId = 'chat_' + Date.now();
+    chatMessages.innerHTML = '';
+    addMessage("Hey! I'm Nirvana 1.5-thinking, NGP's advanced AI assistant with enhanced reasoning capabilities. I'm running locally on Flame's PC with that fresh new RTX 5060 Ti! 🔥<br><br>Ask me anything about coding, game dev, or just chat - I think deeper now!", false);
+    loadChatList();
+  };
 
   // Save message to Firestore
   window.saveMessageToFirestore = async function(role, content) {
