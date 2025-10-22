@@ -236,7 +236,7 @@
         // Send email verification
         await sendEmailVerification(userCredential.user);
         
-        showMessage('Account created! Please check your email to verify your account before logging in.', 'success');
+        showMessage('Account created! Please check your email (including spam folder) to verify your account before logging in.', 'success');
         
         // Don't log them in yet, make them verify first
         submitBtn.disabled = false;
