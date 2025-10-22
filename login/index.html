@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
 
+<!-- reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
@@ -114,6 +117,9 @@
       <input type="password" id="password" placeholder="••••••••" required />
     </div>
     
+    <!-- reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="6Ldwe_MrAAAAAEPzAdosFogNEPUS_ELrZvsrVkl9" style="margin-bottom: 20px; display: flex; justify-content: center;"></div>
+    
     <button type="submit" class="btn" id="submit-btn">Login</button>
   </form>
   
@@ -127,7 +133,7 @@
 <script type="module">
   // Import Firebase
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
   // 🔥 YOUR FIREBASE CONFIG 🔥
   const firebaseConfig = {
@@ -180,6 +186,14 @@
   // Handle form submission
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Check reCAPTCHA
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+      showMessage('Please complete the reCAPTCHA', 'error');
+      return;
+    }
+    
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
@@ -195,6 +209,15 @@
       if (isLoginMode) {
         // Login
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Check if email is verified
+        if (!userCredential.user.emailVerified) {
+          showMessage('Please verify your email before logging in. Check your inbox!', 'error');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Login';
+          return;
+        }
+        
         showMessage('Login successful! Redirecting...', 'success');
         
         // Save user ID to localStorage
@@ -209,16 +232,28 @@
       } else {
         // Sign up
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        showMessage('Account created! Redirecting...', 'success');
         
-        // Save user ID to localStorage
-        localStorage.setItem('ngp_user_id', userCredential.user.uid);
-        localStorage.setItem('ngp_user_email', userCredential.user.email);
+        // Send email verification
+        await sendEmailVerification(userCredential.user);
         
-        // Redirect to home after 1 second
+        showMessage('Account created! Please check your email to verify your account before logging in.', 'success');
+        
+        // Don't log them in yet, make them verify first
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
+        
+        // Switch to login mode after 3 seconds
         setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
+          isLoginMode = true;
+          formTitle.textContent = 'Login to NGP';
+          formSubtitle.textContent = 'Access your saved data and projects';
+          submitBtn.textContent = 'Login';
+          toggleText.textContent = "Don't have an account?";
+          toggleLink.textContent = 'Sign up';
+          messageDiv.innerHTML = '';
+          emailInput.value = email; // Keep the email filled in
+          passwordInput.value = '';
+        }, 3000);
       }
     } catch (error) {
       console.error('Auth error:', error);
@@ -240,6 +275,9 @@
       showMessage(errorMessage, 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = isLoginMode ? 'Login' : 'Sign Up';
+      
+      // Reset reCAPTCHA
+      grecaptcha.reset();
     }
   });
 
