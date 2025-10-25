@@ -882,75 +882,62 @@ try {
     
     elements.renderProgressFill.style.width = '40%';
     
-    // Create master gain
+    // Create effects chain - ALWAYS create all nodes to match live playback
+    const muffle = offlineCtx.createBiquadFilter();
+    muffle.type = 'lowpass';
+    muffle.Q.value = 0.7;
+    const maxFreq = 20000;
+    const minFreq = params.isUnlocked ? 60 : 300;
+    const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
+    muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
+    
+    const conv = offlineCtx.createConvolver();
+    if (params.reverb === 0) {
+      // Create dry impulse for no reverb
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
+    } else {
+      const reverbAmount = Math.max(0.001, params.reverb / 100);
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    }
+    
+    const bassEQ = offlineCtx.createBiquadFilter();
+    bassEQ.type = 'lowshelf';
+    bassEQ.frequency.value = 140;
+    bassEQ.gain.value = params.bass;
+    
+    const dryGain = offlineCtx.createGain();
+    dryGain.gain.value = 1;
+    
+    // Echo
+    const delay = offlineCtx.createDelay(2.0);
+    const feedback = offlineCtx.createGain();
+    const echoWet = offlineCtx.createGain();
+    
+    const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
+    const delayTime = 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange;
+    const feedbackAmount = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
+    const wetLevel = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
+    
+    delay.delayTime.value = Math.min(2.0, delayTime);
+    feedback.gain.value = feedbackAmount;
+    echoWet.gain.value = wetLevel;
+    
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
     
     elements.renderProgressFill.style.width = '60%';
     
-    // Build audio chain conditionally
-    let currentNode = source;
-    
-    // Muffle filter - only if > 0
-    if (params.muffle > 0) {
-      const muffle = offlineCtx.createBiquadFilter();
-      muffle.type = 'lowpass';
-      muffle.Q.value = 0.7;
-      const maxFreq = 20000;
-      const minFreq = params.isUnlocked ? 60 : 300;
-      const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
-      muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-      currentNode.connect(muffle);
-      currentNode = muffle;
-    }
-    
-    // Reverb - only if > 0
-    if (params.reverb > 0) {
-      const conv = offlineCtx.createConvolver();
-      const reverbAmount = Math.max(0.001, params.reverb / 100);
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-      currentNode.connect(conv);
-      currentNode = conv;
-    }
-    
-    // Bass EQ - only if > 0
-    if (params.bass > 0) {
-      const bassEQ = offlineCtx.createBiquadFilter();
-      bassEQ.type = 'lowshelf';
-      bassEQ.frequency.value = 140;
-      bassEQ.gain.value = params.bass;
-      currentNode.connect(bassEQ);
-      currentNode = bassEQ;
-    }
-    
-    // Dry signal path
-    const dryGain = offlineCtx.createGain();
-    dryGain.gain.value = 1;
-    currentNode.connect(dryGain);
+    // Connect graph - SAME AS LIVE PLAYBACK
+    source.connect(muffle);
+    muffle.connect(conv);
+    conv.connect(bassEQ);
+    bassEQ.connect(dryGain);
+    bassEQ.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(echoWet);
     dryGain.connect(master);
-    
-    // Echo - only if > 0
-    if (params.echo > 0) {
-      const delay = offlineCtx.createDelay(2.0);
-      const feedback = offlineCtx.createGain();
-      const echoWet = offlineCtx.createGain();
-      
-      const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
-      const delayTime = 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange;
-      const feedbackAmount = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-      const wetLevel = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-      
-      delay.delayTime.value = Math.min(2.0, delayTime);
-      feedback.gain.value = feedbackAmount;
-      echoWet.gain.value = wetLevel;
-      
-      currentNode.connect(delay);
-      delay.connect(feedback);
-      feedback.connect(delay);
-      delay.connect(echoWet);
-      echoWet.connect(master);
-    }
-    
+    echoWet.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
@@ -1020,71 +1007,55 @@ try {
     source.buffer = stretchedBuffer;
     source.playbackRate.value = pitchMultiplier; // Apply pitch shift
     
-    // Apply effects - create master gain
+    // Apply effects - ALWAYS create all nodes to match live playback
+    const muffle = offlineCtx.createBiquadFilter();
+    muffle.type = 'lowpass';
+    muffle.Q.value = 0.7;
+    const maxFreq = 20000;
+    const minFreq = params.isUnlocked ? 60 : 300;
+    const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
+    muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
+    
+    const conv = offlineCtx.createConvolver();
+    if (params.reverb === 0) {
+      // Create dry impulse for no reverb
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
+    } else {
+      const reverbAmount = Math.max(0.001, params.reverb / 100);
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    }
+    
+    const bassEQ = offlineCtx.createBiquadFilter();
+    bassEQ.type = 'lowshelf';
+    bassEQ.frequency.value = 140;
+    bassEQ.gain.value = params.bass;
+    
+    const dryGain = offlineCtx.createGain();
+    const delay = offlineCtx.createDelay(2.0);
+    const feedback = offlineCtx.createGain();
+    const echoWet = offlineCtx.createGain();
+    
+    const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
+    delay.delayTime.value = Math.min(2.0, 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
+    feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
+    echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
+    
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
     
     elements.renderProgressFill.style.width = '70%';
     
-    // Build audio chain conditionally
-    let currentNode = source;
-    
-    // Muffle filter - only if > 0
-    if (params.muffle > 0) {
-      const muffle = offlineCtx.createBiquadFilter();
-      muffle.type = 'lowpass';
-      muffle.Q.value = 0.7;
-      const maxFreq = 20000;
-      const minFreq = params.isUnlocked ? 60 : 300;
-      const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
-      muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-      currentNode.connect(muffle);
-      currentNode = muffle;
-    }
-    
-    // Reverb - only if > 0
-    if (params.reverb > 0) {
-      const conv = offlineCtx.createConvolver();
-      const reverbAmount = Math.max(0.001, params.reverb / 100);
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-      currentNode.connect(conv);
-      currentNode = conv;
-    }
-    
-    // Bass EQ - only if > 0
-    if (params.bass > 0) {
-      const bassEQ = offlineCtx.createBiquadFilter();
-      bassEQ.type = 'lowshelf';
-      bassEQ.frequency.value = 140;
-      bassEQ.gain.value = params.bass;
-      currentNode.connect(bassEQ);
-      currentNode = bassEQ;
-    }
-    
-    // Dry signal path
-    const dryGain = offlineCtx.createGain();
-    dryGain.gain.value = 1;
-    currentNode.connect(dryGain);
+    // Connect - SAME AS LIVE PLAYBACK
+    source.connect(muffle);
+    muffle.connect(conv);
+    conv.connect(bassEQ);
+    bassEQ.connect(dryGain);
+    bassEQ.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(echoWet);
     dryGain.connect(master);
-    
-    // Echo - only if > 0
-    if (params.echo > 0) {
-      const delay = offlineCtx.createDelay(2.0);
-      const feedback = offlineCtx.createGain();
-      const echoWet = offlineCtx.createGain();
-      
-      const echoRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.echo / 100));
-      delay.delayTime.value = Math.min(2.0, 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
-      feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
-      echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-      
-      currentNode.connect(delay);
-      delay.connect(feedback);
-      feedback.connect(delay);
-      delay.connect(echoWet);
-      echoWet.connect(master);
-    }
-    
+    echoWet.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
