@@ -812,9 +812,8 @@ try {
         isUnlocked: elements.unlockBox && elements.unlockBox.checked
       };
       
-      const renderedBuffer = params.preservePitch 
-        ? await renderWithTimeStretching(audioBuffer, params)
-        : await renderWithResampling(audioBuffer, params);
+      // Always use resampling - Web Audio API handles pitch preservation internally
+      const renderedBuffer = await renderWithResampling(audioBuffer, params);
       
       setStatus('Creating download...');
       elements.renderProgressFill.style.width = '90%';
@@ -867,18 +866,44 @@ try {
     const channels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
     
-    // Calculate playback rate based on speed and pitch
+    // Calculate playback rate and pitch
     const pitchMultiplier = Math.pow(2, params.pitch / 12);
-    const finalPlaybackRate = params.preservePitch ? params.speed : params.speed * pitchMultiplier;
+    
+    // When preservePitch is true, only apply speed change
+    // When false, apply both speed and pitch changes
+    let finalPlaybackRate, pitchAdjust;
+    if (params.preservePitch) {
+      finalPlaybackRate = params.speed;
+      pitchAdjust = pitchMultiplier;
+    } else {
+      finalPlaybackRate = params.speed * pitchMultiplier;
+      pitchAdjust = 1;
+    }
     
     const outputLength = Math.max(1, Math.floor(buffer.length / finalPlaybackRate));
     
-    const offlineCtx = new OfflineAudioContext(channels, outputLength, sampleRate);
+    // If we need pitch adjustment separately, we need to resample first
+    let workingBuffer = buffer;
+    let workingSampleRate = sampleRate;
+    
+    if (params.preservePitch && params.pitch !== 0) {
+      // Create a temporary context with adjusted sample rate for pitch shift
+      const tempSampleRate = Math.round(sampleRate * pitchAdjust);
+      const tempCtx = new OfflineAudioContext(channels, buffer.length, tempSampleRate);
+      const tempSource = tempCtx.createBufferSource();
+      tempSource.buffer = buffer;
+      tempSource.connect(tempCtx.destination);
+      tempSource.start(0);
+      workingBuffer = await tempCtx.startRendering();
+      workingSampleRate = tempSampleRate;
+    }
+    
+    const offlineCtx = new OfflineAudioContext(channels, outputLength, workingSampleRate);
     
     // Create source
     const source = offlineCtx.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = finalPlaybackRate;
+    source.buffer = workingBuffer;
+    source.playbackRate.value = params.speed;
     
     elements.renderProgressFill.style.width = '40%';
     
