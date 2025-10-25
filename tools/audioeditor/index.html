@@ -578,6 +578,7 @@ try {
     }
     
     if (!isPlaying) {
+      // Start playback
       createAudioSource();
       startOffset = currentTime;
       sourceNode.start(0, startOffset);
@@ -586,7 +587,11 @@ try {
       elements.playBtn.textContent = '⏸';
       updateTimeDisplay();
     } else {
-      try { sourceNode.stop(); } catch (e) {}
+      // Pause playback
+      try { 
+        sourceNode.stop(); 
+        sourceNode.disconnect();
+      } catch (e) {}
       currentTime = getCurrentPlaybackTime();
       isPlaying = false;
       elements.playBtn.textContent = '▶';
@@ -608,15 +613,35 @@ try {
   elements.seek.onchange = function() {
     if (!audioBuffer) return;
     
+    const wasPlaying = isPlaying;
     currentTime = parseFloat(elements.seek.value);
     
+    // Stop current playback if playing
     if (isPlaying) {
-      try { sourceNode.stop(); } catch (e) {}
-      
+      try { 
+        sourceNode.stop(); 
+        sourceNode.disconnect();
+      } catch (e) {}
+      isPlaying = false;
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+    }
+    
+    // Update display
+    elements.curTime.textContent = formatTime(currentTime);
+    updateProgressIndicator();
+    
+    // Restart if it was playing
+    if (wasPlaying) {
       createAudioSource();
       startOffset = currentTime;
       sourceNode.start(0, startOffset);
       lastPlayTime = audioContext.currentTime;
+      isPlaying = true;
+      elements.playBtn.textContent = '⏸';
+      updateTimeDisplay();
     }
   };
 
@@ -694,8 +719,13 @@ try {
   elements.reverb.oninput = function() {
     const reverbValue = parseInt(elements.reverb.value);
     elements.reverbLbl.textContent = '(' + reverbValue + '%)';
-    const reverbAmount = Math.max(0.001, reverbValue / 100);
-    nodes.convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    if (reverbValue === 0) {
+      // Create a dry impulse (no reverb)
+      nodes.convolver.buffer = createImpulseResponse(0.001, 0.1);
+    } else {
+      const reverbAmount = Math.max(0.001, reverbValue / 100);
+      nodes.convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    }
   };
 
   elements.bass.oninput = function() {
