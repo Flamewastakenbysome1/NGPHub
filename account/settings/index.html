@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Account Settings — NGP Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --danger:#ff4444;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0}
+  body{
+    background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:700px; margin:0 auto; padding:40px 16px}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0; max-width:1024px; margin:0 auto; padding-left:16px; padding-right:16px}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover{background:rgba(255,255,255,.06)}
+
+  /* Page Title */
+  .page-title{
+    font-size:2rem; margin:0 0 8px;
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .page-subtitle{color:var(--muted); margin:0 0 32px}
+
+  /* Settings Card */
+  .settings-card{
+    background:var(--card); border-radius:var(--radius); padding:24px;
+    box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.06);
+    margin-bottom:20px;
+  }
+  .settings-card h3{margin:0 0 8px; font-size:1.1rem}
+  .settings-card p{color:var(--muted); margin:0 0 16px; line-height:1.5}
+
+  /* Info Section */
+  .info-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .info-row:last-child{border-bottom:none}
+  .info-label{color:var(--muted); font-size:.9rem}
+  .info-value{font-weight:600}
+
+  /* Buttons */
+  .btn{
+    display:inline-block; padding:10px 20px; border-radius:10px;
+    font-weight:600; cursor:pointer; border:none; font-size:.95rem;
+    transition:transform .2s ease, box-shadow .2s ease; text-decoration:none;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  
+  .btn-primary{
+    background:linear-gradient(135deg, var(--brandA), var(--brandB));
+    color:white; box-shadow:0 4px 15px rgba(37,117,252,.3);
+  }
+  .btn-primary:hover{box-shadow:0 6px 20px rgba(37,117,252,.4)}
+  
+  .btn-danger{
+    background:var(--danger); color:white;
+    box-shadow:0 4px 15px rgba(255,68,68,.3);
+  }
+  .btn-danger:hover{
+    box-shadow:0 6px 20px rgba(255,68,68,.4);
+    background:#ff3333;
+  }
+
+  .btn-ghost{
+    background:rgba(255,255,255,.05); color:var(--ink);
+    border:1px solid rgba(255,255,255,.1);
+  }
+
+  /* Danger Zone */
+  .danger-zone{
+    background:rgba(255,68,68,.08); border:2px solid rgba(255,68,68,.3);
+    border-radius:var(--radius); padding:24px; margin-top:32px;
+  }
+  .danger-zone h3{
+    margin:0 0 8px; color:#ff6666; display:flex; align-items:center; gap:8px;
+  }
+  .danger-zone p{color:var(--muted); margin:0 0 16px; line-height:1.5}
+
+  /* Loading State */
+  .loading{opacity:.5; pointer-events:none}
+
+  /* Message */
+  .message{
+    padding:12px 16px; border-radius:10px; margin-bottom:16px;
+    font-size:.9rem; display:none;
+  }
+  .message.error{background:rgba(255,68,68,.15); color:#ff6666; border:1px solid rgba(255,68,68,.3); display:block}
+  .message.success{background:rgba(76,175,80,.15); color:#4caf50; border:1px solid rgba(76,175,80,.3); display:block}
+
+  @media (max-width: 600px){
+    .info-row{flex-direction:column; align-items:flex-start; gap:4px}
+    .page-title{font-size:1.6rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/login">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 class="page-title">Account Settings</h2>
+  <p class="page-subtitle">Manage your NGP Hub account</p>
+
+  <div id="message" class="message"></div>
+
+  <!-- Account Info -->
+  <div class="settings-card">
+    <h3>Account Information</h3>
+    <p>Your account details and verification status</p>
+    
+    <div class="info-row">
+      <span class="info-label">Email</span>
+      <span class="info-value" id="user-email">Loading...</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">Email Verified</span>
+      <span class="info-value" id="email-verified">Loading...</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">Account Created</span>
+      <span class="info-value" id="account-created">Loading...</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">User ID</span>
+      <span class="info-value" id="user-id" style="font-size:.85rem; opacity:.7">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Data Export -->
+  <div class="settings-card">
+    <h3>Export Your Data</h3>
+    <p>Download all your account data in JSON format</p>
+    <button class="btn btn-primary" id="export-btn">Download Data</button>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="danger-zone">
+    <h3>⚠️ Danger Zone</h3>
+    <p>
+      <strong>Delete your account permanently.</strong><br>
+      This will immediately delete your account and all associated data. 
+      This action cannot be undone. You will be logged out and your email will be freed up for re-registration.
+    </p>
+    <button class="btn btn-danger" id="delete-btn">Delete Account</button>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const messageDiv = document.getElementById('message');
+  const deleteBtn = document.getElementById('delete-btn');
+  const exportBtn = document.getElementById('export-btn');
+
+  // Check if user is logged in
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Not logged in, redirect to login
+      window.location.href = '/login';
+      return;
+    }
+
+    // Display user info
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('email-verified').textContent = user.emailVerified ? '✅ Yes' : '❌ No';
+    document.getElementById('account-created').textContent = new Date(user.metadata.creationTime).toLocaleDateString();
+    document.getElementById('user-id').textContent = user.uid;
+  });
+
+  // Export Data
+  exportBtn.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userData = {
+      email: user.email,
+      emailVerified: user.emailVerified,
+      uid: user.uid,
+      createdAt: user.metadata.creationTime,
+      lastSignIn: user.metadata.lastSignInTime,
+      exportDate: new Date().toISOString()
+    };
+
+    // Create download
+    const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ngp-account-data-${user.uid}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showMessage('Data exported successfully!', 'success');
+  });
+
+  // Delete Account
+  deleteBtn.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Confirmation dialog
+    const confirmed = confirm(
+      `⚠️ DELETE ACCOUNT?\n\n` +
+      `This will permanently delete your account and all data.\n\n` +
+      `Email: ${user.email}\n\n` +
+      `This action CANNOT be undone!\n\n` +
+      `Type "DELETE" to confirm:`
+    );
+
+    if (!confirmed) return;
+
+    const verification = prompt('Type DELETE to confirm:');
+    if (verification !== 'DELETE') {
+      showMessage('Account deletion cancelled', 'error');
+      return;
+    }
+
+    // Delete account
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Deleting...';
+    deleteBtn.classList.add('loading');
+
+    try {
+      await deleteUser(user);
+      
+      // Clear localStorage
+      localStorage.removeItem('ngp_user_id');
+      localStorage.removeItem('ngp_user_email');
+      
+      showMessage('Account deleted successfully. Redirecting...', 'success');
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Delete error:', error);
+      
+      let errorMessage = 'Failed to delete account. ';
+      
+      if (error.code === 'auth/requires-recent-login') {
+        errorMessage += 'For security, please log out and log back in, then try again.';
+      } else {
+        errorMessage += error.message;
+      }
+      
+      showMessage(errorMessage, 'error');
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Delete Account';
+      deleteBtn.classList.remove('loading');
+    }
+  });
+
+  function showMessage(text, type) {
+    messageDiv.textContent = text;
+    messageDiv.className = `message ${type}`;
+    setTimeout(() => {
+      messageDiv.className = 'message';
+    }, 5000);
+  }
+</script>
+
+<script src="/ngp-consent.js"></script>
+
+</body>
+</html>
