@@ -1,15 +1,15 @@
-// NGP Hub Cookie Banner
-// Add this script to every page that uses cookies
+// NGP Hub Privacy Notice
+// Add this script to every page
 
 (function() {
-  // Check if user already accepted cookies
-  if (localStorage.getItem('ngp_cookies_accepted')) {
-    return; // Don't show banner if already accepted
+  // Check if user already made a choice
+  if (localStorage.getItem('ngp_privacy_choice')) {
+    return;
   }
 
-  // Create banner HTML
-  const bannerHTML = `
-    <div id="cookie-banner" style="
+  // Create notice HTML
+  const noticeHTML = `
+    <div id="ngp-notice" style="
       position: fixed;
       bottom: 0;
       left: 0;
@@ -26,7 +26,7 @@
           from { transform: translateY(100%); }
           to { transform: translateY(0); }
         }
-        #cookie-banner-content {
+        #ngp-notice-content {
           max-width: 1024px;
           margin: 0 auto;
           display: flex;
@@ -35,26 +35,26 @@
           gap: 20px;
           flex-wrap: wrap;
         }
-        #cookie-banner-text {
+        #ngp-notice-text {
           flex: 1;
           min-width: 250px;
           color: #ececf1;
           font-size: 0.95rem;
           line-height: 1.5;
         }
-        #cookie-banner-text a {
+        #ngp-notice-text a {
           color: #6aafff;
           text-decoration: none;
         }
-        #cookie-banner-text a:hover {
+        #ngp-notice-text a:hover {
           text-decoration: underline;
         }
-        #cookie-banner-buttons {
+        #ngp-notice-buttons {
           display: flex;
           gap: 12px;
           flex-wrap: wrap;
         }
-        .cookie-btn {
+        .ngp-btn {
           padding: 10px 20px;
           border-radius: 10px;
           font-weight: 600;
@@ -63,74 +63,73 @@
           font-size: 0.95rem;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .cookie-btn:hover {
+        .ngp-btn:hover {
           transform: translateY(-2px);
         }
-        .cookie-btn-accept {
+        .ngp-btn-accept {
           background: linear-gradient(135deg, #6a11cb, #2575fc);
           color: white;
           box-shadow: 0 4px 15px rgba(37,117,252,.3);
         }
-        .cookie-btn-accept:hover {
+        .ngp-btn-accept:hover {
           box-shadow: 0 6px 20px rgba(37,117,252,.4);
         }
-        .cookie-btn-decline {
+        .ngp-btn-decline {
           background: rgba(255,255,255,.05);
           color: #b5b7c3;
           border: 1px solid rgba(255,255,255,.1);
         }
         @media (max-width: 600px) {
-          #cookie-banner-content {
+          #ngp-notice-content {
             flex-direction: column;
             align-items: stretch;
           }
-          #cookie-banner-buttons {
+          #ngp-notice-buttons {
             width: 100%;
           }
-          .cookie-btn {
+          .ngp-btn {
             flex: 1;
           }
         }
       </style>
-      <div id="cookie-banner-content">
-        <div id="cookie-banner-text">
-          🍪 We use cookies to improve your experience and analyze site usage. 
-          By continuing to use NGP Hub, you accept our use of cookies. 
+      <div id="ngp-notice-content">
+        <div id="ngp-notice-text">
+          🍪 We use necessary features to improve your experience. 
+          By continuing to use NGP Hub, you accept our practices. 
           <a href="/privacy" target="_blank">Learn more</a>
         </div>
-        <div id="cookie-banner-buttons">
-          <button class="cookie-btn cookie-btn-decline" onclick="declineCookies()">Decline</button>
-          <button class="cookie-btn cookie-btn-accept" onclick="acceptCookies()">Accept</button>
+        <div id="ngp-notice-buttons">
+          <button class="ngp-btn ngp-btn-decline" onclick="ngpDecline()">Decline</button>
+          <button class="ngp-btn ngp-btn-accept" onclick="ngpAccept()">Accept</button>
         </div>
       </div>
     </div>
   `;
 
-  // Insert banner into page
-  document.body.insertAdjacentHTML('beforeend', bannerHTML);
+  // Insert notice into page
+  document.body.insertAdjacentHTML('beforeend', noticeHTML);
 
-  // Accept cookies function
-  window.acceptCookies = function() {
-    localStorage.setItem('ngp_cookies_accepted', 'true');
-    localStorage.setItem('ngp_cookies_date', new Date().toISOString());
-    closeBanner();
+  // Accept function
+  window.ngpAccept = function() {
+    localStorage.setItem('ngp_privacy_choice', 'accepted');
+    localStorage.setItem('ngp_privacy_date', new Date().toISOString());
+    closeNotice();
   };
 
-  // Decline cookies function
-  window.declineCookies = function() {
-    localStorage.setItem('ngp_cookies_accepted', 'false');
-    localStorage.setItem('ngp_cookies_date', new Date().toISOString());
-    closeBanner();
-    // You could also disable analytics here if you have any
+  // Decline function
+  window.ngpDecline = function() {
+    localStorage.setItem('ngp_privacy_choice', 'declined');
+    localStorage.setItem('ngp_privacy_date', new Date().toISOString());
+    closeNotice();
   };
 
-  // Close banner with animation
-  function closeBanner() {
-    const banner = document.getElementById('cookie-banner');
-    if (banner) {
-      banner.style.animation = 'slideDown 0.3s ease-out';
-      banner.style.animationFillMode = 'forwards';
-      setTimeout(() => banner.remove(), 300);
+  // Close notice with animation
+  function closeNotice() {
+    const notice = document.getElementById('ngp-notice');
+    if (notice) {
+      notice.style.animation = 'slideDown 0.3s ease-out';
+      notice.style.animationFillMode = 'forwards';
+      setTimeout(() => notice.remove(), 300);
     }
   }
 
