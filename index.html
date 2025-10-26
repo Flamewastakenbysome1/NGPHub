@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>NGP Hub — Alpha</title>
 
-<!-- Open Graph / Social Media Preview Tags -->
 <meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
 <meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
@@ -13,20 +12,15 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="NGP Hub" />
 
-<!-- Twitter Card Tags -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="NGP Hub, Convenience. Community. Creation." />
 <meta name="twitter:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community." />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<!-- Additional SEO -->
 <meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
 <meta name="keywords" content="NGP, games, tools, Roblox, Discord, community, development, Yoadverse" />
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
-
-<!-- Favicon (tab bar icon) -->
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
 
 <style>
@@ -47,7 +41,6 @@
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
-  /* Header */
   header{
     position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
     background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
@@ -63,7 +56,6 @@
   }
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
-  /* Hero */
   .hero{
     position:relative; overflow:hidden; text-align:center; padding:70px 16px 40px;
     background:
@@ -77,11 +69,9 @@
   .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.18)}
   .tag{display:inline-block; margin:14px 0 0; font-size:.9rem; color:#e8e8ff; background:linear-gradient(120deg,var(--brandA),var(--brandB)); padding:6px 12px; border-radius:999px; box-shadow:var(--shadow)}
 
-  /* Section */
   section .section-title{margin:24px 0 6px; font-size:1.2rem}
   section .muted{color:var(--muted); margin:0 0 12px}
 
-  /* Simple grid */
   .grid{display:grid; gap:16px; padding:18px 0 6px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
   .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease}
   .card:hover{transform:translateY(-3px); border-color:rgba(37,117,252,.35)}
@@ -91,20 +81,16 @@
   ul.simple{line-height:1.6; padding-left:18px}
   ul.simple li{margin-bottom:8px}
 
-  /* Platforms strip */
   .strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
   .pill{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:14px; background:linear-gradient(120deg,rgba(106,17,203,.24),rgba(37,117,252,.18)); border:1px solid rgba(255,255,255,.08)}
   .pill span{font-weight:600}
 
-  /* Roadmap (condensed) */
   .road{display:grid; gap:12px; padding:8px 0}
   .mile{display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px}
   .dot{flex:0 0 10px; height:10px; border-radius:50%; background:linear-gradient(120deg,var(--brandA),var(--brandB)); margin-top:6px}
   .mile h4{margin:0 0 4px; font-size:1.02rem}
   .mile p{margin:0; color:var(--muted)}
 
-  /* Footer */
-  /* Roadmap timeline */
   .timeline{position:relative; margin:30px 0 60px}
   .timeline::before{content:""; position:absolute; left:50%; top:0; bottom:0; width:3px; background:linear-gradient(var(--brandA),var(--brandB)); transform:translateX(-50%); border-radius:2px; opacity:.9}
   .t-item{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:22px 0}
@@ -120,6 +106,18 @@
     .t-item .left,.t-item .right{grid-column:auto}
     .t-dot{left:20px; transform:translate(-50%,-50%)}
   }
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn-ghost2{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+  .btn-prim2{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
 
   footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
 
@@ -147,7 +145,6 @@
 </header>
 
 <main>
-  <!-- Hero -->
   <section class="hero" id="about">
     <div class="wrap">
       <span class="tag">NGP Hub — Alpha</span>
@@ -160,18 +157,16 @@
     </div>
   </section>
 
-  <!-- 3 Pillars -->
-  <section class="wrap" aria-labelledby="mission-title">
-    <h3 class="section-title" id="mission-title">What we value</h3>
-    <p class="muted">Fast, fresh, community-first.</p>
+  <section class="wrap" id="mission" aria-labelledby="mission-title">
+    <h3 class="section-title" id="mission-title">Mission</h3>
+    <p class="muted">What drives us.</p>
     <div class="grid">
-      <article class="card"><h3>Originality</h3><p>No clones. New ideas that feel fresh and useful.</p></article>
+      <article class="card"><h3>Originality</h3><p>No copy+paste. We build our own ideas from the ground up.</p></article>
       <article class="card"><h3>Utility</h3><p>Small features that remove big pain (bots, tools, QoL).</p></article>
       <article class="card"><h3>Community</h3><p>Feedback loops and early builds for rapid iteration.</p></article>
     </div>
   </section>
 
-  <!-- Projects (tight) -->
   <section class="wrap" id="projects" aria-labelledby="projects-title">
     <h3 class="section-title" id="projects-title">Projects</h3>
     <p class="muted">Live or in‑progress.</p>
@@ -182,7 +177,6 @@
     </div>
   </section>
 
-  <!-- Platforms (merged quick actions) -->
   <section class="wrap" id="platforms" aria-labelledby="plat-title">
     <h3 class="section-title" id="plat-title">Platforms</h3>
     <p class="muted">Where we hang out and ship.</p>
@@ -197,9 +191,6 @@
     </div>
   </section>
 
-  <!-- Roadmap (condensed list) -->
-   <!-- Roadmap -->
-  <!-- Roadmap -->
   <section class="wrap" id="roadmap" aria-labelledby="roadmap-title">
     <h3 class="section-title" id="roadmap-title">Roadmap</h3>
     <div class="timeline" role="list">
@@ -265,7 +256,6 @@
     </div>
   </section>
 
-  <!-- Contact (trimmed) -->
   <section class="wrap" id="contact" aria-labelledby="contact-title">
     <h3 class="section-title" id="contact-title">Contact</h3>
     <div class="grid">
@@ -282,12 +272,25 @@
   </div>
 </footer>
 
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost2" id="cancel-logout-btn">Cancel</button>
+      <button class="btn-prim2" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Year
   document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 
-<!-- Firebase Login Detection -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -304,24 +307,31 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log('User logged in:', user.email);
       authLink.textContent = user.email.split('@')[0];
       authLink.href = '#';
-      authLink.addEventListener('click', async (e) => {
+      authLink.addEventListener('click', (e) => {
         e.preventDefault();
-        if (confirm('Logout from NGP Hub?')) {
-          await signOut(auth);
-          window.location.reload();
-        }
+        logoutModal.classList.add('active');
       });
     } else {
-      console.log('No user logged in');
       authLink.textContent = 'Login';
       authLink.href = '/login';
     }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
   });
 </script>
 <script src="/ngp-consent.js"></script>
