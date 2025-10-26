@@ -117,6 +117,24 @@
       <input type="password" id="password" placeholder="••••••••" required />
     </div>
     
+    <!-- Agreement Checkboxes (only shown on signup) -->
+    <div id="agreements" style="display:none; margin-bottom: 20px;">
+      <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; cursor:pointer;">
+        <input type="checkbox" id="agree-age" style="margin-top:4px; cursor:pointer;" required />
+        <span style="font-size:.9rem; line-height:1.4;">I confirm that I am at least 13 years old</span>
+      </label>
+      
+      <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; cursor:pointer;">
+        <input type="checkbox" id="agree-tos" style="margin-top:4px; cursor:pointer;" required />
+        <span style="font-size:.9rem; line-height:1.4;">I agree to the <a href="/tos" target="_blank" style="color:#6aafff; text-decoration:none;">Terms of Service</a></span>
+      </label>
+      
+      <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; cursor:pointer;">
+        <input type="checkbox" id="agree-privacy" style="margin-top:4px; cursor:pointer;" required />
+        <span style="font-size:.9rem; line-height:1.4;">I agree to the <a href="/privacy" target="_blank" style="color:#6aafff; text-decoration:none;">Privacy Policy</a></span>
+      </label>
+    </div>
+    
     <!-- reCAPTCHA -->
     <div class="g-recaptcha" data-sitekey="6Ldwe_MrAAAAAEPzAdosFogNEPUS_ELrZvsrVkl9" style="margin-bottom: 20px; display: flex; justify-content: center;"></div>
     
@@ -167,18 +185,22 @@
     e.preventDefault();
     isLoginMode = !isLoginMode;
     
+    const agreementsDiv = document.getElementById('agreements');
+    
     if (isLoginMode) {
       formTitle.textContent = 'Login to NGP';
       formSubtitle.textContent = 'Access your saved data and projects';
       submitBtn.textContent = 'Login';
       toggleText.textContent = "Don't have an account?";
       toggleLink.textContent = 'Sign up';
+      agreementsDiv.style.display = 'none'; // Hide agreements on login
     } else {
       formTitle.textContent = 'Join NGP Hub';
       formSubtitle.textContent = 'Create your account and save your progress';
       submitBtn.textContent = 'Sign Up';
       toggleText.textContent = 'Already have an account?';
       toggleLink.textContent = 'Login';
+      agreementsDiv.style.display = 'block'; // Show agreements on signup
     }
     messageDiv.innerHTML = '';
   });
@@ -192,6 +214,26 @@
     if (!recaptchaResponse) {
       showMessage('Please complete the reCAPTCHA', 'error');
       return;
+    }
+    
+    // Check agreements on signup
+    if (!isLoginMode) {
+      const agreeAge = document.getElementById('agree-age').checked;
+      const agreeTos = document.getElementById('agree-tos').checked;
+      const agreePrivacy = document.getElementById('agree-privacy').checked;
+      
+      if (!agreeAge) {
+        showMessage('You must be at least 13 years old to create an account', 'error');
+        return;
+      }
+      if (!agreeTos) {
+        showMessage('Please agree to the Terms of Service', 'error');
+        return;
+      }
+      if (!agreePrivacy) {
+        showMessage('Please agree to the Privacy Policy', 'error');
+        return;
+      }
     }
     
     const email = emailInput.value.trim();
