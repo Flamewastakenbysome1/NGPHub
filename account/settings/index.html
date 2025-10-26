@@ -163,7 +163,7 @@
     </a>
     <nav>
       <a href="/">Home</a>
-      <a href="/login">Logout</a>
+      <a href="#" id="logout-link">Logout</a>
     </nav>
   </div>
 </header>
@@ -244,6 +244,22 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" id="cancel-delete-btn">Cancel</button>
       <button class="btn btn-danger" id="confirm-delete-btn" disabled>Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-modal" class="modal">
+  <div class="modal-content" style="border-color:rgba(255,255,255,.1)">
+    <div class="modal-header" style="border-bottom-color:rgba(255,255,255,.06)">
+      <h3 style="color:var(--ink)">Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn btn-primary" id="confirm-logout-btn">Logout</button>
     </div>
   </div>
 </div>
@@ -380,6 +396,28 @@
       confirmDeleteBtn.textContent = 'Delete Account';
       cancelDeleteBtn.disabled = false;
     }
+  });
+
+  // Logout
+  const logoutLink = document.getElementById('logout-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  logoutLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    logoutModal.classList.add('active');
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    localStorage.removeItem('ngp_user_id');
+    localStorage.removeItem('ngp_user_email');
+    window.location.href = '/';
   });
 
   function showMessage(text, type) {
