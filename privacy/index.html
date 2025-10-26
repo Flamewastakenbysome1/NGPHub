@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy Policy — NGP Hub</title>
+
+<!-- Open Graph / Social Media Preview Tags -->
+<meta property="og:title" content="NGP Hub — Privacy Policy" />
+<meta property="og:description" content="Privacy Policy for NGP Hub services and community." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/privacy" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<!-- Twitter Card Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Hub — Privacy Policy" />
+<meta name="twitter:description" content="Privacy Policy for NGP Hub services and community." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<!-- Additional SEO -->
+<meta name="description" content="Privacy Policy for NGP Hub services and community." />
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<!-- Favicon (tab bar icon) -->
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; 
+    background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    background-attachment:fixed;
+    background-size:cover;
+    min-height:100vh;
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  /* Content */
+  main{padding:48px 0 72px}
+  .content-card{
+    background:var(--card); border-radius:var(--radius); padding:40px 32px;
+    box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.05);
+  }
+  h2{
+    font-size:2.2rem; margin:0 0 8px; font-weight:700;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .date{color:var(--muted); font-size:.9rem; margin-bottom:32px; display:block}
+  
+  .policy-section{margin-bottom:32px}
+  .policy-section:last-child{margin-bottom:0}
+  .policy-section h3{
+    color:var(--ink); font-size:1.3rem; margin:0 0 12px; font-weight:600;
+  }
+  .policy-section p{
+    color:var(--muted); line-height:1.7; margin:0 0 12px; font-size:.95rem;
+  }
+  .policy-section p:last-child{margin-bottom:0}
+  .policy-section ul{
+    color:var(--muted); line-height:1.7; margin:8px 0; padding-left:24px;
+  }
+  .policy-section li{margin-bottom:8px}
+  
+  a.link{
+    color:var(--brandB); text-decoration:none; border-bottom:1px solid transparent;
+    transition:border-color .2s ease;
+  }
+  a.link:hover{border-bottom-color:var(--brandB)}
+
+  /* Footer */
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+  @media (max-width:640px){
+    .content-card{padding:28px 20px}
+    h2{font-size:1.8rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="content-card">
+      <h2>Privacy Policy</h2>
+      <span class="date">Last Updated: October 25, 2025</span>
+
+      <div class="policy-section">
+        <h3>1. Introduction</h3>
+        <p>
+          Welcome to NGP Hub. We are committed to protecting your privacy and being transparent about 
+          how we collect, use, and share your information. This Privacy Policy explains what data we 
+          collect when you use our services, why we collect it, and what we do with it.
+        </p>
+        <p>
+          By using NGP Hub, you agree to the collection and use of information in accordance with this 
+          Privacy Policy. If you do not agree with any part of this policy, please do not use our services.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>2. Information We Collect</h3>
+        <p>
+          We collect several types of information to provide and improve our services:
+        </p>
+        <p>
+          <strong>Account Information:</strong> When you create an account, we collect:
+        </p>
+        <ul>
+          <li>Email address</li>
+          <li>Username/display name</li>
+          <li>Password (encrypted and securely stored)</li>
+          <li>Account creation date and login history</li>
+        </ul>
+        <p>
+          <strong>Usage Data:</strong> We automatically collect information about how you interact with our services:
+        </p>
+        <ul>
+          <li>IP address and general location (city/state level)</li>
+          <li>Browser type and version</li>
+          <li>Device type and operating system</li>
+          <li>Pages visited, time spent, and features used</li>
+          <li>Referral source (how you found us)</li>
+          <li>Error logs and performance data</li>
+        </ul>
+        <p>
+          <strong>AI Interaction Data:</strong> When you use Nirvana AI:
+        </p>
+        <ul>
+          <li>Conversation history and prompts</li>
+          <li>AI-generated responses</li>
+          <li>Interaction timestamps and session duration</li>
+          <li>User feedback and ratings</li>
+        </ul>
+        <p>
+          <strong>Payment Information:</strong> If you subscribe to paid services, we collect:
+        </p>
+        <ul>
+          <li>Billing information (processed securely through third-party payment processors)</li>
+          <li>Subscription tier and status</li>
+          <li>Transaction history</li>
+        </ul>
+        <p>
+          Note: We do not store full credit card numbers. Payment processing is handled by secure 
+          third-party services.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>3. How We Use Your Information</h3>
+        <p>
+          We use the information we collect for the following purposes:
+        </p>
+        <ul>
+          <li><strong>Service Delivery:</strong> To provide, maintain, and improve NGP Hub services including tools, games, and AI features</li>
+          <li><strong>Account Management:</strong> To create and manage your account, process subscriptions, and verify your identity</li>
+          <li><strong>AI Improvement:</strong> To train, test, and improve Nirvana AI's performance, accuracy, and capabilities</li>
+          <li><strong>Communication:</strong> To send you service updates, security alerts, and respond to your inquiries</li>
+          <li><strong>Analytics:</strong> To understand how users interact with our services and identify areas for improvement</li>
+          <li><strong>Security:</strong> To detect, prevent, and respond to fraud, abuse, security incidents, and other harmful activities</li>
+          <li><strong>Legal Compliance:</strong> To comply with applicable laws, regulations, and legal processes</li>
+          <li><strong>Bug Fixes:</strong> To diagnose technical issues and fix bugs in our services</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h3>4. Data Sharing and Disclosure</h3>
+        <p>
+          We do not sell your personal information. We may share your information in the following circumstances:
+        </p>
+        <ul>
+          <li><strong>Service Providers:</strong> We use third-party services (Firebase, payment processors, hosting providers) that may access your data to help us operate our services</li>
+          <li><strong>Legal Requirements:</strong> We may disclose information if required by law, court order, or government request</li>
+          <li><strong>Safety and Security:</strong> We may share information to protect the rights, property, or safety of NGP, our users, or the public</li>
+          <li><strong>Business Transfers:</strong> If NGP is involved in a merger, acquisition, or asset sale, your information may be transferred as part of that transaction</li>
+          <li><strong>With Your Consent:</strong> We may share information with third parties when you explicitly consent to such sharing</li>
+        </ul>
+        <p>
+          <strong>Important:</strong> AI conversations may be used to improve Nirvana's capabilities, but we do not 
+          share identifiable user data with third parties for their own marketing or advertising purposes.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>5. Data Retention</h3>
+        <p>
+          We retain your information for as long as necessary to provide our services and fulfill the purposes 
+          outlined in this Privacy Policy. Specifically:
+        </p>
+        <ul>
+          <li><strong>Account Data:</strong> Retained while your account is active and for a reasonable period after account closure</li>
+          <li><strong>AI Conversations:</strong> May be retained indefinitely for AI training and improvement purposes, but may be anonymized</li>
+          <li><strong>Usage Logs:</strong> Typically retained for 90 days to 2 years for analytics and security purposes</li>
+          <li><strong>Payment Records:</strong> Retained as required by law for tax and accounting purposes (typically 7 years)</li>
+        </ul>
+        <p>
+          You can request deletion of your data at any time by contacting us. Note that some data may be 
+          retained if required by law or for legitimate business purposes.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>6. Your Privacy Rights</h3>
+        <p>
+          Depending on your location, you may have certain rights regarding your personal information:
+        </p>
+        <ul>
+          <li><strong>Access:</strong> You can request a copy of the personal information we hold about you</li>
+          <li><strong>Correction:</strong> You can update or correct inaccurate information through your account settings</li>
+          <li><strong>Deletion:</strong> You can request deletion of your account and associated data</li>
+          <li><strong>Portability:</strong> You can request your data in a machine-readable format</li>
+          <li><strong>Opt-Out:</strong> You can opt out of marketing communications (though we send very few)</li>
+          <li><strong>Restriction:</strong> You can request that we limit how we use your data in certain circumstances</li>
+        </ul>
+        <p>
+          To exercise these rights, please contact us through our <a href="/contact" class="link">contact page</a>. 
+          We will respond to your request within 30 days.
+        </p>
+        <p>
+          <strong>California Residents:</strong> Under the California Consumer Privacy Act (CCPA), you have additional 
+          rights including the right to know what personal information we collect and the right to opt out of the 
+          sale of personal information (note: we do not sell personal information).
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>7. Children's Privacy (COPPA Compliance)</h3>
+        <p>
+          NGP Hub is intended for users aged 13 and older. We comply with the Children's Online Privacy 
+          Protection Act (COPPA) and do not knowingly collect personal information from children under 13.
+        </p>
+        <p>
+          If we discover that we have collected information from a child under 13, we will delete that 
+          information immediately. If you believe we have collected information from a child under 13, 
+          please contact us immediately.
+        </p>
+        <p>
+          Parents and guardians: If your child is between 13-17 and using our services, we encourage you 
+          to monitor their activity and discuss online safety with them.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>8. Cookies and Tracking Technologies</h3>
+        <p>
+          We use cookies and similar tracking technologies to improve your experience on NGP Hub:
+        </p>
+        <ul>
+          <li><strong>Essential Cookies:</strong> Required for the website to function (authentication, security)</li>
+          <li><strong>Analytics Cookies:</strong> Help us understand how users interact with our services</li>
+          <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+        </ul>
+        <p>
+          You can control cookie preferences through your browser settings. Note that disabling certain 
+          cookies may impact your ability to use some features of our services.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>9. Security</h3>
+        <p>
+          We take reasonable measures to protect your information from unauthorized access, alteration, 
+          disclosure, or destruction:
+        </p>
+        <ul>
+          <li>Passwords are encrypted using industry-standard hashing algorithms</li>
+          <li>Data transmission is secured using SSL/TLS encryption</li>
+          <li>Access to user data is restricted to authorized personnel only</li>
+          <li>We regularly review and update our security practices</li>
+        </ul>
+        <p>
+          However, no method of transmission over the internet or electronic storage is 100% secure. 
+          While we strive to protect your information, we cannot guarantee absolute security.
+        </p>
+        <p>
+          <strong>Data Breach Notification:</strong> In the event of a data breach that affects your personal 
+          information, we will notify you within 72 hours via email and/or through a notice on our website.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>10. Third-Party Services</h3>
+        <p>
+          NGP Hub integrates with third-party services that have their own privacy policies:
+        </p>
+        <ul>
+          <li><strong>Firebase:</strong> Used for authentication and database services (Google Privacy Policy applies)</li>
+          <li><strong>Discord:</strong> Our community server is subject to Discord's Privacy Policy</li>
+          <li><strong>Roblox:</strong> Our games are hosted on Roblox (Roblox Privacy Policy applies)</li>
+          <li><strong>Payment Processors:</strong> Stripe, PayPal, or similar services handle payment processing</li>
+        </ul>
+        <p>
+          We are not responsible for the privacy practices of these third-party services. We encourage 
+          you to review their privacy policies before using their services.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>11. International Users</h3>
+        <p>
+          NGP Hub is operated from the United States. If you are accessing our services from outside 
+          the United States, please be aware that your information may be transferred to, stored, and 
+          processed in the United States where our servers are located.
+        </p>
+        <p>
+          By using our services, you consent to the transfer of your information to the United States 
+          and acknowledge that data protection laws in the United States may differ from those in your country.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>12. Changes to This Privacy Policy</h3>
+        <p>
+          We may update this Privacy Policy from time to time to reflect changes in our practices or 
+          for legal, operational, or regulatory reasons. When we make significant changes, we will:
+        </p>
+        <ul>
+          <li>Update the "Last Updated" date at the top of this page</li>
+          <li>Notify users via email (for material changes)</li>
+          <li>Post an announcement in our Discord server</li>
+        </ul>
+        <p>
+          Your continued use of NGP Hub after changes to this Privacy Policy constitutes acceptance of 
+          the updated policy. We encourage you to review this page periodically.
+        </p>
+      </div>
+
+      <div class="policy-section">
+        <h3>13. Contact Us</h3>
+        <p>
+          If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, 
+          please contact us:
+        </p>
+        <ul>
+          <li>Website: <a href="/contact" class="link">ngphub.com/contact</a></li>
+          <li>Discord: <a href="https://discord.gg/VqXsafQAMd" class="link" target="_blank" rel="noopener">discord.gg/VqXsafQAMd</a></li>
+        </ul>
+        <p>
+          We will respond to your inquiry within 30 days. For GDPR or CCPA-related requests, we will 
+          respond within the timeframes required by applicable law.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<!-- Firebase Login Detection -->
+<script type="module">
+  // Import Firebase
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+
+  // Check if user is logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User IS logged in - show username and enable logout
+      console.log('User logged in:', user.email);
+      
+      authLink.textContent = user.email.split('@')[0]; // Shows username part
+      authLink.href = '#';
+      
+      // Click to logout
+      authLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (confirm('Logout from NGP Hub?')) {
+          await signOut(auth);
+          window.location.reload();
+        }
+      });
+    } else {
+      // User is NOT logged in - show login link
+      console.log('No user logged in');
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+</script>
+
+</body>
+</html>
