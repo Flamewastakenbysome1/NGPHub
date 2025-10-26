@@ -117,9 +117,39 @@
   .message.error{background:rgba(255,68,68,.15); color:#ff6666; border:1px solid rgba(255,68,68,.3); display:block}
   .message.success{background:rgba(76,175,80,.15); color:#4caf50; border:1px solid rgba(76,175,80,.3); display:block}
 
+  /* Modal */
+  .modal{
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,.8); backdrop-filter:blur(5px);
+    z-index:1000; align-items:center; justify-content:center;
+  }
+  .modal.active{display:flex}
+  .modal-content{
+    background:var(--card); border-radius:var(--radius); max-width:500px; width:90%;
+    box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,68,68,.3);
+    animation:modalSlideIn 0.3s ease-out;
+  }
+  @keyframes modalSlideIn{
+    from{transform:translateY(-50px); opacity:0}
+    to{transform:translateY(0); opacity:1}
+  }
+  .modal-header{
+    padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .modal-header h3{margin:0; color:#ff6666; font-size:1.3rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0 0 8px}
+  .modal-footer{
+    padding:16px 24px; border-top:1px solid rgba(255,255,255,.06);
+    display:flex; gap:12px; justify-content:flex-end;
+  }
+
   @media (max-width: 600px){
     .info-row{flex-direction:column; align-items:flex-start; gap:4px}
     .page-title{font-size:1.6rem}
+    .modal-content{width:95%}
+    .modal-footer{flex-direction:column}
+    .modal-footer .btn{width:100%}
   }
 </style>
 </head>
@@ -189,6 +219,35 @@
   </div>
 </main>
 
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>⚠️ Delete Account</h3>
+    </div>
+    <div class="modal-body">
+      <p><strong>This will permanently delete your account and all data.</strong></p>
+      <p>Email: <span id="modal-email"></span></p>
+      <p style="color:var(--danger); margin-top:16px">This action CANNOT be undone!</p>
+      
+      <div style="margin-top:20px">
+        <label for="delete-input" style="display:block; margin-bottom:8px; font-weight:600">
+          Type <span style="color:var(--danger)">DELETE</span> to confirm:
+        </label>
+        <input type="text" id="delete-input" placeholder="DELETE" style="
+          width:100%; padding:12px; border-radius:8px; border:2px solid rgba(255,68,68,.3);
+          background:rgba(255,68,68,.05); color:var(--ink); font-size:1rem;
+          font-family:'Rubik',sans-serif;
+        ">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="cancel-delete-btn">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn" disabled>Delete Account</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
   import { getAuth, onAuthStateChanged, deleteUser, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -208,6 +267,13 @@
   const messageDiv = document.getElementById('message');
   const deleteBtn = document.getElementById('delete-btn');
   const exportBtn = document.getElementById('export-btn');
+  
+  // Modal elements
+  const deleteModal = document.getElementById('delete-modal');
+  const modalEmail = document.getElementById('modal-email');
+  const deleteInput = document.getElementById('delete-input');
+  const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+  const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
 
   // Check if user is logged in
   onAuthStateChanged(auth, (user) => {
@@ -222,6 +288,9 @@
     document.getElementById('email-verified').textContent = user.emailVerified ? '✅ Yes' : '❌ No';
     document.getElementById('account-created').textContent = new Date(user.metadata.creationTime).toLocaleDateString();
     document.getElementById('user-id').textContent = user.uid;
+    
+    // Set email in modal
+    modalEmail.textContent = user.email;
   });
 
   // Export Data
@@ -250,32 +319,34 @@
     showMessage('Data exported successfully!', 'success');
   });
 
-  // Delete Account
-  deleteBtn.addEventListener('click', async () => {
+  // Open delete modal
+  deleteBtn.addEventListener('click', () => {
+    deleteModal.classList.add('active');
+    deleteInput.value = '';
+    deleteInput.focus();
+  });
+
+  // Close modal
+  cancelDeleteBtn.addEventListener('click', () => {
+    deleteModal.classList.remove('active');
+    deleteInput.value = '';
+    confirmDeleteBtn.disabled = true;
+  });
+
+  // Enable/disable confirm button based on input
+  deleteInput.addEventListener('input', (e) => {
+    confirmDeleteBtn.disabled = e.target.value !== 'DELETE';
+  });
+
+  // Confirm delete
+  confirmDeleteBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Confirmation dialog
-    const confirmed = confirm(
-      `⚠️ DELETE ACCOUNT?\n\n` +
-      `This will permanently delete your account and all data.\n\n` +
-      `Email: ${user.email}\n\n` +
-      `This action CANNOT be undone!\n\n` +
-      `Type "DELETE" to confirm:`
-    );
-
-    if (!confirmed) return;
-
-    const verification = prompt('Type DELETE to confirm:');
-    if (verification !== 'DELETE') {
-      showMessage('Account deletion cancelled', 'error');
-      return;
-    }
-
-    // Delete account
-    deleteBtn.disabled = true;
-    deleteBtn.textContent = 'Deleting...';
-    deleteBtn.classList.add('loading');
+    // Disable buttons
+    confirmDeleteBtn.disabled = true;
+    confirmDeleteBtn.textContent = 'Deleting...';
+    cancelDeleteBtn.disabled = true;
 
     try {
       await deleteUser(user);
@@ -284,6 +355,7 @@
       localStorage.removeItem('ngp_user_id');
       localStorage.removeItem('ngp_user_email');
       
+      deleteModal.classList.remove('active');
       showMessage('Account deleted successfully. Redirecting...', 'success');
       
       setTimeout(() => {
@@ -302,9 +374,11 @@
       }
       
       showMessage(errorMessage, 'error');
-      deleteBtn.disabled = false;
-      deleteBtn.textContent = 'Delete Account';
-      deleteBtn.classList.remove('loading');
+      
+      // Re-enable buttons
+      confirmDeleteBtn.disabled = false;
+      confirmDeleteBtn.textContent = 'Delete Account';
+      cancelDeleteBtn.disabled = false;
     }
   });
 
