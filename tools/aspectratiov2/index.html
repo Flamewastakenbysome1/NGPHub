@@ -6,7 +6,7 @@
 <title>Aspect Ratio Visual V2 — NGP Hub</title>
 
 <meta property="og:title" content="Aspect Ratio Visual V2 — NGP Hub" />
-<meta property="og:description" content="Zoom into pixels like never before. Explore LCD and OLED subpixel layouts with microscopic detail." />
+<meta property="og:description" content="Visualize images at different aspect ratios and resolutions with pixel-perfect zoom." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com/tools/aspect-ratio-visual-v2" />
 <meta property="og:type" content="website" />
@@ -14,11 +14,607 @@
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Aspect Ratio Visual V2 — NGP Hub" />
-<meta name="twitter:description" content="Zoom into pixels like never before. Explore LCD and OLED subpixel layouts with microscopic detail." />
+<meta name="twitter:description" content="Visualize images at different aspect ratios and resolutions with pixel-perfect zoom." />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<meta name="description" content="Zoom into pixels like never before. Explore LCD and OLED subpixel layouts with microscopic detail. A tool by NGP." />
-<meta name="keywords" content="NGP, aspect ratio, pixel viewer, subpixel, LCD, OLED, display technology, image analysis" />
+<meta name="description" content="Visualize images at different aspect ratios and resolutions. Upload images, set custom resolutions, and zoom in to see individual pixels. A tool by NGP." />
+<meta name="keywords" content="NGP, aspect ratio, pixel viewer, resolution, image analysis, zoom" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow:hidden}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  .main-container{display:flex; height:calc(100vh - 53px); overflow:hidden}
+
+  .sidebar{
+    width:280px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
+    overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;
+  }
+
+  .section{
+    background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06);
+    border-radius:10px; padding:14px;
+  }
+  .section-title{
+    font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+    color:var(--muted); margin:0 0 10px 0;
+  }
+
+  .upload-area{
+    border:2px dashed rgba(255,255,255,.2); border-radius:10px;
+    padding:24px 16px; text-align:center; cursor:pointer; transition:all .2s;
+    background:rgba(255,255,255,.02);
+  }
+  .upload-area:hover, .upload-area.drag-over{
+    border-color:var(--brandB); background:rgba(37,117,252,.05);
+  }
+  .upload-area svg{width:40px; height:40px; margin-bottom:8px; opacity:.5}
+  .upload-area p{margin:0; font-size:.85rem; color:var(--muted); line-height:1.4}
+  .upload-area input{display:none}
+
+  .input-group{margin-bottom:10px}
+  .input-group:last-child{margin-bottom:0}
+  .input-label{font-size:.8rem; color:var(--muted); margin-bottom:6px; display:block}
+  .input-row{display:flex; gap:6px; align-items:center}
+  .input-row input{
+    flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:8px 10px; border-radius:8px; font-size:.85rem;
+    font-family:inherit; outline:none;
+  }
+  .input-row input:focus{border-color:var(--brandB); box-shadow:var(--ring)}
+  .input-row span{color:var(--muted); font-weight:600; font-size:.9rem}
+
+  .preset-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px}
+  .preset-btn{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:8px; border-radius:8px; cursor:pointer;
+    font-size:.8rem; font-weight:600; transition:all .2s; font-family:inherit;
+  }
+  .preset-btn:hover{background:rgba(255,255,255,.08); border-color:var(--brandB)}
+  .preset-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
+
+  .toggle-container{display:flex; align-items:center; justify-content:space-between}
+  .toggle-label{font-size:.85rem; color:var(--ink)}
+  .toggle{
+    position:relative; width:44px; height:24px; background:rgba(255,255,255,.1);
+    border-radius:12px; cursor:pointer; transition:all .2s;
+  }
+  .toggle.active{background:linear-gradient(120deg,var(--brandA),var(--brandB))}
+  .toggle-slider{
+    position:absolute; top:2px; left:2px; width:20px; height:20px;
+    background:white; border-radius:50%; transition:all .2s;
+  }
+  .toggle.active .toggle-slider{transform:translateX(20px)}
+
+  .info-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .info-row:last-child{border-bottom:none}
+  .info-label{color:var(--muted); font-size:.8rem}
+  .info-value{color:var(--ink); font-weight:600; font-size:.8rem; font-family:'Courier New',monospace}
+
+  .canvas-container{
+    flex:1; position:relative; overflow:hidden; background:#000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  
+  .canvas-wrapper{
+    position:relative; width:100%; height:100%; cursor:grab; overflow:hidden;
+  }
+  .canvas-wrapper.grabbing{cursor:grabbing}
+  
+  canvas{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  }
+
+  .zoom-controls{
+    position:absolute; bottom:16px; right:16px; display:flex; flex-direction:column;
+    gap:6px; background:var(--card); padding:10px; border-radius:10px;
+    border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow);
+  }
+  .zoom-btn{
+    width:40px; height:40px; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1); border-radius:8px;
+    color:var(--ink); font-size:1.1rem; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; font-family:inherit;
+  }
+  .zoom-btn:hover{background:rgba(255,255,255,.1); border-color:var(--brandB)}
+  .zoom-btn:active{transform:scale(.95)}
+  .zoom-display{
+    text-align:center; font-size:.75rem; color:var(--muted);
+    font-weight:600; padding:2px 0; font-family:'Courier New',monospace;
+  }
+
+  .empty-state{
+    text-align:center; color:var(--muted); padding:60px 40px;
+  }
+  .empty-state svg{width:80px; height:80px; margin-bottom:20px; opacity:.3}
+  .empty-state h2{margin:0 0 8px 0; color:var(--ink); font-size:1.3rem}
+  .empty-state p{margin:0; font-size:.95rem; line-height:1.6}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  @media (max-width:768px){
+    .main-container{flex-direction:column}
+    .sidebar{width:100%; max-height:40vh; border-right:none; border-bottom:1px solid rgba(255,255,255,.06)}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<div class="main-container">
+  <aside class="sidebar">
+    <div class="section">
+      <h3 class="section-title">📁 Load Image</h3>
+      <div class="upload-area" id="uploadArea">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p><strong>Drop image here</strong> or click</p>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">📐 Aspect Ratio</h3>
+      <div class="input-group">
+        <div class="input-row">
+          <input type="number" id="aspectWidth" value="16" min="1" placeholder="W">
+          <span>:</span>
+          <input type="number" id="aspectHeight" value="9" min="1" placeholder="H">
+        </div>
+      </div>
+      <div class="preset-grid">
+        <button class="preset-btn active" data-aspect="16:9">16:9</button>
+        <button class="preset-btn" data-aspect="21:9">21:9</button>
+        <button class="preset-btn" data-aspect="4:3">4:3</button>
+        <button class="preset-btn" data-aspect="1:1">1:1</button>
+        <button class="preset-btn" data-aspect="9:16">9:16</button>
+        <button class="preset-btn" data-aspect="3:2">3:2</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">🖼️ Resolution</h3>
+      <div class="input-group">
+        <label class="input-label">Canvas Size</label>
+        <div class="input-row">
+          <input type="number" id="resWidth" value="1920" min="1" placeholder="Width">
+          <span>×</span>
+          <input type="number" id="resHeight" value="1080" min="1" placeholder="Height">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">⚙️ Display</h3>
+      <div class="toggle-container">
+        <span class="toggle-label">Smooth Pixels</span>
+        <div class="toggle active" id="smoothToggle">
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">📊 Info</h3>
+      <div class="info-row">
+        <span class="info-label">Image Size</span>
+        <span class="info-value" id="infoImageSize">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Canvas Size</span>
+        <span class="info-value" id="infoCanvasSize">1920×1080</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Aspect Ratio</span>
+        <span class="info-value" id="infoAspect">16:9</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Zoom Level</span>
+        <span class="info-value" id="infoZoom">100%</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas-container">
+    <div class="empty-state" id="emptyState">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <h2>No Image Loaded</h2>
+      <p>Upload an image to get started!<br>Set your aspect ratio and resolution, then zoom in to see pixels.</p>
+    </div>
+
+    <div class="canvas-wrapper" id="canvasWrapper" style="display:none">
+      <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+      <div class="zoom-display" id="zoomDisplay">100%</div>
+      <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+      <button class="zoom-btn" id="zoomReset" title="Reset">⟲</button>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha. <a href="/tos" style="color:var(--muted); text-decoration:none; margin-left:12px">Terms of Service</a> <a href="/privacy" style="color:var(--muted); text-decoration:none; margin-left:12px">Privacy Policy</a></small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+<script>
+// State
+const state = {
+  image: null,
+  zoom: 1,
+  pan: { x: 0, y: 0 },
+  smooth: true,
+  isPanning: false,
+  lastPan: { x: 0, y: 0 },
+  canvasWidth: 1920,
+  canvasHeight: 1080
+};
+
+// Elements
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const canvasWrapper = document.getElementById('canvasWrapper');
+const emptyState = document.getElementById('emptyState');
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+
+// Controls
+const aspectWidth = document.getElementById('aspectWidth');
+const aspectHeight = document.getElementById('aspectHeight');
+const resWidth = document.getElementById('resWidth');
+const resHeight = document.getElementById('resHeight');
+const smoothToggle = document.getElementById('smoothToggle');
+const presetButtons = document.querySelectorAll('.preset-btn');
+
+// Info
+const infoImageSize = document.getElementById('infoImageSize');
+const infoCanvasSize = document.getElementById('infoCanvasSize');
+const infoAspect = document.getElementById('infoAspect');
+const infoZoom = document.getElementById('infoZoom');
+const zoomDisplay = document.getElementById('zoomDisplay');
+
+// Upload handling
+uploadArea.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+});
+
+function loadImage(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      state.image = img;
+      state.zoom = 1;
+      state.pan = { x: 0, y: 0 };
+      
+      emptyState.style.display = 'none';
+      canvasWrapper.style.display = 'block';
+      
+      updateInfo();
+      render();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Aspect ratio presets
+presetButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    presetButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const [w, h] = btn.dataset.aspect.split(':').map(Number);
+    aspectWidth.value = w;
+    aspectHeight.value = h;
+    updateResolution();
+  });
+});
+
+// Resolution inputs
+aspectWidth.addEventListener('input', updateResolution);
+aspectHeight.addEventListener('input', updateResolution);
+resWidth.addEventListener('input', () => {
+  state.canvasWidth = parseInt(resWidth.value) || 1920;
+  updateInfo();
+  render();
+});
+resHeight.addEventListener('input', () => {
+  state.canvasHeight = parseInt(resHeight.value) || 1080;
+  updateInfo();
+  render();
+});
+
+function updateResolution() {
+  const w = parseInt(aspectWidth.value) || 16;
+  const h = parseInt(aspectHeight.value) || 9;
+  const ratio = w / h;
+  
+  // Keep width, adjust height to match aspect
+  const newHeight = Math.round(state.canvasWidth / ratio);
+  resHeight.value = newHeight;
+  state.canvasHeight = newHeight;
+  
+  updateInfo();
+  render();
+}
+
+// Smooth toggle
+smoothToggle.addEventListener('click', () => {
+  state.smooth = !state.smooth;
+  smoothToggle.classList.toggle('active');
+  render();
+});
+
+// Zoom controls
+document.getElementById('zoomIn').addEventListener('click', () => {
+  state.zoom = Math.min(state.zoom * 1.5, 50);
+  updateInfo();
+  render();
+});
+
+document.getElementById('zoomOut').addEventListener('click', () => {
+  state.zoom = Math.max(state.zoom / 1.5, 0.1);
+  updateInfo();
+  render();
+});
+
+document.getElementById('zoomReset').addEventListener('click', () => {
+  state.zoom = 1;
+  state.pan = { x: 0, y: 0 };
+  updateInfo();
+  render();
+});
+
+// Mouse wheel zoom
+canvasWrapper.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  state.zoom = Math.max(0.1, Math.min(50, state.zoom * delta));
+  updateInfo();
+  render();
+});
+
+// Panning
+canvasWrapper.addEventListener('mousedown', (e) => {
+  state.isPanning = true;
+  state.lastPan = { x: e.clientX, y: e.clientY };
+  canvasWrapper.classList.add('grabbing');
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (state.isPanning) {
+    const dx = e.clientX - state.lastPan.x;
+    const dy = e.clientY - state.lastPan.y;
+    state.pan.x += dx;
+    state.pan.y += dy;
+    state.lastPan = { x: e.clientX, y: e.clientY };
+    render();
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  state.isPanning = false;
+  canvasWrapper.classList.remove('grabbing');
+});
+
+function updateInfo() {
+  if (state.image) {
+    infoImageSize.textContent = `${state.image.width}×${state.image.height}`;
+  }
+  infoCanvasSize.textContent = `${state.canvasWidth}×${state.canvasHeight}`;
+  
+  const w = parseInt(aspectWidth.value) || 16;
+  const h = parseInt(aspectHeight.value) || 9;
+  infoAspect.textContent = `${w}:${h}`;
+  
+  const zoomPercent = Math.round(state.zoom * 100);
+  infoZoom.textContent = `${zoomPercent}%`;
+  zoomDisplay.textContent = `${zoomPercent}%`;
+}
+
+function render() {
+  if (!state.image) return;
+  
+  // Set canvas size to match resolution
+  canvas.width = state.canvasWidth;
+  canvas.height = state.canvasHeight;
+  
+  // Clear canvas
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Apply zoom and pan
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.translate(state.pan.x / state.zoom, state.pan.y / state.zoom);
+  ctx.scale(state.zoom, state.zoom);
+  
+  // Set image smoothing based on toggle
+  ctx.imageSmoothingEnabled = state.smooth;
+  if (!state.smooth) {
+    ctx.imageSmoothingQuality = 'low';
+  } else {
+    ctx.imageSmoothingQuality = 'high';
+  }
+  
+  // Draw image centered and fitted to canvas
+  const scale = Math.min(
+    canvas.width / state.image.width,
+    canvas.height / state.image.height
+  );
+  
+  const w = state.image.width * scale;
+  const h = state.image.height * scale;
+  
+  ctx.drawImage(state.image, -w / 2, -h / 2, w, h);
+  ctx.restore();
+}
+
+// Initialize
+updateInfo();
+</script>
+<script src="/ngp-consent.js"></script>
+</body>
+</html>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
