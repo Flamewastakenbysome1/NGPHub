@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aspect Ratio Visual V2 — NGP Hub</title>
+
+<meta property="og:title" content="Aspect Ratio Visual V2 — NGP Hub" />
+<meta property="og:description" content="Zoom into pixels like never before. Explore LCD and OLED subpixel layouts with microscopic detail." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com" />
+<meta property="og:type" content="website" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow:hidden}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    overflow:hidden;
+  }
+
+  header{
+    position:relative; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.85); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{
+    display:flex; align-items:center; justify-content:space-between; padding:12px 20px;
+    max-width:100%; margin:0 auto;
+  }
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+
+  .main-container{
+    display:flex; height:calc(100vh - 53px); overflow:hidden;
+  }
+
+  .sidebar{
+    width:320px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
+    overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:20px;
+  }
+
+  .section{
+    background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06);
+    border-radius:12px; padding:16px;
+  }
+  .section-title{
+    font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+    color:var(--muted); margin:0 0 12px 0;
+  }
+
+  .upload-area{
+    border:2px dashed rgba(255,255,255,.2); border-radius:12px;
+    padding:30px 20px; text-align:center; cursor:pointer; transition:all .2s;
+    background:rgba(255,255,255,.02);
+  }
+  .upload-area:hover, .upload-area.drag-over{
+    border-color:var(--brandB); background:rgba(37,117,252,.05);
+  }
+  .upload-area svg{width:48px; height:48px; margin-bottom:12px; opacity:.6}
+  .upload-area p{margin:0; font-size:.9rem; color:var(--muted)}
+  .upload-area input{display:none}
+
+  .aspect-inputs{display:flex; gap:8px; align-items:center; margin-bottom:12px}
+  .aspect-inputs input{
+    flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:10px 12px; border-radius:8px; font-size:.9rem;
+    font-family:inherit; outline:none;
+  }
+  .aspect-inputs input:focus{border-color:var(--brandB); box-shadow:var(--ring)}
+  .aspect-inputs span{color:var(--muted); font-weight:700}
+
+  .preset-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px}
+  .preset-btn{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:10px; border-radius:8px; cursor:pointer;
+    font-size:.85rem; font-weight:600; transition:all .2s; font-family:inherit;
+  }
+  .preset-btn:hover{background:rgba(255,255,255,.08); border-color:var(--brandB)}
+  .preset-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
+
+  .mode-tabs{display:flex; flex-direction:column; gap:8px}
+  .mode-btn{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:12px 14px; border-radius:8px; cursor:pointer;
+    font-size:.9rem; font-weight:600; transition:all .2s; text-align:left;
+    font-family:inherit; display:flex; align-items:center; gap:10px;
+  }
+  .mode-btn:hover{background:rgba(255,255,255,.08); border-color:var(--brandB)}
+  .mode-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
+  .mode-icon{
+    width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.1); border-radius:6px; font-size:.75rem;
+  }
+
+  .toggle-container{display:flex; align-items:center; justify-content:space-between; margin-top:8px}
+  .toggle-label{font-size:.9rem; color:var(--ink)}
+  .toggle{
+    position:relative; width:48px; height:26px; background:rgba(255,255,255,.1);
+    border-radius:13px; cursor:pointer; transition:all .2s;
+  }
+  .toggle.active{background:linear-gradient(120deg,var(--brandA),var(--brandB))}
+  .toggle-slider{
+    position:absolute; top:3px; left:3px; width:20px; height:20px;
+    background:white; border-radius:50%; transition:all .2s;
+  }
+  .toggle.active .toggle-slider{transform:translateX(22px)}
+
+  .info-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:.85rem}
+  .info-item{
+    background:rgba(255,255,255,.03); padding:10px; border-radius:8px;
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .info-label{color:var(--muted); font-size:.75rem; margin-bottom:4px}
+  .info-value{color:var(--ink); font-weight:700; font-family:'Courier New',monospace}
+
+  .canvas-container{
+    flex:1; position:relative; overflow:hidden; background:#000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  
+  .canvas-wrapper{
+    position:relative; width:100%; height:100%; cursor:grab;
+  }
+  .canvas-wrapper.grabbing{cursor:grabbing}
+  
+  canvas{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+    image-rendering:pixelated; image-rendering:crisp-edges;
+  }
+
+  .zoom-controls{
+    position:absolute; bottom:20px; right:20px; display:flex; flex-direction:column;
+    gap:8px; background:var(--card); padding:12px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow);
+  }
+  .zoom-btn{
+    width:44px; height:44px; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1); border-radius:8px;
+    color:var(--ink); font-size:1.2rem; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; font-family:inherit;
+  }
+  .zoom-btn:hover{background:rgba(255,255,255,.1); border-color:var(--brandB)}
+  .zoom-btn:active{transform:scale(.95)}
+  .zoom-display{
+    text-align:center; font-size:.8rem; color:var(--muted);
+    font-weight:600; padding:4px 0; font-family:'Courier New',monospace;
+  }
+
+  .pixel-info{
+    position:absolute; top:20px; right:20px; background:var(--card);
+    padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+    box-shadow:var(--shadow); font-size:.8rem; display:none;
+  }
+  .pixel-info.visible{display:block}
+  .pixel-info-row{display:flex; gap:16px; margin-bottom:6px}
+  .pixel-info-row:last-child{margin-bottom:0}
+  .pixel-info-label{color:var(--muted); min-width:40px}
+  .pixel-info-value{
+    color:var(--ink); font-weight:700; font-family:'Courier New',monospace;
+  }
+  .color-preview{
+    width:40px; height:40px; border-radius:6px; border:2px solid rgba(255,255,255,.2);
+    margin-top:8px;
+  }
+
+  .loading-overlay{
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,.8); backdrop-filter:blur(5px);
+    display:none; align-items:center; justify-content:center;
+    z-index:100;
+  }
+  .loading-overlay.active{display:flex}
+  .spinner{
+    width:60px; height:60px; border:4px solid rgba(255,255,255,.1);
+    border-top-color:var(--brandB); border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .empty-state{
+    text-align:center; color:var(--muted); padding:60px 40px;
+  }
+  .empty-state svg{width:80px; height:80px; margin-bottom:20px; opacity:.3}
+  .empty-state h2{margin:0 0 8px 0; color:var(--ink); font-size:1.3rem}
+  .empty-state p{margin:0; font-size:.95rem; line-height:1.6}
+
+  @media (max-width:768px){
+    .main-container{flex-direction:column}
+    .sidebar{width:100%; max-height:40vh; border-right:none; border-bottom:1px solid rgba(255,255,255,.06)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" onerror="this.style.display='none'" />
+      <h1>Aspect Ratio Visual V2</h1>
+    </a>
+  </div>
+</header>
+
+<div class="main-container">
+  <aside class="sidebar">
+    <div class="section">
+      <h3 class="section-title">Load Image</h3>
+      <div class="upload-area" id="uploadArea">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p><strong>Drop an image here</strong><br>or click to browse</p>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Aspect Ratio</h3>
+      <div class="aspect-inputs">
+        <input type="number" id="aspectWidth" value="16" min="1" placeholder="Width">
+        <span>:</span>
+        <input type="number" id="aspectHeight" value="9" min="1" placeholder="Height">
+      </div>
+      <div class="preset-grid">
+        <button class="preset-btn active" data-aspect="16:9">16:9</button>
+        <button class="preset-btn" data-aspect="21:9">21:9</button>
+        <button class="preset-btn" data-aspect="4:3">4:3</button>
+        <button class="preset-btn" data-aspect="1:1">1:1</button>
+        <button class="preset-btn" data-aspect="9:16">9:16</button>
+        <button class="preset-btn" data-aspect="3:2">3:2</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Display Mode</h3>
+      <div class="mode-tabs">
+        <button class="mode-btn active" data-mode="normal">
+          <span class="mode-icon">🖼️</span>
+          <span>Normal</span>
+        </button>
+        <button class="mode-btn" data-mode="lcd">
+          <span class="mode-icon">📺</span>
+          <span>LCD (RGB Stripes)</span>
+        </button>
+        <button class="mode-btn" data-mode="oled-pentile">
+          <span class="mode-icon">📱</span>
+          <span>OLED (PenTile G8)</span>
+        </button>
+        <button class="mode-btn" data-mode="oled-iphone">
+          <span class="mode-icon">🍎</span>
+          <span>OLED (iPhone RGBG)</span>
+        </button>
+      </div>
+      <div class="toggle-container">
+        <span class="toggle-label">Pixel Blending</span>
+        <div class="toggle active" id="blendToggle">
+          <div class="toggle-slider"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 class="section-title">Info</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Resolution</div>
+          <div class="info-value" id="infoResolution">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Aspect</div>
+          <div class="info-value" id="infoAspect">16:9</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Zoom</div>
+          <div class="info-value" id="infoZoom">100%</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mode</div>
+          <div class="info-value" id="infoMode">Normal</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="canvas-container">
+    <div class="empty-state" id="emptyState">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <h2>No Image Loaded</h2>
+      <p>Upload an image or drag one into the sidebar to get started.<br>Zoom in to see subpixel patterns up close!</p>
+    </div>
+
+    <div class="canvas-wrapper" id="canvasWrapper" style="display:none">
+      <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoomIn">+</button>
+      <div class="zoom-display" id="zoomDisplay">100%</div>
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <button class="zoom-btn" id="zoomReset" title="Reset Zoom">⟲</button>
+    </div>
+
+    <div class="pixel-info" id="pixelInfo">
+      <div class="pixel-info-row">
+        <span class="pixel-info-label">X:</span>
+        <span class="pixel-info-value" id="pixelX">0</span>
+      </div>
+      <div class="pixel-info-row">
+        <span class="pixel-info-label">Y:</span>
+        <span class="pixel-info-value" id="pixelY">0</span>
+      </div>
+      <div class="pixel-info-row">
+        <span class="pixel-info-label">RGB:</span>
+        <span class="pixel-info-value" id="pixelRGB">(0, 0, 0)</span>
+      </div>
+      <div class="color-preview" id="colorPreview"></div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// State management
+const state = {
+  image: null,
+  aspectRatio: { w: 16, h: 9 },
+  zoom: 1,
+  pan: { x: 0, y: 0 },
+  displayMode: 'normal',
+  blendingEnabled: true,
+  isPanning: false,
+  lastPanPos: { x: 0, y: 0 }
+};
+
+// Elements
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const canvasWrapper = document.getElementById('canvasWrapper');
+const emptyState = document.getElementById('emptyState');
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const pixelInfo = document.getElementById('pixelInfo');
+
+// Info displays
+const infoResolution = document.getElementById('infoResolution');
+const infoAspect = document.getElementById('infoAspect');
+const infoZoom = document.getElementById('infoZoom');
+const infoMode = document.getElementById('infoMode');
+const zoomDisplay = document.getElementById('zoomDisplay');
+
+// File upload handling
+uploadArea.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+});
+
+function loadImage(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file!');
+    return;
+  }
+
+  loadingOverlay.classList.add('active');
+  const reader = new FileReader();
+  
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      state.image = img;
+      state.zoom = 1;
+      state.pan = { x: 0, y: 0 };
+      
+      emptyState.style.display = 'none';
+      canvasWrapper.style.display = 'block';
+      
+      updateInfo();
+      render();
+      loadingOverlay.classList.remove('active');
+    };
+    img.src = e.target.result;
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+// Aspect ratio controls
+const aspectWidth = document.getElementById('aspectWidth');
+const aspectHeight = document.getElementById('aspectHeight');
+const presetButtons = document.querySelectorAll('.preset-btn');
+
+aspectWidth.addEventListener('input', updateAspectRatio);
+aspectHeight.addEventListener('input', updateAspectRatio);
+
+function updateAspectRatio() {
+  const w = parseInt(aspectWidth.value) || 16;
+  const h = parseInt(aspectHeight.value) || 9;
+  state.aspectRatio = { w, h };
+  updateInfo();
+  render();
+}
+
+presetButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    presetButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const [w, h] = btn.dataset.aspect.split(':').map(Number);
+    aspectWidth.value = w;
+    aspectHeight.value = h;
+    updateAspectRatio();
+  });
+});
+
+// Display mode controls
+const modeButtons = document.querySelectorAll('.mode-btn');
+modeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    modeButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.displayMode = btn.dataset.mode;
+    updateInfo();
+    render();
+  });
+});
+
+// Blending toggle
+const blendToggle = document.getElementById('blendToggle');
+blendToggle.addEventListener('click', () => {
+  state.blendingEnabled = !state.blendingEnabled;
+  blendToggle.classList.toggle('active');
+  render();
+});
+
+// Zoom controls
+const zoomIn = document.getElementById('zoomIn');
+const zoomOut = document.getElementById('zoomOut');
+const zoomReset = document.getElementById('zoomReset');
+
+zoomIn.addEventListener('click', () => {
+  state.zoom = Math.min(state.zoom * 1.5, 100);
+  updateInfo();
+  render();
+});
+
+zoomOut.addEventListener('click', () => {
+  state.zoom = Math.max(state.zoom / 1.5, 0.1);
+  updateInfo();
+  render();
+});
+
+zoomReset.addEventListener('click', () => {
+  state.zoom = 1;
+  state.pan = { x: 0, y: 0 };
+  updateInfo();
+  render();
+});
+
+// Mouse wheel zoom
+canvasWrapper.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  state.zoom = Math.max(0.1, Math.min(100, state.zoom * delta));
+  updateInfo();
+  render();
+});
+
+// Panning
+canvasWrapper.addEventListener('mousedown', (e) => {
+  state.isPanning = true;
+  state.lastPanPos = { x: e.clientX, y: e.clientY };
+  canvasWrapper.classList.add('grabbing');
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (state.isPanning) {
+    const dx = e.clientX - state.lastPanPos.x;
+    const dy = e.clientY - state.lastPanPos.y;
+    state.pan.x += dx;
+    state.pan.y += dy;
+    state.lastPanPos = { x: e.clientX, y: e.clientY };
+    render();
+  }
+  
+  // Show pixel info when zoomed in
+  if (state.image && state.zoom > 5) {
+    updatePixelInfo(e);
+  } else {
+    pixelInfo.classList.remove('visible');
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  state.isPanning = false;
+  canvasWrapper.classList.remove('grabbing');
+});
+
+function updatePixelInfo(e) {
+  if (!state.image) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // Convert to image coordinates
+  const imgX = Math.floor((x - canvas.width/2 - state.pan.x) / state.zoom + state.image.width/2);
+  const imgY = Math.floor((y - canvas.height/2 - state.pan.y) / state.zoom + state.image.height/2);
+  
+  if (imgX >= 0 && imgX < state.image.width && imgY >= 0 && imgY < state.image.height) {
+    // Create temporary canvas to read pixel
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = state.image.width;
+    tempCanvas.height = state.image.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(state.image, 0, 0);
+    
+    const pixel = tempCtx.getImageData(imgX, imgY, 1, 1).data;
+    const r = pixel[0], g = pixel[1], b = pixel[2];
+    
+    document.getElementById('pixelX').textContent = imgX;
+    document.getElementById('pixelY').textContent = imgY;
+    document.getElementById('pixelRGB').textContent = `(${r}, ${g}, ${b})`;
+    document.getElementById('colorPreview').style.background = `rgb(${r}, ${g}, ${b})`;
+    pixelInfo.classList.add('visible');
+  } else {
+    pixelInfo.classList.remove('visible');
+  }
+}
+
+function updateInfo() {
+  if (state.image) {
+    infoResolution.textContent = `${state.image.width}×${state.image.height}`;
+  }
+  infoAspect.textContent = `${state.aspectRatio.w}:${state.aspectRatio.h}`;
+  infoZoom.textContent = `${Math.round(state.zoom * 100)}%`;
+  zoomDisplay.textContent = `${Math.round(state.zoom * 100)}%`;
+  
+  const modeNames = {
+    normal: 'Normal',
+    lcd: 'LCD',
+    'oled-pentile': 'OLED G8',
+    'oled-iphone': 'OLED iPhone'
+  };
+  infoMode.textContent = modeNames[state.displayMode];
+}
+
+function render() {
+  if (!state.image) return;
+  
+  // Calculate canvas size based on container
+  const container = canvasWrapper;
+  const maxWidth = container.clientWidth;
+  const maxHeight = container.clientHeight;
+  
+  // Calculate display size maintaining aspect ratio
+  const aspectRatio = state.aspectRatio.w / state.aspectRatio.h;
+  let displayWidth = maxWidth * 0.9;
+  let displayHeight = displayWidth / aspectRatio;
+  
+  if (displayHeight > maxHeight * 0.9) {
+    displayHeight = maxHeight * 0.9;
+    displayWidth = displayHeight * aspectRatio;
+  }
+  
+  canvas.width = displayWidth;
+  canvas.height = displayHeight;
+  
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.save();
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.translate(state.pan.x, state.pan.y);
+  ctx.scale(state.zoom, state.zoom);
+  ctx.translate(-state.image.width/2, -state.image.height/2);
+  
+  if (state.displayMode === 'normal') {
+    // Normal rendering
+    if (!state.blendingEnabled) {
+      ctx.imageSmoothingEnabled = false;
+    } else {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+    }
+    ctx.drawImage(state.image, 0, 0);
+  } else {
+    // Render with subpixel patterns
+    renderSubpixels();
+  }
+  
+  ctx.restore();
+}
+
+function renderSubpixels() {
+  // Create offscreen canvas for pixel processing
+  const offscreen = document.createElement('canvas');
+  offscreen.width = state.image.width;
+  offscreen.height = state.image.height;
+  const offCtx = offscreen.getContext('2d');
+  offCtx.drawImage(state.image, 0, 0);
+  
+  const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+  const data = imageData.data;
+  
+  // Determine subpixel size based on zoom
+  const subpixelSize = Math.max(1, state.zoom * 0.3);
+  
+  for (let y = 0; y < offscreen.height; y++) {
+    for (let x = 0; x < offscreen.width; x++) {
+      const i = (y * offscreen.width + x) * 4;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      
+      if (state.displayMode === 'lcd') {
+        // LCD RGB stripe pattern
+        drawLCDPixel(x, y, r, g, b, subpixelSize);
+      } else if (state.displayMode === 'oled-pentile') {
+        // PenTile (Diamond) pattern - shared green
+        drawPenTilePixel(x, y, r, g, b, subpixelSize);
+      } else if (state.displayMode === 'oled-iphone') {
+        // iPhone OLED RGBG pattern
+        drawIPhoneOLEDPixel(x, y, r, g, b, subpixelSize);
+      }
+    }
+  }
+}
+
+function drawLCDPixel(x, y, r, g, b, size) {
+  const spacing = state.blendingEnabled ? 0.8 : 1;
+  const width = size * spacing;
+  
+  // Red stripe
+  ctx.fillStyle = `rgb(${r}, 0, 0)`;
+  ctx.fillRect(x - width, y, width, 1);
+  
+  // Green stripe
+  ctx.fillStyle = `rgb(0, ${g}, 0)`;
+  ctx.fillRect(x, y, width, 1);
+  
+  // Blue stripe
+  ctx.fillStyle = `rgb(0, 0, ${b})`;
+  ctx.fillRect(x + width, y, width, 1);
+  
+  // Blend overlay if enabled
+  if (state.blendingEnabled) {
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(x - width, y, width * 3, 1);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawPenTilePixel(x, y, r, g, b, size) {
+  const offset = (x % 2) * 0.5;
+  const spacing = state.blendingEnabled ? 0.7 : 0.9;
+  
+  // Red subpixel
+  ctx.fillStyle = `rgb(${r}, 0, 0)`;
+  ctx.beginPath();
+  ctx.arc(x - 0.33, y + offset, size * spacing * 0.4, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Green subpixels (larger, shared)
+  ctx.fillStyle = `rgb(0, ${g}, 0)`;
+  ctx.beginPath();
+  ctx.arc(x, y, size * spacing * 0.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Blue subpixel
+  ctx.fillStyle = `rgb(0, 0, ${b})`;
+  ctx.beginPath();
+  ctx.arc(x + 0.33, y + offset, size * spacing * 0.4, 0, Math.PI * 2);
+  ctx.fill();
+  
+  if (state.blendingEnabled) {
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawIPhoneOLEDPixel(x, y, r, g, b, size) {
+  const spacing = state.blendingEnabled ? 0.75 : 0.95;
+  const s = size * spacing * 0.45;
+  
+  // RGBG pattern
+  const pattern = (x + y) % 2;
+  
+  if (pattern === 0) {
+    // Red and Blue in this pixel
+    ctx.fillStyle = `rgb(${r}, 0, 0)`;
+    ctx.fillRect(x - 0.25, y - 0.25, s, s);
+    
+    ctx.fillStyle = `rgb(0, 0, ${b})`;
+    ctx.fillRect(x + 0.25, y + 0.25, s, s);
+  }
+  
+  // Green appears in all pixels but in different positions
+  ctx.fillStyle = `rgb(0, ${g}, 0)`;
+  if (pattern === 0) {
+    ctx.fillRect(x + 0.25, y - 0.25, s, s);
+    ctx.fillRect(x - 0.25, y + 0.25, s, s);
+  } else {
+    ctx.fillRect(x - 0.25, y - 0.25, s, s);
+    ctx.fillRect(x + 0.25, y + 0.25, s, s);
+  }
+  
+  if (state.blendingEnabled) {
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+    ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Initialize
+updateInfo();
+</script>
+
+</body>
+</html>
