@@ -56,86 +56,110 @@
   .main{display:flex; height:calc(100vh - 53px)}
   
   .sidebar{
-    width:360px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
-    overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:20px;
+    width:320px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
+    overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:18px;
   }
-  .sidebar::-webkit-scrollbar{width:8px}
+  .sidebar::-webkit-scrollbar{width:6px}
   .sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
-  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:4px}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:3px}
 
-  .section{background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:18px}
-  .section-title{font-size:.85rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin:0 0 14px 0; letter-spacing:.5px}
-  .help-text{font-size:.8rem; color:var(--muted); margin:8px 0 0 0; line-height:1.5}
+  .section{background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:16px}
+  .section-title{font-size:.8rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin:0 0 12px 0; letter-spacing:.5px}
+  .help-text{font-size:.75rem; color:var(--muted); margin:8px 0 0 0; line-height:1.4}
 
   .upload-area{
     border:2px dashed rgba(255,255,255,.2); border-radius:10px;
-    padding:32px 20px; text-align:center; cursor:pointer; background:rgba(255,255,255,.02);
+    padding:28px 16px; text-align:center; cursor:pointer; background:rgba(255,255,255,.02);
   }
   .upload-area:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
-  .upload-area svg{width:48px; height:48px; margin-bottom:12px; opacity:.5}
-  .upload-area p{margin:0; font-size:.9rem; color:var(--muted)}
+  .upload-area svg{width:40px; height:40px; margin-bottom:10px; opacity:.5}
+  .upload-area p{margin:0; font-size:.85rem; color:var(--muted)}
   .upload-area input{display:none}
 
-  .input-row{display:flex; gap:10px; align-items:center; margin-bottom:12px}
+  .input-row{display:flex; gap:8px; align-items:center; margin-bottom:10px}
   .input-row input{
     flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    color:var(--ink); padding:10px 14px; border-radius:8px; font:inherit;
+    color:var(--ink); padding:8px 12px; border-radius:8px; font:inherit; font-size:.9rem;
   }
   .input-row input:focus{border-color:var(--brandB); outline:none; box-shadow:var(--ring)}
   .input-row span{color:var(--muted); font-weight:600}
 
-  .preset-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:12px}
+  .preset-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:10px}
   .preset-btn{
     background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    padding:10px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink); font-weight:600; font-size:.82rem;
+    padding:8px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink); font-weight:600; font-size:.75rem;
   }
   .preset-btn:hover{background:rgba(255,255,255,.08)}
   .preset-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
 
   .apply-btn{
     width:100%; background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    border:none; color:white; padding:12px; border-radius:10px; font:inherit;
-    font-weight:700; cursor:pointer; margin-top:12px;
+    border:none; color:white; padding:10px; border-radius:10px; font:inherit;
+    font-weight:700; cursor:pointer; margin-top:10px; font-size:.85rem;
   }
   .apply-btn:hover{opacity:.9}
 
-  .mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px}
   .mode-btn{
     background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    padding:14px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink);
-    font-weight:600; font-size:.85rem; text-align:center;
+    padding:12px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink);
+    font-weight:600; font-size:.8rem; text-align:center;
   }
   .mode-btn:hover{background:rgba(255,255,255,.08)}
   .mode-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
 
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; margin-top:12px}
+  .toggle-label{font-size:.85rem; color:var(--ink); font-weight:600}
+  .toggle{
+    position:relative; width:48px; height:26px; background:rgba(255,255,255,.1);
+    border-radius:13px; cursor:pointer; border:1px solid rgba(255,255,255,.1);
+  }
+  .toggle.active{background:linear-gradient(120deg,var(--brandA),var(--brandB))}
+  .toggle-knob{
+    position:absolute; top:3px; left:3px; width:18px; height:18px;
+    background:white; border-radius:50%; transition:transform 0.2s;
+  }
+  .toggle.active .toggle-knob{transform:translateX(22px)}
+
   .canvas-container{
     flex:1; position:relative; background:#000; display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
   }
   
   .canvas-wrapper{position:relative; width:100%; height:100%; cursor:grab}
   .canvas-wrapper.grabbing{cursor:grabbing}
   
-  canvas{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); transition:none}
+  canvas{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%)}
 
   .controls{
     position:absolute; bottom:20px; right:20px; background:var(--card);
-    padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
-    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px;
+    padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:6px;
   }
   .zoom-btn{
-    width:44px; height:44px; background:rgba(255,255,255,.05);
+    width:40px; height:40px; background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.1); border-radius:8px; color:var(--ink);
-    font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font:inherit; font-weight:700;
+    font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font:inherit; font-weight:700;
   }
   .zoom-btn:hover{background:rgba(255,255,255,.1)}
-  .zoom-display{text-align:center; font-size:.75rem; color:var(--muted); padding:4px 0; font-family:monospace}
+  .zoom-display{text-align:center; font-size:.7rem; color:var(--muted); padding:4px 0; font-family:monospace}
 
   .empty{text-align:center; color:var(--muted); padding:60px 40px}
   .empty svg{width:80px; height:80px; margin-bottom:20px; opacity:.3}
   .empty h2{margin:0 0 8px 0; color:var(--ink); font-size:1.3rem}
   .empty p{margin:0; line-height:1.6}
 
-  footer{border-top:1px solid rgba(255,255,255,.08); padding:24px 0; text-align:center; color:var(--muted)}
+  footer{border-top:1px solid rgba(255,255,255,.08); padding:20px 0; text-align:center; color:var(--muted); font-size:.85rem}
+  footer a{color:var(--brandB); text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  .info-panel{
+    position:absolute; top:20px; left:20px; background:rgba(20,20,26,.95);
+    padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+    font-family:monospace; font-size:.75rem; color:var(--muted);
+    box-shadow:var(--shadow); pointer-events:none; display:none;
+  }
+  .info-panel.visible{display:block}
 </style>
 </head>
 <body>
@@ -164,7 +188,7 @@
       <h3 class="section-title">📁 Load Image</h3>
       <div class="upload-area" id="upload">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 1 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
         <p><strong>Drop image</strong> or click to browse</p>
         <input type="file" id="file" accept="image/*">
@@ -187,64 +211,77 @@
         <button class="preset-btn" data-aspect="3:2">3:2</button>
       </div>
       <button class="apply-btn" id="applyAspect">Apply Aspect Ratio</button>
-      <p class="help-text">💡 Changes the canvas shape to match the ratio</p>
+      <p class="help-text">Adjusts canvas height based on ratio</p>
     </div>
 
     <div class="section">
-      <h3 class="section-title">🖼️ Canvas Resolution</h3>
+      <h3 class="section-title">📺 Canvas Resolution</h3>
       <div class="input-row">
-        <input type="number" id="resW" value="1920" min="1" max="7680">
+        <input type="number" id="resW" value="1920" min="128" max="7680">
         <span>×</span>
-        <input type="number" id="resH" value="1080" min="1" max="4320">
+        <input type="number" id="resH" value="1080" min="128" max="4320">
       </div>
       <button class="apply-btn" id="applyRes">Apply Resolution</button>
-      <p class="help-text">💡 Sets the canvas pixel dimensions</p>
+      <p class="help-text">Output canvas size (max 7680×4320)</p>
     </div>
 
     <div class="section">
-      <h3 class="section-title">🔬 Subpixel Mode</h3>
+      <h3 class="section-title">🔬 Display Mode</h3>
       <div class="mode-grid">
         <button class="mode-btn active" data-mode="normal">Normal</button>
-        <button class="mode-btn" data-mode="lcd">LCD RGB</button>
+        <button class="mode-btn" data-mode="lcd">LCD Stripes</button>
         <button class="mode-btn" data-mode="pentile">OLED G8</button>
-        <button class="mode-btn" data-mode="iphone">iPhone</button>
+        <button class="mode-btn" data-mode="iphone">iPhone OLED</button>
       </div>
-      <p class="help-text">💡 Zoom in far (20x+) to see subpixels!<br>Automatically blends when zoomed out</p>
+      <div class="toggle-row">
+        <span class="toggle-label">Blend Subpixels</span>
+        <div class="toggle active" id="blendToggle">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+      <p class="help-text">Subpixels visible when zoomed 10×+. Blend smoothly transitions.</p>
     </div>
   </aside>
 
-  <main class="canvas-container">
+  <div class="canvas-container">
+    <div class="canvas-wrapper" id="wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
     <div class="empty" id="empty">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
       </svg>
-      <h2>No Image Loaded</h2>
-      <p>Upload an image to get started!<br>Zoom in 20x+ to see subpixel structure</p>
+      <h2>Load an Image</h2>
+      <p>Drag & drop or click upload to start</p>
     </div>
-
-    <div class="canvas-wrapper" id="wrapper" style="display:none">
-      <canvas id="canvas"></canvas>
-    </div>
-
-    <div class="controls">
+    <div class="controls" id="controls" style="display:none">
       <button class="zoom-btn" id="zoomIn">+</button>
       <div class="zoom-display" id="zoomText">100%</div>
       <button class="zoom-btn" id="zoomOut">−</button>
-      <button class="zoom-btn" id="zoomReset">⟲</button>
+      <button class="zoom-btn" id="zoomReset" style="font-size:.7rem">⟲</button>
     </div>
-  </main>
+    <div class="info-panel" id="infoPanel">
+      <div id="pixelCoords"></div>
+      <div id="pixelColor"></div>
+      <div id="zoomLevel"></div>
+    </div>
+  </div>
 </div>
 
 <footer>
   <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha. <a href="/tos" style="color:var(--muted);text-decoration:none;margin-left:12px">Terms</a> <a href="/privacy" style="color:var(--muted);text-decoration:none;margin-left:12px">Privacy</a></small>
+    <small>© <span id="year"></span> NGP — Alpha | <a href="/tos">Terms of Service</a> | <a href="/privacy">Privacy Policy</a></small>
   </div>
 </footer>
 
 <div id="logout-modal" class="modal">
   <div class="modal-content">
-    <div class="modal-header"><h3>Logout?</h3></div>
-    <div class="modal-body"><p>Are you sure?</p></div>
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
     <div class="modal-footer">
       <button class="btn-ghost" id="cancelLogout">Cancel</button>
       <button class="btn" id="confirmLogout">Logout</button>
@@ -268,13 +305,30 @@ document.getElementById('confirmLogout').onclick=async()=>{await signOut(auth);l
 </script>
 
 <script>
-const st={img:null,zoom:1,pan:{x:0,y:0},mode:'normal',isPan:false,lastPan:{x:0,y:0},cw:1920,ch:1080};
+// State
+const st={
+  img:null,
+  zoom:1,
+  targetZoom:1,
+  pan:{x:0,y:0},
+  mode:'normal',
+  isPan:false,
+  lastPan:{x:0,y:0},
+  cw:1920,
+  ch:1080,
+  blendEnabled:true
+};
 let off=null,offCtx=null;
+let rafId=null;
 
-const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d',{alpha:false});
+// DOM
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
 const wrapper=document.getElementById('wrapper'),empty=document.getElementById('empty');
 const upload=document.getElementById('upload'),file=document.getElementById('file');
+const controls=document.getElementById('controls');
+const infoPanel=document.getElementById('infoPanel');
 
+// File loading
 upload.onclick=()=>file.click();
 file.onchange=e=>{if(e.target.files[0])load(e.target.files[0])};
 upload.ondragover=e=>{e.preventDefault();upload.style.borderColor='var(--brandB)'};
@@ -282,145 +336,204 @@ upload.ondragleave=()=>upload.style.borderColor='';
 upload.ondrop=e=>{e.preventDefault();upload.style.borderColor='';if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])};
 
 function load(f){
-if(!f.type.startsWith('image/'))return alert('Upload an image');
-const r=new FileReader();
-r.onload=e=>{
-const img=new Image();
-img.onload=()=>{
-st.img=img;st.zoom=1;st.pan={x:0,y:0};
-empty.style.display='none';wrapper.style.display='block';
-off=document.createElement('canvas');off.width=img.width;off.height=img.height;
-offCtx=off.getContext('2d');offCtx.drawImage(img,0,0);
-draw();
-};
-img.src=e.target.result;
-};
-r.readAsDataURL(f);
+  if(!f.type.startsWith('image/'))return alert('Upload an image');
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      st.img=img;st.zoom=1;st.targetZoom=1;st.pan={x:0,y:0};
+      empty.style.display='none';wrapper.style.display='block';controls.style.display='flex';
+      off=document.createElement('canvas');off.width=img.width;off.height=img.height;
+      offCtx=off.getContext('2d',{willReadFrequently:true});offCtx.drawImage(img,0,0);
+      startRenderLoop();
+    };
+    img.src=e.target.result;
+  };
+  r.readAsDataURL(f);
 }
 
+// Aspect ratio presets
 document.querySelectorAll('.preset-btn').forEach(b=>b.onclick=()=>{
-document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));
-b.classList.add('active');
-const[w,h]=b.dataset.aspect.split(':');
-document.getElementById('aspectW').value=w;
-document.getElementById('aspectH').value=h;
+  document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const[w,h]=b.dataset.aspect.split(':');
+  document.getElementById('aspectW').value=w;
+  document.getElementById('aspectH').value=h;
 });
 
+// Apply aspect ratio
 document.getElementById('applyAspect').onclick=()=>{
-const w=+document.getElementById('aspectW').value||16;
-const h=+document.getElementById('aspectH').value||9;
-st.ch=Math.round(st.cw/(w/h));
-document.getElementById('resH').value=st.ch;
-draw();
+  const w=+document.getElementById('aspectW').value||16;
+  const h=+document.getElementById('aspectH').value||9;
+  st.ch=Math.round(st.cw/(w/h));
+  document.getElementById('resH').value=st.ch;
 };
 
+// Apply resolution
 document.getElementById('applyRes').onclick=()=>{
-st.cw=Math.min(+document.getElementById('resW').value||1920,7680);
-st.ch=Math.min(+document.getElementById('resH').value||1080,4320);
-document.getElementById('resW').value=st.cw;
-document.getElementById('resH').value=st.ch;
-draw();
+  st.cw=Math.min(+document.getElementById('resW').value||1920,7680);
+  st.ch=Math.min(+document.getElementById('resH').value||1080,4320);
+  document.getElementById('resW').value=st.cw;
+  document.getElementById('resH').value=st.ch;
 };
 
+// Display mode
 document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{
-document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
-b.classList.add('active');
-st.mode=b.dataset.mode;
-draw();
+  document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  st.mode=b.dataset.mode;
 });
 
-document.getElementById('zoomIn').onclick=()=>{st.zoom=Math.min(st.zoom*1.5,100);draw()};
-document.getElementById('zoomOut').onclick=()=>{st.zoom=Math.max(st.zoom/1.5,0.1);draw()};
-document.getElementById('zoomReset').onclick=()=>{st.zoom=1;st.pan={x:0,y:0};draw()};
+// Blend toggle
+document.getElementById('blendToggle').onclick=function(){
+  st.blendEnabled=!st.blendEnabled;
+  this.classList.toggle('active',st.blendEnabled);
+};
 
-wrapper.onwheel=e=>{e.preventDefault();const d=e.deltaY>0?0.92:1.08;st.zoom=Math.max(0.1,Math.min(100,st.zoom*d));draw()};
+// Zoom controls
+document.getElementById('zoomIn').onclick=()=>{st.targetZoom=Math.min(st.targetZoom*1.5,100)};
+document.getElementById('zoomOut').onclick=()=>{st.targetZoom=Math.max(st.targetZoom/1.5,0.1)};
+document.getElementById('zoomReset').onclick=()=>{st.targetZoom=1;st.pan={x:0,y:0}};
 
+// Wheel zoom
+wrapper.onwheel=e=>{e.preventDefault();const d=e.deltaY>0?0.92:1.08;st.targetZoom=Math.max(0.1,Math.min(100,st.targetZoom*d))};
+
+// Pan controls
 wrapper.onmousedown=e=>{st.isPan=true;st.lastPan={x:e.clientX,y:e.clientY};wrapper.classList.add('grabbing')};
-document.onmousemove=e=>{if(st.isPan){st.pan.x+=e.clientX-st.lastPan.x;st.pan.y+=e.clientY-st.lastPan.y;st.lastPan={x:e.clientX,y:e.clientY};draw()}};
+document.onmousemove=e=>{
+  if(st.isPan){
+    st.pan.x+=e.clientX-st.lastPan.x;
+    st.pan.y+=e.clientY-st.lastPan.y;
+    st.lastPan={x:e.clientX,y:e.clientY};
+  }
+  // Show pixel info when zoomed >5x
+  if(st.img&&st.zoom>5){
+    const rect=canvas.getBoundingClientRect();
+    const cx=(e.clientX-rect.left-rect.width/2)/st.zoom-st.pan.x/st.zoom;
+    const cy=(e.clientY-rect.top-rect.height/2)/st.zoom-st.pan.y/st.zoom;
+    const scale=Math.min(st.cw/st.img.width,st.ch/st.img.height);
+    const w=st.img.width*scale,h=st.img.height*scale;
+    const px=Math.floor((cx+w/2)/scale),py=Math.floor((cy+h/2)/scale);
+    if(px>=0&&px<st.img.width&&py>=0&&py<st.img.height){
+      const d=offCtx.getImageData(px,py,1,1).data;
+      document.getElementById('pixelCoords').textContent=`Pixel: (${px}, ${py})`;
+      document.getElementById('pixelColor').textContent=`RGB(${d[0]}, ${d[1]}, ${d[2]})`;
+      document.getElementById('zoomLevel').textContent=`Zoom: ${Math.round(st.zoom*100)}%`;
+      infoPanel.classList.add('visible');
+    }else{
+      infoPanel.classList.remove('visible');
+    }
+  }else{
+    infoPanel.classList.remove('visible');
+  }
+};
 document.onmouseup=()=>{st.isPan=false;wrapper.classList.remove('grabbing')};
 
-function draw(){
-if(!st.img)return;
-canvas.width=st.cw;canvas.height=st.ch;
-ctx.fillStyle='#000';ctx.fillRect(0,0,st.cw,st.ch);
-ctx.save();
-ctx.translate(st.cw/2,st.ch/2);
-ctx.translate(st.pan.x/st.zoom,st.pan.y/st.zoom);
-ctx.scale(st.zoom,st.zoom);
-
-const scale=Math.min(st.cw/st.img.width,st.ch/st.img.height);
-const w=st.img.width*scale,h=st.img.height*scale;
-
-// GRADUAL blend transition based on zoom
-const blendAmount=Math.max(0,Math.min(1,(20-st.zoom)/15));
-
-if(st.mode==='normal'||st.zoom<10){
-ctx.imageSmoothingEnabled=true;
-ctx.drawImage(st.img,-w/2,-h/2,w,h);
-}else{
-renderSub(ctx,-w/2,-h/2,w,h,blendAmount);
+// Smooth rendering loop
+function startRenderLoop(){
+  function loop(){
+    // Smooth zoom interpolation
+    const zoomDiff=st.targetZoom-st.zoom;
+    if(Math.abs(zoomDiff)>0.001){
+      st.zoom+=zoomDiff*0.15;
+    }else{
+      st.zoom=st.targetZoom;
+    }
+    
+    draw();
+    rafId=requestAnimationFrame(loop);
+  }
+  if(rafId)cancelAnimationFrame(rafId);
+  loop();
 }
 
-ctx.restore();
-document.getElementById('zoomText').textContent=Math.round(st.zoom*100)+'%';
+function draw(){
+  if(!st.img)return;
+  canvas.width=st.cw;canvas.height=st.ch;
+  ctx.fillStyle='#000';ctx.fillRect(0,0,st.cw,st.ch);
+  ctx.save();
+  ctx.translate(st.cw/2+st.pan.x,st.ch/2+st.pan.y);
+  ctx.scale(st.zoom,st.zoom);
+  
+  const scale=Math.min(st.cw/st.img.width,st.ch/st.img.height);
+  const w=st.img.width*scale,h=st.img.height*scale;
+  
+  // Blend amount based on zoom (smooth transition from 5x to 20x)
+  let blendAmount=st.blendEnabled?Math.max(0,Math.min(1,(20-st.zoom)/15)):0;
+  
+  if(st.mode==='normal'||st.zoom<10){
+    ctx.imageSmoothingEnabled=true;
+    ctx.drawImage(st.img,-w/2,-h/2,w,h);
+  }else{
+    renderSub(ctx,-w/2,-h/2,w,h,blendAmount);
+  }
+  
+  ctx.restore();
+  document.getElementById('zoomText').textContent=Math.round(st.zoom*100)+'%';
 }
 
 function renderSub(c,x,y,w,h,blend){
-const pw=w/st.img.width,ph=h/st.img.height;
-const vx=-st.pan.x/st.zoom-st.cw/2/st.zoom,vy=-st.pan.y/st.zoom-st.ch/2/st.zoom;
-const vw=st.cw/st.zoom,vh=st.ch/st.zoom;
-
-const sx=Math.max(0,Math.floor((vx-x)/pw));
-const sy=Math.max(0,Math.floor((vy-y)/ph));
-const ex=Math.min(st.img.width,Math.ceil((vx+vw-x)/pw)+1);
-const ey=Math.min(st.img.height,Math.ceil((vy+vh-y)/ph)+1);
-
-if((ex-sx)*(ey-sy)>10000)return c.drawImage(st.img,x,y,w,h);
-
-const d=offCtx.getImageData(sx,sy,ex-sx,ey-sy).data;
-
-for(let py=0;py<ey-sy;py++){
-for(let px=0;px<ex-sx;px++){
-const i=(py*(ex-sx)+px)*4;
-const r=d[i],g=d[i+1],b=d[i+2];
-const dx=x+(sx+px)*pw,dy=y+(sy+py)*ph;
-
-if(st.mode==='lcd')drawLCD(c,dx,dy,pw,ph,r,g,b,blend);
-else if(st.mode==='pentile')drawPen(c,dx,dy,pw,ph,r,g,b,blend);
-else if(st.mode==='iphone')drawiPh(c,dx,dy,pw,ph,r,g,b,sx+px,sy+py,blend);
-}
-}
+  const pw=w/st.img.width,ph=h/st.img.height;
+  
+  // Calculate visible viewport in image space
+  const vx=-st.pan.x/st.zoom-st.cw/2/st.zoom,vy=-st.pan.y/st.zoom-st.ch/2/st.zoom;
+  const vw=st.cw/st.zoom,vh=st.ch/st.zoom;
+  
+  const sx=Math.max(0,Math.floor((vx-x)/pw));
+  const sy=Math.max(0,Math.floor((vy-y)/ph));
+  const ex=Math.min(st.img.width,Math.ceil((vx+vw-x)/pw)+1);
+  const ey=Math.min(st.img.height,Math.ceil((vy+vh-y)/ph)+1);
+  
+  // Performance limit - if too many pixels, fall back to normal
+  if((ex-sx)*(ey-sy)>15000){
+    c.imageSmoothingEnabled=true;
+    return c.drawImage(st.img,x,y,w,h);
+  }
+  
+  const d=offCtx.getImageData(sx,sy,ex-sx,ey-sy).data;
+  
+  for(let py=0;py<ey-sy;py++){
+    for(let px=0;px<ex-sx;px++){
+      const i=(py*(ex-sx)+px)*4;
+      const r=d[i],g=d[i+1],b=d[i+2];
+      const dx=x+(sx+px)*pw,dy=y+(sy+py)*ph;
+      
+      if(st.mode==='lcd')drawLCD(c,dx,dy,pw,ph,r,g,b,blend);
+      else if(st.mode==='pentile')drawPen(c,dx,dy,pw,ph,r,g,b,blend);
+      else if(st.mode==='iphone')drawiPh(c,dx,dy,pw,ph,r,g,b,sx+px,sy+py,blend);
+    }
+  }
 }
 
 function drawLCD(c,x,y,w,h,r,g,b,blend){
-const sw=w/3;
-c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,h);
-c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,h);
-c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw*2,y,sw,h);
-if(blend>0){c.globalAlpha=0.4*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
+  const sw=w/3;
+  c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,h);
+  c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,h);
+  c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw*2,y,sw,h);
+  if(blend>0){c.globalAlpha=0.4*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
 
 function drawPen(c,x,y,w,h,r,g,b,blend){
-const rad=Math.min(w,h)*0.4;
-c.fillStyle=`rgb(${r},0,0)`;c.beginPath();c.arc(x+w/4,y+h/4,rad*0.8,0,Math.PI*2);c.fill();
-c.fillStyle=`rgb(0,${g},0)`;c.beginPath();c.arc(x+w/2,y+h/2,rad,0,Math.PI*2);c.fill();
-c.fillStyle=`rgb(0,0,${b})`;c.beginPath();c.arc(x+w*0.75,y+h*0.75,rad*0.8,0,Math.PI*2);c.fill();
-if(blend>0){c.globalAlpha=0.3*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
+  const rad=Math.min(w,h)*0.4;
+  c.fillStyle=`rgb(${r},0,0)`;c.beginPath();c.arc(x+w/4,y+h/4,rad*0.8,0,Math.PI*2);c.fill();
+  c.fillStyle=`rgb(0,${g},0)`;c.beginPath();c.arc(x+w/2,y+h/2,rad,0,Math.PI*2);c.fill();
+  c.fillStyle=`rgb(0,0,${b})`;c.beginPath();c.arc(x+w*0.75,y+h*0.75,rad*0.8,0,Math.PI*2);c.fill();
+  if(blend>0){c.globalAlpha=0.3*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
 
 function drawiPh(c,x,y,w,h,r,g,b,px,py,blend){
-const sw=w/2,sh=h/2;
-const pat=(px+py)%2;
-if(pat===0){
-c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,sh);
-c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw,y+sh,sw,sh);
-c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,sh);c.fillRect(x,y+sh,sw,sh);
-}else{
-c.fillStyle=`rgb(0,${g},0)`;
-c.fillRect(x,y,sw,sh);c.fillRect(x+sw,y,sw,sh);
-c.fillRect(x,y+sh,sw,sh);c.fillRect(x+sw,y+sh,sw,sh);
-}
-if(blend>0){c.globalAlpha=0.35*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
+  const sw=w/2,sh=h/2;
+  const pat=(px+py)%2;
+  if(pat===0){
+    c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,sh);
+    c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw,y+sh,sw,sh);
+    c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,sh);c.fillRect(x,y+sh,sw,sh);
+  }else{
+    c.fillStyle=`rgb(0,${g},0)`;
+    c.fillRect(x,y,sw,sh);c.fillRect(x+sw,y,sw,sh);
+    c.fillRect(x,y+sh,sw,sh);c.fillRect(x+sw,y+sh,sw,sh);
+  }
+  if(blend>0){c.globalAlpha=0.35*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
 </script>
 <script src="/ngp-consent.js"></script>
