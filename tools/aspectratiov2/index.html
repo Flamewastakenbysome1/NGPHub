@@ -6,19 +6,11 @@
 <title>Aspect Ratio Visual V2 — NGP Hub</title>
 
 <meta property="og:title" content="Aspect Ratio Visual V2 — NGP Hub" />
-<meta property="og:description" content="Visualize images at different aspect ratios with microscopic subpixel detail. See LCD and OLED displays up close." />
+<meta property="og:description" content="Visualize images with subpixel detail" />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com/tools/aspect-ratio-visual-v2" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="NGP Hub" />
-
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Aspect Ratio Visual V2 — NGP Hub" />
-<meta name="twitter:description" content="Visualize images at different aspect ratios with microscopic subpixel detail." />
-<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
-
-<meta name="description" content="Visualize images at different aspect ratios with microscopic subpixel detail. See LCD and OLED display technology up close. A tool by NGP." />
-<meta name="keywords" content="NGP, aspect ratio, pixel viewer, subpixel, LCD, OLED, display technology, microscope, image analysis" />
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -26,183 +18,124 @@
 <style>
   :root{
     --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
-    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --brandA:#6a11cb; --brandB:#2575fc;
     --ring:0 0 0 .2rem rgba(37,117,252,.35);
-    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --shadow:0 10px 30px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box}
   html,body{height:100%; overflow:hidden}
   body{
     margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
-    color:var(--ink);
-    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    color:var(--ink); font-family:'Rubik',sans-serif;
   }
 
   header{
     position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
     background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
   }
-  .wrap{max-width:1200px; margin:0 auto; padding:0 16px}
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
   .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
-  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  .logo-img{width:28px; height:28px; border-radius:10px; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0}
   nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{
-    color:var(--ink); text-decoration:none; font-weight:500;
-    padding:8px 10px; border-radius:10px; opacity:.9
-  }
-  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
+  nav a:hover{background:rgba(255,255,255,.06)}
 
   .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
   .modal.active{display:flex}
-  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
-  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-content{background:var(--card); border-radius:16px; max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1)}
   .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
   .modal-header h3{margin:0; font-size:1.2rem}
   .modal-body{padding:24px; line-height:1.6}
   .modal-body p{margin:0}
   .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
-  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
-  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+  .btn{padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; color:white; font-weight:700; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer}
 
-  .main-container{display:flex; height:calc(100vh - 53px); overflow:hidden}
-
+  .main{display:flex; height:calc(100vh - 53px)}
+  
   .sidebar{
-    width:340px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
-    overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:18px;
+    width:360px; background:var(--card); border-right:1px solid rgba(255,255,255,.06);
+    overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:20px;
   }
-
-  /* Custom scrollbar */
   .sidebar::-webkit-scrollbar{width:8px}
-  .sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.02); border-radius:4px}
-  .sidebar::-webkit-scrollbar-thumb{
-    background:rgba(255,255,255,.12); border-radius:4px; transition:background .2s;
-  }
-  .sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
-  .sidebar{scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.12) rgba(255,255,255,.02)}
+  .sidebar::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:4px}
 
-  .section{
-    background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06);
-    border-radius:12px; padding:16px;
-  }
-  .section-title{
-    font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px;
-    color:var(--muted); margin:0 0 12px 0;
-  }
+  .section{background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:18px}
+  .section-title{font-size:.85rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin:0 0 14px 0; letter-spacing:.5px}
+  .help-text{font-size:.8rem; color:var(--muted); margin:8px 0 0 0; line-height:1.5}
 
   .upload-area{
     border:2px dashed rgba(255,255,255,.2); border-radius:10px;
-    padding:28px 20px; text-align:center; cursor:pointer; transition:all .2s;
-    background:rgba(255,255,255,.02);
+    padding:32px 20px; text-align:center; cursor:pointer; background:rgba(255,255,255,.02);
   }
-  .upload-area:hover, .upload-area.drag-over{
-    border-color:var(--brandB); background:rgba(37,117,252,.05);
-  }
-  .upload-area svg{width:44px; height:44px; margin-bottom:10px; opacity:.5}
-  .upload-area p{margin:0; font-size:.88rem; color:var(--muted); line-height:1.5}
+  .upload-area:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
+  .upload-area svg{width:48px; height:48px; margin-bottom:12px; opacity:.5}
+  .upload-area p{margin:0; font-size:.9rem; color:var(--muted)}
   .upload-area input{display:none}
 
-  .input-group{margin-bottom:12px}
-  .input-group:last-child{margin-bottom:0}
-  .input-label{font-size:.82rem; color:var(--muted); margin-bottom:6px; display:block; font-weight:500}
-  .input-row{display:flex; gap:8px; align-items:center}
+  .input-row{display:flex; gap:10px; align-items:center; margin-bottom:12px}
   .input-row input{
     flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    color:var(--ink); padding:9px 12px; border-radius:8px; font-size:.88rem;
-    font-family:inherit; outline:none;
+    color:var(--ink); padding:10px 14px; border-radius:8px; font:inherit;
   }
-  .input-row input:focus{border-color:var(--brandB); box-shadow:var(--ring)}
-  .input-row span{color:var(--muted); font-weight:600; font-size:.95rem}
+  .input-row input:focus{border-color:var(--brandB); outline:none; box-shadow:var(--ring)}
+  .input-row span{color:var(--muted); font-weight:600}
 
-  .preset-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:10px}
+  .preset-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:12px}
   .preset-btn{
     background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    color:var(--ink); padding:10px 8px; border-radius:8px; cursor:pointer;
-    font-size:.82rem; font-weight:600; transition:all .2s; font-family:inherit;
+    padding:10px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink); font-weight:600; font-size:.82rem;
   }
-  .preset-btn:hover{background:rgba(255,255,255,.08); border-color:var(--brandB)}
+  .preset-btn:hover{background:rgba(255,255,255,.08)}
   .preset-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
+
+  .apply-btn{
+    width:100%; background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:none; color:white; padding:12px; border-radius:10px; font:inherit;
+    font-weight:700; cursor:pointer; margin-top:12px;
+  }
+  .apply-btn:hover{opacity:.9}
 
   .mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
   .mode-btn{
     background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    color:var(--ink); padding:12px 10px; border-radius:8px; cursor:pointer;
-    font-size:.82rem; font-weight:600; transition:all .2s; font-family:inherit; text-align:center;
+    padding:14px; border-radius:8px; cursor:pointer; font:inherit; color:var(--ink);
+    font-weight:600; font-size:.85rem; text-align:center;
   }
-  .mode-btn:hover{background:rgba(255,255,255,.08); border-color:var(--brandB)}
+  .mode-btn:hover{background:rgba(255,255,255,.08)}
   .mode-btn.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
 
-  .toggle-container{display:flex; align-items:center; justify-content:space-between; margin-top:10px}
-  .toggle-label{font-size:.88rem; color:var(--ink); font-weight:500}
-  .toggle{
-    position:relative; width:48px; height:26px; background:rgba(255,255,255,.1);
-    border-radius:13px; cursor:pointer; transition:all .2s;
-  }
-  .toggle.active{background:linear-gradient(120deg,var(--brandA),var(--brandB))}
-  .toggle-slider{
-    position:absolute; top:3px; left:3px; width:20px; height:20px;
-    background:white; border-radius:50%; transition:all .2s;
-  }
-  .toggle.active .toggle-slider{transform:translateX(22px)}
-
-  .info-row{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05);
-  }
-  .info-row:last-child{border-bottom:none}
-  .info-label{color:var(--muted); font-size:.82rem; font-weight:500}
-  .info-value{color:var(--ink); font-weight:600; font-size:.82rem; font-family:'Courier New',monospace}
-
   .canvas-container{
-    flex:1; position:relative; overflow:hidden; background:#000;
-    display:flex; align-items:center; justify-content:center;
+    flex:1; position:relative; background:#000; display:flex; align-items:center; justify-content:center;
   }
   
-  .canvas-wrapper{
-    position:relative; width:100%; height:100%; cursor:grab; overflow:hidden;
-  }
+  .canvas-wrapper{position:relative; width:100%; height:100%; cursor:grab}
   .canvas-wrapper.grabbing{cursor:grabbing}
   
-  canvas{
-    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
-  }
+  canvas{position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); transition:none}
 
-  .zoom-controls{
-    position:absolute; bottom:20px; right:20px; display:flex; flex-direction:column;
-    gap:8px; background:var(--card); padding:12px; border-radius:12px;
-    border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow);
+  .controls{
+    position:absolute; bottom:20px; right:20px; background:var(--card);
+    padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px;
   }
   .zoom-btn{
     width:44px; height:44px; background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1); border-radius:8px;
-    color:var(--ink); font-size:1.2rem; font-weight:700;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition:all .2s; font-family:inherit;
+    border:1px solid rgba(255,255,255,.1); border-radius:8px; color:var(--ink);
+    font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font:inherit; font-weight:700;
   }
-  .zoom-btn:hover{background:rgba(255,255,255,.1); border-color:var(--brandB)}
-  .zoom-btn:active{transform:scale(.95)}
-  .zoom-display{
-    text-align:center; font-size:.78rem; color:var(--muted);
-    font-weight:600; padding:4px 0; font-family:'Courier New',monospace;
-  }
+  .zoom-btn:hover{background:rgba(255,255,255,.1)}
+  .zoom-display{text-align:center; font-size:.75rem; color:var(--muted); padding:4px 0; font-family:monospace}
 
-  .empty-state{text-align:center; color:var(--muted); padding:60px 40px}
-  .empty-state svg{width:80px; height:80px; margin-bottom:20px; opacity:.3}
-  .empty-state h2{margin:0 0 8px 0; color:var(--ink); font-size:1.3rem}
-  .empty-state p{margin:0; font-size:.95rem; line-height:1.6}
+  .empty{text-align:center; color:var(--muted); padding:60px 40px}
+  .empty svg{width:80px; height:80px; margin-bottom:20px; opacity:.3}
+  .empty h2{margin:0 0 8px 0; color:var(--ink); font-size:1.3rem}
+  .empty p{margin:0; line-height:1.6}
 
-  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
-
-  @media (max-width:900px){
-    .main-container{flex-direction:column}
-    .sidebar{width:100%; max-height:45vh; border-right:none; border-bottom:1px solid rgba(255,255,255,.06)}
-    .preset-grid{grid-template-columns:repeat(3, 1fr)}
-    .mode-grid{grid-template-columns:repeat(2, 1fr)}
-  }
-
-  @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+  footer{border-top:1px solid rgba(255,255,255,.08); padding:24px 0; text-align:center; color:var(--muted)}
 </style>
 </head>
 <body>
@@ -210,10 +143,10 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="/">
-      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <img src="/assets/ngp-logo.png" alt="NGP" class="logo-img" />
       <h1>NGP</h1>
     </a>
-    <nav aria-label="Primary">
+    <nav>
       <a href="/tools">Tools</a>
       <a href="/discordservers/">Servers</a>
       <a href="/projects">Projects</a>
@@ -225,27 +158,25 @@
   </div>
 </header>
 
-<div class="main-container">
+<div class="main">
   <aside class="sidebar">
     <div class="section">
       <h3 class="section-title">📁 Load Image</h3>
-      <div class="upload-area" id="uploadArea">
+      <div class="upload-area" id="upload">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
-        <p><strong>Drop image here</strong> or click to browse</p>
-        <input type="file" id="fileInput" accept="image/*">
+        <p><strong>Drop image</strong> or click to browse</p>
+        <input type="file" id="file" accept="image/*">
       </div>
     </div>
 
     <div class="section">
       <h3 class="section-title">📐 Aspect Ratio</h3>
-      <div class="input-group">
-        <div class="input-row">
-          <input type="number" id="aspectWidth" value="16" min="1" placeholder="W">
-          <span>:</span>
-          <input type="number" id="aspectHeight" value="9" min="1" placeholder="H">
-        </div>
+      <div class="input-row">
+        <input type="number" id="aspectW" value="16" min="1">
+        <span>:</span>
+        <input type="number" id="aspectH" value="9" min="1">
       </div>
       <div class="preset-grid">
         <button class="preset-btn active" data-aspect="16:9">16:9</button>
@@ -255,556 +186,242 @@
         <button class="preset-btn" data-aspect="9:16">9:16</button>
         <button class="preset-btn" data-aspect="3:2">3:2</button>
       </div>
+      <button class="apply-btn" id="applyAspect">Apply Aspect Ratio</button>
+      <p class="help-text">💡 Changes the canvas shape to match the ratio</p>
     </div>
 
     <div class="section">
-      <h3 class="section-title">🖼️ Resolution</h3>
-      <div class="input-group">
-        <label class="input-label">Canvas Size</label>
-        <div class="input-row">
-          <input type="number" id="resWidth" value="1920" min="1" max="7680" placeholder="Width">
-          <span>×</span>
-          <input type="number" id="resHeight" value="1080" min="1" max="4320" placeholder="Height">
-        </div>
+      <h3 class="section-title">🖼️ Canvas Resolution</h3>
+      <div class="input-row">
+        <input type="number" id="resW" value="1920" min="1" max="7680">
+        <span>×</span>
+        <input type="number" id="resH" value="1080" min="1" max="4320">
       </div>
+      <button class="apply-btn" id="applyRes">Apply Resolution</button>
+      <p class="help-text">💡 Sets the canvas pixel dimensions</p>
     </div>
 
     <div class="section">
-      <h3 class="section-title">🔬 Display Mode</h3>
+      <h3 class="section-title">🔬 Subpixel Mode</h3>
       <div class="mode-grid">
         <button class="mode-btn active" data-mode="normal">Normal</button>
         <button class="mode-btn" data-mode="lcd">LCD RGB</button>
         <button class="mode-btn" data-mode="pentile">OLED G8</button>
         <button class="mode-btn" data-mode="iphone">iPhone</button>
       </div>
-      <div class="toggle-container">
-        <span class="toggle-label">Blend Subpixels</span>
-        <div class="toggle active" id="blendToggle">
-          <div class="toggle-slider"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3 class="section-title">📊 Info</h3>
-      <div class="info-row">
-        <span class="info-label">Image Size</span>
-        <span class="info-value" id="infoImageSize">—</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Canvas Size</span>
-        <span class="info-value" id="infoCanvasSize">1920×1080</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Aspect Ratio</span>
-        <span class="info-value" id="infoAspect">16:9</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Zoom Level</span>
-        <span class="info-value" id="infoZoom">100%</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Display Mode</span>
-        <span class="info-value" id="infoMode">Normal</span>
-      </div>
+      <p class="help-text">💡 Zoom in far (20x+) to see subpixels!<br>Automatically blends when zoomed out</p>
     </div>
   </aside>
 
   <main class="canvas-container">
-    <div class="empty-state" id="emptyState">
+    <div class="empty" id="empty">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
       </svg>
       <h2>No Image Loaded</h2>
-      <p>Upload an image to visualize at different resolutions.<br>Zoom in far enough and you'll see the subpixel structure!</p>
+      <p>Upload an image to get started!<br>Zoom in 20x+ to see subpixel structure</p>
     </div>
 
-    <div class="canvas-wrapper" id="canvasWrapper" style="display:none">
-      <canvas id="mainCanvas"></canvas>
+    <div class="canvas-wrapper" id="wrapper" style="display:none">
+      <canvas id="canvas"></canvas>
     </div>
 
-    <div class="zoom-controls">
-      <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
-      <div class="zoom-display" id="zoomDisplay">100%</div>
-      <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
-      <button class="zoom-btn" id="zoomReset" title="Reset">⟲</button>
+    <div class="controls">
+      <button class="zoom-btn" id="zoomIn">+</button>
+      <div class="zoom-display" id="zoomText">100%</div>
+      <button class="zoom-btn" id="zoomOut">−</button>
+      <button class="zoom-btn" id="zoomReset">⟲</button>
     </div>
   </main>
 </div>
 
 <footer>
   <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha. <a href="/tos" style="color:var(--muted); text-decoration:none; margin-left:12px">Terms of Service</a> <a href="/privacy" style="color:var(--muted); text-decoration:none; margin-left:12px">Privacy Policy</a></small>
+    <small>© <span id="year"></span> NGP — Alpha. <a href="/tos" style="color:var(--muted);text-decoration:none;margin-left:12px">Terms</a> <a href="/privacy" style="color:var(--muted);text-decoration:none;margin-left:12px">Privacy</a></small>
   </div>
 </footer>
 
 <div id="logout-modal" class="modal">
   <div class="modal-content">
-    <div class="modal-header">
-      <h3>Logout from NGP Hub?</h3>
-    </div>
-    <div class="modal-body">
-      <p>Are you sure you want to logout?</p>
-    </div>
+    <div class="modal-header"><h3>Logout?</h3></div>
+    <div class="modal-body"><p>Are you sure?</p></div>
     <div class="modal-footer">
-      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
-      <button class="btn" id="confirm-logout-btn">Logout</button>
+      <button class="btn-ghost" id="cancelLogout">Cancel</button>
+      <button class="btn" id="confirmLogout">Logout</button>
     </div>
   </div>
 </div>
 
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+<script>document.getElementById('year').textContent=new Date().getFullYear()</script>
 
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
-    authDomain: "ngp-hub.firebaseapp.com",
-    projectId: "ngp-hub",
-    storageBucket: "ngp-hub.firebasestorage.app",
-    messagingSenderId: "157947384705",
-    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const authLink = document.getElementById('auth-link');
-  const logoutModal = document.getElementById('logout-modal');
-  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
-  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authLink.textContent = user.email.split('@')[0];
-      authLink.href = '#';
-      authLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        logoutModal.classList.add('active');
-      });
-    } else {
-      authLink.textContent = 'Login';
-      authLink.href = '/login';
-    }
-  });
-
-  cancelLogoutBtn.addEventListener('click', () => {
-    logoutModal.classList.remove('active');
-  });
-
-  confirmLogoutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.reload();
-  });
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import{getAuth,onAuthStateChanged,signOut}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+const app=initializeApp({apiKey:"AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",authDomain:"ngp-hub.firebaseapp.com",projectId:"ngp-hub",storageBucket:"ngp-hub.firebasestorage.app",messagingSenderId:"157947384705",appId:"1:157947384705:web:c89e95d6d9f7436bb5ce80"});
+const auth=getAuth(app),authLink=document.getElementById('auth-link'),modal=document.getElementById('logout-modal');
+onAuthStateChanged(auth,u=>{
+if(u){authLink.textContent=u.email.split('@')[0];authLink.href='#';authLink.onclick=e=>{e.preventDefault();modal.classList.add('active')}}
+else{authLink.textContent='Login';authLink.href='/login'}
+});
+document.getElementById('cancelLogout').onclick=()=>modal.classList.remove('active');
+document.getElementById('confirmLogout').onclick=async()=>{await signOut(auth);location.reload()};
 </script>
 
 <script>
-// State with smooth zoom
-const state = {
-  image: null,
-  zoom: 1,
-  targetZoom: 1,
-  pan: { x: 0, y: 0 },
-  blend: true,
-  mode: 'normal',
-  isPanning: false,
-  lastPan: { x: 0, y: 0 },
-  canvasWidth: 1920,
-  canvasHeight: 1080,
-  renderRequested: false
+const st={img:null,zoom:1,pan:{x:0,y:0},mode:'normal',isPan:false,lastPan:{x:0,y:0},cw:1920,ch:1080};
+let off=null,offCtx=null;
+
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d',{alpha:false});
+const wrapper=document.getElementById('wrapper'),empty=document.getElementById('empty');
+const upload=document.getElementById('upload'),file=document.getElementById('file');
+
+upload.onclick=()=>file.click();
+file.onchange=e=>{if(e.target.files[0])load(e.target.files[0])};
+upload.ondragover=e=>{e.preventDefault();upload.style.borderColor='var(--brandB)'};
+upload.ondragleave=()=>upload.style.borderColor='';
+upload.ondrop=e=>{e.preventDefault();upload.style.borderColor='';if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])};
+
+function load(f){
+if(!f.type.startsWith('image/'))return alert('Upload an image');
+const r=new FileReader();
+r.onload=e=>{
+const img=new Image();
+img.onload=()=>{
+st.img=img;st.zoom=1;st.pan={x:0,y:0};
+empty.style.display='none';wrapper.style.display='block';
+off=document.createElement('canvas');off.width=img.width;off.height=img.height;
+offCtx=off.getContext('2d');offCtx.drawImage(img,0,0);
+draw();
+};
+img.src=e.target.result;
+};
+r.readAsDataURL(f);
+}
+
+document.querySelectorAll('.preset-btn').forEach(b=>b.onclick=()=>{
+document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));
+b.classList.add('active');
+const[w,h]=b.dataset.aspect.split(':');
+document.getElementById('aspectW').value=w;
+document.getElementById('aspectH').value=h;
+});
+
+document.getElementById('applyAspect').onclick=()=>{
+const w=+document.getElementById('aspectW').value||16;
+const h=+document.getElementById('aspectH').value||9;
+st.ch=Math.round(st.cw/(w/h));
+document.getElementById('resH').value=st.ch;
+draw();
 };
 
-let offscreenCanvas = null;
-let offscreenCtx = null;
-let rafId = null;
+document.getElementById('applyRes').onclick=()=>{
+st.cw=Math.min(+document.getElementById('resW').value||1920,7680);
+st.ch=Math.min(+document.getElementById('resH').value||1080,4320);
+document.getElementById('resW').value=st.cw;
+document.getElementById('resH').value=st.ch;
+draw();
+};
 
-// Elements
-const canvas = document.getElementById('mainCanvas');
-const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true, willReadFrequently: false });
-const canvasWrapper = document.getElementById('canvasWrapper');
-const emptyState = document.getElementById('emptyState');
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-
-const aspectWidth = document.getElementById('aspectWidth');
-const aspectHeight = document.getElementById('aspectHeight');
-const resWidth = document.getElementById('resWidth');
-const resHeight = document.getElementById('resHeight');
-const blendToggle = document.getElementById('blendToggle');
-const modeButtons = document.querySelectorAll('.mode-btn');
-const presetButtons = document.querySelectorAll('.preset-btn');
-
-const infoImageSize = document.getElementById('infoImageSize');
-const infoCanvasSize = document.getElementById('infoCanvasSize');
-const infoAspect = document.getElementById('infoAspect');
-const infoZoom = document.getElementById('infoZoom');
-const infoMode = document.getElementById('infoMode');
-const zoomDisplay = document.getElementById('zoomDisplay');
-
-// Upload
-uploadArea.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files[0]) loadImage(e.target.files[0]);
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{
+document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+b.classList.add('active');
+st.mode=b.dataset.mode;
+draw();
 });
 
-uploadArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadArea.classList.add('drag-over');
-});
+document.getElementById('zoomIn').onclick=()=>{st.zoom=Math.min(st.zoom*1.5,100);draw()};
+document.getElementById('zoomOut').onclick=()=>{st.zoom=Math.max(st.zoom/1.5,0.1);draw()};
+document.getElementById('zoomReset').onclick=()=>{st.zoom=1;st.pan={x:0,y:0};draw()};
 
-uploadArea.addEventListener('dragleave', () => {
-  uploadArea.classList.remove('drag-over');
-});
+wrapper.onwheel=e=>{e.preventDefault();const d=e.deltaY>0?0.92:1.08;st.zoom=Math.max(0.1,Math.min(100,st.zoom*d));draw()};
 
-uploadArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
-});
+wrapper.onmousedown=e=>{st.isPan=true;st.lastPan={x:e.clientX,y:e.clientY};wrapper.classList.add('grabbing')};
+document.onmousemove=e=>{if(st.isPan){st.pan.x+=e.clientX-st.lastPan.x;st.pan.y+=e.clientY-st.lastPan.y;st.lastPan={x:e.clientX,y:e.clientY};draw()}};
+document.onmouseup=()=>{st.isPan=false;wrapper.classList.remove('grabbing')};
 
-function loadImage(file) {
-  if (!file.type.startsWith('image/')) {
-    alert('Please upload an image file');
-    return;
-  }
+function draw(){
+if(!st.img)return;
+canvas.width=st.cw;canvas.height=st.ch;
+ctx.fillStyle='#000';ctx.fillRect(0,0,st.cw,st.ch);
+ctx.save();
+ctx.translate(st.cw/2,st.ch/2);
+ctx.translate(st.pan.x/st.zoom,st.pan.y/st.zoom);
+ctx.scale(st.zoom,st.zoom);
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      state.image = img;
-      state.zoom = 1;
-      state.targetZoom = 1;
-      state.pan = { x: 0, y: 0 };
-      
-      emptyState.style.display = 'none';
-      canvasWrapper.style.display = 'block';
-      
-      offscreenCanvas = document.createElement('canvas');
-      offscreenCanvas.width = img.width;
-      offscreenCanvas.height = img.height;
-      offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
-      offscreenCtx.drawImage(img, 0, 0);
-      
-      updateInfo();
-      startLoop();
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+const scale=Math.min(st.cw/st.img.width,st.ch/st.img.height);
+const w=st.img.width*scale,h=st.img.height*scale;
+
+// GRADUAL blend transition based on zoom
+const blendAmount=Math.max(0,Math.min(1,(20-st.zoom)/15));
+
+if(st.mode==='normal'||st.zoom<10){
+ctx.imageSmoothingEnabled=true;
+ctx.drawImage(st.img,-w/2,-h/2,w,h);
+}else{
+renderSub(ctx,-w/2,-h/2,w,h,blendAmount);
 }
 
-// Presets
-presetButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    presetButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    const [w, h] = btn.dataset.aspect.split(':').map(Number);
-    aspectWidth.value = w;
-    aspectHeight.value = h;
-    updateResolution();
-  });
-});
-
-// Modes
-modeButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    modeButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.mode = btn.dataset.mode;
-    updateInfo();
-    requestRender();
-  });
-});
-
-// Resolution
-aspectWidth.addEventListener('input', updateResolution);
-aspectHeight.addEventListener('input', updateResolution);
-resWidth.addEventListener('input', () => {
-  state.canvasWidth = Math.min(parseInt(resWidth.value) || 1920, 7680);
-  resWidth.value = state.canvasWidth;
-  updateInfo();
-  requestRender();
-});
-resHeight.addEventListener('input', () => {
-  state.canvasHeight = Math.min(parseInt(resHeight.value) || 1080, 4320);
-  resHeight.value = state.canvasHeight;
-  updateInfo();
-  requestRender();
-});
-
-function updateResolution() {
-  const w = parseInt(aspectWidth.value) || 16;
-  const h = parseInt(aspectHeight.value) || 9;
-  const ratio = w / h;
-  
-  const newHeight = Math.round(state.canvasWidth / ratio);
-  resHeight.value = newHeight;
-  state.canvasHeight = newHeight;
-  
-  updateInfo();
-  requestRender();
+ctx.restore();
+document.getElementById('zoomText').textContent=Math.round(st.zoom*100)+'%';
 }
 
-// Blend
-blendToggle.addEventListener('click', () => {
-  state.blend = !state.blend;
-  blendToggle.classList.toggle('active');
-  requestRender();
-});
+function renderSub(c,x,y,w,h,blend){
+const pw=w/st.img.width,ph=h/st.img.height;
+const vx=-st.pan.x/st.zoom-st.cw/2/st.zoom,vy=-st.pan.y/st.zoom-st.ch/2/st.zoom;
+const vw=st.cw/st.zoom,vh=st.ch/st.zoom;
 
-// Zoom with smooth easing
-document.getElementById('zoomIn').addEventListener('click', () => {
-  state.targetZoom = Math.min(state.targetZoom * 1.5, 100);
-});
+const sx=Math.max(0,Math.floor((vx-x)/pw));
+const sy=Math.max(0,Math.floor((vy-y)/ph));
+const ex=Math.min(st.img.width,Math.ceil((vx+vw-x)/pw)+1);
+const ey=Math.min(st.img.height,Math.ceil((vy+vh-y)/ph)+1);
 
-document.getElementById('zoomOut').addEventListener('click', () => {
-  state.targetZoom = Math.max(state.targetZoom / 1.5, 0.1);
-});
+if((ex-sx)*(ey-sy)>10000)return c.drawImage(st.img,x,y,w,h);
 
-document.getElementById('zoomReset').addEventListener('click', () => {
-  state.targetZoom = 1;
-  state.pan = { x: 0, y: 0 };
-});
+const d=offCtx.getImageData(sx,sy,ex-sx,ey-sy).data;
 
-canvasWrapper.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? 0.92 : 1.08;
-  state.targetZoom = Math.max(0.1, Math.min(100, state.targetZoom * delta));
-}, { passive: false });
+for(let py=0;py<ey-sy;py++){
+for(let px=0;px<ex-sx;px++){
+const i=(py*(ex-sx)+px)*4;
+const r=d[i],g=d[i+1],b=d[i+2];
+const dx=x+(sx+px)*pw,dy=y+(sy+py)*ph;
 
-// Pan
-canvasWrapper.addEventListener('mousedown', (e) => {
-  state.isPanning = true;
-  state.lastPan = { x: e.clientX, y: e.clientY };
-  canvasWrapper.classList.add('grabbing');
-});
-
-document.addEventListener('mousemove', (e) => {
-  if (state.isPanning) {
-    const dx = e.clientX - state.lastPan.x;
-    const dy = e.clientY - state.lastPan.y;
-    state.pan.x += dx;
-    state.pan.y += dy;
-    state.lastPan = { x: e.clientX, y: e.clientY };
-    requestRender();
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  state.isPanning = false;
-  canvasWrapper.classList.remove('grabbing');
-});
-
-function updateInfo() {
-  if (state.image) {
-    infoImageSize.textContent = `${state.image.width}×${state.image.height}`;
-  }
-  infoCanvasSize.textContent = `${state.canvasWidth}×${state.canvasHeight}`;
-  
-  const w = parseInt(aspectWidth.value) || 16;
-  const h = parseInt(aspectHeight.value) || 9;
-  infoAspect.textContent = `${w}:${h}`;
-  
-  const zoomPercent = Math.round(state.zoom * 100);
-  infoZoom.textContent = `${zoomPercent}%`;
-  zoomDisplay.textContent = `${zoomPercent}%`;
-  
-  const modeNames = { normal: 'Normal', lcd: 'LCD RGB', pentile: 'OLED G8', iphone: 'iPhone' };
-  infoMode.textContent = modeNames[state.mode];
+if(st.mode==='lcd')drawLCD(c,dx,dy,pw,ph,r,g,b,blend);
+else if(st.mode==='pentile')drawPen(c,dx,dy,pw,ph,r,g,b,blend);
+else if(st.mode==='iphone')drawiPh(c,dx,dy,pw,ph,r,g,b,sx+px,sy+py,blend);
+}
+}
 }
 
-function requestRender() {
-  state.renderRequested = true;
+function drawLCD(c,x,y,w,h,r,g,b,blend){
+const sw=w/3;
+c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,h);
+c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,h);
+c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw*2,y,sw,h);
+if(blend>0){c.globalAlpha=0.4*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
 
-function startLoop() {
-  function loop() {
-    // Smooth zoom
-    const diff = state.targetZoom - state.zoom;
-    if (Math.abs(diff) > 0.001) {
-      state.zoom += diff * 0.2;
-      updateInfo();
-      state.renderRequested = true;
-    }
-    
-    if (state.renderRequested) {
-      render();
-      state.renderRequested = false;
-    }
-    
-    rafId = requestAnimationFrame(loop);
-  }
-  
-  if (rafId) cancelAnimationFrame(rafId);
-  loop();
+function drawPen(c,x,y,w,h,r,g,b,blend){
+const rad=Math.min(w,h)*0.4;
+c.fillStyle=`rgb(${r},0,0)`;c.beginPath();c.arc(x+w/4,y+h/4,rad*0.8,0,Math.PI*2);c.fill();
+c.fillStyle=`rgb(0,${g},0)`;c.beginPath();c.arc(x+w/2,y+h/2,rad,0,Math.PI*2);c.fill();
+c.fillStyle=`rgb(0,0,${b})`;c.beginPath();c.arc(x+w*0.75,y+h*0.75,rad*0.8,0,Math.PI*2);c.fill();
+if(blend>0){c.globalAlpha=0.3*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
 
-function render() {
-  if (!state.image) return;
-  
-  canvas.width = state.canvasWidth;
-  canvas.height = state.canvasHeight;
-  
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.save();
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.translate(state.pan.x / state.zoom, state.pan.y / state.zoom);
-  ctx.scale(state.zoom, state.zoom);
-  
-  const scale = Math.min(canvas.width / state.image.width, canvas.height / state.image.height);
-  const w = state.image.width * scale;
-  const h = state.image.height * scale;
-  
-  if (state.mode === 'normal' || state.zoom < 8) {
-    ctx.imageSmoothingEnabled = state.blend;
-    ctx.imageSmoothingQuality = state.blend ? 'high' : 'low';
-    ctx.drawImage(state.image, -w / 2, -h / 2, w, h);
-  } else {
-    renderSubpixels(ctx, -w / 2, -h / 2, w, h);
-  }
-  
-  ctx.restore();
+function drawiPh(c,x,y,w,h,r,g,b,px,py,blend){
+const sw=w/2,sh=h/2;
+const pat=(px+py)%2;
+if(pat===0){
+c.fillStyle=`rgb(${r},0,0)`;c.fillRect(x,y,sw,sh);
+c.fillStyle=`rgb(0,0,${b})`;c.fillRect(x+sw,y+sh,sw,sh);
+c.fillStyle=`rgb(0,${g},0)`;c.fillRect(x+sw,y,sw,sh);c.fillRect(x,y+sh,sw,sh);
+}else{
+c.fillStyle=`rgb(0,${g},0)`;
+c.fillRect(x,y,sw,sh);c.fillRect(x+sw,y,sw,sh);
+c.fillRect(x,y+sh,sw,sh);c.fillRect(x+sw,y+sh,sw,sh);
 }
-
-function renderSubpixels(context, x, y, w, h) {
-  const pixelW = w / state.image.width;
-  const pixelH = h / state.image.height;
-  const pixelSize = Math.min(pixelW, pixelH) * state.zoom;
-  
-  if (pixelSize < 4) {
-    context.imageSmoothingEnabled = false;
-    context.drawImage(state.image, x, y, w, h);
-    return;
-  }
-  
-  const viewX = -state.pan.x / state.zoom - canvas.width / 2 / state.zoom;
-  const viewY = -state.pan.y / state.zoom - canvas.height / 2 / state.zoom;
-  const viewW = canvas.width / state.zoom;
-  const viewH = canvas.height / state.zoom;
-  
-  const startX = Math.max(0, Math.floor((viewX - x) / pixelW));
-  const startY = Math.max(0, Math.floor((viewY - y) / pixelH));
-  const endX = Math.min(state.image.width, Math.ceil((viewX + viewW - x) / pixelW) + 1);
-  const endY = Math.min(state.image.height, Math.ceil((viewY + viewH - y) / pixelH) + 1);
-  
-  const totalPixels = (endX - startX) * (endY - startY);
-  if (totalPixels > 15000) {
-    context.imageSmoothingEnabled = false;
-    context.drawImage(state.image, x, y, w, h);
-    return;
-  }
-  
-  const imageData = offscreenCtx.getImageData(startX, startY, endX - startX, endY - startY);
-  const data = imageData.data;
-  
-  for (let py = 0; py < endY - startY; py++) {
-    for (let px = 0; px < endX - startX; px++) {
-      const i = (py * (endX - startX) + px) * 4;
-      const r = data[i], g = data[i + 1], b = data[i + 2];
-      
-      const drawX = x + (startX + px) * pixelW;
-      const drawY = y + (startY + py) * pixelH;
-      
-      if (state.mode === 'lcd') {
-        drawLCD(context, drawX, drawY, pixelW, pixelH, r, g, b);
-      } else if (state.mode === 'pentile') {
-        drawPenTile(context, drawX, drawY, pixelW, pixelH, r, g, b);
-      } else if (state.mode === 'iphone') {
-        drawIPhone(context, drawX, drawY, pixelW, pixelH, r, g, b, startX + px, startY + py);
-      }
-    }
-  }
+if(blend>0){c.globalAlpha=0.35*blend;c.fillStyle=`rgb(${r},${g},${b})`;c.fillRect(x,y,w,h);c.globalAlpha=1}
 }
-
-function drawLCD(ctx, x, y, w, h, r, g, b) {
-  const subW = w / 3;
-  const gap = state.blend ? 0 : w * 0.02;
-  
-  ctx.fillStyle = `rgb(${r}, 0, 0)`;
-  ctx.fillRect(x + gap, y + gap, subW - gap * 2, h - gap * 2);
-  
-  ctx.fillStyle = `rgb(0, ${g}, 0)`;
-  ctx.fillRect(x + subW + gap, y + gap, subW - gap * 2, h - gap * 2);
-  
-  ctx.fillStyle = `rgb(0, 0, ${b})`;
-  ctx.fillRect(x + subW * 2 + gap, y + gap, subW - gap * 2, h - gap * 2);
-  
-  if (state.blend) {
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(x, y, w, h);
-    ctx.globalAlpha = 1;
-  }
-}
-
-function drawPenTile(ctx, x, y, w, h, r, g, b) {
-  const subW = w / 2;
-  const subH = h / 2;
-  const radius = Math.min(subW, subH) * (state.blend ? 0.45 : 0.4);
-  
-  ctx.fillStyle = `rgb(${r}, 0, 0)`;
-  ctx.beginPath();
-  ctx.arc(x + subW / 2, y + subH / 2, radius * 0.8, 0, Math.PI * 2);
-  ctx.fill();
-  
-  ctx.fillStyle = `rgb(0, ${g}, 0)`;
-  ctx.beginPath();
-  ctx.arc(x + w / 2, y + h / 2, radius, 0, Math.PI * 2);
-  ctx.fill();
-  
-  ctx.fillStyle = `rgb(0, 0, ${b})`;
-  ctx.beginPath();
-  ctx.arc(x + w - subW / 2, y + h - subH / 2, radius * 0.8, 0, Math.PI * 2);
-  ctx.fill();
-  
-  if (state.blend) {
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(x, y, w, h);
-    ctx.globalAlpha = 1;
-  }
-}
-
-function drawIPhone(ctx, x, y, w, h, r, g, b, px, py) {
-  const subW = w / 2;
-  const subH = h / 2;
-  const gap = state.blend ? 0 : w * 0.02;
-  const pattern = (px + py) % 2;
-  
-  if (pattern === 0) {
-    ctx.fillStyle = `rgb(${r}, 0, 0)`;
-    ctx.fillRect(x + gap, y + gap, subW - gap * 2, subH - gap * 2);
-    
-    ctx.fillStyle = `rgb(0, 0, ${b})`;
-    ctx.fillRect(x + subW + gap, y + subH + gap, subW - gap * 2, subH - gap * 2);
-    
-    ctx.fillStyle = `rgb(0, ${g}, 0)`;
-    ctx.fillRect(x + subW + gap, y + gap, subW - gap * 2, subH - gap * 2);
-    ctx.fillRect(x + gap, y + subH + gap, subW - gap * 2, subH - gap * 2);
-  } else {
-    ctx.fillStyle = `rgb(0, ${g}, 0)`;
-    ctx.fillRect(x + gap, y + gap, subW - gap * 2, subH - gap * 2);
-    ctx.fillRect(x + subW + gap, y + gap, subW - gap * 2, subH - gap * 2);
-    ctx.fillRect(x + gap, y + subH + gap, subW - gap * 2, subH - gap * 2);
-    ctx.fillRect(x + subW + gap, y + subH + gap, subW - gap * 2, subH - gap * 2);
-  }
-  
-  if (state.blend) {
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-    ctx.fillRect(x, y, w, h);
-    ctx.globalAlpha = 1;
-  }
-}
-
-updateInfo();
 </script>
 <script src="/ngp-consent.js"></script>
 </body>
