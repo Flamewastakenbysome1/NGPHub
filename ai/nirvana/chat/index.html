@@ -433,6 +433,10 @@
     font-size:.9rem; color:var(--brandA);
     transition:all .2s; width:fit-content;
   }
+  .thinking-indicator.done{
+    opacity:0.7;
+    cursor:default;
+  }
   .thinking-dots{
     display:flex; gap:4px;
   }
@@ -571,7 +575,6 @@
   async function checkServerStatus() {
     console.log('🔍 Checking server at:', API_URL);
     try {
-      console.log('📡 Fetching /api/health...');
       const response = await fetch(`${API_URL}/api/health`, {
         method: 'GET',
         mode: 'cors',
@@ -580,11 +583,9 @@
         }
       });
       
-      console.log('📥 Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Server data:', data);
+        console.log('✅ Server online:', data);
         statusDot.className = 'status-dot online';
         statusText.textContent = 'Server Online';
         statusDetails.textContent = 'Nirvana 1.5-thinking is ready';
@@ -614,7 +615,7 @@
     errorBanner.style.display = 'block';
   }
 
-  function addMessage(content, isUser = false, isStreaming = false) {
+  function addMessage(content, isUser = false) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${isUser ? 'user' : 'ai'}`;
     
@@ -624,12 +625,6 @@
     
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    
-    if (isStreaming) {
-      msgDiv.id = 'streamingMessage';
-      contentDiv.id = 'streamingContent';
-    }
-    
     contentDiv.innerHTML = marked.parse(content);
     
     msgDiv.appendChild(avatar);
@@ -666,23 +661,7 @@
   }
 
   function addThinkingIndicator() {
-    // Create just the thinking indicator, NO fake content bullshit
-    const thinkingDiv = document.createElement('div');
-    thinkingDiv.className = 'thinking-indicator';
-    thinkingDiv.id = 'thinkingIndicator';
-    
-    const dots = document.createElement('div');
-    dots.className = 'thinking-dots';
-    dots.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
-    
-    const text = document.createElement('span');
-    text.id = 'thinkingText';
-    text.textContent = 'Pondering About The Physics Of Token Prediction...';
-    
-    thinkingDiv.appendChild(dots);
-    thinkingDiv.appendChild(text);
-    
-    // Add message container that will hold the thinking + response
+    // Create message container
     const msgContainer = document.createElement('div');
     msgContainer.className = 'message ai';
     msgContainer.id = 'streamingMessageContainer';
@@ -693,8 +672,26 @@
     
     msgContainer.appendChild(avatar);
     
+    // Create wrapper for thinking + content
     const contentWrapper = document.createElement('div');
     contentWrapper.style.flex = '1';
+    
+    // Create thinking indicator
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'thinking-indicator';
+    thinkingDiv.id = 'thinkingIndicator';
+    
+    const dots = document.createElement('div');
+    dots.className = 'thinking-dots';
+    dots.id = 'thinkingDots';
+    dots.innerHTML = '<div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>';
+    
+    const text = document.createElement('span');
+    text.id = 'thinkingText';
+    text.textContent = 'Pondering About The Physics Of Token Prediction...';
+    
+    thinkingDiv.appendChild(dots);
+    thinkingDiv.appendChild(text);
     contentWrapper.appendChild(thinkingDiv);
     
     msgContainer.appendChild(contentWrapper);
@@ -709,29 +706,24 @@
 
   function stopThinkingIndicator(startTime) {
     const thinkingDiv = document.getElementById('thinkingIndicator');
-    const dots = thinkingDiv?.querySelector('.thinking-dots');
+    const dots = document.getElementById('thinkingDots');
     const text = document.getElementById('thinkingText');
     
-    if (thinkingDiv && dots && text) {
+    if (thinkingDiv && text) {
       // Calculate thinking time
       const thinkTime = ((Date.now() - startTime) / 1000).toFixed(1);
       
-      // Remove animated dots
-      dots.remove();
+      // COMPLETELY REMOVE the dots
+      if (dots) {
+        dots.remove();
+      }
       
-      // Update text to show thinking time
+      // Update text to ONLY show thinking time
       text.textContent = `Thought for ${thinkTime} seconds`;
       
-      // Style it to look "done"
-      thinkingDiv.style.opacity = '0.7';
-      thinkingDiv.style.cursor = 'default';
-      thinkingDiv.style.marginBottom = '8px';
+      // Mark as done
+      thinkingDiv.classList.add('done');
     }
-  }
-
-  function removeThinkingIndicator() {
-    const indicator = document.getElementById('thinkingIndicator');
-    if (indicator) indicator.remove();
   }
 
   function hideTyping() {
@@ -760,6 +752,7 @@
     if (!continueGeneration) {
       addMessage(message, true);
       userInput.value = '';
+      userInput.style.height = '48px';
       
       // Save user message to Firestore
       if (window.saveMessageToFirestore) {
@@ -791,14 +784,13 @@
       hideTyping();
 
       if (response.ok) {
-        // Handle streaming response
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = "";
         let thinkingData = null;
         let streamingContent = null;
         
-        // Show thinking indicator immediately
+        // Show thinking indicator
         thinkingData = addThinkingIndicator();
         
         while (true) {
@@ -813,12 +805,12 @@
               const data = JSON.parse(line.slice(6));
               
               if (data.chunk) {
-                // Stop thinking animation and show "Thought for X seconds"
+                // Stop thinking animation on first chunk
                 if (thinkingData && !streamingContent) {
                   stopThinkingIndicator(thinkingData.startTime);
                 }
                 
-                // Create streaming content if it doesn't exist
+                // Create content div if doesn't exist
                 if (!streamingContent) {
                   streamingContent = document.createElement('div');
                   streamingContent.className = 'message-content';
@@ -842,14 +834,10 @@
                 
                 // Remove streaming IDs
                 const streamingMsg = document.getElementById('streamingMessageContainer');
-                if (streamingMsg) {
-                  streamingMsg.id = '';
-                }
-                if (streamingContent) {
-                  streamingContent.id = '';
-                }
+                if (streamingMsg) streamingMsg.id = '';
+                if (streamingContent) streamingContent.id = '';
                 
-                // Check if hit token limit
+                // Check token limit
                 if (data.token_limit) {
                   showContinueButton();
                 }
@@ -885,7 +873,7 @@
     content.style.borderLeft = '3px solid var(--warning)';
     
     const text = document.createElement('div');
-    text.textContent = '⚠️ Nirvana has ran out of generation tokens.';
+    text.textContent = '⚠️ Nirvana ran out of generation tokens.';
     text.style.marginBottom = '10px';
     
     const btn = document.createElement('button');
