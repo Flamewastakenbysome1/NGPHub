@@ -539,7 +539,7 @@
 
 <script>
   const API_URL = 'https://downrightly-predefrayal-leah.ngrok-free.dev';
-  const API_KEY = 'ngphub_main_site'; // This is still visible but harder to abuse
+  const API_KEY = 'ngphub_main_site';
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput');
   const sendBtn = document.getElementById('sendBtn');
@@ -549,30 +549,25 @@
   const errorBanner = document.getElementById('errorBanner');
   
   let isTyping = false;
-  let autoScroll = true; // Track if we should auto-scroll
+  let autoScroll = true;
 
-  // Generate random user ID (in real version, use auth)
   const userId = 'user_' + Math.random().toString(36).substr(2, 9);
 
-  // Configure marked for Discord-style markdown
   marked.setOptions({
-    breaks: true,  // Convert \n to <br>
-    gfm: true,     // GitHub flavored markdown
+    breaks: true,
+    gfm: true,
   });
 
-  // Auto-resize textarea
   userInput.addEventListener('input', function() {
     this.style.height = '48px';
     this.style.height = Math.min(this.scrollHeight, 150) + 'px';
   });
 
-  // Detect if user is scrolling up
   chatMessages.addEventListener('scroll', () => {
     const isAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 50;
     autoScroll = isAtBottom;
   });
 
-  // Check server status on load
   async function checkServerStatus() {
     console.log('🔍 Checking server at:', API_URL);
     try {
@@ -635,7 +630,6 @@
       contentDiv.id = 'streamingContent';
     }
     
-    // Render markdown
     contentDiv.innerHTML = marked.parse(content);
     
     msgDiv.appendChild(avatar);
@@ -672,10 +666,7 @@
   }
 
   function addThinkingIndicator() {
-    // Create container for thinking stuff
-    const container = document.createElement('div');
-    container.id = 'thinkingContainer';
-    
+    // Create just the thinking indicator, NO fake content bullshit
     const thinkingDiv = document.createElement('div');
     thinkingDiv.className = 'thinking-indicator';
     thinkingDiv.id = 'thinkingIndicator';
@@ -691,24 +682,6 @@
     thinkingDiv.appendChild(dots);
     thinkingDiv.appendChild(text);
     
-    // Toggle thinking content on click
-    thinkingDiv.onclick = () => {
-      const content = document.getElementById('thinkingContent');
-      if (content) {
-        content.classList.toggle('show');
-      }
-    };
-    
-    container.appendChild(thinkingDiv);
-    
-    // Add collapsible thinking content
-    const thinkingContent = document.createElement('div');
-    thinkingContent.className = 'thinking-content';
-    thinkingContent.id = 'thinkingContent';
-    thinkingContent.textContent = 'Processing your request through neural pathways... Analyzing context, formulating response structure, considering multiple perspectives...';
-    
-    container.appendChild(thinkingContent);
-    
     // Add message container that will hold the thinking + response
     const msgContainer = document.createElement('div');
     msgContainer.className = 'message ai';
@@ -722,7 +695,7 @@
     
     const contentWrapper = document.createElement('div');
     contentWrapper.style.flex = '1';
-    contentWrapper.appendChild(container);
+    contentWrapper.appendChild(thinkingDiv);
     
     msgContainer.appendChild(contentWrapper);
     chatMessages.appendChild(msgContainer);
@@ -746,18 +719,19 @@
       // Remove animated dots
       dots.remove();
       
-      // Update text
+      // Update text to show thinking time
       text.textContent = `Thought for ${thinkTime} seconds`;
       
-      // Remove animation and change style to indicate it's done
+      // Style it to look "done"
       thinkingDiv.style.opacity = '0.7';
       thinkingDiv.style.cursor = 'default';
+      thinkingDiv.style.marginBottom = '8px';
     }
   }
 
   function removeThinkingIndicator() {
-    const container = document.getElementById('thinkingContainer');
-    if (container) container.remove();
+    const indicator = document.getElementById('thinkingIndicator');
+    if (indicator) indicator.remove();
   }
 
   function hideTyping() {
@@ -929,18 +903,14 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // Event listeners
   sendBtn.addEventListener('click', () => sendMessage());
   userInput.addEventListener('keydown', (e) => {
-    // Enter without shift = send message
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-    // Shift+Enter = new line (default behavior, do nothing)
   });
 
-  // Check status every 30 seconds
   checkServerStatus();
   setInterval(checkServerStatus, 30000);
 </script>
