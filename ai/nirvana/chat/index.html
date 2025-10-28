@@ -430,11 +430,8 @@
     background:rgba(106,17,203,.1); border:1px solid rgba(106,17,203,.3);
     border-radius:10px; padding:10px 14px; margin-bottom:12px;
     display:flex; align-items:center; gap:10px;
-    font-size:.9rem; color:var(--brandA); cursor:pointer;
+    font-size:.9rem; color:var(--brandA);
     transition:all .2s; width:fit-content;
-  }
-  .thinking-indicator:hover{
-    background:rgba(106,17,203,.2);
   }
   .thinking-dots{
     display:flex; gap:4px;
@@ -449,13 +446,6 @@
     0%,60%,100%{opacity:.3; transform:scale(1)}
     30%{opacity:1; transform:scale(1.2)}
   }
-  .thinking-content{
-    background:rgba(106,17,203,.05); border-left:3px solid var(--brandA);
-    padding:10px 12px; margin-bottom:12px; border-radius:8px;
-    font-size:.85rem; font-style:italic; opacity:.9;
-    display:none;
-  }
-  .thinking-content.show{display:block}
 
   .error-banner{
     background:var(--error); color:white; padding:12px 20px;
