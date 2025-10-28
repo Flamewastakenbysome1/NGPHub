@@ -661,6 +661,12 @@
   }
 
   function addThinkingIndicator() {
+    // FIRST: Remove any old thinking indicators that might still be hanging around
+    const oldThinking = document.getElementById('thinkingIndicator');
+    const oldContainer = document.getElementById('streamingMessageContainer');
+    if (oldThinking) oldThinking.id = ''; // Remove ID so it doesn't interfere
+    if (oldContainer) oldContainer.id = ''; // Remove ID so it doesn't interfere
+    
     // Create message container
     const msgContainer = document.createElement('div');
     msgContainer.className = 'message ai';
