@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nirvana 1-Turbo Test — NGP Hub</title>
+<title>Nirvana 1.5-thinking — NGP Hub</title>
 
 <!-- Open Graph -->
-<meta property="og:title" content="Nirvana 1-Turbo — NGP AI" />
-<meta property="og:description" content="Chat with Nirvana, NGP's AI assistant powered by local models." />
+<meta property="og:title" content="Nirvana 1.5-thinking — NGP AI" />
+<meta property="og:description" content="Chat with Nirvana 1.5-thinking, NGP's advanced AI with enhanced reasoning." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com/ai/nirvana1-turbo-test/" />
 
@@ -190,6 +190,19 @@
     }, { merge: true });
     
     loadChatList();
+  };
+
+  // Load current chat data
+  window.loadCurrentChat = async function() {
+    if (!window.currentUser || !window.currentChatId) return null;
+    
+    const chatRef = doc(db, 'users', window.currentUser.uid, 'chats', window.currentChatId);
+    const chatDoc = await getDoc(chatRef);
+    
+    if (chatDoc.exists()) {
+      return chatDoc.data();
+    }
+    return null;
   };
 </script>
 
@@ -767,6 +780,18 @@
     
     if (!continueGeneration && (!message || isTyping)) return;
     
+    // Get chat history from Firestore
+    let chatHistory = [];
+    if (window.currentUser && window.currentChatId) {
+      const chatData = await window.loadCurrentChat();
+      if (chatData && chatData.messages) {
+        chatHistory = chatData.messages.map(m => ({
+          role: m.role,
+          content: m.content
+        }));
+      }
+    }
+    
     // Only add user message if not continuing
     if (!continueGeneration) {
       addMessage(message, true);
@@ -794,7 +819,8 @@
         body: JSON.stringify({
           message: continueGeneration ? "" : message,
           user_id: userId,
-          continue: continueGeneration
+          continue: continueGeneration,
+          history: chatHistory
         })
       });
 
