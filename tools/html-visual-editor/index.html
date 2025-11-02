@@ -1,158 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Mini HTML UI Builder v0.34 (Offline, buggy)</title>
-<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Mini HTML UI Builder v0.34</title>
+
+<meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
+<meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Hub, Convenience. Community. Creation." />
+<meta name="twitter:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
+<meta name="keywords" content="NGP, games, tools, Roblox, Discord, community, development, Yoadverse, HTML builder" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
 <style>
-  :root{--bg:#0f1115;--panel:#151923;--ink:#e7ecf3;--mut:#9aa4b2;--acc:#4da3ff;--line:#232838}
-  *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui,Segoe UI,Roboto,Arial}
-  .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
-  .top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
-  .group{display:flex;gap:6px;flex-wrap:wrap;background:#0f1320;border:1px solid var(--line);border-radius:10px;padding:6px}
-  button,label.btn,select{background:#1b2130;color:var(--ink);border:1px solid var(--line);padding:8px 10px;border-radius:8px;cursor:pointer}
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0; flex-wrap:wrap; gap:8px}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .app{display:grid; grid-template-rows:auto 1fr auto; height:100vh; padding-top:60px}
+  
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:8px; padding:10px 0; align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.06); background:var(--card);
+  }
+  .group{display:flex; gap:6px; flex-wrap:wrap; background:rgba(11,11,17,.5); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:6px}
+  
+  button, label.btn, select{
+    background:rgba(255,255,255,.05); color:var(--ink); 
+    border:1px solid rgba(255,255,255,.1); padding:8px 10px; 
+    border-radius:8px; cursor:pointer; font-family:'Rubik',sans-serif;
+    font-size:14px; font-weight:500;
+  }
   select{cursor:default}
-  button:hover,label.btn:hover,select:hover{outline:1px solid var(--acc)}
+  button:hover, label.btn:hover, select:hover{background:rgba(255,255,255,.08); box-shadow:var(--ring)}
   button:active{transform:translateY(1px)}
-  .split{display:grid;grid-template-columns:340px 1fr;min-height:0}
-  .side{border-right:1px solid var(--line);background:#0f1320;min-width:0;overflow:auto}
-  .side h3{margin:14px 12px 6px;color:var(--mut);font-weight:600}
-  textarea,input[type="text"],input[type="url"]{width:100%;background:#0c101b;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+  
+  .btn-primary{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; color:white; font-weight:700}
+  .btn-danger{background:#991b1b; border-color:#dc2626; color:white}
+  .btn-danger:hover{background:#b91c1c; box-shadow:0 0 0 .2rem rgba(220,38,38,.35)}
+
+  .split{display:grid; grid-template-columns:340px 1fr; min-height:0; height:100%}
+  .side{border-right:1px solid rgba(255,255,255,.06); background:rgba(11,11,17,.3); min-width:0; overflow:auto; padding:12px}
+  .side h3{margin:14px 0 8px; color:var(--muted); font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:.5px}
+  
+  textarea, input[type="text"], input[type="url"]{
+    width:100%; background:rgba(11,11,17,.8); color:var(--ink); 
+    border:1px solid rgba(255,255,255,.1); border-radius:8px; 
+    padding:10px; resize:vertical; font-family:'Rubik',sans-serif;
+  }
   textarea{min-height:110px}
-  .side .box{padding:10px}
-  .status{padding:8px 12px;border-top:1px solid var(--line);color:var(--mut);background:var(--panel);display:flex;justify-content:space-between;gap:8px}
-  .kbd{border:1px solid var(--line);padding:2px 6px;border-radius:6px;background:#0f1320;color:var(--mut)}
-  .pill{padding:3px 8px;background:#10243a;border:1px solid var(--line);border-radius:999px}
-  .blockbtns button{width:100%;text-align:left}
-  .filehide{display:none}
-  .canvasWrap{display:flex;justify-content:center;align-items:stretch;padding:10px}
-  .frameBox{background:#0b0e14;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #000 inset}
-  iframe#canvas{width:100%;height:calc(100vh - 150px);border:0;background:#fff}
-  .row{display:flex;gap:6px}
+  textarea:focus, input:focus{outline:none; box-shadow:var(--ring); border-color:var(--brandB)}
+  
+  .box{margin-bottom:16px}
+  .label{font-size:12px; color:var(--muted); margin-bottom:6px; display:block}
+  .row{display:flex; gap:6px; margin-top:8px}
   .two .col{flex:1}
-  .label{font-size:12px;color:var(--mut);margin-bottom:6px}
-  .hl{outline:2px dashed #3aa3ff66;outline-offset:4px;border-radius:6px}
+  
+  .blockbtns button{width:100%; text-align:left; margin-bottom:4px}
+  .filehide{display:none}
+  
+  .canvasWrap{display:flex; justify-content:center; align-items:stretch; padding:16px; background:rgba(0,0,0,.2)}
+  .frameBox{
+    background:rgba(11,11,17,.5); border:1px solid rgba(255,255,255,.1); 
+    border-radius:12px; overflow:hidden; 
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+  }
+  iframe#canvas{width:100%; height:calc(100vh - 200px); border:0; background:#fff; display:block}
+  
+  .status{
+    padding:12px 16px; border-top:1px solid rgba(255,255,255,.06); 
+    color:var(--muted); background:var(--card); 
+    display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
+    font-size:13px;
+  }
+  .kbd{
+    border:1px solid rgba(255,255,255,.1); padding:2px 8px; 
+    border-radius:6px; background:rgba(11,11,17,.5); color:var(--muted);
+  }
+  .pill{
+    padding:4px 10px; background:rgba(16,36,58,.8); 
+    border:1px solid rgba(255,255,255,.1); border-radius:999px;
+  }
+  
+  .save-indicator{
+    padding:4px 12px; background:rgba(16,36,58,.8); 
+    border:1px solid rgba(255,255,255,.1); border-radius:8px; 
+    font-size:12px; color:var(--muted);
+  }
+  .save-indicator.saved{color:#4ade80; border-color:rgba(34,197,94,.3)}
+  .save-indicator.saving{color:#fbbf24; border-color:rgba(245,158,11,.3)}
+  
+  .hl{outline:2px dashed rgba(58,102,255,.5); outline-offset:4px; border-radius:6px}
+  
+  .modal{
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; 
+    align-items:center; justify-content:center;
+  }
+  .modal.active{display:flex}
+  .modal-content{
+    background:var(--card); border-radius:var(--radius); max-width:450px; 
+    width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); 
+    border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out;
+  }
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0 0 12px}
+  .modal-footer{
+    padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); 
+    display:flex; gap:12px; justify-content:flex-end;
+  }
+  .btn-modal{
+    display:inline-block; text-decoration:none; color:white; 
+    font-weight:700; letter-spacing:.2px; padding:10px 14px; 
+    border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); 
+    border:none; cursor:pointer; font-size:.95rem;
+  }
+  .btn-ghost{
+    background:rgba(255,255,255,.05); color:var(--ink); 
+    border:1px solid rgba(255,255,255,.1); padding:10px 20px; 
+    border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem;
+  }
+
+  footer{
+    border-top:1px solid rgba(255,255,255,.08); color:var(--muted); 
+    padding:24px 0 36px; text-align:center;
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+  
+  @media (max-width: 768px){
+    .split{grid-template-columns:1fr; grid-template-rows:auto 1fr}
+    .side{border-right:none; border-bottom:1px solid rgba(255,255,255,.06)}
+  }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div class="group">
-      <label class="btn" title="Open .html file">
-        Open HTML <input id="openFile" class="filehide" type="file" accept=".html,.htm,.xhtml,.txt" />
-      </label>
-      <button id="newBtn" title="Start from scratch (choose a template)">New…</button>
-      <select id="tplPick" title="Quick template">
-        <option value="">Templates…</option>
-        <option value="blank">Blank</option>
-        <option value="minimal">Minimal (with base CSS)</option>
-        <option value="landing">Landing Page</option>
-        <option value="docs">Docs / Article</option>
-      </select>
-      <button onclick="downloadHTML()" title="Download the edited HTML (Ctrl+S)">Export</button>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="app">
+    <div class="toolbar">
+      <div class="wrap" style="display:flex; flex-wrap:wrap; gap:8px; width:100%">
+        <div class="group">
+          <label class="btn" title="Open .html file">
+            Open <input id="openFile" class="filehide" type="file" accept=".html,.htm,.xhtml,.txt" />
+          </label>
+          <button id="newBtn" title="Start from scratch">New…</button>
+          <select id="tplPick" title="Quick template">
+            <option value="">Templates…</option>
+            <option value="blank">Blank</option>
+            <option value="minimal">Minimal</option>
+            <option value="ngp">NGP CoreFrame</option>
+            <option value="landing">Landing</option>
+            <option value="docs">Docs</option>
+          </select>
+          <button onclick="downloadHTML()" class="btn-primary" title="Download (Ctrl+S)">Export</button>
+        </div>
+
+        <div class="group">
+          <button onclick="toggleEdit()" id="toggleEdit" title="Ctrl+E">Enable Edit</button>
+          <button onclick="cmd('bold')" title="Ctrl+B"><b>B</b></button>
+          <button onclick="cmd('italic')" title="Ctrl+I"><i>I</i></button>
+          <button onclick="cmd('underline')" title="Ctrl+U"><u>U</u></button>
+          <button onclick="cmd('formatBlock','H1')">H1</button>
+          <button onclick="cmd('formatBlock','H2')">H2</button>
+          <button onclick="cmd('insertUnorderedList')">•</button>
+          <button onclick="cmd('insertOrderedList')">1.</button>
+          <button onclick="makeLink()">Link</button>
+          <label class="btn" title="Insert image">
+            Img <input id="imgFile" class="filehide" type="file" accept="image/*" />
+          </label>
+          <button onclick="insertImage()">Img URL</button>
+          <button onclick="cmd('removeFormat')">Clear</button>
+        </div>
+
+        <div class="group">
+          <span class="pill">Preview:</span>
+          <button onclick="setDevice(375)">Mobile</button>
+          <button onclick="setDevice(768)">Tablet</button>
+          <button onclick="setDevice(1024)">Laptop</button>
+          <button onclick="setDevice(1440)">Desktop</button>
+          <button onclick="setDevice('auto')">Auto</button>
+        </div>
+
+        <div class="group">
+          <button onclick="undo()">Undo</button>
+          <button onclick="redo()">Redo</button>
+          <button onclick="toggleCode()">Code</button>
+          <button onclick="clearSaved()" class="btn-danger" title="Clear auto-save">Clear</button>
+        </div>
+
+        <div class="save-indicator" id="saveIndicator">Ready</div>
+      </div>
     </div>
 
-    <div class="group">
-      <button onclick="toggleEdit()" id="toggleEdit" title="Enable/Disable visual editing (Ctrl+E)">Enable Edit</button>
-      <button onclick="cmd('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
-      <button onclick="cmd('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
-      <button onclick="cmd('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
-      <button onclick="cmd('formatBlock','H1')" title="Heading 1">H1</button>
-      <button onclick="cmd('formatBlock','H2')" title="Heading 2">H2</button>
-      <button onclick="cmd('insertUnorderedList')" title="Bullet list">•</button>
-      <button onclick="cmd('insertOrderedList')" title="Numbered list">1.</button>
-      <button onclick="makeLink()" title="Insert/Edit link">Link</button>
-      <label class="btn" title="Insert image from your computer">
-        Img Upload <input id="imgFile" class="filehide" type="file" accept="image/*" />
-      </label>
-      <button onclick="insertImage()" title="Insert image by URL">Img URL</button>
-      <button onclick="cmd('removeFormat')" title="Clear formatting">Clear</button>
+    <div class="split">
+      <div class="side">
+        <h3>Paste HTML</h3>
+        <div class="box">
+          <textarea id="pasteHtml" placeholder="Paste HTML here…"></textarea>
+          <button onclick="applyPasted()" style="width:100%; margin-top:8px">Load →</button>
+        </div>
+
+        <h3>Insert Blocks</h3>
+        <div class="box blockbtns">
+          <button onclick="insertBlock(blocks.hero)">Hero section</button>
+          <button onclick="insertBlock(blocks.cardGrid)">3-Card grid</button>
+          <button onclick="insertBlock(blocks.cta)">CTA section</button>
+          <button onclick="insertBlock(blocks.nav)">Navbar</button>
+          <button onclick="insertBlock(blocks.footer)">Footer</button>
+          <div style="height:8px"></div>
+          <button onclick="wrapSelection('<div class=&quot;wrap&quot;>','</div>')">Wrap .wrap</button>
+          <button onclick="wrapSelection('<section>','</section>')">Wrap &lt;section&gt;</button>
+        </div>
+
+        <h3>Element Inspector</h3>
+        <div class="box">
+          <span class="label">Selected element</span>
+          <input id="selTag" type="text" placeholder="tag (readonly)" readonly>
+          <div class="two row">
+            <div class="col"><input id="selId" type="text" placeholder="id"></div>
+            <div class="col"><input id="selClass" type="text" placeholder="class"></div>
+          </div>
+          <div class="two row">
+            <div class="col"><input id="selHref" type="url" placeholder="href/src"></div>
+            <div class="col"><input id="selText" type="text" placeholder="text"></div>
+          </div>
+          <div class="row">
+            <button onclick="applyInspector()">Apply</button>
+            <button onclick="duplicateEl()">Duplicate</button>
+            <button onclick="deleteEl()">Delete</button>
+          </div>
+          <span class="label" style="margin-top:10px">Tip: Click elements in Edit mode</span>
+        </div>
+
+        <h3>Extra CSS</h3>
+        <div class="box">
+          <textarea id="extraCss" placeholder="/* CSS injected to <head> */"></textarea>
+          <button onclick="injectExtraCSS()" style="width:100%; margin-top:8px">Inject CSS</button>
+        </div>
+      </div>
+
+      <div class="canvasWrap">
+        <div class="frameBox" id="frameBox" style="width:100%; max-width:100%">
+          <iframe id="canvas" title="Design Canvas"></iframe>
+        </div>
+      </div>
     </div>
 
-    <div class="group">
-      <span class="pill">Preview:</span>
-      <button onclick="setDevice(375)">Mobile</button>
-      <button onclick="setDevice(768)">Tablet</button>
-      <button onclick="setDevice(1024)">Laptop</button>
-      <button onclick="setDevice(1440)">Desktop</button>
-      <button onclick="setDevice('auto')" title="Full width">Auto</button>
-    </div>
-
-    <div class="group">
-      <button onclick="undo()">Undo</button>
-      <button onclick="redo()">Redo</button>
-      <button onclick="toggleCode()" id="codeBtn" title="View/Edit full HTML source">Code View</button>
+    <div class="status">
+      <div>Mode: <span id="mode" class="kbd">View</span> · <span class="kbd">Ctrl+S</span> export · <span class="kbd">Ctrl+E</span> edit</div>
+      <div id="statusMsg"></div>
     </div>
   </div>
+</main>
 
-  <div class="split">
-    <div class="side">
-      <h3>Paste HTML</h3>
-      <div class="box">
-        <textarea id="pasteHtml" placeholder="Paste your HTML here…"></textarea>
-        <div style="height:8px"></div>
-        <button onclick="applyPasted()">Load Pasted →</button>
-      </div>
-
-      <h3>Insert Blocks</h3>
-      <div class="box blockbtns">
-        <button onclick="insertBlock(blocks.hero)">Hero section</button>
-        <button onclick="insertBlock(blocks.cardGrid)">3-Card grid</button>
-        <button onclick="insertBlock(blocks.cta)">CTA section</button>
-        <button onclick="insertBlock(blocks.nav)">Simple navbar</button>
-        <button onclick="insertBlock(blocks.footer)">Footer</button>
-        <div style="height:8px"></div>
-        <button onclick="wrapSelection('<div class=&quot;container&quot;>','</div>')">Wrap in .container</button>
-        <button onclick="wrapSelection('<section class=&quot;section&quot;>','</section>')">Wrap in &lt;section&gt;</button>
-      </div>
-
-      <h3>Element Inspector</h3>
-      <div class="box">
-        <div class="label">Selected element</div>
-        <input id="selTag" type="text" placeholder="tag (readonly)" readonly>
-        <div class="two row" style="margin-top:8px">
-          <div class="col"><input id="selId" type="text" placeholder="id"></div>
-          <div class="col"><input id="selClass" type="text" placeholder="class"></div>
-        </div>
-        <div class="two row" style="margin-top:8px">
-          <div class="col"><input id="selHref" type="url" placeholder="href/src (for links/images)"></div>
-          <div class="col"><input id="selText" type="text" placeholder="textContent"></div>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <button onclick="applyInspector()">Apply</button>
-          <button onclick="duplicateEl()">Duplicate</button>
-          <button onclick="deleteEl()">Delete</button>
-        </div>
-        <div class="label" style="margin-top:10px">Tip: in Edit mode, click any element in the canvas to select it.</div>
-      </div>
-
-      <h3>Extra CSS (optional)</h3>
-      <div class="box">
-        <textarea id="extraCss" placeholder="/* CSS added to <head> */"></textarea>
-        <div style="height:8px"></div>
-        <button onclick="injectExtraCSS()">Inject CSS</button>
-      </div>
-    </div>
-
-    <div class="canvasWrap">
-      <div class="frameBox" id="frameBox" style="width:100%;max-width:100%">
-        <iframe id="canvas" title="Design Canvas"></iframe>
-      </div>
-    </div>
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha. Mini HTML UI Builder v0.34</small>
   </div>
+</footer>
 
-  <div class="status">
-    <div>Mode: <span id="mode" class="kbd">View</span> · <span class="kbd">Ctrl+S</span> export · <span class="kbd">Ctrl+E</span> toggle edit</div>
-    <div id="statusMsg"></div>
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn-modal" id="confirm-logout-btn">Logout</button>
+    </div>
   </div>
 </div>
 
-<!-- Full-source overlay -->
-<textarea id="codeOverlay" style="display:none;position:fixed;inset:10px;border:1px solid #333;border-radius:12px;background:#0b0e14;color:#e7ecf3;padding:14px;z-index:99;"></textarea>
+<!-- Code overlay -->
+<textarea id="codeOverlay" style="display:none; position:fixed; inset:10px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:rgba(11,11,17,.95); color:var(--ink); padding:14px; z-index:99; font-family:monospace;"></textarea>
 
 <script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  
   const frame = document.getElementById('canvas');
   const fb = document.getElementById('frameBox');
   const openFile = document.getElementById('openFile');
@@ -162,6 +350,10 @@
   const codeOverlay = document.getElementById('codeOverlay');
   const tplPick = document.getElementById('tplPick');
   const imgFile = document.getElementById('imgFile');
+  const saveIndicator = document.getElementById('saveIndicator');
+
+  const STORAGE_KEY = 'ngp_miniHtmlBuilder_autoSave';
+  const LAST_SAVE_KEY = 'ngp_miniHtmlBuilder_lastSave';
 
   // History
   const hist = {stack:[], idx:-1, lock:false};
@@ -171,7 +363,7 @@
     if(hist.stack[hist.idx] === html) return;
     hist.stack = hist.stack.slice(0, hist.idx+1);
     hist.stack.push(html); hist.idx++;
-    setStatus(`Saved state (${hist.idx+1})`);
+    setStatus(`State saved (${hist.idx+1})`);
   };
   const undo = () => {
     if(hist.idx<=0) return;
@@ -185,18 +377,93 @@
   };
   window.undo = undo; window.redo = redo;
 
-  // Boot docs
-  const BLANK_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled</title></head><body style="font-family:system-ui,Segoe UI,Roboto,Arial;margin:0"><main class="container section"><h1>Blank Page</h1><p>Add content.</p></main></body></html>`;
-  const MINIMAL_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minimal</title></head><body><main class="container section"><h1>Minimal Starter</h1><p>Edit me.</p></main></body></html>`;
-  const LANDING_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Landing</title></head><body></body></html>`;
-  const DOCS_DOC = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docs</title></head><body><article class="container section"><h1>Page Title</h1><p>Intro paragraph.</p><h2>Section</h2><p>Some text…</p></article></body></html>`;
+  // Auto-save
+  let autoSaveTimer = null;
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    setSaveIndicator('saving');
+    autoSaveTimer = setTimeout(() => {
+      try {
+        const html = getDoc().documentElement.outerHTML;
+        localStorage.setItem(STORAGE_KEY, html);
+        localStorage.setItem(LAST_SAVE_KEY, new Date().toISOString());
+        setSaveIndicator('saved');
+      } catch(e) {
+        console.error('Auto-save failed:', e);
+        setSaveIndicator('error');
+      }
+    }, 3000);
+  }
 
-  frame.srcdoc = BLANK_DOC;
+  function setSaveIndicator(state) {
+    saveIndicator.classList.remove('saved', 'saving');
+    if(state === 'saved') {
+      const lastSave = localStorage.getItem(LAST_SAVE_KEY);
+      if(lastSave) {
+        const date = new Date(lastSave);
+        const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        saveIndicator.textContent = `Saved ${timeStr}`;
+      } else {
+        saveIndicator.textContent = 'Saved';
+      }
+      saveIndicator.classList.add('saved');
+    } else if(state === 'saving') {
+      saveIndicator.textContent = 'Saving...';
+      saveIndicator.classList.add('saving');
+    } else if(state === 'error') {
+      saveIndicator.textContent = 'Save failed';
+    } else {
+      saveIndicator.textContent = 'Ready';
+    }
+  }
+
+  function loadAutoSaved() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved) {
+      const lastSave = localStorage.getItem(LAST_SAVE_KEY);
+      if(lastSave) {
+        const date = new Date(lastSave);
+        const timeStr = date.toLocaleString();
+        if(confirm(`Restore auto-saved work from ${timeStr}?`)) {
+          loadHtml(saved);
+          setStatus('Restored auto-save');
+          setSaveIndicator('saved');
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function clearSaved() {
+    if(confirm('Clear auto-saved work? Cannot be undone.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(LAST_SAVE_KEY);
+      setStatus('Auto-save cleared');
+      setSaveIndicator('ready');
+    }
+  }
+  window.clearSaved = clearSaved;
+
+  // Templates
+  const BLANK_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled</title></head><body style="font-family:system-ui;margin:0"><main><h1>Blank Page</h1><p>Add content.</p></main></body></html>';
+  
+  const MINIMAL_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minimal</title></head><body><main><h1>Minimal Starter</h1><p>Edit me.</p></main></body></html>';
+  
+  const LANDING_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Landing</title></head><body></body></html>';
+  
+  const DOCS_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docs</title></head><body><article><h1>Page Title</h1><p>Intro paragraph.</p><h2>Section</h2><p>Some text…</p></article></body></html>';
+  
+  const NGP_COREFRAME = '<!DOCTYPE html>\\n<html lang="en">\\n<head>\\n<meta charset="utf-8" />\\n<meta name="viewport" content="width=device-width, initial-scale=1" />\\n<title>NGP Hub — Your Page</title>\\n\\n<meta property="og:title" content="NGP Hub" />\\n<meta property="og:description" content="NGP builds useful, original stuff." />\\n<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />\\n<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />\\n<link rel="icon" href="/assets/ngp-logo.png" type="image/png">\\n\\n<style>\\n  :root{--bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3; --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff; --radius:16px;}\\n  *{box-sizing:border-box}\\n  html,body{height:100%}\\n  body{margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14); color:var(--ink); font-family:\\'Rubik\\',sans-serif;}\\n  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}\\n  header{position:sticky; top:0; z-index:50; backdrop-filter:blur(10px); background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);}\\n  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}\\n  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}\\n  .logo h1{font-size:1.05rem; margin:0}\\n  nav{display:flex; gap:6px}\\n  nav a{color:var(--ink); text-decoration:none; padding:8px 10px; border-radius:10px}\\n  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0; text-align:center}\\n</style>\\n</head>\\n<body>\\n\\n<header>\\n  <div class="wrap bar">\\n    <a class="logo" href="/">\\n      <h1>NGP</h1>\\n    </a>\\n    <nav>\\n      <a href="/tools">Tools</a>\\n      <a href="/projects">Projects</a>\\n      <a href="/contact">Contact</a>\\n    </nav>\\n  </div>\\n</header>\\n\\n<main>\\n  <div class="wrap" style="padding:48px 16px">\\n    <h1>Your Page Title</h1>\\n    <p>Start editing this NGP CoreFrame!</p>\\n  </div>\\n</main>\\n\\n<footer>\\n  <div class="wrap">\\n    <small>© 2025 NGP</small>\\n  </div>\\n</footer>\\n\\n</body>\\n</html>';
+
+  // Try load auto-save
+  if(!loadAutoSaved()) {
+    frame.srcdoc = BLANK_DOC;
+  }
 
   function getDoc(){ return frame.contentDocument || frame.contentWindow.document; }
 
   function afterLoadSetup(){
-    // prevent accidental nav while editing
     getDoc().body.addEventListener('click', ev=>{
       if(getDoc().body.isContentEditable && ev.target.closest('a')) ev.preventDefault();
       if(getDoc().body.isContentEditable){
@@ -204,25 +471,24 @@
       }
     }, true);
 
-    // observe changes → history
-    const mo = new MutationObserver(()=>debouncedPush());
+    const mo = new MutationObserver(()=>{
+      debouncedPush();
+      scheduleAutoSave();
+    });
     mo.observe(getDoc(), {subtree:true, childList:true, attributes:true, characterData:true});
   }
 
   frame.addEventListener('load', ()=>{ afterLoadSetup(); setEdit(false); injectBaseCSS(true); pushHistory(); });
 
-  // Debounce
   let t=null; function debouncedPush(){ clearTimeout(t); t=setTimeout(pushHistory, 400); }
 
-  // File open
   openFile.addEventListener('change', async (e)=>{
     const f = e.target.files[0]; if(!f) return;
     const text = await f.text(); loadHtml(text); openFile.value="";
   });
 
-  // New / templates
   document.getElementById('newBtn').onclick = async ()=>{
-    const choice = prompt("New page:\n- blank\n- minimal\n- landing\n- docs\n\nType one:");
+    const choice = prompt("New page:\\n- blank\\n- minimal\\n- ngp\\n- landing\\n- docs");
     if(!choice) return;
     applyTemplate(choice.toLowerCase());
   };
@@ -231,18 +497,17 @@
   function applyTemplate(name){
     if(name==='blank') return loadHtml(BLANK_DOC);
     if(name==='minimal'){ loadHtml(MINIMAL_DOC); injectBaseCSS(); return; }
+    if(name==='ngp'){ loadHtml(NGP_COREFRAME); return; }
     if(name==='landing'){ loadHtml(BLANK_DOC); injectBaseCSS(); insertBlock(blocks.nav); insertBlock(blocks.hero); insertBlock(blocks.cardGrid); insertBlock(blocks.cta); insertBlock(blocks.footer); return; }
     if(name==='docs'){ loadHtml(DOCS_DOC); injectBaseCSS(); return; }
     loadHtml(BLANK_DOC);
   }
 
-  // Load HTML string
   function loadHtml(html){
-    const hasHtmlTag = /<\s*html[\s>]/i.test(html);
+    const hasHtmlTag = /<\\s*html[\\s>]/i.test(html);
     frame.srcdoc = hasHtmlTag ? html : `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Imported</title></head><body>${html}</body></html>`;
   }
 
-  // Paste loader
   function applyPasted(){
     const txt = document.getElementById('pasteHtml').value;
     if(!txt.trim()) return;
@@ -265,7 +530,7 @@
   }
 
   function insertImage(){
-    const url = prompt("Image URL (https://…)"); if(!url) return; cmd('insertImage', url);
+    const url = prompt("Image URL:"); if(!url) return; cmd('insertImage', url);
   }
   imgFile.addEventListener('change', async e=>{
     const f = e.target.files[0]; if(!f) return;
@@ -285,29 +550,10 @@
     return div.innerHTML;
   }
 
-  // Base CSS
   function injectBaseCSS(silent=false){
     const doc = getDoc();
-    if(doc.getElementById('mini-editor-styles')){ if(!silent) setStatus('Base CSS already present'); return; }
-    const css = `
-:root{--ink:#111;--mut:#475569;--bg:#ffffff;--pri:#2563eb;--soft:#f1f5f9}
-*{box-sizing:border-box}
-body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
-.container{max-width:980px;margin:0 auto;padding:24px}
-.section{padding:48px 0}
-.hero{padding:80px 0;background:linear-gradient(180deg,#eef6ff,#ffffff)}
-.hero h1{font-size:42px;margin:0 0 10px}
-.hero p{font-size:18px;color:var(--mut);margin:0 0 20px}
-.btn{display:inline-block;padding:12px 18px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#111;text-decoration:none}
-.btn.primary{background:var(--pri);color:#fff;border-color:var(--pri)}
-.grid{display:grid;gap:16px}
-.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.card{border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:18px}
-.nav{display:flex;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #e2e8f0}
-.nav a{text-decoration:none;color:#111}
-.footer{padding:30px 0;border-top:1px solid #e2e8f0;color:#475569}
-.center{text-align:center}
-    `.trim();
+    if(doc.getElementById('mini-editor-styles')){ if(!silent) setStatus('Base CSS present'); return; }
+    const css = `:root{--ink:#111;--mut:#475569;--bg:#fff;--pri:#2563eb}*{box-sizing:border-box}body{font-family:system-ui;margin:0;color:var(--ink)}.wrap{max-width:980px;margin:0 auto;padding:24px}.section{padding:48px 0}.hero{padding:80px 0;background:linear-gradient(180deg,#eef6ff,#fff)}.hero h1{font-size:42px;margin:0 0 10px}.hero p{font-size:18px;color:var(--mut);margin:0 0 20px}.btn{display:inline-block;padding:12px 18px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#111;text-decoration:none}.btn.primary{background:var(--pri);color:#fff;border-color:var(--pri)}.grid{display:grid;gap:16px}.grid-3{grid-template-columns:repeat(3,1fr)}.card{border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:18px}.nav{display:flex;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #e2e8f0}.nav a{text-decoration:none;color:#111}.footer{padding:30px 0;border-top:1px solid #e2e8f0;color:#475569}.center{text-align:center}`;
     const style = doc.createElement('style');
     style.id = 'mini-editor-styles';
     style.textContent = css;
@@ -322,36 +568,33 @@ body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
     const style = doc.createElement('style');
     style.textContent = css;
     doc.head.appendChild(style);
-    setStatus('Extra CSS injected');
+    setStatus('CSS injected');
   }
 
-  // Export
   function downloadHTML(){
     const doc = getDoc();
     if(!doc.querySelector('meta[charset]')){
       const meta = doc.createElement('meta'); meta.setAttribute('charset','utf-8'); doc.head.prepend(meta);
     }
-    const html = "<!doctype html>\n" + doc.documentElement.outerHTML;
+    const html = "<!doctype html>\\n" + doc.documentElement.outerHTML;
     const blob = new Blob([html], {type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = (doc.title?.trim() || 'page') + '.html';
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-    setStatus('Exported HTML');
+    setStatus('Exported');
   }
   window.downloadHTML = downloadHTML;
 
-  // Device preview
   function setDevice(w){
     if(w==='auto'){ fb.style.maxWidth='100%'; fb.style.width='100%'; return; }
     fb.style.maxWidth = w+'px'; fb.style.width = w+'px';
   }
   window.setDevice = setDevice;
 
-  // Code view
   function toggleCode(){
     if(codeOverlay.style.display==='none'){
-      codeOverlay.value = "<!doctype html>\n" + getDoc().documentElement.outerHTML;
+      codeOverlay.value = "<!doctype html>\\n" + getDoc().documentElement.outerHTML;
       codeOverlay.style.display='block';
     } else {
       loadHtml(codeOverlay.value);
@@ -360,7 +603,6 @@ body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
   }
   window.toggleCode = toggleCode;
 
-  // Keyboard shortcuts
   addEventListener('keydown', e=>{
     const mod = e.ctrlKey || e.metaKey;
     if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadHTML(); }
@@ -369,10 +611,9 @@ body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
     if(mod && (e.key.toLowerCase()==='y' || (mod && e.shiftKey && e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); }
   });
 
-  // Status helper
   let stT=null; function setStatus(msg){ clearTimeout(stT); statusMsg.textContent=msg; stT=setTimeout(()=>statusMsg.textContent='',1500); }
 
-  // ---- Element Inspector ----
+  // Element Inspector
   let currentEl = null;
   function selectElement(el){
     if(currentEl) currentEl.classList.remove('hl');
@@ -400,12 +641,12 @@ body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
     if(currentEl.tagName==='IMG' && link) currentEl.setAttribute('src', link);
     const txt = document.getElementById('selText').value;
     if(currentEl && currentEl.childElementCount===0) currentEl.textContent = txt;
-    setStatus('Inspector applied');
+    setStatus('Applied');
     pushHistory();
   }
   function deleteEl(){
     if(!currentEl) return;
-    const p = currentEl.parentNode; p.removeChild(currentEl); currentEl=null; setStatus('Element deleted'); pushHistory();
+    const p = currentEl.parentNode; p.removeChild(currentEl); currentEl=null; setStatus('Deleted'); pushHistory();
   }
   function duplicateEl(){
     if(!currentEl) return;
@@ -416,45 +657,58 @@ body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;color:var(--ink)}
 
   // Blocks
   const blocks = {
-    hero: `
-<section class="hero">
-  <div class="container center">
-    <h1>Your Cool Headline</h1>
-    <p>Short subtext describing the thing. Edit me.</p>
-    <a class="btn primary" href="#">Get Started</a>
-    <a class="btn" href="#">Learn More</a>
-  </div>
-</section>`.trim(),
-    cardGrid: `
-<section class="section">
-  <div class="container">
-    <h2 class="center">Features</h2>
-    <div class="grid grid-3">
-      <div class="card"><h3>One</h3><p>Edit this text.</p></div>
-      <div class="card"><h3>Two</h3><p>Edit this text.</p></div>
-      <div class="card"><h3>Three</h3><p>Edit this text.</p></div>
-    </div>
-  </div>
-</section>`.trim(),
-    cta: `
-<section class="section center" style="background:#f8fafc">
-  <div class="container">
-    <h2>Call To Action</h2>
-    <p>Say something inspiring here.</p>
-    <a class="btn primary" href="#">Do the thing</a>
-  </div>
-</section>`.trim(),
-    nav: `
-<div class="container nav">
-  <strong>MySite</strong>
-  <a href="#">Home</a><a href="#">About</a><a href="#">Contact</a>
-</div>`.trim(),
-    footer: `
-<footer class="footer">
-  <div class="container">&copy; <span id="y">${new Date().getFullYear()}</span> Your Name</div>
-</footer>`.trim()
+    hero: '<section class="hero"><div class="wrap center"><h1>Your Headline</h1><p>Subtext here.</p><a class="btn primary" href="#">Get Started</a></div></section>',
+    cardGrid: '<section class="section"><div class="wrap"><h2 class="center">Features</h2><div class="grid grid-3"><div class="card"><h3>One</h3><p>Edit this.</p></div><div class="card"><h3>Two</h3><p>Edit this.</p></div><div class="card"><h3>Three</h3><p>Edit this.</p></div></div></div></section>',
+    cta: '<section class="section center" style="background:#f8fafc"><div class="wrap"><h2>Call To Action</h2><p>Inspiring text.</p><a class="btn primary" href="#">Do it</a></div></section>',
+    nav: '<div class="wrap nav"><strong>Site</strong><a href="#">Home</a><a href="#">About</a><a href="#">Contact</a></div>',
+    footer: '<footer class="footer"><div class="wrap">&copy; 2025 Your Name</div></footer>'
   };
   window.blocks = blocks;
 </script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
 </body>
 </html>
