@@ -186,11 +186,49 @@
   }
 
   .properties-panel{
-    width:300px;
+    width:320px;
     background:var(--card);
     border-left:1px solid rgba(255,255,255,.06);
-    padding:16px;
+    padding:0;
     overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .panel-tabs{
+    display:flex;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    background:rgba(0,0,0,.2);
+  }
+
+  .panel-tab{
+    flex:1;
+    padding:12px;
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-weight:600;
+    font-size:.85rem;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    transition:all .2s;
+  }
+
+  .panel-tab:hover{
+    background:rgba(255,255,255,.05);
+    color:var(--ink);
+  }
+
+  .panel-tab.active{
+    color:var(--ink);
+    border-bottom-color:var(--brandB);
+    background:rgba(37,117,252,.1);
+  }
+
+  .panel-content{
+    flex:1;
+    overflow-y:auto;
+    padding:16px;
   }
 
   .properties-panel h3{
@@ -414,10 +452,15 @@
     </div>
   </div>
 
-  <!-- Properties panel -->
-  <div class="properties-panel" id="properties-panel">
-    <h3>⚙️ Properties</h3>
-    <p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>
+  <!-- Properties panel with tabs -->
+  <div class="properties-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" id="tab-properties">⚙️ Properties</button>
+      <button class="panel-tab" id="tab-styles">🎨 Styles</button>
+    </div>
+    <div class="panel-content" id="panel-content">
+      <p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>
+    </div>
   </div>
 </div>
 
@@ -469,11 +512,37 @@
 <script>
   let selectedElement = null;
   let elementCounter = 0;
+  let activeTab = 'properties';
 
   const canvas = document.getElementById('canvas');
   const canvasInner = document.getElementById('canvas-inner');
-  const propertiesPanel = document.getElementById('properties-panel');
+  const panelContent = document.getElementById('panel-content');
   const exportModal = document.getElementById('export-modal');
+
+  // Tab switching
+  document.getElementById('tab-properties').addEventListener('click', () => {
+    switchTab('properties');
+  });
+
+  document.getElementById('tab-styles').addEventListener('click', () => {
+    switchTab('styles');
+  });
+
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    
+    if (selectedElement) {
+      if (tab === 'properties') {
+        updatePropertiesPanel(selectedElement);
+      } else {
+        updateStylesPanel();
+      }
+    } else if (tab === 'styles') {
+      showGlobalStyles();
+    }
+  }
 
   // Element templates
   const elementTemplates = {
@@ -610,21 +679,33 @@
     });
     wrapper.classList.add('selected');
     selectedElement = wrapper;
-    updatePropertiesPanel(wrapper);
+    
+    if (activeTab === 'properties') {
+      updatePropertiesPanel(wrapper);
+    } else {
+      updateStylesPanel();
+    }
+  }
+
+  function getChildElement(wrapper) {
+    // Get the actual element (not the controls)
+    const children = Array.from(wrapper.children);
+    return children.find(child => !child.classList.contains('element-controls'));
   }
 
   function updatePropertiesPanel(wrapper) {
-    const element = wrapper.querySelector(':not(.element-controls)');
+    const element = getChildElement(wrapper);
     const type = wrapper.dataset.type;
 
     let propsHTML = `<h3>⚙️ ${type.charAt(0).toUpperCase() + type.slice(1)} Properties</h3>`;
 
     // Common properties
     if (element.textContent !== undefined && type !== 'image' && type !== 'input' && type !== 'container') {
+      const currentText = type === 'list' ? element.innerHTML : element.textContent;
       propsHTML += `
         <div class="prop-group">
           <label class="prop-label">Text Content</label>
-          <textarea class="prop-input" onchange="updateElementProperty('textContent', this.value)">${element.textContent || element.innerHTML}</textarea>
+          <textarea class="prop-input" onchange="updateElementProperty('${type === 'list' ? 'innerHTML' : 'textContent'}', this.value)">${currentText}</textarea>
         </div>
       `;
     }
@@ -711,13 +792,60 @@
       </div>
     `;
 
-    propertiesPanel.innerHTML = propsHTML;
+    panelContent.innerHTML = propsHTML;
+  }
+
+  function updateStylesPanel() {
+    if (!selectedElement) {
+      showGlobalStyles();
+      return;
+    }
+
+    const element = getChildElement(selectedElement);
+    const type = selectedElement.dataset.type;
+
+    let stylesHTML = `
+      <h3>🎨 Element Styles</h3>
+      <div class="prop-group">
+        <label class="prop-label">Custom CSS (inline)</label>
+        <textarea class="prop-input" style="min-height:200px; font-family:'Courier New',monospace;" onchange="applyCustomCSS(this.value)" placeholder="border: 1px solid red;&#10;box-shadow: 0 4px 8px rgba(0,0,0,0.2);">${element.style.cssText}</textarea>
+      </div>
+      <div class="prop-group">
+        <label class="prop-label">Quick Presets</label>
+        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('shadow')">Add Shadow</button>
+        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('gradient')">Gradient BG</button>
+        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('rounded')">Rounded Corners</button>
+        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('center')">Center Text</button>
+      </div>
+    `;
+
+    panelContent.innerHTML = stylesHTML;
+  }
+
+  function showGlobalStyles() {
+    const styleTag = document.getElementById('custom-global-styles');
+    const currentStyles = styleTag ? styleTag.textContent : '';
+
+    panelContent.innerHTML = `
+      <h3>🎨 Global Styles</h3>
+      <p style="color:var(--muted); font-size:.85rem; margin-bottom:16px;">Add custom CSS or import external stylesheets</p>
+      <div class="prop-group">
+        <label class="prop-label">Custom CSS</label>
+        <textarea class="prop-input" id="global-css-input" style="min-height:300px; font-family:'Courier New',monospace;" placeholder="/* Add your custom CSS here */&#10;body {&#10;  background: #f0f0f0;&#10;}&#10;&#10;.my-class {&#10;  color: blue;&#10;}">${currentStyles}</textarea>
+      </div>
+      <div class="prop-group">
+        <label class="prop-label">Import Stylesheet (URL)</label>
+        <input type="text" class="prop-input" id="import-css-url" placeholder="https://fonts.googleapis.com/css2?family=...">
+        <button class="toolbar-btn" style="width:100%; margin-top:8px;" onclick="importStylesheet()">Import</button>
+      </div>
+      <button class="btn" style="width:100%; margin-top:16px;" onclick="applyGlobalStyles()">Apply Styles</button>
+    `;
   }
 
   window.updateElementProperty = function(prop, value) {
     if (!selectedElement) return;
-    const element = selectedElement.querySelector(':not(.element-controls)');
-    if (prop === 'textContent' && selectedElement.dataset.type !== 'list') {
+    const element = getChildElement(selectedElement);
+    if (prop === 'textContent') {
       element.textContent = value;
     } else if (prop === 'innerHTML') {
       element.innerHTML = value;
@@ -728,15 +856,73 @@
 
   window.updateElementStyle = function(prop, value) {
     if (!selectedElement) return;
-    const element = selectedElement.querySelector(':not(.element-controls)');
+    const element = getChildElement(selectedElement);
     element.style[prop] = value;
+  };
+
+  window.applyCustomCSS = function(cssText) {
+    if (!selectedElement) return;
+    const element = getChildElement(selectedElement);
+    element.style.cssText = cssText;
+  };
+
+  window.applyPreset = function(preset) {
+    if (!selectedElement) return;
+    const element = getChildElement(selectedElement);
+    
+    switch(preset) {
+      case 'shadow':
+        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        break;
+      case 'gradient':
+        element.style.background = 'linear-gradient(120deg, #6a11cb, #2575fc)';
+        element.style.color = 'white';
+        break;
+      case 'rounded':
+        element.style.borderRadius = '16px';
+        break;
+      case 'center':
+        element.style.textAlign = 'center';
+        break;
+    }
+    
+    updateStylesPanel();
+  };
+
+  window.applyGlobalStyles = function() {
+    const cssInput = document.getElementById('global-css-input');
+    if (!cssInput) return;
+    
+    let styleTag = document.getElementById('custom-global-styles');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'custom-global-styles';
+      document.head.appendChild(styleTag);
+    }
+    
+    styleTag.textContent = cssInput.value;
+    alert('Global styles applied! 🎨');
+  };
+
+  window.importStylesheet = function() {
+    const urlInput = document.getElementById('import-css-url');
+    if (!urlInput || !urlInput.value) return;
+    
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = urlInput.value;
+    link.className = 'imported-stylesheet';
+    document.head.appendChild(link);
+    
+    alert('Stylesheet imported! 🔗');
+    urlInput.value = '';
   };
 
   window.deleteElement = function(btn) {
     const wrapper = btn.closest('.canvas-element');
     wrapper.remove();
     selectedElement = null;
-    propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+    panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
   };
 
   window.moveElementUp = function(btn) {
@@ -784,16 +970,35 @@
     if (confirm('Are you sure you want to clear everything?')) {
       canvasInner.innerHTML = '<p style="color:#999; text-align:center; padding:40px;">Drag elements here to start building! 🚀</p>';
       selectedElement = null;
-      propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+      panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
     }
   });
 
   document.getElementById('export-code').addEventListener('click', () => {
     const elements = Array.from(canvasInner.querySelectorAll('.canvas-element'));
-    let html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n  <style>\n    body { font-family: Arial, sans-serif; padding: 20px; }\n  </style>\n</head>\n<body>\n\n';
+    
+    // Get custom styles
+    const customStyles = document.getElementById('custom-global-styles');
+    const importedSheets = Array.from(document.querySelectorAll('.imported-stylesheet'));
+    
+    let html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n';
+    
+    // Add imported stylesheets
+    importedSheets.forEach(sheet => {
+      html += `  <link rel="stylesheet" href="${sheet.href}">\n`;
+    });
+    
+    html += '  <style>\n    body { font-family: Arial, sans-serif; padding: 20px; }\n';
+    
+    // Add custom global styles
+    if (customStyles) {
+      html += '    ' + customStyles.textContent.split('\n').join('\n    ') + '\n';
+    }
+    
+    html += '  </style>\n</head>\n<body>\n\n';
 
     elements.forEach(wrapper => {
-      const element = wrapper.querySelector(':not(.element-controls)');
+      const element = getChildElement(wrapper);
       html += '  ' + element.outerHTML + '\n';
     });
 
@@ -821,7 +1026,11 @@
         el.classList.remove('selected');
       });
       selectedElement = null;
-      propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+      if (activeTab === 'styles') {
+        showGlobalStyles();
+      } else {
+        panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+      }
     }
   });
 </script>
