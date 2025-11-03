@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Mini HTML UI Builder v0.34</title>
+<title>HTML Visual Editor — NGP Hub</title>
 
-<meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
-<meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
+<meta property="og:title" content="HTML Visual Editor — NGP Hub" />
+<meta property="og:description" content="Build and design HTML pages visually with live preview and instant code export." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
-<meta property="og:url" content="https://ngphub.com" />
+<meta property="og:url" content="https://ngphub.com/tools/html-editor" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="NGP Hub" />
 
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="NGP Hub, Convenience. Community. Creation." />
-<meta name="twitter:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community." />
+<meta name="twitter:title" content="HTML Visual Editor — NGP Hub" />
+<meta name="twitter:description" content="Build and design HTML pages visually with live preview and instant code export." />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
-<meta name="keywords" content="NGP, games, tools, Roblox, Discord, community, development, Yoadverse, HTML builder" />
+<meta name="description" content="Visual HTML editor with drag-and-drop elements, live preview, and instant code export. Built by NGP Studios." />
+<meta name="keywords" content="HTML editor, visual editor, web design, NGP, code generator, drag and drop" />
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -38,6 +38,7 @@
     font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     scroll-behavior:smooth;
+    overflow:hidden;
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
 
@@ -45,8 +46,7 @@
     position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
     background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
   }
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0; flex-wrap:wrap; gap:8px}
-  .toolbar .wrap{justify-content:flex-start !important}
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
   .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
   .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
@@ -57,124 +57,286 @@
   }
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
-  .app{display:grid; grid-template-rows:auto 1fr auto; height:100vh; padding-top:60px}
-  
-  .toolbar{
-    display:flex; flex-wrap:wrap; gap:8px; padding:10px 0; align-items:center;
-    border-bottom:1px solid rgba(255,255,255,.06); background:var(--card);
+  .editor-container{
+    display:flex;
+    height:calc(100vh - 70px);
+    gap:0;
   }
-  .group{display:flex; gap:6px; flex-wrap:wrap; background:rgba(11,11,17,.5); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:6px}
-  
-  button, label.btn, select{
-    background:rgba(255,255,255,.05); color:var(--ink); 
-    border:1px solid rgba(255,255,255,.1); padding:8px 10px; 
-    border-radius:8px; cursor:pointer; font-family:'Rubik',sans-serif;
-    font-size:14px; font-weight:500;
-  }
-  select{cursor:default}
-  button:hover, label.btn:hover, select:hover{background:rgba(255,255,255,.08); box-shadow:var(--ring)}
-  button:active{transform:translateY(1px)}
-  
-  .btn-primary{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; color:white; font-weight:700}
-  .btn-danger{background:#991b1b; border-color:#dc2626; color:white}
-  .btn-danger:hover{background:#b91c1c; box-shadow:0 0 0 .2rem rgba(220,38,38,.35)}
 
-  .split{display:grid; grid-template-columns:340px 1fr; min-height:0; height:100%}
-  .side{border-right:1px solid rgba(255,255,255,.06); background:rgba(11,11,17,.3); min-width:0; overflow:auto; padding:12px}
-  .side h3{margin:14px 0 8px; color:var(--muted); font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:.5px}
-  
-  textarea, input[type="text"], input[type="url"]{
-    width:100%; background:rgba(11,11,17,.8); color:var(--ink); 
-    border:1px solid rgba(255,255,255,.1); border-radius:8px; 
-    padding:10px; resize:vertical; font-family:'Rubik',sans-serif;
+  .sidebar{
+    width:280px;
+    background:var(--card);
+    border-right:1px solid rgba(255,255,255,.06);
+    padding:16px;
+    overflow-y:auto;
   }
-  textarea{min-height:110px}
-  textarea:focus, input:focus{outline:none; box-shadow:var(--ring); border-color:var(--brandB)}
-  
-  .box{margin-bottom:16px}
-  .label{font-size:12px; color:var(--muted); margin-bottom:6px; display:block}
-  .row{display:flex; gap:6px; margin-top:8px}
-  .two .col{flex:1}
-  
-  .blockbtns button{width:100%; text-align:left; margin-bottom:4px}
-  .filehide{display:none}
-  
-  .canvasWrap{display:flex; justify-content:center; align-items:stretch; padding:16px; background:rgba(0,0,0,.2)}
-  .frameBox{
-    background:rgba(11,11,17,.5); border:1px solid rgba(255,255,255,.1); 
-    border-radius:12px; overflow:hidden; 
-    box-shadow:0 10px 40px rgba(0,0,0,.5);
+
+  .sidebar h2{
+    font-size:1rem;
+    margin:0 0 16px 0;
+    color:var(--ink);
+    font-weight:700;
+    letter-spacing:.3px;
   }
-  iframe#canvas{width:100%; height:calc(100vh - 200px); border:0; background:#fff; display:block}
-  
-  .status{
-    padding:12px 16px; border-top:1px solid rgba(255,255,255,.06); 
-    color:var(--muted); background:var(--card); 
-    display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
-    font-size:13px;
+
+  .element-library{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
   }
-  .kbd{
-    border:1px solid rgba(255,255,255,.1); padding:2px 8px; 
-    border-radius:6px; background:rgba(11,11,17,.5); color:var(--muted);
+
+  .element-btn{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    padding:12px 16px;
+    border-radius:10px;
+    color:var(--ink);
+    cursor:grab;
+    font-weight:500;
+    font-size:.9rem;
+    transition:all .2s;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    gap:8px;
   }
-  .pill{
-    padding:4px 10px; background:rgba(16,36,58,.8); 
-    border:1px solid rgba(255,255,255,.1); border-radius:999px;
+
+  .element-btn:hover{
+    background:rgba(255,255,255,.08);
+    border-color:var(--brandB);
+    transform:translateY(-1px);
   }
-  
-  .save-indicator{
-    padding:4px 12px; background:rgba(16,36,58,.8); 
-    border:1px solid rgba(255,255,255,.1); border-radius:8px; 
-    font-size:12px; color:var(--muted);
+
+  .element-btn:active{
+    cursor:grabbing;
   }
-  .save-indicator.saved{color:#4ade80; border-color:rgba(34,197,94,.3)}
-  .save-indicator.saving{color:#fbbf24; border-color:rgba(245,158,11,.3)}
-  
-  .hl{outline:2px dashed rgba(58,102,255,.5); outline-offset:4px; border-radius:6px}
-  
-  .modal{
-    display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-    background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; 
-    align-items:center; justify-content:center;
+
+  .element-icon{
+    width:20px;
+    height:20px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.7rem;
+    font-weight:700;
   }
+
+  .canvas-wrapper{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  .toolbar{
+    background:var(--card);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    padding:12px 16px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  .toolbar-btn{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    padding:8px 16px;
+    border-radius:8px;
+    color:var(--ink);
+    cursor:pointer;
+    font-weight:500;
+    font-size:.85rem;
+    transition:all .2s;
+  }
+
+  .toolbar-btn:hover{
+    background:rgba(255,255,255,.08);
+    border-color:var(--brandB);
+  }
+
+  .toolbar-btn.active{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border-color:transparent;
+  }
+
+  .canvas{
+    flex:1;
+    background:#fff;
+    overflow:auto;
+    padding:20px;
+    position:relative;
+  }
+
+  .canvas.dark-mode{
+    background:var(--bg);
+    color:var(--ink);
+  }
+
+  .canvas-inner{
+    min-height:100%;
+    outline:2px dashed rgba(0,0,0,.1);
+    outline-offset:-1px;
+    padding:20px;
+  }
+
+  .dark-mode .canvas-inner{
+    outline-color:rgba(255,255,255,.1);
+  }
+
+  .properties-panel{
+    width:300px;
+    background:var(--card);
+    border-left:1px solid rgba(255,255,255,.06);
+    padding:16px;
+    overflow-y:auto;
+  }
+
+  .properties-panel h3{
+    font-size:.95rem;
+    margin:0 0 12px 0;
+    color:var(--ink);
+    font-weight:600;
+  }
+
+  .prop-group{
+    margin-bottom:16px;
+  }
+
+  .prop-label{
+    display:block;
+    font-size:.8rem;
+    color:var(--muted);
+    margin-bottom:6px;
+    font-weight:500;
+  }
+
+  .prop-input{
+    width:100%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    padding:8px 12px;
+    border-radius:8px;
+    color:var(--ink);
+    font-size:.85rem;
+    font-family:inherit;
+  }
+
+  .prop-input:focus{
+    outline:none;
+    border-color:var(--brandB);
+    box-shadow:var(--ring);
+  }
+
+  textarea.prop-input{
+    resize:vertical;
+    min-height:80px;
+    font-family:'Courier New',monospace;
+  }
+
+  .prop-select{
+    width:100%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    padding:8px 12px;
+    border-radius:8px;
+    color:var(--ink);
+    font-size:.85rem;
+    cursor:pointer;
+  }
+
+  .color-picker-wrapper{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  .color-picker-wrapper input[type="color"]{
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  }
+
+  .canvas-element{
+    position:relative;
+    margin:10px 0;
+    padding:10px;
+    border:2px dashed transparent;
+    transition:all .2s;
+    cursor:pointer;
+  }
+
+  .canvas-element:hover{
+    border-color:var(--brandB);
+    background:rgba(37,117,252,.05);
+  }
+
+  .canvas-element.selected{
+    border-color:var(--brandA);
+    background:rgba(106,17,203,.05);
+  }
+
+  .element-controls{
+    position:absolute;
+    top:-30px;
+    right:0;
+    display:none;
+    gap:4px;
+  }
+
+  .canvas-element.selected .element-controls{
+    display:flex;
+  }
+
+  .control-btn{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:none;
+    color:white;
+    width:24px;
+    height:24px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:.7rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .control-btn:hover{
+    transform:scale(1.1);
+  }
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
   .modal.active{display:flex}
-  .modal-content{
-    background:var(--card); border-radius:var(--radius); max-width:450px; 
-    width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); 
-    border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out;
-  }
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:800px; width:90%; max-height:90vh; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out; display:flex; flex-direction:column}
   @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
   .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
   .modal-header h3{margin:0; font-size:1.2rem}
-  .modal-body{padding:24px; line-height:1.6}
-  .modal-body p{margin:0 0 12px}
-  .modal-footer{
-    padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); 
-    display:flex; gap:12px; justify-content:flex-end;
-  }
-  .btn-modal{
-    display:inline-block; text-decoration:none; color:white; 
-    font-weight:700; letter-spacing:.2px; padding:10px 14px; 
-    border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); 
-    border:none; cursor:pointer; font-size:.95rem;
-  }
-  .btn-ghost{
-    background:rgba(255,255,255,.05); color:var(--ink); 
-    border:1px solid rgba(255,255,255,.1); padding:10px 20px; 
-    border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem;
-  }
+  .modal-body{padding:24px; line-height:1.6; overflow-y:auto; flex:1}
+  .modal-body p{margin:0 0 12px 0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
 
-  footer{
-    border-top:1px solid rgba(255,255,255,.08); color:var(--muted); 
-    padding:24px 0 36px; text-align:center;
+  .code-output{
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;
+    padding:16px;
+    font-family:'Courier New',monospace;
+    font-size:.85rem;
+    color:var(--ink);
+    overflow-x:auto;
+    white-space:pre;
+    max-height:500px;
+    overflow-y:auto;
   }
 
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
-  
-  @media (max-width: 768px){
-    .split{grid-template-columns:1fr; grid-template-rows:auto 1fr}
-    .side{border-right:none; border-bottom:1px solid rgba(255,255,255,.06)}
-  }
 </style>
 </head>
 <body>
@@ -197,479 +359,88 @@
   </div>
 </header>
 
-<main>
-  <div class="app">
+<div class="editor-container">
+  <!-- Sidebar with element library -->
+  <div class="sidebar">
+    <h2>📦 Elements</h2>
+    <div class="element-library">
+      <div class="element-btn" draggable="true" data-type="heading">
+        <div class="element-icon">H</div>
+        Heading
+      </div>
+      <div class="element-btn" draggable="true" data-type="paragraph">
+        <div class="element-icon">P</div>
+        Paragraph
+      </div>
+      <div class="element-btn" draggable="true" data-type="button">
+        <div class="element-icon">B</div>
+        Button
+      </div>
+      <div class="element-btn" draggable="true" data-type="image">
+        <div class="element-icon">I</div>
+        Image
+      </div>
+      <div class="element-btn" draggable="true" data-type="input">
+        <div class="element-icon">T</div>
+        Text Input
+      </div>
+      <div class="element-btn" draggable="true" data-type="container">
+        <div class="element-icon">C</div>
+        Container
+      </div>
+      <div class="element-btn" draggable="true" data-type="link">
+        <div class="element-icon">L</div>
+        Link
+      </div>
+      <div class="element-btn" draggable="true" data-type="list">
+        <div class="element-icon">L</div>
+        List
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas area -->
+  <div class="canvas-wrapper">
     <div class="toolbar">
-      <div class="wrap" style="display:flex; flex-wrap:wrap; gap:8px; width:100%">
-        <div class="group">
-          <label class="btn" title="Open .html file">
-            Open <input id="openFile" class="filehide" type="file" accept=".html,.htm,.xhtml,.txt" />
-          </label>
-          <button id="newBtn" title="Start from scratch">New…</button>
-          <select id="tplPick" title="Quick template">
-            <option value="">Templates…</option>
-            <option value="blank">Blank</option>
-            <option value="minimal">Minimal</option>
-            <option value="ngp">NGP CoreFrame</option>
-            <option value="landing">Landing</option>
-            <option value="docs">Docs</option>
-          </select>
-          <button onclick="downloadHTML()" class="btn-primary" title="Download (Ctrl+S)">Export</button>
-        </div>
-
-        <div class="group">
-          <button onclick="toggleEdit()" id="toggleEdit" title="Ctrl+E">Enable Edit</button>
-          <button onclick="cmd('bold')" title="Ctrl+B"><b>B</b></button>
-          <button onclick="cmd('italic')" title="Ctrl+I"><i>I</i></button>
-          <button onclick="cmd('underline')" title="Ctrl+U"><u>U</u></button>
-          <button onclick="cmd('formatBlock','H1')">H1</button>
-          <button onclick="cmd('formatBlock','H2')">H2</button>
-          <button onclick="cmd('insertUnorderedList')">•</button>
-          <button onclick="cmd('insertOrderedList')">1.</button>
-          <button onclick="makeLink()">Link</button>
-          <label class="btn" title="Insert image">
-            Img <input id="imgFile" class="filehide" type="file" accept="image/*" />
-          </label>
-          <button onclick="insertImage()">Img URL</button>
-          <button onclick="cmd('removeFormat')">Clear</button>
-        </div>
-
-        <div class="group">
-          <span class="pill">Preview:</span>
-          <button onclick="setDevice(375)">Mobile</button>
-          <button onclick="setDevice(768)">Tablet</button>
-          <button onclick="setDevice(1024)">Laptop</button>
-          <button onclick="setDevice(1440)">Desktop</button>
-          <button onclick="setDevice('auto')">Auto</button>
-        </div>
-
-        <div class="group">
-          <button onclick="undo()">Undo</button>
-          <button onclick="redo()">Redo</button>
-          <button onclick="toggleCode()">Code</button>
-          <button onclick="clearSaved()" class="btn-danger" title="Clear auto-save">Clear</button>
-        </div>
-
-        <div class="save-indicator" id="saveIndicator">Ready</div>
-      </div>
+      <button class="toolbar-btn" id="preview-mode">👁️ Preview</button>
+      <button class="toolbar-btn" id="dark-mode-toggle">🌙 Dark Mode</button>
+      <button class="toolbar-btn" id="export-code">💾 Export HTML</button>
+      <button class="toolbar-btn" id="clear-canvas">🗑️ Clear</button>
     </div>
-
-    <div class="split">
-      <div class="side">
-        <h3>Paste HTML</h3>
-        <div class="box">
-          <textarea id="pasteHtml" placeholder="Paste HTML here…"></textarea>
-          <button onclick="applyPasted()" style="width:100%; margin-top:8px">Load →</button>
-        </div>
-
-        <h3>Insert Blocks</h3>
-        <div class="box blockbtns">
-          <button onclick="insertBlock(blocks.hero)">Hero section</button>
-          <button onclick="insertBlock(blocks.cardGrid)">3-Card grid</button>
-          <button onclick="insertBlock(blocks.cta)">CTA section</button>
-          <button onclick="insertBlock(blocks.nav)">Navbar</button>
-          <button onclick="insertBlock(blocks.footer)">Footer</button>
-          <div style="height:8px"></div>
-          <button onclick="wrapSelection('<div class=&quot;wrap&quot;>','</div>')">Wrap .wrap</button>
-          <button onclick="wrapSelection('<section>','</section>')">Wrap &lt;section&gt;</button>
-        </div>
-
-        <h3>Element Inspector</h3>
-        <div class="box">
-          <span class="label">Selected element</span>
-          <input id="selTag" type="text" placeholder="tag (readonly)" readonly>
-          <div class="two row">
-            <div class="col"><input id="selId" type="text" placeholder="id"></div>
-            <div class="col"><input id="selClass" type="text" placeholder="class"></div>
-          </div>
-          <div class="two row">
-            <div class="col"><input id="selHref" type="url" placeholder="href/src"></div>
-            <div class="col"><input id="selText" type="text" placeholder="text"></div>
-          </div>
-          <div class="row">
-            <button onclick="applyInspector()">Apply</button>
-            <button onclick="duplicateEl()">Duplicate</button>
-            <button onclick="deleteEl()">Delete</button>
-          </div>
-          <span class="label" style="margin-top:10px">Tip: Click elements in Edit mode</span>
-        </div>
-
-        <h3>Extra CSS</h3>
-        <div class="box">
-          <textarea id="extraCss" placeholder="/* CSS injected to <head> */"></textarea>
-          <button onclick="injectExtraCSS()" style="width:100%; margin-top:8px">Inject CSS</button>
-        </div>
+    <div class="canvas" id="canvas">
+      <div class="canvas-inner" id="canvas-inner">
+        <p style="color:#999; text-align:center; padding:40px;">Drag elements here to start building! 🚀</p>
       </div>
-
-      <div class="canvasWrap">
-        <div class="frameBox" id="frameBox" style="width:100%; max-width:100%">
-          <iframe id="canvas" title="Design Canvas"></iframe>
-        </div>
-      </div>
-    </div>
-
-    <div class="status">
-      <div>Mode: <span id="mode" class="kbd">View</span> · <span class="kbd">Ctrl+S</span> export · <span class="kbd">Ctrl+E</span> edit</div>
-      <div id="statusMsg"></div>
     </div>
   </div>
-</main>
 
-<footer>
-  <div class="wrap">
-    <small>© <span id="year"></span> NGP — Alpha.</small>
+  <!-- Properties panel -->
+  <div class="properties-panel" id="properties-panel">
+    <h3>⚙️ Properties</h3>
+    <p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>
   </div>
-</footer>
+</div>
 
-<div id="logout-modal" class="modal">
+<!-- Export Modal -->
+<div id="export-modal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Logout from NGP Hub?</h3>
+      <h3>📄 Export HTML Code</h3>
     </div>
     <div class="modal-body">
-      <p>Are you sure you want to logout?</p>
+      <p style="color:var(--muted);">Copy the code below and paste it into your .html file:</p>
+      <div class="code-output" id="code-output"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
-      <button class="btn-modal" id="confirm-logout-btn">Logout</button>
+      <button class="btn-ghost" id="close-export">Close</button>
+      <button class="btn" id="copy-code">Copy Code</button>
     </div>
   </div>
 </div>
 
-<!-- Code overlay -->
-<textarea id="codeOverlay" style="display:none; position:fixed; inset:10px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:rgba(11,11,17,.95); color:var(--ink); padding:14px; z-index:99; font-family:monospace;"></textarea>
-
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-  
-  const frame = document.getElementById('canvas');
-  const fb = document.getElementById('frameBox');
-  const openFile = document.getElementById('openFile');
-  const modeEl = document.getElementById('mode');
-  const toggleBtn = document.getElementById('toggleEdit');
-  const statusMsg = document.getElementById('statusMsg');
-  const codeOverlay = document.getElementById('codeOverlay');
-  const tplPick = document.getElementById('tplPick');
-  const imgFile = document.getElementById('imgFile');
-  const saveIndicator = document.getElementById('saveIndicator');
-
-  const STORAGE_KEY = 'ngp_miniHtmlBuilder_autoSave';
-  const LAST_SAVE_KEY = 'ngp_miniHtmlBuilder_lastSave';
-
-  // History
-  const hist = {stack:[], idx:-1, lock:false};
-  const pushHistory = () => {
-    if(hist.lock) return;
-    const html = getDoc().documentElement.outerHTML;
-    if(hist.stack[hist.idx] === html) return;
-    hist.stack = hist.stack.slice(0, hist.idx+1);
-    hist.stack.push(html); hist.idx++;
-    setStatus(`State saved (${hist.idx+1})`);
-  };
-  const undo = () => {
-    if(hist.idx<=0) return;
-    hist.idx--; hist.lock=true; frame.srcdoc = hist.stack[hist.idx]; hist.lock=false;
-    setStatus('Undo');
-  };
-  const redo = () => {
-    if(hist.idx>=hist.stack.length-1) return;
-    hist.idx++; hist.lock=true; frame.srcdoc = hist.stack[hist.idx]; hist.lock=false;
-    setStatus('Redo');
-  };
-  window.undo = undo; window.redo = redo;
-
-  // Auto-save
-  let autoSaveTimer = null;
-  function scheduleAutoSave() {
-    clearTimeout(autoSaveTimer);
-    setSaveIndicator('saving');
-    autoSaveTimer = setTimeout(() => {
-      try {
-        const html = getDoc().documentElement.outerHTML;
-        localStorage.setItem(STORAGE_KEY, html);
-        localStorage.setItem(LAST_SAVE_KEY, new Date().toISOString());
-        setSaveIndicator('saved');
-      } catch(e) {
-        console.error('Auto-save failed:', e);
-        setSaveIndicator('error');
-      }
-    }, 3000);
-  }
-
-  function setSaveIndicator(state) {
-    saveIndicator.classList.remove('saved', 'saving');
-    if(state === 'saved') {
-      const lastSave = localStorage.getItem(LAST_SAVE_KEY);
-      if(lastSave) {
-        const date = new Date(lastSave);
-        const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        saveIndicator.textContent = `Saved ${timeStr}`;
-      } else {
-        saveIndicator.textContent = 'Saved';
-      }
-      saveIndicator.classList.add('saved');
-    } else if(state === 'saving') {
-      saveIndicator.textContent = 'Saving...';
-      saveIndicator.classList.add('saving');
-    } else if(state === 'error') {
-      saveIndicator.textContent = 'Save failed';
-    } else {
-      saveIndicator.textContent = 'Ready';
-    }
-  }
-
-  function loadAutoSaved() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if(saved) {
-      const lastSave = localStorage.getItem(LAST_SAVE_KEY);
-      if(lastSave) {
-        const date = new Date(lastSave);
-        const timeStr = date.toLocaleString();
-        if(confirm(`Restore auto-saved work from ${timeStr}?`)) {
-          loadHtml(saved);
-          setStatus('Restored auto-save');
-          setSaveIndicator('saved');
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  function clearSaved() {
-    if(confirm('Clear auto-saved work? Cannot be undone.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(LAST_SAVE_KEY);
-      setStatus('Auto-save cleared');
-      setSaveIndicator('ready');
-    }
-  }
-  window.clearSaved = clearSaved;
-
-  // Templates
-  const BLANK_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Untitled</title></head><body style="font-family:system-ui;margin:0"><main><h1>Blank Page</h1><p>Add content.</p></main></body></html>';
-  
-  const MINIMAL_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minimal</title></head><body><main><h1>Minimal Starter</h1><p>Edit me.</p></main></body></html>';
-  
-  const LANDING_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Landing</title></head><body></body></html>';
-  
-  const DOCS_DOC = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docs</title></head><body><article><h1>Page Title</h1><p>Intro paragraph.</p><h2>Section</h2><p>Some text…</p></article></body></html>';
-  
-  const NGP_COREFRAME = '<!DOCTYPE html>\\n<html lang="en">\\n<head>\\n<meta charset="utf-8" />\\n<meta name="viewport" content="width=device-width, initial-scale=1" />\\n<title>NGP Hub — Your Page</title>\\n\\n<meta property="og:title" content="NGP Hub" />\\n<meta property="og:description" content="NGP builds useful, original stuff." />\\n<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />\\n<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />\\n<link rel="icon" href="/assets/ngp-logo.png" type="image/png">\\n\\n<style>\\n  :root{--bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3; --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff; --radius:16px;}\\n  *{box-sizing:border-box}\\n  html,body{height:100%}\\n  body{margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14); color:var(--ink); font-family:\\'Rubik\\',sans-serif;}\\n  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}\\n  header{position:sticky; top:0; z-index:50; backdrop-filter:blur(10px); background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);}\\n  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}\\n  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}\\n  .logo h1{font-size:1.05rem; margin:0}\\n  nav{display:flex; gap:6px}\\n  nav a{color:var(--ink); text-decoration:none; padding:8px 10px; border-radius:10px}\\n  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0; text-align:center}\\n</style>\\n</head>\\n<body>\\n\\n<header>\\n  <div class="wrap bar">\\n    <a class="logo" href="/">\\n      <h1>NGP</h1>\\n    </a>\\n    <nav>\\n      <a href="/tools">Tools</a>\\n      <a href="/projects">Projects</a>\\n      <a href="/contact">Contact</a>\\n    </nav>\\n  </div>\\n</header>\\n\\n<main>\\n  <div class="wrap" style="padding:48px 16px">\\n    <h1>Your Page Title</h1>\\n    <p>Start editing this NGP CoreFrame!</p>\\n  </div>\\n</main>\\n\\n<footer>\\n  <div class="wrap">\\n    <small>© 2025 NGP</small>\\n  </div>\\n</footer>\\n\\n</body>\\n</html>';
-
-  // Try load auto-save
-  if(!loadAutoSaved()) {
-    frame.srcdoc = BLANK_DOC;
-  }
-
-  function getDoc(){ return frame.contentDocument || frame.contentWindow.document; }
-
-  function afterLoadSetup(){
-    getDoc().body.addEventListener('click', ev=>{
-      if(getDoc().body.isContentEditable && ev.target.closest('a')) ev.preventDefault();
-      if(getDoc().body.isContentEditable){
-        selectElement(ev.target);
-      }
-    }, true);
-
-    const mo = new MutationObserver(()=>{
-      debouncedPush();
-      scheduleAutoSave();
-    });
-    mo.observe(getDoc(), {subtree:true, childList:true, attributes:true, characterData:true});
-  }
-
-  frame.addEventListener('load', ()=>{ afterLoadSetup(); setEdit(false); injectBaseCSS(true); pushHistory(); });
-
-  let t=null; function debouncedPush(){ clearTimeout(t); t=setTimeout(pushHistory, 400); }
-
-  openFile.addEventListener('change', async (e)=>{
-    const f = e.target.files[0]; if(!f) return;
-    const text = await f.text(); loadHtml(text); openFile.value="";
-  });
-
-  document.getElementById('newBtn').onclick = async ()=>{
-    const choice = prompt("New page:\\n- blank\\n- minimal\\n- ngp\\n- landing\\n- docs");
-    if(!choice) return;
-    applyTemplate(choice.toLowerCase());
-  };
-  tplPick.onchange = ()=>{ if(tplPick.value) { applyTemplate(tplPick.value); tplPick.value=""; } };
-
-  function applyTemplate(name){
-    if(name==='blank') return loadHtml(BLANK_DOC);
-    if(name==='minimal'){ loadHtml(MINIMAL_DOC); injectBaseCSS(); return; }
-    if(name==='ngp'){ loadHtml(NGP_COREFRAME); return; }
-    if(name==='landing'){ loadHtml(BLANK_DOC); injectBaseCSS(); insertBlock(blocks.nav); insertBlock(blocks.hero); insertBlock(blocks.cardGrid); insertBlock(blocks.cta); insertBlock(blocks.footer); return; }
-    if(name==='docs'){ loadHtml(DOCS_DOC); injectBaseCSS(); return; }
-    loadHtml(BLANK_DOC);
-  }
-
-  function loadHtml(html){
-    const hasHtmlTag = /<\\s*html[\\s>]/i.test(html);
-    frame.srcdoc = hasHtmlTag ? html : `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Imported</title></head><body>${html}</body></html>`;
-  }
-
-  function applyPasted(){
-    const txt = document.getElementById('pasteHtml').value;
-    if(!txt.trim()) return;
-    loadHtml(txt);
-  }
-
-  function setEdit(on){
-    const doc = getDoc();
-    doc.body.contentEditable = on ? "true" : "false";
-    modeEl.textContent = on ? "Edit" : "View";
-    toggleBtn.textContent = on ? "Disable Edit" : "Enable Edit";
-  }
-  function toggleEdit(){ setEdit(!(getDoc().body.isContentEditable)); }
-  window.toggleEdit = toggleEdit;
-
-  function cmd(c,v=null){ getDoc().execCommand(c,false,v); frame.contentWindow.focus(); }
-
-  function makeLink(){
-    const url = prompt("Link URL:"); if(!url) return; cmd('createLink', url);
-  }
-
-  function insertImage(){
-    const url = prompt("Image URL:"); if(!url) return; cmd('insertImage', url);
-  }
-  imgFile.addEventListener('change', async e=>{
-    const f = e.target.files[0]; if(!f) return;
-    const b64 = await f.arrayBuffer().then(ab=>URL.createObjectURL(new Blob([ab],{type:f.type})));
-    cmd('insertImage', b64); setStatus('Image inserted'); imgFile.value="";
-  });
-
-  function insertBlock(html){ getDoc().execCommand('insertHTML', false, html); }
-  function wrapSelection(prefix,suffix){
-    getDoc().execCommand('insertHTML', false, prefix + getSelectionHtml() + suffix);
-  }
-  function getSelectionHtml(){
-    const doc = getDoc(); const sel = doc.getSelection();
-    if(!sel || sel.rangeCount===0) return "";
-    const div = doc.createElement('div');
-    for(let i=0;i<sel.rangeCount;i++){ div.appendChild(sel.getRangeAt(i).cloneContents()); }
-    return div.innerHTML;
-  }
-
-  function injectBaseCSS(silent=false){
-    const doc = getDoc();
-    if(doc.getElementById('mini-editor-styles')){ if(!silent) setStatus('Base CSS present'); return; }
-    const css = `:root{--ink:#111;--mut:#475569;--bg:#fff;--pri:#2563eb}*{box-sizing:border-box}body{font-family:system-ui;margin:0;color:var(--ink)}.wrap{max-width:980px;margin:0 auto;padding:24px}.section{padding:48px 0}.hero{padding:80px 0;background:linear-gradient(180deg,#eef6ff,#fff)}.hero h1{font-size:42px;margin:0 0 10px}.hero p{font-size:18px;color:var(--mut);margin:0 0 20px}.btn{display:inline-block;padding:12px 18px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#111;text-decoration:none}.btn.primary{background:var(--pri);color:#fff;border-color:var(--pri)}.grid{display:grid;gap:16px}.grid-3{grid-template-columns:repeat(3,1fr)}.card{border:1px solid #e2e8f0;border-radius:12px;background:#fff;padding:18px}.nav{display:flex;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #e2e8f0}.nav a{text-decoration:none;color:#111}.footer{padding:30px 0;border-top:1px solid #e2e8f0;color:#475569}.center{text-align:center}`;
-    const style = doc.createElement('style');
-    style.id = 'mini-editor-styles';
-    style.textContent = css;
-    doc.head.appendChild(style);
-    if(!silent) setStatus('Base CSS added');
-  }
-
-  function injectExtraCSS(){
-    const css = document.getElementById('extraCss').value;
-    if(!css.trim()) return;
-    const doc = getDoc();
-    const style = doc.createElement('style');
-    style.textContent = css;
-    doc.head.appendChild(style);
-    setStatus('CSS injected');
-  }
-
-  function downloadHTML(){
-    const doc = getDoc();
-    if(!doc.querySelector('meta[charset]')){
-      const meta = doc.createElement('meta'); meta.setAttribute('charset','utf-8'); doc.head.prepend(meta);
-    }
-    const html = "<!doctype html>\\n" + doc.documentElement.outerHTML;
-    const blob = new Blob([html], {type:'text/html'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (doc.title?.trim() || 'page') + '.html';
-    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-    setStatus('Exported');
-  }
-  window.downloadHTML = downloadHTML;
-
-  function setDevice(w){
-    if(w==='auto'){ fb.style.maxWidth='100%'; fb.style.width='100%'; return; }
-    fb.style.maxWidth = w+'px'; fb.style.width = w+'px';
-  }
-  window.setDevice = setDevice;
-
-  function toggleCode(){
-    if(codeOverlay.style.display==='none'){
-      codeOverlay.value = "<!doctype html>\\n" + getDoc().documentElement.outerHTML;
-      codeOverlay.style.display='block';
-    } else {
-      loadHtml(codeOverlay.value);
-      codeOverlay.style.display='none';
-    }
-  }
-  window.toggleCode = toggleCode;
-
-  addEventListener('keydown', e=>{
-    const mod = e.ctrlKey || e.metaKey;
-    if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadHTML(); }
-    if(mod && e.key.toLowerCase()==='e'){ e.preventDefault(); toggleEdit(); }
-    if(mod && e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
-    if(mod && (e.key.toLowerCase()==='y' || (mod && e.shiftKey && e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); }
-  });
-
-  let stT=null; function setStatus(msg){ clearTimeout(stT); statusMsg.textContent=msg; stT=setTimeout(()=>statusMsg.textContent='',1500); }
-
-  // Element Inspector
-  let currentEl = null;
-  function selectElement(el){
-    if(currentEl) currentEl.classList.remove('hl');
-    currentEl = el;
-    try{ currentEl.classList.add('hl'); setInspectorValues(); }catch{}
-  }
-  function setInspectorValues(){
-    if(!currentEl){ return; }
-    const d = getDoc();
-    d.getSelection().removeAllRanges();
-    document.getElementById('selTag').value = currentEl.tagName.toLowerCase();
-    document.getElementById('selId').value = currentEl.id || '';
-    document.getElementById('selClass').value = currentEl.getAttribute('class') || '';
-    const href = currentEl.getAttribute('href') || currentEl.getAttribute('src') || '';
-    document.getElementById('selHref').value = href;
-    document.getElementById('selText').value = currentEl.textContent || '';
-  }
-  function applyInspector(){
-    if(!currentEl) return;
-    currentEl.id = document.getElementById('selId').value.trim();
-    const cls = document.getElementById('selClass').value.trim();
-    cls ? currentEl.setAttribute('class', cls) : currentEl.removeAttribute('class');
-    const link = document.getElementById('selHref').value.trim();
-    if(currentEl.tagName==='A' && link) currentEl.setAttribute('href', link);
-    if(currentEl.tagName==='IMG' && link) currentEl.setAttribute('src', link);
-    const txt = document.getElementById('selText').value;
-    if(currentEl && currentEl.childElementCount===0) currentEl.textContent = txt;
-    setStatus('Applied');
-    pushHistory();
-  }
-  function deleteEl(){
-    if(!currentEl) return;
-    const p = currentEl.parentNode; p.removeChild(currentEl); currentEl=null; setStatus('Deleted'); pushHistory();
-  }
-  function duplicateEl(){
-    if(!currentEl) return;
-    const clone = currentEl.cloneNode(true);
-    currentEl.after(clone); setStatus('Duplicated'); pushHistory();
-  }
-  window.applyInspector = applyInspector; window.deleteEl = deleteEl; window.duplicateEl = duplicateEl;
-
-  // Blocks
-  const blocks = {
-    hero: '<section class="hero"><div class="wrap center"><h1>Your Headline</h1><p>Subtext here.</p><a class="btn primary" href="#">Get Started</a></div></section>',
-    cardGrid: '<section class="section"><div class="wrap"><h2 class="center">Features</h2><div class="grid grid-3"><div class="card"><h3>One</h3><p>Edit this.</p></div><div class="card"><h3>Two</h3><p>Edit this.</p></div><div class="card"><h3>Three</h3><p>Edit this.</p></div></div></div></section>',
-    cta: '<section class="section center" style="background:#f8fafc"><div class="wrap"><h2>Call To Action</h2><p>Inspiring text.</p><a class="btn primary" href="#">Do it</a></div></section>',
-    nav: '<div class="wrap nav"><strong>Site</strong><a href="#">Home</a><a href="#">About</a><a href="#">Contact</a></div>',
-    footer: '<footer class="footer"><div class="wrap">&copy; 2025 Your Name</div></footer>'
-  };
-  window.blocks = blocks;
-</script>
-
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
@@ -683,31 +454,375 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const authLink = document.getElementById('auth-link');
-  const logoutModal = document.getElementById('logout-modal');
-  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
-  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       authLink.textContent = user.email.split('@')[0];
-      authLink.href = '#';
-      authLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        logoutModal.classList.add('active');
-      });
+      authLink.href = '/profile';
     } else {
       authLink.textContent = 'Login';
       authLink.href = '/login';
     }
   });
+</script>
 
-  cancelLogoutBtn.addEventListener('click', () => {
-    logoutModal.classList.remove('active');
+<script>
+  let selectedElement = null;
+  let elementCounter = 0;
+
+  const canvas = document.getElementById('canvas');
+  const canvasInner = document.getElementById('canvas-inner');
+  const propertiesPanel = document.getElementById('properties-panel');
+  const exportModal = document.getElementById('export-modal');
+
+  // Element templates
+  const elementTemplates = {
+    heading: () => {
+      const el = document.createElement('h1');
+      el.textContent = 'Your Heading Here';
+      el.style.fontSize = '2rem';
+      el.style.fontWeight = '700';
+      el.style.margin = '10px 0';
+      return el;
+    },
+    paragraph: () => {
+      const el = document.createElement('p');
+      el.textContent = 'This is a paragraph. Edit this text to say whatever you want!';
+      el.style.fontSize = '1rem';
+      el.style.lineHeight = '1.6';
+      el.style.margin = '10px 0';
+      return el;
+    },
+    button: () => {
+      const el = document.createElement('button');
+      el.textContent = 'Click Me';
+      el.style.padding = '12px 24px';
+      el.style.background = 'linear-gradient(120deg, #6a11cb, #2575fc)';
+      el.style.color = 'white';
+      el.style.border = 'none';
+      el.style.borderRadius = '10px';
+      el.style.fontWeight = '600';
+      el.style.cursor = 'pointer';
+      el.style.fontSize = '1rem';
+      return el;
+    },
+    image: () => {
+      const el = document.createElement('img');
+      el.src = 'https://via.placeholder.com/400x200';
+      el.alt = 'Placeholder image';
+      el.style.maxWidth = '100%';
+      el.style.height = 'auto';
+      el.style.borderRadius = '10px';
+      return el;
+    },
+    input: () => {
+      const el = document.createElement('input');
+      el.type = 'text';
+      el.placeholder = 'Enter text...';
+      el.style.padding = '10px 14px';
+      el.style.border = '1px solid #ccc';
+      el.style.borderRadius = '8px';
+      el.style.fontSize = '1rem';
+      el.style.width = '100%';
+      el.style.maxWidth = '400px';
+      return el;
+    },
+    container: () => {
+      const el = document.createElement('div');
+      el.innerHTML = '<p style="color:#999; text-align:center;">Container - Drop elements here</p>';
+      el.style.padding = '20px';
+      el.style.border = '2px dashed #ccc';
+      el.style.borderRadius = '10px';
+      el.style.minHeight = '100px';
+      return el;
+    },
+    link: () => {
+      const el = document.createElement('a');
+      el.href = '#';
+      el.textContent = 'Link Text';
+      el.style.color = '#2575fc';
+      el.style.textDecoration = 'underline';
+      el.style.fontSize = '1rem';
+      return el;
+    },
+    list: () => {
+      const el = document.createElement('ul');
+      el.innerHTML = '<li>Item 1</li><li>Item 2</li><li>Item 3</li>';
+      el.style.margin = '10px 0';
+      el.style.paddingLeft = '20px';
+      return el;
+    }
+  };
+
+  // Drag and drop functionality
+  document.querySelectorAll('.element-btn').forEach(btn => {
+    btn.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('elementType', btn.dataset.type);
+    });
   });
 
-  confirmLogoutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.reload();
+  canvasInner.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  canvasInner.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const elementType = e.dataTransfer.getData('elementType');
+    if (elementType && elementTemplates[elementType]) {
+      addElement(elementType);
+    }
+  });
+
+  function addElement(type) {
+    const element = elementTemplates[type]();
+    const wrapper = document.createElement('div');
+    wrapper.className = 'canvas-element';
+    wrapper.dataset.id = `element-${++elementCounter}`;
+    wrapper.dataset.type = type;
+
+    const controls = document.createElement('div');
+    controls.className = 'element-controls';
+    controls.innerHTML = `
+      <button class="control-btn" onclick="moveElementUp(this)">↑</button>
+      <button class="control-btn" onclick="moveElementDown(this)">↓</button>
+      <button class="control-btn" onclick="deleteElement(this)">×</button>
+    `;
+
+    wrapper.appendChild(controls);
+    wrapper.appendChild(element);
+
+    wrapper.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectElement(wrapper);
+    });
+
+    // Remove placeholder text if it exists
+    const placeholder = canvasInner.querySelector('p[style*="color:#999"]');
+    if (placeholder) placeholder.remove();
+
+    canvasInner.appendChild(wrapper);
+    selectElement(wrapper);
+  }
+
+  function selectElement(wrapper) {
+    document.querySelectorAll('.canvas-element').forEach(el => {
+      el.classList.remove('selected');
+    });
+    wrapper.classList.add('selected');
+    selectedElement = wrapper;
+    updatePropertiesPanel(wrapper);
+  }
+
+  function updatePropertiesPanel(wrapper) {
+    const element = wrapper.querySelector(':not(.element-controls)');
+    const type = wrapper.dataset.type;
+
+    let propsHTML = `<h3>⚙️ ${type.charAt(0).toUpperCase() + type.slice(1)} Properties</h3>`;
+
+    // Common properties
+    if (element.textContent !== undefined && type !== 'image' && type !== 'input' && type !== 'container') {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Text Content</label>
+          <textarea class="prop-input" onchange="updateElementProperty('textContent', this.value)">${element.textContent || element.innerHTML}</textarea>
+        </div>
+      `;
+    }
+
+    // Font size
+    if (['heading', 'paragraph', 'button', 'link'].includes(type)) {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Font Size</label>
+          <input type="text" class="prop-input" value="${element.style.fontSize || '1rem'}" onchange="updateElementStyle('fontSize', this.value)" placeholder="e.g., 1.5rem, 20px">
+        </div>
+      `;
+    }
+
+    // Color
+    if (['heading', 'paragraph', 'link'].includes(type)) {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Text Color</label>
+          <div class="color-picker-wrapper">
+            <input type="color" value="${rgbToHex(element.style.color) || '#000000'}" onchange="updateElementStyle('color', this.value)">
+            <input type="text" class="prop-input" value="${element.style.color || '#000000'}" onchange="updateElementStyle('color', this.value)" placeholder="#000000">
+          </div>
+        </div>
+      `;
+    }
+
+    // Background color
+    if (['button', 'container'].includes(type)) {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Background Color</label>
+          <div class="color-picker-wrapper">
+            <input type="color" value="${rgbToHex(element.style.backgroundColor) || '#ffffff'}" onchange="updateElementStyle('backgroundColor', this.value)">
+            <input type="text" class="prop-input" value="${element.style.backgroundColor || '#ffffff'}" onchange="updateElementStyle('backgroundColor', this.value)" placeholder="#ffffff">
+          </div>
+        </div>
+      `;
+    }
+
+    // Image specific
+    if (type === 'image') {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Image URL</label>
+          <input type="text" class="prop-input" value="${element.src}" onchange="updateElementProperty('src', this.value)" placeholder="https://example.com/image.jpg">
+        </div>
+        <div class="prop-group">
+          <label class="prop-label">Alt Text</label>
+          <input type="text" class="prop-input" value="${element.alt}" onchange="updateElementProperty('alt', this.value)" placeholder="Image description">
+        </div>
+      `;
+    }
+
+    // Link specific
+    if (type === 'link') {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">URL</label>
+          <input type="text" class="prop-input" value="${element.href}" onchange="updateElementProperty('href', this.value)" placeholder="https://example.com">
+        </div>
+      `;
+    }
+
+    // Input specific
+    if (type === 'input') {
+      propsHTML += `
+        <div class="prop-group">
+          <label class="prop-label">Placeholder</label>
+          <input type="text" class="prop-input" value="${element.placeholder}" onchange="updateElementProperty('placeholder', this.value)" placeholder="Enter placeholder...">
+        </div>
+      `;
+    }
+
+    // Margin & Padding
+    propsHTML += `
+      <div class="prop-group">
+        <label class="prop-label">Margin</label>
+        <input type="text" class="prop-input" value="${element.style.margin || '10px 0'}" onchange="updateElementStyle('margin', this.value)" placeholder="10px 0">
+      </div>
+      <div class="prop-group">
+        <label class="prop-label">Padding</label>
+        <input type="text" class="prop-input" value="${element.style.padding || ''}" onchange="updateElementStyle('padding', this.value)" placeholder="10px">
+      </div>
+    `;
+
+    propertiesPanel.innerHTML = propsHTML;
+  }
+
+  window.updateElementProperty = function(prop, value) {
+    if (!selectedElement) return;
+    const element = selectedElement.querySelector(':not(.element-controls)');
+    if (prop === 'textContent' && selectedElement.dataset.type !== 'list') {
+      element.textContent = value;
+    } else if (prop === 'innerHTML') {
+      element.innerHTML = value;
+    } else {
+      element[prop] = value;
+    }
+  };
+
+  window.updateElementStyle = function(prop, value) {
+    if (!selectedElement) return;
+    const element = selectedElement.querySelector(':not(.element-controls)');
+    element.style[prop] = value;
+  };
+
+  window.deleteElement = function(btn) {
+    const wrapper = btn.closest('.canvas-element');
+    wrapper.remove();
+    selectedElement = null;
+    propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+  };
+
+  window.moveElementUp = function(btn) {
+    const wrapper = btn.closest('.canvas-element');
+    const prev = wrapper.previousElementSibling;
+    if (prev) {
+      canvasInner.insertBefore(wrapper, prev);
+    }
+  };
+
+  window.moveElementDown = function(btn) {
+    const wrapper = btn.closest('.canvas-element');
+    const next = wrapper.nextElementSibling;
+    if (next) {
+      canvasInner.insertBefore(next, wrapper);
+    }
+  };
+
+  function rgbToHex(rgb) {
+    if (!rgb || rgb.startsWith('#')) return rgb;
+    const match = rgb.match(/\d+/g);
+    if (!match) return '#000000';
+    const hex = match.map(x => {
+      const h = parseInt(x).toString(16);
+      return h.length === 1 ? '0' + h : h;
+    }).join('');
+    return '#' + hex;
+  }
+
+  // Toolbar actions
+  document.getElementById('preview-mode').addEventListener('click', () => {
+    document.querySelectorAll('.canvas-element').forEach(el => {
+      el.style.border = 'none';
+      el.style.cursor = 'default';
+      el.querySelector('.element-controls').style.display = 'none';
+    });
+    alert('Preview mode activated! Click elements to exit preview mode.');
+  });
+
+  document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+    canvas.classList.toggle('dark-mode');
+  });
+
+  document.getElementById('clear-canvas').addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear everything?')) {
+      canvasInner.innerHTML = '<p style="color:#999; text-align:center; padding:40px;">Drag elements here to start building! 🚀</p>';
+      selectedElement = null;
+      propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+    }
+  });
+
+  document.getElementById('export-code').addEventListener('click', () => {
+    const elements = Array.from(canvasInner.querySelectorAll('.canvas-element'));
+    let html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n  <style>\n    body { font-family: Arial, sans-serif; padding: 20px; }\n  </style>\n</head>\n<body>\n\n';
+
+    elements.forEach(wrapper => {
+      const element = wrapper.querySelector(':not(.element-controls)');
+      html += '  ' + element.outerHTML + '\n';
+    });
+
+    html += '\n</body>\n</html>';
+
+    document.getElementById('code-output').textContent = html;
+    exportModal.classList.add('active');
+  });
+
+  document.getElementById('close-export').addEventListener('click', () => {
+    exportModal.classList.remove('active');
+  });
+
+  document.getElementById('copy-code').addEventListener('click', () => {
+    const code = document.getElementById('code-output').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Code copied to clipboard! 🎉');
+    });
+  });
+
+  // Click outside to deselect
+  canvas.addEventListener('click', (e) => {
+    if (e.target === canvas || e.target === canvasInner) {
+      document.querySelectorAll('.canvas-element').forEach(el => {
+        el.classList.remove('selected');
+      });
+      selectedElement = null;
+      propertiesPanel.innerHTML = '<h3>⚙️ Properties</h3><p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
+    }
   });
 </script>
 
