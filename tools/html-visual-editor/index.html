@@ -4,1036 +4,249 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HTML Visual Editor — NGP Hub</title>
-
 <meta property="og:title" content="HTML Visual Editor — NGP Hub" />
 <meta property="og:description" content="Build and design HTML pages visually with live preview and instant code export." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
-<meta property="og:url" content="https://ngphub.com/tools/html-editor" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="NGP Hub" />
-
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="HTML Visual Editor — NGP Hub" />
-<meta name="twitter:description" content="Build and design HTML pages visually with live preview and instant code export." />
-<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
-
 <meta name="description" content="Visual HTML editor with drag-and-drop elements, live preview, and instant code export. Built by NGP Studios." />
-<meta name="keywords" content="HTML editor, visual editor, web design, NGP, code generator, drag and drop" />
-
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
-
 <style>
-  :root{
-    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
-    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
-    --ring:0 0 0 .2rem rgba(37,117,252,.35);
-    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
-    color:var(--ink);
-    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    scroll-behavior:smooth;
-    overflow:hidden;
-  }
-  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
-
-  header{
-    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
-    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
-  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
-  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
-  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{
-    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
-    padding:8px 10px; border-radius:10px; opacity:.9
-  }
-  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
-
-  .editor-container{
-    display:flex;
-    height:calc(100vh - 70px);
-    gap:0;
-  }
-
-  .sidebar{
-    width:280px;
-    background:var(--card);
-    border-right:1px solid rgba(255,255,255,.06);
-    padding:16px;
-    overflow-y:auto;
-  }
-
-  .sidebar h2{
-    font-size:1rem;
-    margin:0 0 16px 0;
-    color:var(--ink);
-    font-weight:700;
-    letter-spacing:.3px;
-  }
-
-  .element-library{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-
-  .element-btn{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1);
-    padding:12px 16px;
-    border-radius:10px;
-    color:var(--ink);
-    cursor:grab;
-    font-weight:500;
-    font-size:.9rem;
-    transition:all .2s;
-    text-align:left;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-
-  .element-btn:hover{
-    background:rgba(255,255,255,.08);
-    border-color:var(--brandB);
-    transform:translateY(-1px);
-  }
-
-  .element-btn:active{
-    cursor:grabbing;
-  }
-
-  .element-icon{
-    width:20px;
-    height:20px;
-    background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    border-radius:6px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:.7rem;
-    font-weight:700;
-  }
-
-  .canvas-wrapper{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-  }
-
-  .toolbar{
-    background:var(--card);
-    border-bottom:1px solid rgba(255,255,255,.06);
-    padding:12px 16px;
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-
-  .toolbar-btn{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1);
-    padding:8px 16px;
-    border-radius:8px;
-    color:var(--ink);
-    cursor:pointer;
-    font-weight:500;
-    font-size:.85rem;
-    transition:all .2s;
-  }
-
-  .toolbar-btn:hover{
-    background:rgba(255,255,255,.08);
-    border-color:var(--brandB);
-  }
-
-  .toolbar-btn.active{
-    background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    border-color:transparent;
-  }
-
-  .canvas{
-    flex:1;
-    background:#fff;
-    overflow:auto;
-    padding:20px;
-    position:relative;
-  }
-
-  .canvas.dark-mode{
-    background:var(--bg);
-    color:var(--ink);
-  }
-
-  .canvas-inner{
-    min-height:100%;
-    outline:2px dashed rgba(0,0,0,.1);
-    outline-offset:-1px;
-    padding:20px;
-  }
-
-  .dark-mode .canvas-inner{
-    outline-color:rgba(255,255,255,.1);
-  }
-
-  .properties-panel{
-    width:320px;
-    background:var(--card);
-    border-left:1px solid rgba(255,255,255,.06);
-    padding:0;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-  }
-
-  .panel-tabs{
-    display:flex;
-    border-bottom:1px solid rgba(255,255,255,.06);
-    background:rgba(0,0,0,.2);
-  }
-
-  .panel-tab{
-    flex:1;
-    padding:12px;
-    background:transparent;
-    border:none;
-    color:var(--muted);
-    font-weight:600;
-    font-size:.85rem;
-    cursor:pointer;
-    border-bottom:2px solid transparent;
-    transition:all .2s;
-  }
-
-  .panel-tab:hover{
-    background:rgba(255,255,255,.05);
-    color:var(--ink);
-  }
-
-  .panel-tab.active{
-    color:var(--ink);
-    border-bottom-color:var(--brandB);
-    background:rgba(37,117,252,.1);
-  }
-
-  .panel-content{
-    flex:1;
-    overflow-y:auto;
-    padding:16px;
-  }
-
-  .properties-panel h3{
-    font-size:.95rem;
-    margin:0 0 12px 0;
-    color:var(--ink);
-    font-weight:600;
-  }
-
-  .prop-group{
-    margin-bottom:16px;
-  }
-
-  .prop-label{
-    display:block;
-    font-size:.8rem;
-    color:var(--muted);
-    margin-bottom:6px;
-    font-weight:500;
-  }
-
-  .prop-input{
-    width:100%;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1);
-    padding:8px 12px;
-    border-radius:8px;
-    color:var(--ink);
-    font-size:.85rem;
-    font-family:inherit;
-  }
-
-  .prop-input:focus{
-    outline:none;
-    border-color:var(--brandB);
-    box-shadow:var(--ring);
-  }
-
-  textarea.prop-input{
-    resize:vertical;
-    min-height:80px;
-    font-family:'Courier New',monospace;
-  }
-
-  .prop-select{
-    width:100%;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1);
-    padding:8px 12px;
-    border-radius:8px;
-    color:var(--ink);
-    font-size:.85rem;
-    cursor:pointer;
-  }
-
-  .color-picker-wrapper{
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-
-  .color-picker-wrapper input[type="color"]{
-    width:40px;
-    height:40px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-  }
-
-  .canvas-element{
-    position:relative;
-    margin:10px 0;
-    padding:10px;
-    border:2px dashed transparent;
-    transition:all .2s;
-    cursor:pointer;
-  }
-
-  .canvas-element:hover{
-    border-color:var(--brandB);
-    background:rgba(37,117,252,.05);
-  }
-
-  .canvas-element.selected{
-    border-color:var(--brandA);
-    background:rgba(106,17,203,.05);
-  }
-
-  .element-controls{
-    position:absolute;
-    top:-30px;
-    right:0;
-    display:none;
-    gap:4px;
-  }
-
-  .canvas-element.selected .element-controls{
-    display:flex;
-  }
-
-  .control-btn{
-    background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    border:none;
-    color:white;
-    width:24px;
-    height:24px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:.7rem;
-    font-weight:700;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .control-btn:hover{
-    transform:scale(1.1);
-  }
-
-  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
-  .modal.active{display:flex}
-  .modal-content{background:var(--card); border-radius:var(--radius); max-width:800px; width:90%; max-height:90vh; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out; display:flex; flex-direction:column}
-  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
-  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
-  .modal-header h3{margin:0; font-size:1.2rem}
-  .modal-body{padding:24px; line-height:1.6; overflow-y:auto; flex:1}
-  .modal-body p{margin:0 0 12px 0}
-  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
-  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
-  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
-
-  .code-output{
-    background:rgba(0,0,0,.3);
-    border:1px solid rgba(255,255,255,.1);
-    border-radius:10px;
-    padding:16px;
-    font-family:'Courier New',monospace;
-    font-size:.85rem;
-    color:var(--ink);
-    overflow-x:auto;
-    white-space:pre;
-    max-height:500px;
-    overflow-y:auto;
-  }
-
-  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+:root{--bg:#0e0e11;--card:#15151b;--ink:#ececf1;--muted:#b5b7c3;--brandA:#6a11cb;--brandB:#2575fc;--ring:0 0 0 .2rem rgba(37,117,252,.35);--radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);color:var(--ink);font-family:'Rubik',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);background:rgba(10,10,14,.6);border-bottom:1px solid rgba(255,255,255,.06)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;max-width:100%}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo-img{width:28px;height:28px;border-radius:10px}
+.logo h1{font-size:1.05rem;letter-spacing:.3px}
+nav{display:flex;align-items:center;gap:6px}
+nav a{color:var(--ink);text-decoration:none;font-weight:500;padding:8px 10px;border-radius:10px;opacity:.9}
+nav a:hover{background:rgba(255,255,255,.06)}
+.editor-container{display:flex;height:calc(100vh - 70px)}
+.sidebar{width:280px;background:var(--card);border-right:1px solid rgba(255,255,255,.06);padding:16px;overflow-y:auto}
+.sidebar h2{font-size:1rem;margin-bottom:16px;font-weight:700}
+.element-library{display:flex;flex-direction:column;gap:8px}
+.element-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:12px 16px;border-radius:10px;color:var(--ink);cursor:grab;font-weight:500;font-size:.9rem;transition:all .2s;display:flex;align-items:center;gap:8px}
+.element-btn:hover{background:rgba(255,255,255,.08);border-color:var(--brandB);transform:translateY(-1px)}
+.element-btn:active{cursor:grabbing}
+.element-icon{width:20px;height:20px;background:linear-gradient(120deg,var(--brandA),var(--brandB));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.canvas-wrapper{flex:1;display:flex;flex-direction:column}
+.toolbar{background:var(--card);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;display:flex;gap:8px}
+.toolbar-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;color:var(--ink);cursor:pointer;font-weight:500;font-size:.85rem;transition:all .2s}
+.toolbar-btn:hover{background:rgba(255,255,255,.08);border-color:var(--brandB)}
+.canvas{flex:1;background:var(--bg);overflow:auto;padding:20px}
+.canvas-inner{min-height:100%;outline:2px dashed rgba(255,255,255,.1);outline-offset:-1px;padding:20px}
+.properties-panel{width:320px;background:var(--card);border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column}
+.panel-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2)}
+.panel-tab{flex:1;padding:12px;background:transparent;border:none;color:var(--muted);font-weight:600;font-size:.85rem;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.panel-tab:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+.panel-tab.active{color:var(--ink);border-bottom-color:var(--brandB);background:rgba(37,117,252,.1)}
+.panel-content{flex:1;overflow-y:auto;padding:16px}
+.panel-content h3{font-size:.95rem;margin-bottom:12px;font-weight:600}
+.prop-group{margin-bottom:16px}
+.prop-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:500}
+.prop-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:8px 12px;border-radius:8px;color:var(--ink);font-size:.85rem}
+.prop-input:focus{outline:none;border-color:var(--brandB);box-shadow:var(--ring)}
+textarea.prop-input{resize:vertical;min-height:80px;font-family:'Courier New',monospace}
+.color-picker-wrapper{display:flex;gap:8px;align-items:center}
+.color-picker-wrapper input[type="color"]{width:50px;height:50px;border:none;border-radius:8px;cursor:pointer;background:transparent}
+.canvas-element{position:relative;margin:10px 0;padding:10px;border:2px dashed transparent;transition:all .2s;cursor:pointer}
+.canvas-element:hover{border-color:var(--brandB);background:rgba(37,117,252,.05)}
+.canvas-element.selected{border-color:var(--brandA);background:rgba(106,17,203,.05)}
+.element-controls{position:absolute;top:-30px;right:0;display:none;gap:4px}
+.canvas-element.selected .element-controls{display:flex}
+.control-btn{background:linear-gradient(120deg,var(--brandA),var(--brandB));border:none;color:white;width:24px;height:24px;border-radius:6px;cursor:pointer;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.control-btn:hover{transform:scale(1.1)}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-content{background:var(--card);border-radius:var(--radius);max-width:800px;width:90%;max-height:90vh;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column}
+.modal-header{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
+.modal-header h3{font-size:1.2rem}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:12px;justify-content:flex-end}
+.btn{color:white;font-weight:700;padding:10px 14px;border-radius:12px;background:linear-gradient(120deg,var(--brandA),var(--brandB));border:none;cursor:pointer;font-size:.95rem}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid rgba(255,255,255,.1);padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:.95rem}
+.code-output{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px;font-family:'Courier New',monospace;font-size:.85rem;color:var(--ink);overflow-x:auto;white-space:pre;max-height:500px}
+.gradient-inputs{display:flex;gap:8px;margin-top:8px}
+.gradient-inputs input{flex:1}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="wrap bar">
-    <a class="logo" href="/">
-      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
-      <h1>NGP</h1>
-    </a>
-    <nav aria-label="Primary">
-      <a href="/tools">Tools</a>
-      <a href="/discordservers/">Servers</a>
-      <a href="/projects">Projects</a>
-      <a href="/docs/">Docs</a>
-      <a href="/roblox">Roblox</a>
-      <a href="/contact">Contact</a>
-      <a href="/login" id="auth-link">Login</a>
-    </nav>
-  </div>
+<div class="bar">
+<a class="logo" href="/">
+<img src="/assets/ngp-logo.png" alt="NGP" class="logo-img"/>
+<h1>NGP</h1>
+</a>
+<nav>
+<a href="/tools">Tools</a>
+<a href="/projects">Projects</a>
+<a href="/roblox">Roblox</a>
+<a href="/login" id="auth-link">Login</a>
+</nav>
+</div>
 </header>
-
 <div class="editor-container">
-  <!-- Sidebar with element library -->
-  <div class="sidebar">
-    <h2>📦 Elements</h2>
-    <div class="element-library">
-      <div class="element-btn" draggable="true" data-type="heading">
-        <div class="element-icon">H</div>
-        Heading
-      </div>
-      <div class="element-btn" draggable="true" data-type="paragraph">
-        <div class="element-icon">P</div>
-        Paragraph
-      </div>
-      <div class="element-btn" draggable="true" data-type="button">
-        <div class="element-icon">B</div>
-        Button
-      </div>
-      <div class="element-btn" draggable="true" data-type="image">
-        <div class="element-icon">I</div>
-        Image
-      </div>
-      <div class="element-btn" draggable="true" data-type="input">
-        <div class="element-icon">T</div>
-        Text Input
-      </div>
-      <div class="element-btn" draggable="true" data-type="container">
-        <div class="element-icon">C</div>
-        Container
-      </div>
-      <div class="element-btn" draggable="true" data-type="link">
-        <div class="element-icon">L</div>
-        Link
-      </div>
-      <div class="element-btn" draggable="true" data-type="list">
-        <div class="element-icon">L</div>
-        List
-      </div>
-    </div>
-  </div>
-
-  <!-- Canvas area -->
-  <div class="canvas-wrapper">
-    <div class="toolbar">
-      <button class="toolbar-btn" id="preview-mode">👁️ Preview</button>
-      <button class="toolbar-btn" id="dark-mode-toggle">🌙 Dark Mode</button>
-      <button class="toolbar-btn" id="export-code">💾 Export HTML</button>
-      <button class="toolbar-btn" id="clear-canvas">🗑️ Clear</button>
-    </div>
-    <div class="canvas" id="canvas">
-      <div class="canvas-inner" id="canvas-inner">
-        <p style="color:#999; text-align:center; padding:40px;">Drag elements here to start building! 🚀</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Properties panel with tabs -->
-  <div class="properties-panel">
-    <div class="panel-tabs">
-      <button class="panel-tab active" id="tab-properties">⚙️ Properties</button>
-      <button class="panel-tab" id="tab-styles">🎨 Styles</button>
-    </div>
-    <div class="panel-content" id="panel-content">
-      <p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>
-    </div>
-  </div>
+<div class="sidebar">
+<h2>📦 Elements</h2>
+<div class="element-library">
+<div class="element-btn" draggable="true" data-type="heading"><div class="element-icon">H</div>Heading</div>
+<div class="element-btn" draggable="true" data-type="paragraph"><div class="element-icon">P</div>Paragraph</div>
+<div class="element-btn" draggable="true" data-type="button"><div class="element-icon">B</div>Button</div>
+<div class="element-btn" draggable="true" data-type="image"><div class="element-icon">I</div>Image</div>
+<div class="element-btn" draggable="true" data-type="input"><div class="element-icon">T</div>Input</div>
+<div class="element-btn" draggable="true" data-type="container"><div class="element-icon">C</div>Container</div>
+<div class="element-btn" draggable="true" data-type="link"><div class="element-icon">L</div>Link</div>
+<div class="element-btn" draggable="true" data-type="list"><div class="element-icon">•</div>List</div>
 </div>
-
-<!-- Export Modal -->
+</div>
+<div class="canvas-wrapper">
+<div class="toolbar">
+<button class="toolbar-btn" id="preview-mode">👁️ Preview</button>
+<button class="toolbar-btn" id="export-code">💾 Export</button>
+<button class="toolbar-btn" id="clear-canvas">🗑️ Clear</button>
+</div>
+<div class="canvas" id="canvas">
+<div class="canvas-inner" id="canvas-inner">
+<p style="color:#666;text-align:center;padding:40px">Drag elements here! 🚀</p>
+</div>
+</div>
+</div>
+<div class="properties-panel">
+<div class="panel-tabs">
+<button class="panel-tab active" data-tab="properties">⚙️ Properties</button>
+<button class="panel-tab" data-tab="styles">🎨 Styles</button>
+</div>
+<div class="panel-content" id="panel-content">
+<p style="color:var(--muted);font-size:.85rem">Select an element to edit</p>
+</div>
+</div>
+</div>
 <div id="export-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>📄 Export HTML Code</h3>
-    </div>
-    <div class="modal-body">
-      <p style="color:var(--muted);">Copy the code below and paste it into your .html file:</p>
-      <div class="code-output" id="code-output"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-ghost" id="close-export">Close</button>
-      <button class="btn" id="copy-code">Copy Code</button>
-    </div>
-  </div>
+<div class="modal-content">
+<div class="modal-header"><h3>📄 Export HTML</h3></div>
+<div class="modal-body"><div class="code-output" id="code-output"></div></div>
+<div class="modal-footer">
+<button class="btn-ghost" id="close-export">Close</button>
+<button class="btn" id="copy-code">Copy Code</button>
 </div>
-
+</div>
+</div>
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-  import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
-    authDomain: "ngp-hub.firebaseapp.com",
-    projectId: "ngp-hub",
-    storageBucket: "ngp-hub.firebasestorage.app",
-    messagingSenderId: "157947384705",
-    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const authLink = document.getElementById('auth-link');
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authLink.textContent = user.email.split('@')[0];
-      authLink.href = '/profile';
-    } else {
-      authLink.textContent = 'Login';
-      authLink.href = '/login';
-    }
-  });
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+const app=initializeApp({apiKey:"AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",authDomain:"ngp-hub.firebaseapp.com",projectId:"ngp-hub",storageBucket:"ngp-hub.firebasestorage.app",messagingSenderId:"157947384705",appId:"1:157947384705:web:c89e95d6d9f7436bb5ce80"});
+const auth=getAuth(app);
+onAuthStateChanged(auth,u=>document.getElementById('auth-link').textContent=u?u.email.split('@')[0]:'Login');
 </script>
-
 <script>
-  let selectedElement = null;
-  let elementCounter = 0;
-  let activeTab = 'properties';
+let sel=null,ctr=0,tab='properties';
+const canvas=document.getElementById('canvas-inner'),panel=document.getElementById('panel-content'),modal=document.getElementById('export-modal');
 
-  const canvas = document.getElementById('canvas');
-  const canvasInner = document.getElementById('canvas-inner');
-  const panelContent = document.getElementById('panel-content');
-  const exportModal = document.getElementById('export-modal');
+const temps={
+heading:()=>{const e=document.createElement('h1');e.textContent='Your Heading';e.style.cssText='font-size:2rem;font-weight:700;margin:10px 0;color:#fff';return e},
+paragraph:()=>{const e=document.createElement('p');e.textContent='Your paragraph text here';e.style.cssText='font-size:1rem;line-height:1.6;margin:10px 0;color:#ddd';return e},
+button:()=>{const e=document.createElement('button');e.textContent='Click Me';e.style.cssText='padding:12px 24px;background:linear-gradient(120deg,#6a11cb,#2575fc);color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem';return e},
+image:()=>{const e=document.createElement('img');e.src='https://via.placeholder.com/400x200';e.alt='Image';e.style.cssText='max-width:100%;height:auto;border-radius:10px';return e},
+input:()=>{const e=document.createElement('input');e.placeholder='Enter text...';e.style.cssText='padding:10px 14px;border:1px solid #444;border-radius:8px;font-size:1rem;width:100%;max-width:400px;background:#1a1a1f;color:#fff';return e},
+container:()=>{const e=document.createElement('div');e.innerHTML='<p style="color:#666;text-align:center">Container</p>';e.style.cssText='padding:20px;border:2px dashed #444;border-radius:10px;min-height:100px';return e},
+link:()=>{const e=document.createElement('a');e.href='#';e.textContent='Link Text';e.style.cssText='color:#2575fc;text-decoration:underline;font-size:1rem';return e},
+list:()=>{const e=document.createElement('ul');e.innerHTML='<li>Item 1</li><li>Item 2</li><li>Item 3</li>';e.style.cssText='margin:10px 0;padding-left:20px;color:#ddd';return e}
+};
 
-  // Tab switching
-  document.getElementById('tab-properties').addEventListener('click', () => {
-    switchTab('properties');
-  });
+document.querySelectorAll('.element-btn').forEach(b=>b.addEventListener('dragstart',e=>e.dataTransfer.setData('type',b.dataset.type)));
+canvas.addEventListener('dragover',e=>e.preventDefault());
+canvas.addEventListener('drop',e=>{e.preventDefault();const t=e.dataTransfer.getData('type');if(temps[t])add(t)});
 
-  document.getElementById('tab-styles').addEventListener('click', () => {
-    switchTab('styles');
-  });
+function add(type){
+const el=temps[type](),w=document.createElement('div');
+w.className='canvas-element';w.dataset.id=`el-${++ctr}`;w.dataset.type=type;
+w.innerHTML=`<div class="element-controls"><button class="control-btn" onclick="up(this)">↑</button><button class="control-btn" onclick="down(this)">↓</button><button class="control-btn" onclick="del(this)">×</button></div>`;
+w.appendChild(el);
+w.onclick=e=>{e.stopPropagation();select(w)};
+const ph=canvas.querySelector('p[style*="color:#666"]');
+if(ph)ph.remove();
+canvas.appendChild(w);
+select(w);
+}
 
-  function switchTab(tab) {
-    activeTab = tab;
-    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${tab}`).classList.add('active');
-    
-    if (selectedElement) {
-      if (tab === 'properties') {
-        updatePropertiesPanel(selectedElement);
-      } else {
-        updateStylesPanel();
-      }
-    } else if (tab === 'styles') {
-      showGlobalStyles();
-    }
-  }
+function select(w){
+document.querySelectorAll('.canvas-element').forEach(e=>e.classList.remove('selected'));
+w.classList.add('selected');
+sel=w;
+tab==='properties'?showProps():showStyles();
+}
 
-  // Element templates
-  const elementTemplates = {
-    heading: () => {
-      const el = document.createElement('h1');
-      el.textContent = 'Your Heading Here';
-      el.style.fontSize = '2rem';
-      el.style.fontWeight = '700';
-      el.style.margin = '10px 0';
-      return el;
-    },
-    paragraph: () => {
-      const el = document.createElement('p');
-      el.textContent = 'This is a paragraph. Edit this text to say whatever you want!';
-      el.style.fontSize = '1rem';
-      el.style.lineHeight = '1.6';
-      el.style.margin = '10px 0';
-      return el;
-    },
-    button: () => {
-      const el = document.createElement('button');
-      el.textContent = 'Click Me';
-      el.style.padding = '12px 24px';
-      el.style.background = 'linear-gradient(120deg, #6a11cb, #2575fc)';
-      el.style.color = 'white';
-      el.style.border = 'none';
-      el.style.borderRadius = '10px';
-      el.style.fontWeight = '600';
-      el.style.cursor = 'pointer';
-      el.style.fontSize = '1rem';
-      return el;
-    },
-    image: () => {
-      const el = document.createElement('img');
-      el.src = 'https://via.placeholder.com/400x200';
-      el.alt = 'Placeholder image';
-      el.style.maxWidth = '100%';
-      el.style.height = 'auto';
-      el.style.borderRadius = '10px';
-      return el;
-    },
-    input: () => {
-      const el = document.createElement('input');
-      el.type = 'text';
-      el.placeholder = 'Enter text...';
-      el.style.padding = '10px 14px';
-      el.style.border = '1px solid #ccc';
-      el.style.borderRadius = '8px';
-      el.style.fontSize = '1rem';
-      el.style.width = '100%';
-      el.style.maxWidth = '400px';
-      return el;
-    },
-    container: () => {
-      const el = document.createElement('div');
-      el.innerHTML = '<p style="color:#999; text-align:center;">Container - Drop elements here</p>';
-      el.style.padding = '20px';
-      el.style.border = '2px dashed #ccc';
-      el.style.borderRadius = '10px';
-      el.style.minHeight = '100px';
-      return el;
-    },
-    link: () => {
-      const el = document.createElement('a');
-      el.href = '#';
-      el.textContent = 'Link Text';
-      el.style.color = '#2575fc';
-      el.style.textDecoration = 'underline';
-      el.style.fontSize = '1rem';
-      return el;
-    },
-    list: () => {
-      const el = document.createElement('ul');
-      el.innerHTML = '<li>Item 1</li><li>Item 2</li><li>Item 3</li>';
-      el.style.margin = '10px 0';
-      el.style.paddingLeft = '20px';
-      return el;
-    }
-  };
+function getEl(w){return Array.from(w.children).find(c=>!c.classList.contains('element-controls'))}
 
-  // Drag and drop functionality
-  document.querySelectorAll('.element-btn').forEach(btn => {
-    btn.addEventListener('dragstart', (e) => {
-      e.dataTransfer.setData('elementType', btn.dataset.type);
-    });
-  });
+function showProps(){
+const el=getEl(sel),type=sel.dataset.type;
+let h=`<h3>⚙️ ${type.charAt(0).toUpperCase()+type.slice(1)}</h3>`;
+if(el.textContent!==undefined&&type!=='image'&&type!=='input'&&type!=='container'){
+const txt=type==='list'?el.innerHTML:el.textContent;
+h+=`<div class="prop-group"><label class="prop-label">Text</label><textarea class="prop-input" onchange="setProp('${type==='list'?'innerHTML':'textContent'}',this.value)">${txt}</textarea></div>`;
+}
+if(['heading','paragraph','button','link'].includes(type))h+=`<div class="prop-group"><label class="prop-label">Font Size</label><input class="prop-input" value="${el.style.fontSize||'1rem'}" onchange="setStyle('fontSize',this.value)" placeholder="1.5rem"></div>`;
+if(type==='image')h+=`<div class="prop-group"><label class="prop-label">Image URL</label><input class="prop-input" value="${el.src}" onchange="setProp('src',this.value)"></div><div class="prop-group"><label class="prop-label">Alt Text</label><input class="prop-input" value="${el.alt}" onchange="setProp('alt',this.value)"></div>`;
+if(type==='link')h+=`<div class="prop-group"><label class="prop-label">URL</label><input class="prop-input" value="${el.href}" onchange="setProp('href',this.value)"></div>`;
+if(type==='input')h+=`<div class="prop-group"><label class="prop-label">Placeholder</label><input class="prop-input" value="${el.placeholder}" onchange="setProp('placeholder',this.value)"></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Margin</label><input class="prop-input" value="${el.style.margin||'10px 0'}" onchange="setStyle('margin',this.value)"></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Padding</label><input class="prop-input" value="${el.style.padding||''}" onchange="setStyle('padding',this.value)"></div>`;
+panel.innerHTML=h;
+}
 
-  canvasInner.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
+function showStyles(){
+if(!sel){showGlobal();return}
+const el=getEl(sel);
+let h=`<h3>🎨 Element Styles</h3>`;
+h+=`<div class="prop-group"><label class="prop-label">Text Color</label><div class="color-picker-wrapper"><input type="color" value="${rgbToHex(el.style.color)||'#ffffff'}" onchange="setStyle('color',this.value)"><input class="prop-input" value="${el.style.color||'#ffffff'}" onchange="setStyle('color',this.value)"></div></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Background Color</label><div class="color-picker-wrapper"><input type="color" value="${rgbToHex(el.style.backgroundColor)||'#000000'}" onchange="setStyle('backgroundColor',this.value)"><input class="prop-input" value="${el.style.backgroundColor||'transparent'}" onchange="setStyle('backgroundColor',this.value)"></div></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Background Gradient</label><div class="gradient-inputs"><input class="prop-input" id="grad1" placeholder="#6a11cb"><input class="prop-input" id="grad2" placeholder="#2575fc"></div><button class="toolbar-btn" style="width:100%;margin-top:8px" onclick="applyGrad()">Apply Gradient</button></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Custom CSS</label><textarea class="prop-input" style="min-height:150px;font-family:'Courier New',monospace" onchange="setCSS(this.value)">${el.style.cssText}</textarea></div>`;
+h+=`<div class="prop-group"><label class="prop-label">Quick Presets</label><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('shadow')">Add Shadow</button><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('rounded')">Rounded</button><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('center')">Center Text</button></div>`;
+panel.innerHTML=h;
+}
 
-  canvasInner.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const elementType = e.dataTransfer.getData('elementType');
-    if (elementType && elementTemplates[elementType]) {
-      addElement(elementType);
-    }
-  });
+function showGlobal(){
+const st=document.getElementById('global-styles');
+panel.innerHTML=`<h3>🎨 Global Styles</h3><p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Add custom CSS</p><div class="prop-group"><label class="prop-label">Custom CSS</label><textarea class="prop-input" id="global-input" style="min-height:250px;font-family:'Courier New',monospace">${st?st.textContent:''}</textarea></div><button class="btn" style="width:100%;margin-top:16px" onclick="applyGlobal()">Apply</button>`;
+}
 
-  function addElement(type) {
-    const element = elementTemplates[type]();
-    const wrapper = document.createElement('div');
-    wrapper.className = 'canvas-element';
-    wrapper.dataset.id = `element-${++elementCounter}`;
-    wrapper.dataset.type = type;
+window.setProp=(p,v)=>{if(!sel)return;const el=getEl(sel);el[p]=v};
+window.setStyle=(p,v)=>{if(!sel)return;getEl(sel).style[p]=v};
+window.setCSS=v=>{if(!sel)return;getEl(sel).style.cssText=v};
+window.applyGrad=()=>{if(!sel)return;const c1=document.getElementById('grad1').value||'#6a11cb',c2=document.getElementById('grad2').value||'#2575fc';getEl(sel).style.background=`linear-gradient(120deg,${c1},${c2})`;showStyles()};
+window.preset=p=>{if(!sel)return;const el=getEl(sel);if(p==='shadow')el.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';else if(p==='rounded')el.style.borderRadius='16px';else if(p==='center')el.style.textAlign='center';showStyles()};
+window.applyGlobal=()=>{const inp=document.getElementById('global-input');if(!inp)return;let st=document.getElementById('global-styles');if(!st){st=document.createElement('style');st.id='global-styles';document.head.appendChild(st)}st.textContent=inp.value;alert('Styles applied! 🎨')};
+window.del=b=>{b.closest('.canvas-element').remove();sel=null;panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'};
+window.up=b=>{const w=b.closest('.canvas-element'),p=w.previousElementSibling;if(p)canvas.insertBefore(w,p)};
+window.down=b=>{const w=b.closest('.canvas-element'),n=w.nextElementSibling;if(n)canvas.insertBefore(n,w)};
 
-    const controls = document.createElement('div');
-    controls.className = 'element-controls';
-    controls.innerHTML = `
-      <button class="control-btn" onclick="moveElementUp(this)">↑</button>
-      <button class="control-btn" onclick="moveElementDown(this)">↓</button>
-      <button class="control-btn" onclick="deleteElement(this)">×</button>
-    `;
+function rgbToHex(rgb){if(!rgb||rgb.startsWith('#'))return rgb;const m=rgb.match(/\d+/g);if(!m)return'#000000';return'#'+m.map(x=>{const h=parseInt(x).toString(16);return h.length===1?'0'+h:h}).join('')}
 
-    wrapper.appendChild(controls);
-    wrapper.appendChild(element);
+document.querySelectorAll('.panel-tab').forEach(t=>t.onclick=()=>{tab=t.dataset.tab;document.querySelectorAll('.panel-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');sel?(tab==='properties'?showProps():showStyles()):tab==='styles'?showGlobal():panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'});
 
-    wrapper.addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectElement(wrapper);
-    });
+document.getElementById('preview-mode').onclick=()=>{document.querySelectorAll('.canvas-element').forEach(e=>{e.style.border='none';e.style.cursor='default';e.querySelector('.element-controls').style.display='none'});alert('Preview mode! 👁️')};
 
-    // Remove placeholder text if it exists
-    const placeholder = canvasInner.querySelector('p[style*="color:#999"]');
-    if (placeholder) placeholder.remove();
+document.getElementById('clear-canvas').onclick=()=>{if(confirm('Clear everything?')){canvas.innerHTML='<p style="color:#666;text-align:center;padding:40px">Drag elements here! 🚀</p>';sel=null;panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'}};
 
-    canvasInner.appendChild(wrapper);
-    selectElement(wrapper);
-  }
+document.getElementById('export-code').onclick=()=>{
+const els=Array.from(canvas.querySelectorAll('.canvas-element'));
+const gstyle=document.getElementById('global-styles');
+let h='<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>My Page</title>\n<style>\nbody{font-family:Arial,sans-serif;padding:20px;background:#0e0e11;color:#fff}\n';
+if(gstyle)h+=gstyle.textContent+'\n';
+h+='</style>\n</head>\n<body>\n\n';
+els.forEach(w=>{const e=getEl(w);h+='  '+e.outerHTML+'\n'});
+h+='\n</body>\n</html>';
+document.getElementById('code-output').textContent=h;
+modal.classList.add('active');
+};
 
-  function selectElement(wrapper) {
-    document.querySelectorAll('.canvas-element').forEach(el => {
-      el.classList.remove('selected');
-    });
-    wrapper.classList.add('selected');
-    selectedElement = wrapper;
-    
-    if (activeTab === 'properties') {
-      updatePropertiesPanel(wrapper);
-    } else {
-      updateStylesPanel();
-    }
-  }
+document.getElementById('close-export').onclick=()=>modal.classList.remove('active');
+document.getElementById('copy-code').onclick=()=>navigator.clipboard.writeText(document.getElementById('code-output').textContent).then(()=>alert('Copied! 🎉'));
 
-  function getChildElement(wrapper) {
-    // Get the actual element (not the controls)
-    const children = Array.from(wrapper.children);
-    return children.find(child => !child.classList.contains('element-controls'));
-  }
-
-  function updatePropertiesPanel(wrapper) {
-    const element = getChildElement(wrapper);
-    const type = wrapper.dataset.type;
-
-    let propsHTML = `<h3>⚙️ ${type.charAt(0).toUpperCase() + type.slice(1)} Properties</h3>`;
-
-    // Common properties
-    if (element.textContent !== undefined && type !== 'image' && type !== 'input' && type !== 'container') {
-      const currentText = type === 'list' ? element.innerHTML : element.textContent;
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Text Content</label>
-          <textarea class="prop-input" onchange="updateElementProperty('${type === 'list' ? 'innerHTML' : 'textContent'}', this.value)">${currentText}</textarea>
-        </div>
-      `;
-    }
-
-    // Font size
-    if (['heading', 'paragraph', 'button', 'link'].includes(type)) {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Font Size</label>
-          <input type="text" class="prop-input" value="${element.style.fontSize || '1rem'}" onchange="updateElementStyle('fontSize', this.value)" placeholder="e.g., 1.5rem, 20px">
-        </div>
-      `;
-    }
-
-    // Color
-    if (['heading', 'paragraph', 'link'].includes(type)) {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Text Color</label>
-          <div class="color-picker-wrapper">
-            <input type="color" value="${rgbToHex(element.style.color) || '#000000'}" onchange="updateElementStyle('color', this.value)">
-            <input type="text" class="prop-input" value="${element.style.color || '#000000'}" onchange="updateElementStyle('color', this.value)" placeholder="#000000">
-          </div>
-        </div>
-      `;
-    }
-
-    // Background color
-    if (['button', 'container'].includes(type)) {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Background Color</label>
-          <div class="color-picker-wrapper">
-            <input type="color" value="${rgbToHex(element.style.backgroundColor) || '#ffffff'}" onchange="updateElementStyle('backgroundColor', this.value)">
-            <input type="text" class="prop-input" value="${element.style.backgroundColor || '#ffffff'}" onchange="updateElementStyle('backgroundColor', this.value)" placeholder="#ffffff">
-          </div>
-        </div>
-      `;
-    }
-
-    // Image specific
-    if (type === 'image') {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Image URL</label>
-          <input type="text" class="prop-input" value="${element.src}" onchange="updateElementProperty('src', this.value)" placeholder="https://example.com/image.jpg">
-        </div>
-        <div class="prop-group">
-          <label class="prop-label">Alt Text</label>
-          <input type="text" class="prop-input" value="${element.alt}" onchange="updateElementProperty('alt', this.value)" placeholder="Image description">
-        </div>
-      `;
-    }
-
-    // Link specific
-    if (type === 'link') {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">URL</label>
-          <input type="text" class="prop-input" value="${element.href}" onchange="updateElementProperty('href', this.value)" placeholder="https://example.com">
-        </div>
-      `;
-    }
-
-    // Input specific
-    if (type === 'input') {
-      propsHTML += `
-        <div class="prop-group">
-          <label class="prop-label">Placeholder</label>
-          <input type="text" class="prop-input" value="${element.placeholder}" onchange="updateElementProperty('placeholder', this.value)" placeholder="Enter placeholder...">
-        </div>
-      `;
-    }
-
-    // Margin & Padding
-    propsHTML += `
-      <div class="prop-group">
-        <label class="prop-label">Margin</label>
-        <input type="text" class="prop-input" value="${element.style.margin || '10px 0'}" onchange="updateElementStyle('margin', this.value)" placeholder="10px 0">
-      </div>
-      <div class="prop-group">
-        <label class="prop-label">Padding</label>
-        <input type="text" class="prop-input" value="${element.style.padding || ''}" onchange="updateElementStyle('padding', this.value)" placeholder="10px">
-      </div>
-    `;
-
-    panelContent.innerHTML = propsHTML;
-  }
-
-  function updateStylesPanel() {
-    if (!selectedElement) {
-      showGlobalStyles();
-      return;
-    }
-
-    const element = getChildElement(selectedElement);
-    const type = selectedElement.dataset.type;
-
-    let stylesHTML = `
-      <h3>🎨 Element Styles</h3>
-      <div class="prop-group">
-        <label class="prop-label">Custom CSS (inline)</label>
-        <textarea class="prop-input" style="min-height:200px; font-family:'Courier New',monospace;" onchange="applyCustomCSS(this.value)" placeholder="border: 1px solid red;&#10;box-shadow: 0 4px 8px rgba(0,0,0,0.2);">${element.style.cssText}</textarea>
-      </div>
-      <div class="prop-group">
-        <label class="prop-label">Quick Presets</label>
-        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('shadow')">Add Shadow</button>
-        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('gradient')">Gradient BG</button>
-        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('rounded')">Rounded Corners</button>
-        <button class="toolbar-btn" style="width:100%; margin-bottom:8px;" onclick="applyPreset('center')">Center Text</button>
-      </div>
-    `;
-
-    panelContent.innerHTML = stylesHTML;
-  }
-
-  function showGlobalStyles() {
-    const styleTag = document.getElementById('custom-global-styles');
-    const currentStyles = styleTag ? styleTag.textContent : '';
-
-    panelContent.innerHTML = `
-      <h3>🎨 Global Styles</h3>
-      <p style="color:var(--muted); font-size:.85rem; margin-bottom:16px;">Add custom CSS or import external stylesheets</p>
-      <div class="prop-group">
-        <label class="prop-label">Custom CSS</label>
-        <textarea class="prop-input" id="global-css-input" style="min-height:300px; font-family:'Courier New',monospace;" placeholder="/* Add your custom CSS here */&#10;body {&#10;  background: #f0f0f0;&#10;}&#10;&#10;.my-class {&#10;  color: blue;&#10;}">${currentStyles}</textarea>
-      </div>
-      <div class="prop-group">
-        <label class="prop-label">Import Stylesheet (URL)</label>
-        <input type="text" class="prop-input" id="import-css-url" placeholder="https://fonts.googleapis.com/css2?family=...">
-        <button class="toolbar-btn" style="width:100%; margin-top:8px;" onclick="importStylesheet()">Import</button>
-      </div>
-      <button class="btn" style="width:100%; margin-top:16px;" onclick="applyGlobalStyles()">Apply Styles</button>
-    `;
-  }
-
-  window.updateElementProperty = function(prop, value) {
-    if (!selectedElement) return;
-    const element = getChildElement(selectedElement);
-    if (prop === 'textContent') {
-      element.textContent = value;
-    } else if (prop === 'innerHTML') {
-      element.innerHTML = value;
-    } else {
-      element[prop] = value;
-    }
-  };
-
-  window.updateElementStyle = function(prop, value) {
-    if (!selectedElement) return;
-    const element = getChildElement(selectedElement);
-    element.style[prop] = value;
-  };
-
-  window.applyCustomCSS = function(cssText) {
-    if (!selectedElement) return;
-    const element = getChildElement(selectedElement);
-    element.style.cssText = cssText;
-  };
-
-  window.applyPreset = function(preset) {
-    if (!selectedElement) return;
-    const element = getChildElement(selectedElement);
-    
-    switch(preset) {
-      case 'shadow':
-        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        break;
-      case 'gradient':
-        element.style.background = 'linear-gradient(120deg, #6a11cb, #2575fc)';
-        element.style.color = 'white';
-        break;
-      case 'rounded':
-        element.style.borderRadius = '16px';
-        break;
-      case 'center':
-        element.style.textAlign = 'center';
-        break;
-    }
-    
-    updateStylesPanel();
-  };
-
-  window.applyGlobalStyles = function() {
-    const cssInput = document.getElementById('global-css-input');
-    if (!cssInput) return;
-    
-    let styleTag = document.getElementById('custom-global-styles');
-    if (!styleTag) {
-      styleTag = document.createElement('style');
-      styleTag.id = 'custom-global-styles';
-      document.head.appendChild(styleTag);
-    }
-    
-    styleTag.textContent = cssInput.value;
-    alert('Global styles applied! 🎨');
-  };
-
-  window.importStylesheet = function() {
-    const urlInput = document.getElementById('import-css-url');
-    if (!urlInput || !urlInput.value) return;
-    
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = urlInput.value;
-    link.className = 'imported-stylesheet';
-    document.head.appendChild(link);
-    
-    alert('Stylesheet imported! 🔗');
-    urlInput.value = '';
-  };
-
-  window.deleteElement = function(btn) {
-    const wrapper = btn.closest('.canvas-element');
-    wrapper.remove();
-    selectedElement = null;
-    panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
-  };
-
-  window.moveElementUp = function(btn) {
-    const wrapper = btn.closest('.canvas-element');
-    const prev = wrapper.previousElementSibling;
-    if (prev) {
-      canvasInner.insertBefore(wrapper, prev);
-    }
-  };
-
-  window.moveElementDown = function(btn) {
-    const wrapper = btn.closest('.canvas-element');
-    const next = wrapper.nextElementSibling;
-    if (next) {
-      canvasInner.insertBefore(next, wrapper);
-    }
-  };
-
-  function rgbToHex(rgb) {
-    if (!rgb || rgb.startsWith('#')) return rgb;
-    const match = rgb.match(/\d+/g);
-    if (!match) return '#000000';
-    const hex = match.map(x => {
-      const h = parseInt(x).toString(16);
-      return h.length === 1 ? '0' + h : h;
-    }).join('');
-    return '#' + hex;
-  }
-
-  // Toolbar actions
-  document.getElementById('preview-mode').addEventListener('click', () => {
-    document.querySelectorAll('.canvas-element').forEach(el => {
-      el.style.border = 'none';
-      el.style.cursor = 'default';
-      el.querySelector('.element-controls').style.display = 'none';
-    });
-    alert('Preview mode activated! Click elements to exit preview mode.');
-  });
-
-  document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-    canvas.classList.toggle('dark-mode');
-  });
-
-  document.getElementById('clear-canvas').addEventListener('click', () => {
-    if (confirm('Are you sure you want to clear everything?')) {
-      canvasInner.innerHTML = '<p style="color:#999; text-align:center; padding:40px;">Drag elements here to start building! 🚀</p>';
-      selectedElement = null;
-      panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
-    }
-  });
-
-  document.getElementById('export-code').addEventListener('click', () => {
-    const elements = Array.from(canvasInner.querySelectorAll('.canvas-element'));
-    
-    // Get custom styles
-    const customStyles = document.getElementById('custom-global-styles');
-    const importedSheets = Array.from(document.querySelectorAll('.imported-stylesheet'));
-    
-    let html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n';
-    
-    // Add imported stylesheets
-    importedSheets.forEach(sheet => {
-      html += `  <link rel="stylesheet" href="${sheet.href}">\n`;
-    });
-    
-    html += '  <style>\n    body { font-family: Arial, sans-serif; padding: 20px; }\n';
-    
-    // Add custom global styles
-    if (customStyles) {
-      html += '    ' + customStyles.textContent.split('\n').join('\n    ') + '\n';
-    }
-    
-    html += '  </style>\n</head>\n<body>\n\n';
-
-    elements.forEach(wrapper => {
-      const element = getChildElement(wrapper);
-      html += '  ' + element.outerHTML + '\n';
-    });
-
-    html += '\n</body>\n</html>';
-
-    document.getElementById('code-output').textContent = html;
-    exportModal.classList.add('active');
-  });
-
-  document.getElementById('close-export').addEventListener('click', () => {
-    exportModal.classList.remove('active');
-  });
-
-  document.getElementById('copy-code').addEventListener('click', () => {
-    const code = document.getElementById('code-output').textContent;
-    navigator.clipboard.writeText(code).then(() => {
-      alert('Code copied to clipboard! 🎉');
-    });
-  });
-
-  // Click outside to deselect
-  canvas.addEventListener('click', (e) => {
-    if (e.target === canvas || e.target === canvasInner) {
-      document.querySelectorAll('.canvas-element').forEach(el => {
-        el.classList.remove('selected');
-      });
-      selectedElement = null;
-      if (activeTab === 'styles') {
-        showGlobalStyles();
-      } else {
-        panelContent.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Select an element to edit its properties</p>';
-      }
-    }
-  });
+canvas.onclick=e=>{if(e.target===canvas||e.target.parentElement===canvas){document.querySelectorAll('.canvas-element').forEach(el=>el.classList.remove('selected'));sel=null;tab==='styles'?showGlobal():panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'}};
 </script>
-
 </body>
 </html>
