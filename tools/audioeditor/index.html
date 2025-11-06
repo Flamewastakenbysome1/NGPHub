@@ -1103,12 +1103,20 @@ try {
     const sampleRate = offlineCtx.sampleRate;
     const length = Math.max(1, Math.floor(seconds * sampleRate));
     const impulse = offlineCtx.createBuffer(2, length, sampleRate);
-    
-    for (let channel = 0; channel < 2; channel++) {
-      const channelData = impulse.getChannelData(channel);
-      for (let i = 0; i < length; i++) {
-        const n = length - i;
-        channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+
+    // Create a very short, almost dry impulse for default (no reverb)
+    if (seconds < 0.01) {
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel);
+        channelData[0] = 1; // Single impulse for dry signal
+      }
+    } else {
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+          const n = length - i;
+          channelData[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
+        }
       }
     }
     return impulse;
