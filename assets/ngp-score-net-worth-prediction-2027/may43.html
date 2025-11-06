@@ -1,0 +1,3537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ULTIMATE TIC TAC TOE ONLINE 🔥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            overflow-x: hidden;
+            padding-bottom: 50px;
+        }
+
+        body.rainbow-mode {
+            animation: rainbowBG 10s linear infinite;
+        }
+
+        @keyframes rainbowBG {
+            0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            25% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+            50% { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+            75% { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+            100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 10px 0 5px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 6px 12px;
+            margin-bottom: 8px;
+            font-size: 0.7em;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .spectator-count {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffd700;
+        }
+
+        .bank-balance {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #43e97b;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bank-balance:active {
+            opacity: 0.7;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #43e97b;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .global-rank {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .player-stats {
+            display: flex;
+            gap: 8px;
+            width: 95%;
+            max-width: 400px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.65em;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .difficulty-selector {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 8px;
+            width: 95%;
+            max-width: 400px;
+        }
+
+        .difficulty-label {
+            font-size: 0.85em;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .difficulty-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .difficulty-btn {
+            padding: 5px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.7em;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 8px;
+            width: 95%;
+            max-width: 400px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+
+        .score-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .game-wrapper {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            width: 95%;
+            max-width: 400px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mega-board {
+            display: grid;
+            grid-template-columns: repeat(3, 115px);
+            grid-template-rows: repeat(3, 115px);
+            gap: 5px;
+            background: rgba(0,0,0,0.2);
+            padding: 5px;
+            border-radius: 12px;
+            justify-content: center;
+        }
+
+        .mini-board {
+            width: 115px;
+            height: 115px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 3px;
+            display: grid;
+            grid-template-columns: repeat(3, 35px);
+            grid-template-rows: repeat(3, 35px);
+            gap: 2px;
+            position: relative;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .mini-board.active {
+            background: rgba(106, 17, 203, 0.4);
+            border-color: #6a11cb;
+            border-width: 3px;
+            box-shadow: 0 0 25px rgba(106, 17, 203, 0.8);
+        }
+
+        .mini-board.won {
+            pointer-events: none;
+        }
+
+        .mini-board.won::after {
+            content: attr(data-winner);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            z-index: 10;
+        }
+
+        .mini-board.won.x-won::after {
+            color: #ff6b6b;
+        }
+
+        .mini-board.won.o-won::after {
+            color: #4ecdc4;
+        }
+
+        .mini-board.won .cell {
+            opacity: 0.2;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .mini-board.active .cell:not(.taken) {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .cell:active:not(.taken) {
+            background: rgba(255,255,255,0.6);
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #ff6b6b;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .cell.o {
+            color: #4ecdc4;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .cell.last-move {
+            border: 2px solid #4ecdc4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.8);
+        }
+
+        .cell.ai-move {
+            animation: aiFlash 0.6s ease-out;
+        }
+
+        .cell.hint {
+            border: 2px solid #ffd700 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8) !important;
+            animation: hintPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes aiFlash {
+            0%, 100% { background: rgba(255,255,255,0.25); }
+            50% { background: rgba(78, 205, 196, 0.7); }
+        }
+
+        .button-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .reset-btn, .leaderboard-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .leaderboard-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        }
+
+        .chat-feed {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 8px;
+            width: 95%;
+            max-width: 400px;
+            max-height: 80px;
+            overflow-y: auto;
+            font-size: 0.7em;
+        }
+
+        .chat-message {
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .chat-player {
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .leaderboard-modal, .cheat-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .leaderboard-modal.show, .cheat-menu.show {
+            display: flex;
+        }
+
+        .bank-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .bank-modal.show {
+            display: flex;
+        }
+
+        .tournament-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .tournament-modal.show {
+            display: flex;
+        }
+
+        .tournament-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .tournament-card:active {
+            transform: scale(0.98);
+            background: rgba(255,255,255,0.25);
+        }
+
+        .tournament-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tournament-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tournament-details {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .tournament-bet {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .tournament-win {
+            color: #43e97b;
+            font-weight: bold;
+        }
+
+        .transaction {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+        }
+
+        .transaction.positive {
+            border-left: 3px solid #43e97b;
+        }
+
+        .transaction.negative {
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .donation-popup {
+            position: fixed;
+            font-size: 0.9em;
+            background: rgba(67, 233, 123, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 997;
+            font-weight: bold;
+            animation: donationFloat 2s ease-out forwards;
+        }
+
+        @keyframes donationFloat {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-10px) scale(1);
+            }
+            100% {
+                transform: translateY(-100px) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        .money-won-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1001;
+            text-align: center;
+            transition: transform 0.3s ease;
+            max-width: 90%;
+        }
+
+        .money-won-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .money-won-amount {
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .money-won-label {
+            font-size: 1.2em;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .leaderboard-entry {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .leaderboard-entry.you {
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #ffd700;
+        }
+
+        .rank {
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 30px;
+        }
+
+        .rank.gold { color: #ffd700; }
+        .rank.silver { color: #c0c0c0; }
+        .rank.bronze { color: #cd7f32; }
+
+        .player-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .streak {
+            color: #43e97b;
+            font-weight: bold;
+        }
+
+        .cheat-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .cheat-btn:active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 999;
+            max-width: 250px;
+        }
+
+        .achievement-popup.show {
+            transform: translateX(0);
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 0.85em;
+        }
+
+        .emote-popup {
+            position: fixed;
+            font-size: 3em;
+            pointer-events: none;
+            z-index: 998;
+            animation: emoteFloat 2s ease-out forwards;
+        }
+
+        @keyframes emoteFloat {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                transform: translateY(-150px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            position: absolute;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .cheat-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.7em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .cheat-indicator.show {
+            display: block;
+        }
+
+        /* Responsive Design - Mobile First */
+
+        /* iPhone 12 and similar (390x844) - Already optimized above */
+        @media (max-width: 390px) {
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .mega-board {
+                grid-template-columns: repeat(3, 100px);
+                grid-template-rows: repeat(3, 100px);
+                gap: 4px;
+                padding: 4px;
+            }
+
+            .mini-board {
+                width: 100px;
+                height: 100px;
+                padding: 2px;
+                grid-template-columns: repeat(3, 30px);
+                grid-template-rows: repeat(3, 30px);
+                gap: 2px;
+            }
+
+            .cell {
+                width: 30px;
+                height: 30px;
+                font-size: 1.1em;
+            }
+        }
+
+        /* Tablets (768px - 1024px) */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+                margin: 15px 0 10px 0;
+            }
+
+            .online-status {
+                font-size: 0.9em;
+                padding: 10px 20px;
+                margin-bottom: 15px;
+            }
+
+            .player-stats {
+                max-width: 600px;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .stat-label {
+                font-size: 0.8em;
+            }
+
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            .chat-feed {
+                max-width: 600px;
+                max-height: 120px;
+                font-size: 0.85em;
+                margin-bottom: 15px;
+            }
+
+            .difficulty-selector {
+                max-width: 600px;
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .difficulty-label {
+                font-size: 1em;
+            }
+
+            .difficulty-buttons {
+                gap: 8px;
+            }
+
+            .difficulty-btn {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+
+            .score-board {
+                max-width: 600px;
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .score-label {
+                font-size: 0.85em;
+            }
+
+            .score-value {
+                font-size: 1.6em;
+            }
+
+            .game-wrapper {
+                max-width: 600px;
+                padding: 20px;
+            }
+
+            .status {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .mega-board {
+                grid-template-columns: repeat(3, 180px);
+                grid-template-rows: repeat(3, 180px);
+                gap: 8px;
+                padding: 8px;
+            }
+
+            .mini-board {
+                width: 180px;
+                height: 180px;
+                padding: 5px;
+                grid-template-columns: repeat(3, 55px);
+                grid-template-rows: repeat(3, 55px);
+                gap: 3px;
+            }
+
+            .cell {
+                width: 55px;
+                height: 55px;
+                font-size: 1.8em;
+            }
+
+            .mini-board.won::after {
+                font-size: 4.5em;
+            }
+
+            .reset-btn, .leaderboard-btn {
+                padding: 14px;
+                font-size: 1em;
+            }
+
+            .achievement-popup {
+                max-width: 350px;
+            }
+        }
+
+        /* Desktop (1025px and up, including 1920x1080) */
+        @media (min-width: 1025px) {
+            body {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2.8em;
+                margin: 20px 0 15px 0;
+            }
+
+            .online-status {
+                font-size: 1em;
+                padding: 12px 25px;
+                margin-bottom: 20px;
+            }
+
+            .online-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .player-stats {
+                max-width: 700px;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-label {
+                font-size: 0.9em;
+            }
+
+            .stat-value {
+                font-size: 1.8em;
+            }
+
+            .chat-feed {
+                max-width: 700px;
+                max-height: 150px;
+                font-size: 0.9em;
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .difficulty-selector {
+                max-width: 700px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .difficulty-label {
+                font-size: 1.1em;
+                margin-bottom: 8px;
+            }
+
+            .difficulty-buttons {
+                gap: 10px;
+            }
+
+            .difficulty-btn {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
+            .difficulty-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transform: scale(1.02);
+                transition: all 0.2s;
+            }
+
+            .score-board {
+                max-width: 700px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .score-label {
+                font-size: 0.9em;
+            }
+
+            .score-value {
+                font-size: 2em;
+            }
+
+            .game-wrapper {
+                max-width: 700px;
+                padding: 25px;
+            }
+
+            .status {
+                font-size: 1.4em;
+                margin-bottom: 20px;
+                height: 35px;
+            }
+
+            .mega-board {
+                grid-template-columns: repeat(3, 210px);
+                grid-template-rows: repeat(3, 210px);
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .mini-board {
+                width: 210px;
+                height: 210px;
+                padding: 6px;
+                grid-template-columns: repeat(3, 64px);
+                grid-template-rows: repeat(3, 64px);
+                gap: 4px;
+                border-radius: 10px;
+            }
+
+            .mini-board.active {
+                border-width: 4px;
+                box-shadow: 0 0 35px rgba(106, 17, 203, 0.9);
+            }
+
+            .cell {
+                width: 64px;
+                height: 64px;
+                font-size: 2.2em;
+                border-radius: 6px;
+            }
+
+            .cell:hover:not(.taken) {
+                background: rgba(255,255,255,0.45);
+                transform: scale(1.05);
+                transition: all 0.15s;
+            }
+
+            .mini-board.won::after {
+                font-size: 5.5em;
+            }
+
+            .button-row {
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .reset-btn, .leaderboard-btn {
+                padding: 16px;
+                font-size: 1.1em;
+            }
+
+            .reset-btn:hover, .leaderboard-btn:hover {
+                transform: scale(1.03);
+                transition: all 0.2s;
+            }
+
+            .achievement-popup {
+                top: 30px;
+                right: 30px;
+                max-width: 400px;
+                padding: 20px;
+            }
+
+            .achievement-title {
+                font-size: 1.3em;
+            }
+
+            .achievement-desc {
+                font-size: 1em;
+            }
+
+            .modal-content {
+                max-width: 550px;
+                padding: 30px;
+            }
+
+            .modal-header {
+                font-size: 1.6em;
+            }
+
+            .cheat-btn {
+                padding: 14px;
+                font-size: 1em;
+            }
+
+            .cheat-btn:hover {
+                background: rgba(255,255,255,0.35);
+                transform: scale(1.02);
+                transition: all 0.2s;
+            }
+
+            .close-btn:hover {
+                background: rgba(255,255,255,0.3);
+                transition: all 0.2s;
+            }
+
+            .leaderboard-entry {
+                padding: 14px;
+                margin-bottom: 10px;
+            }
+
+            .tournament-card {
+                padding: 20px;
+                margin-bottom: 12px;
+            }
+
+            .tournament-card:hover:not(.locked) {
+                transform: scale(1.02);
+                background: rgba(255,255,255,0.25);
+                transition: all 0.2s;
+            }
+        }
+
+        /* Large Desktop (1920px and up) */
+        @media (min-width: 1920px) {
+            h1 {
+                font-size: 3.2em;
+            }
+
+            .mega-board {
+                grid-template-columns: repeat(3, 240px);
+                grid-template-rows: repeat(3, 240px);
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .mini-board {
+                width: 240px;
+                height: 240px;
+                padding: 7px;
+                grid-template-columns: repeat(3, 73px);
+                grid-template-rows: repeat(3, 73px);
+                gap: 5px;
+            }
+
+            .cell {
+                width: 73px;
+                height: 73px;
+                font-size: 2.5em;
+            }
+
+            .mini-board.won::after {
+                font-size: 6.5em;
+            }
+
+            .game-wrapper {
+                max-width: 800px;
+            }
+
+            .player-stats,
+            .chat-feed,
+            .difficulty-selector,
+            .score-board {
+                max-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    <div class="cheat-indicator" id="cheatIndicator">CHEATS ACTIVE 🔓</div>
+    
+    <div class="money-won-popup" id="moneyWonPopup">
+        <div class="money-won-amount" id="moneyWonAmount">+$5,000</div>
+        <div class="money-won-label">🎉 YOU WON! 🎉</div>
+    </div>
+    
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="achievement-title">🏆 Achievement Unlocked!</div>
+        <div class="achievement-desc" id="achievementDesc">First Win!</div>
+    </div>
+
+    <div class="container">
+        <h1 id="title" onclick="secretTap()">⚡ ULTIMATE TIC TAC TOE ONLINE ⚡</h1>
+        
+        <div class="online-status">
+            <div class="online-indicator">
+                <div class="online-dot"></div>
+                <span id="playersOnline">1,337</span> online
+            </div>
+            <div class="spectator-count">
+                👁️ <span id="spectators">0</span> watching
+            </div>
+            <div class="bank-balance" onclick="showBank()">
+                💰 $<span id="bankBalance">100</span>
+            </div>
+            <div class="global-rank">
+                Rank #<span id="globalRank">9,999</span>
+            </div>
+        </div>
+
+        <div class="player-stats">
+            <div class="stat-card">
+                <div class="stat-label">Win Streak</div>
+                <div class="stat-value" id="winStreak">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Best Streak</div>
+                <div class="stat-value" id="bestStreak">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Wins</div>
+                <div class="stat-value" id="totalWins">0</div>
+            </div>
+        </div>
+
+        <div class="chat-feed" id="chatFeed">
+            <div class="chat-message"><span class="chat-player">Pro_Gamer_2024</span>: gg ez</div>
+            <div class="chat-message"><span class="chat-player">xXShadowXx</span>: anyone wanna 1v1?</div>
+        </div>
+
+        <div class="difficulty-selector">
+            <div class="difficulty-label">Select Opponent:</div>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn" data-difficulty="baby">🍼 Baby</button>
+                <button class="difficulty-btn" data-difficulty="easy">😊 Easy</button>
+                <button class="difficulty-btn active" data-difficulty="medium">🧠 Normal</button>
+                <button class="difficulty-btn" data-difficulty="hard">⚡ Pro</button>
+                <button class="difficulty-btn" data-difficulty="expert">🔥 Expert</button>
+                <button class="difficulty-btn" data-difficulty="impossible">💀 Legend</button>
+                <button class="difficulty-btn" data-difficulty="nightmare">👹 Nightmare</button>
+                <button class="difficulty-btn" data-difficulty="godlike">👑 GODLIKE</button>
+            </div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">You (X)</div>
+                <div class="score-value" id="playerScore">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Ties</div>
+                <div class="score-value" id="tieScore">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">AI (O)</div>
+                <div class="score-value" id="aiScore">0</div>
+            </div>
+        </div>
+
+        <div class="game-wrapper">
+            <div class="status" id="status">Finding opponent... 🔍</div>
+            <div class="mega-board" id="megaBoard"></div>
+            <div class="button-row">
+                <button class="reset-btn" id="resetBtn">Quick Match 🎮</button>
+                <button class="leaderboard-btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="showTournaments()">Tournaments 🏆</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div class="leaderboard-modal" id="leaderboardModal">
+        <div class="modal-content">
+            <div class="modal-header">🏆 GLOBAL LEADERBOARD 🏆</div>
+            <div id="leaderboardList"></div>
+            <button class="close-btn" onclick="closeLeaderboard()">Close</button>
+        </div>
+    </div>
+
+    <!-- Cheat Menu -->
+    <div class="cheat-menu" id="cheatMenu">
+        <div class="modal-content">
+            <div class="modal-header">🔓 DEVELOPER MENU 🔓</div>
+            <button class="cheat-btn" onclick="instantWin()">⚡ Instant Win</button>
+            <button class="cheat-btn" onclick="toggleHints()">💡 Show Hints (<span id="hintStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="toggleAutoPlay()">🤖 Auto-Play (<span id="autoPlayStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="togglePlayAnywhere()">🎯 Play Anywhere (<span id="playAnywhereStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="toggleOverwriteMoves()">✏️ Overwrite Moves (<span id="overwriteStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="toggleRainbow()">🌈 Rainbow Mode</button>
+            <button class="cheat-btn" onclick="addWinStreak()">📈 +10 Win Streak</button>
+            <button class="cheat-btn" onclick="addMoney()">💰 +$1000</button>
+            <button class="cheat-btn" onclick="maxStats()">📊 Max All Stats</button>
+            <button class="cheat-btn" onclick="showAchievements()" style="background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);">🏆 View Achievements</button>
+            <button class="close-btn" onclick="closeCheatMenu()">Close</button>
+        </div>
+    </div>
+
+    <!-- Bank Modal -->
+    <div class="bank-modal" id="bankModal">
+        <div class="modal-content">
+            <div class="modal-header">💰 YOUR BANK 💰</div>
+            <div style="text-align: center; font-size: 2em; font-weight: bold; margin: 20px 0; color: #43e97b;">
+                $<span id="bankBalanceModal">100</span>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <div style="font-weight: bold; margin-bottom: 8px;">Recent Transactions:</div>
+                <div id="transactionHistory" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+            <button class="cheat-btn" onclick="dailyBonus()">🎁 Daily Bonus ($50)</button>
+            <button class="cheat-btn" style="opacity: 0.5;" onclick="alert('Coming soon!')">🏦 Withdraw (Coming Soon)</button>
+            <button class="close-btn" onclick="closeBank()">Close</button>
+        </div>
+    </div>
+
+    <!-- Tournament Modal -->
+    <div class="tournament-modal" id="tournamentModal">
+        <div class="modal-content">
+            <div class="modal-header">🏆 SELECT TOURNAMENT 🏆</div>
+            <div id="tournamentList"></div>
+            <button class="cheat-btn" onclick="showCustomTournament()">➕ Create Custom Tournament</button>
+            <button class="close-btn" onclick="closeTournaments()">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Tournament Modal -->
+    <div class="tournament-modal" id="customTournamentModal">
+        <div class="modal-content">
+            <div class="modal-header">➕ CREATE YOUR TOURNAMENT ➕</div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85em;">
+                ⚠️ <strong>How it works:</strong><br>
+                1. You PAY the Entry Fee NOW<br>
+                2. If you WIN → Get the Prize<br>
+                3. If you LOSE → Lose your Entry Fee 😭<br>
+                4. If you TIE → Get your money back
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Tournament Name:</label>
+                <input type="text" id="customName" placeholder="My Epic Tournament" style="width: 100%; padding: 8px; border-radius: 8px; border: none; font-size: 1em;">
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 3px;">What do you want to call it?</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">💸 Entry Fee (You pay THIS now!):</label>
+                <input type="number" id="customBet" placeholder="100" min="1" style="width: 100%; padding: 8px; border-radius: 8px; border: none; font-size: 1em;">
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 3px;">How much $ you risk. Lose = You lose this!</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">🏆 Prize Multiplier (How much you can win!):</label>
+                <input type="number" id="customMultiplier" placeholder="5" min="1" step="0.5" style="width: 100%; padding: 8px; border-radius: 8px; border: none; font-size: 1em;">
+                <div style="font-size: 0.85em; margin-top: 5px; background: rgba(67,233,123,0.3); padding: 8px; border-radius: 5px;">
+                    <strong>Prize = Entry Fee × Multiplier</strong><br>
+                    Example: $100 × 5 = <strong>$500 prize!</strong>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">🎮 AI Difficulty:</label>
+                <select id="customDifficulty" style="width: 100%; padding: 8px; border-radius: 8px; border: none; font-size: 1em;">
+                    <option value="baby">🍼 Baby (Super easy)</option>
+                    <option value="easy">😊 Easy (Easy to beat)</option>
+                    <option value="medium" selected>🧠 Normal (Fair fight)</option>
+                    <option value="hard">⚡ Pro (Pretty hard)</option>
+                    <option value="expert">🔥 Expert (Very hard!)</option>
+                    <option value="impossible">💀 Legend (Nearly unbeatable!)</option>
+                    <option value="nightmare">👹 Nightmare (Insanely hard!)</option>
+                    <option value="godlike">👑 GODLIKE (IMPOSSIBLE!)</option>
+                </select>
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 3px;">Higher difficulty = Harder to win! GODLIKE = PREPARE TO LOSE!</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">👁️ Fake Viewers (Just for fun!):</label>
+                <input type="number" id="customViewers" placeholder="1000" min="0" style="width: 100%; padding: 8px; border-radius: 8px; border: none; font-size: 1em;">
+                <div style="font-size: 0.75em; opacity: 0.7; margin-top: 3px;">More viewers = More chat spam & donations! Try 500,000!</div>
+            </div>
+            
+            <div id="customPreview" style="background: rgba(255,215,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-align: center;">
+                Preview: Pay $100 → Win $500
+            </div>
+            
+            <button class="cheat-btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="createCustomTournament()">🎮 START (Pay Entry Fee Now!)</button>
+            <button class="close-btn" onclick="closeCustomTournament()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="leaderboard-modal" id="achievementsModal">
+        <div class="modal-content">
+            <div class="modal-header">🏆 ACHIEVEMENTS 🏆</div>
+            <div id="achievementsList"></div>
+            <button class="close-btn" onclick="closeAchievements()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Sound effects (using Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            switch(type) {
+                case 'click':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+                case 'win':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.value = 0.2;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'lose':
+                    oscillator.frequency.value = 200;
+                    gainNode.gain.value = 0.2;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                    break;
+                case 'whale':
+                    // Epic whale sound - ascending tones
+                    oscillator.frequency.value = 600;
+                    gainNode.gain.value = 0.25;
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.5);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.7);
+                    break;
+            }
+        }
+
+        // Konami code listener (type "yoad" to open cheat menu)
+        let konamiCode = '';
+        let tapCount = 0;
+        let tapTimeout = null;
+
+        function secretTap() {
+            tapCount++;
+            
+            if (tapTimeout) clearTimeout(tapTimeout);
+            
+            if (tapCount >= 5) {
+                document.getElementById('cheatMenu').classList.add('show');
+                playSound('win');
+                tapCount = 0;
+            }
+            
+            tapTimeout = setTimeout(() => {
+                tapCount = 0;
+            }, 2000);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            konamiCode += e.key.toLowerCase();
+            if (konamiCode.includes('yoad')) {
+                document.getElementById('cheatMenu').classList.add('show');
+                konamiCode = '';
+            }
+            if (konamiCode.length > 10) konamiCode = konamiCode.slice(-10);
+        });
+
+        // Particle system
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1;
+                this.size = Math.random() * 3 + 1;
+                this.opacity = Math.random() * 0.4 + 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Game state
+        let miniBoards = Array(9).fill(null).map(() => ['', '', '', '', '', '', '', '', '']);
+        let megaBoard = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let activeBoard = null;
+        let gameActive = true;
+        let difficulty = 'medium';
+        let scores = { player: 0, ai: 0, tie: 0 };
+        let winStreak = 0;
+        let bestStreak = 0;
+        let totalWins = 0;
+        let globalRank = 9999;
+        let autoPlayEnabled = false;
+        let cheatsActive = false;
+        let hintsEnabled = false;
+        let playAnywhereEnabled = false;
+        let overwriteMovesEnabled = false;
+        let spectators = 0;
+        let moveCount = 0;
+        let gameStartTime = 0;
+        let achievements = JSON.parse(localStorage.getItem('tttAchievements')) || [];
+        let richWhaleActive = false;
+        let richWhaleInterval = null;
+        let bankBalance = parseInt(localStorage.getItem('tttBalance')) || 100;
+        let transactions = JSON.parse(localStorage.getItem('tttTransactions')) || [];
+        let lastDailyBonus = localStorage.getItem('tttLastDaily') || '';
+        let currentBet = 0;
+        let currentTournament = null;
+        let targetSpectators = 0;
+        let spectatorInterval = null;
+
+        const tournaments = [
+            { name: 'Casual Match 🎮', bet: 5, win: 15, difficulty: 'easy', viewers: 20, locked: false, unlockAt: 0 },
+            { name: 'Beginner Bracket', bet: 10, win: 30, difficulty: 'medium', viewers: 75, locked: false, unlockAt: 0 },
+            { name: 'Amateur League', bet: 25, win: 75, difficulty: 'medium', viewers: 200, locked: false, unlockAt: 0 },
+            { name: 'Pro Circuit ⚡', bet: 50, win: 150, difficulty: 'hard', viewers: 500, locked: false, unlockAt: 0 },
+            { name: 'Elite Tournament', bet: 100, win: 350, difficulty: 'hard', viewers: 1000, locked: false, unlockAt: 0 },
+            { name: 'Master Series 🔥', bet: 200, win: 750, difficulty: 'expert', viewers: 2500, locked: false, unlockAt: 0 },
+            { name: 'Grand Championship', bet: 350, win: 1500, difficulty: 'expert', viewers: 5000, locked: false, unlockAt: 0 },
+            { name: 'LEGEND ULTIMATE 💀', bet: 500, win: 3000, difficulty: 'impossible', viewers: 10000, locked: false, unlockAt: 0 },
+            { name: 'NIGHTMARE GAUNTLET 👹', bet: 1000, win: 7500, difficulty: 'nightmare', viewers: 25000, locked: false, unlockAt: 0 },
+            { name: 'GODLIKE ARENA 👑', bet: 2500, win: 20000, difficulty: 'godlike', viewers: 75000, locked: true, unlockAt: 5000 },
+            { name: 'WHALE WARS 🐋', bet: 5000, win: 50000, difficulty: 'godlike', viewers: 150000, locked: true, unlockAt: 15000 },
+            { name: 'THE FINAL BOSS 💎', bet: 10000, win: 100000, difficulty: 'godlike', viewers: 500000, locked: true, unlockAt: 50000 }
+        ];
+
+        const winConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        const allAchievements = [
+            { id: 'first_win', name: '🎉 First Win', desc: 'Win your first game', check: () => totalWins >= 1 },
+            { id: 'on_fire', name: '🔥 On Fire', desc: 'Win 3 games in a row', check: () => bestStreak >= 3 },
+            { id: 'unstoppable', name: '⚡ Unstoppable', desc: 'Win 5 games in a row', check: () => bestStreak >= 5 },
+            { id: 'legend', name: '👑 Legend Status', desc: 'Win 10 games in a row', check: () => bestStreak >= 10 },
+            { id: 'millionaire', name: '💰 Millionaire', desc: 'Earn $1,000 total', check: () => bankBalance >= 1000 },
+            { id: 'whale', name: '🐋 High Roller', desc: 'Earn $10,000 total', check: () => bankBalance >= 10000 },
+            { id: 'bigwig', name: '💎 Big Money', desc: 'Earn $50,000 total', check: () => bankBalance >= 50000 },
+            { id: 'beat_expert', name: '🔥 Expert Slayer', desc: 'Beat Expert difficulty', check: () => false },
+            { id: 'beat_impossible', name: '💀 Legend Killer', desc: 'Beat Legend difficulty', check: () => false },
+            { id: 'beat_nightmare', name: '👹 Nightmare Conqueror', desc: 'Beat Nightmare difficulty', check: () => false },
+            { id: 'beat_godlike', name: '👑 Godslayer', desc: 'Beat GODLIKE difficulty', check: () => false },
+            { id: 'board_master', name: '🎯 Board Master', desc: 'Win 10 mini boards in one game', check: () => false },
+            { id: 'fast_win', name: '⚡ Speed Demon', desc: 'Win in under 30 seconds', check: () => false },
+            { id: 'tournament_winner', name: '🏆 Tournament Champion', desc: 'Win any tournament', check: () => false },
+            { id: 'whale_wars_winner', name: '🐋 Whale Wars Victor', desc: 'Win the Whale Wars tournament', check: () => false },
+            { id: 'final_boss_winner', name: '💎 Final Boss Defeated', desc: 'Win The Final Boss tournament', check: () => false },
+            { id: 'cheater', name: '🔓 Script Kiddie', desc: 'Enable any cheat', check: () => cheatsActive },
+            { id: 'donation_hunter', name: '💸 Donation Magnet', desc: 'Receive 50 donations in one game', check: () => false }
+        ];
+
+        const playerNames = [
+            'xXDarkLordXx', 'Pro_Gamer_420', 'NoobMaster69', 'ShadowNinja',
+            'Epic_Fail', 'TryHard_2024', 'MLG_Pro', 'GG_EZ', 'Flame_Thrower',
+            'Ice_Breaker', 'Thunder_Strike', 'Toxic_Player', 'Silent_Killer',
+            'Rage_Quitter', 'Bot_Destroyer', 'Clutch_Master', 'Sniper_Elite',
+            'Speed_Demon', 'Lag_Wizard', 'Camping_King', 'Spawn_Killer'
+        ];
+
+        const chatMessages = [
+            'gg ez',
+            'lag!!!',
+            'lucky shot',
+            'rematch?',
+            'noob team',
+            'carried'
+        ];
+
+        const suspiciousMessages = [
+            'bro how did you win that fast???',
+            'wait that move was insane',
+            'are you cheating??',
+            'sus...',
+            'reported',
+            'impossible win wtf',
+            'no way you saw that coming',
+            'admin check this player',
+            'hacker confirmed',
+            'this guy is different 💀'
+        ];
+
+        const rageQuitMessages = [
+            'has left the match',
+            'rage quit lmao',
+            'couldnt handle the heat',
+            'disconnected',
+            'gave up',
+            'uninstalling rn'
+        ];
+
+        const emotes = ['🔥', '💀', '😂', '👑', '💪', '⚡', '🎯', '👀', '🤯', '💯'];
+
+        function spawnEmote(emote) {
+            const popup = document.createElement('div');
+            popup.className = 'emote-popup';
+            popup.textContent = emote;
+            popup.style.left = (Math.random() * (window.innerWidth - 100)) + 'px';
+            popup.style.top = (window.innerHeight * 0.3) + 'px';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        }
+
+        function updateSpectators() {
+            // First update the total online count
+            updateOnlineCount();
+
+            // Calculate target spectator count based on game state
+            if (gameActive) {
+                if (currentTournament) {
+                    // Tournament mode - use tournament viewer count
+                    const baseViewers = currentTournament.viewers;
+                    const variance = Math.floor(Math.random() * (baseViewers * 0.1)); // +/- 10%
+                    targetSpectators = baseViewers + variance;
+                } else {
+                    // Quick match mode - low viewers
+                    const baseSpectators = Math.floor(Math.random() * 5);
+                    const streakBonus = Math.floor(winStreak * 2);
+                    targetSpectators = Math.min(baseSpectators + streakBonus, 50);
+
+                    if (cheatsActive) targetSpectators += Math.floor(Math.random() * 10) + 5;
+                }
+            } else {
+                targetSpectators = Math.max(0, targetSpectators - Math.floor(Math.random() * 10));
+            }
+
+            // IMPORTANT: Ensure spectators never exceed total online count
+            // Spectators are a SUBSET of online players, not additional to them
+            // If we need more spectators, we increase the total online count
+            if (targetSpectators > targetOnline) {
+                // Increase online count to accommodate spectators
+                // Online = spectators + (20-50% more players doing other things)
+                const extraPlayersPercent = 0.2 + (Math.random() * 0.3); // 20-50% more
+                targetOnline = Math.floor(targetSpectators * (1 + extraPlayersPercent));
+            }
+
+            // Start smooth animation to target
+            animateSpectatorCount();
+        }
+
+        function animateSpectatorCount() {
+            // Clear any existing animation
+            if (spectatorInterval) clearInterval(spectatorInterval);
+            
+            const startCount = spectators;
+            const targetCount = targetSpectators;
+            const difference = targetCount - startCount;
+            
+            if (difference === 0) {
+                document.getElementById('spectators').textContent = spectators.toLocaleString();
+                return;
+            }
+            
+            // Duration: 20-50 SECONDS for viewers to join
+            const duration = 20000 + Math.floor(Math.random() * 30000); // 20-50 seconds
+            const steps = 100; // 100 animation steps
+            const stepValue = difference / steps;
+            const intervalTime = duration / steps;
+            
+            let currentStep = 0;
+            
+            spectatorInterval = setInterval(() => {
+                currentStep++;
+                spectators = Math.round(startCount + (stepValue * currentStep));
+                
+                // Add some random variance during counting
+                const variance = Math.floor(Math.random() * Math.max(1, Math.abs(difference) * 0.02));
+                const displayCount = spectators + (Math.random() > 0.5 ? variance : -variance);
+                
+                document.getElementById('spectators').textContent = Math.max(0, displayCount).toLocaleString();
+                
+                if (currentStep >= steps) {
+                    clearInterval(spectatorInterval);
+                    spectators = targetCount;
+                    document.getElementById('spectators').textContent = spectators.toLocaleString();
+                }
+            }, intervalTime);
+        }
+
+        function reactiveChat(type, data = {}) {
+            const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+            let message = '';
+
+            switch(type) {
+                case 'fast_win':
+                    message = suspiciousMessages[Math.floor(Math.random() * suspiciousMessages.length)];
+                    setTimeout(() => spawnEmote('🤯'), 500);
+                    break;
+                case 'cheat_detected':
+                    message = suspiciousMessages[Math.floor(Math.random() * suspiciousMessages.length)];
+                    setTimeout(() => spawnEmote('👀'), 300);
+                    break;
+                case 'big_streak':
+                    message = `this guy is on ${data.streak} win streak wtf`;
+                    setTimeout(() => spawnEmote('🔥'), 500);
+                    break;
+                case 'instant_win':
+                    message = 'WAIT WHAT JUST HAPPENED???';
+                    setTimeout(() => spawnEmote('💀'), 300);
+                    break;
+                case 'rage_quit':
+                    const opponent = 'AI_Bot_' + Math.floor(Math.random() * 1000);
+                    message = `${opponent} ${rageQuitMessages[Math.floor(Math.random() * rageQuitMessages.length)]}`;
+                    setTimeout(() => spawnEmote('😂'), 500);
+                    break;
+                case 'spectator_join':
+                    message = 'joined to spectate';
+                    break;
+                case 'normal_win':
+                    message = 'gg wp';
+                    setTimeout(() => spawnEmote('👑'), 500);
+                    break;
+                case 'comeback':
+                    message = 'WHAT A COMEBACK!';
+                    setTimeout(() => spawnEmote('⚡'), 500);
+                    break;
+            }
+
+            addChatMessage(player, message);
+        }
+
+        // Fake online counter with smooth animation
+        // IMPORTANT: Spectators are a SUBSET of online players, not added on top!
+        let baseOnline = 1337; // Minimum base players online
+        let targetOnline = 1337;
+        let currentOnline = 1337;
+
+        function updateOnlineCount() {
+            // Online count = TOTAL players on the platform (including spectators)
+            // Spectators = subset of online players who are watching YOU
+            // Therefore: spectators <= online ALWAYS
+
+            // Update base online slowly over time (between 1K-3K)
+            if (Math.random() < 0.1) { // 10% chance to update base
+                baseOnline = 1000 + Math.floor(Math.random() * 2000);
+            }
+
+            // Set initial target online (will be adjusted if spectators are higher)
+            targetOnline = baseOnline;
+
+            // Add some random variance to make it feel dynamic
+            const variance = Math.floor(Math.random() * 200) - 100; // +/- 100
+            targetOnline += variance;
+
+            // Ensure minimum of 100 players online
+            targetOnline = Math.max(100, targetOnline);
+        }
+        
+        function animateOnlineCount() {
+            // Update target based on current spectators
+            updateOnlineCount();
+
+            // CRITICAL: Ensure online count is always >= spectator count
+            // If spectators are higher than target online, boost online count
+            if (spectators > targetOnline) {
+                targetOnline = Math.floor(spectators * (1.2 + Math.random() * 0.3)); // 120-150% of spectators
+            }
+
+            const difference = targetOnline - currentOnline;
+            if (Math.abs(difference) > 1) {
+                currentOnline += difference * 0.2; // Faster catch-up
+
+                // SAFETY CHECK: Never let displayed online count go below spectator count
+                if (currentOnline < spectators) {
+                    currentOnline = spectators;
+                }
+
+                document.getElementById('playersOnline').textContent = Math.round(currentOnline).toLocaleString();
+            } else {
+                currentOnline = targetOnline;
+
+                // Final safety check
+                if (currentOnline < spectators) {
+                    currentOnline = spectators;
+                }
+
+                document.getElementById('playersOnline').textContent = currentOnline.toLocaleString();
+            }
+        }
+        
+        // Update online count display frequently to stay in sync with spectators
+        setInterval(animateOnlineCount, 200);
+        
+        setInterval(() => {
+            updateSpectators();
+        }, 5000);
+
+        // Fake chat messages (frequency based on spectators)
+        setInterval(() => {
+            if (!gameActive) return;
+            
+            // More spectators = more frequent chat
+            let chatChance = 0.1; // 10% base chance
+            if (spectators > 100) chatChance = 0.3;
+            if (spectators > 500) chatChance = 0.5;
+            if (spectators > 1000) chatChance = 0.7;
+            if (spectators > 5000) chatChance = 0.9;
+            if (spectators > 10000) chatChance = 1.0; // Always chat!
+            
+            if (Math.random() < chatChance) {
+                const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                const message = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+                addChatMessage(player, message);
+            }
+        }, 3000); // Check every 3 seconds
+
+        // Random donations during gameplay based on spectator count
+        setInterval(() => {
+            if (!gameActive || currentPlayer !== 'X') return;
+
+            let randomDonationChance = 0;
+
+            // More spectators = random donations even during gameplay!
+            if (spectators < 500) randomDonationChance = 0;
+            else if (spectators < 1000) randomDonationChance = 0.05; // 5%
+            else if (spectators < 5000) randomDonationChance = 0.15; // 15%
+            else if (spectators < 10000) randomDonationChance = 0.25; // 25%
+            else randomDonationChance = 0.4; // 40% for massive tournaments
+
+            if (Math.random() < randomDonationChance) {
+                let minDono = 3;
+                let maxDono = 15;
+
+                if (spectators > 1000) { minDono = 5; maxDono = 30; }
+                if (spectators > 5000) { minDono = 15; maxDono = 75; }
+                if (spectators > 10000) { minDono = 30; maxDono = 150; }
+
+                const donation = Math.floor(Math.random() * (maxDono - minDono + 1)) + minDono;
+                spawnDonation(donation);
+                const donor = playerNames[Math.floor(Math.random() * playerNames.length)];
+
+                const donationMessages = [
+                    `donated $${donation}! 💰`,
+                    `$${donation} for the GOAT!`,
+                    `throwing $${donation} at you`,
+                    `have $${donation}! gl!`,
+                    `$${donation} lets go!`,
+                    `here's $${donation} king 👑`,
+                    `$${donation} you got this!`
+                ];
+
+                addChatMessage(donor, donationMessages[Math.floor(Math.random() * donationMessages.length)]);
+            }
+        }, 8000); // Check every 8 seconds
+
+        // Random spectator events
+        setInterval(() => {
+            if (gameActive && Math.random() < 0.2) {
+                reactiveChat('spectator_join');
+            }
+        }, 15000);
+
+        function showMoneyWon(amount) {
+            const popup = document.getElementById('moneyWonPopup');
+            const amountEl = document.getElementById('moneyWonAmount');
+            
+            amountEl.textContent = '+$' + amount.toLocaleString();
+            popup.classList.add('show');
+            
+            playSound('win');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+
+        function addChatMessage(player, message) {
+            const chatFeed = document.getElementById('chatFeed');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message';
+            msgDiv.innerHTML = `<span class="chat-player">${player}</span>: ${message}`;
+            chatFeed.appendChild(msgDiv);
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+            
+            // Keep only last 10 messages
+            while (chatFeed.children.length > 10) {
+                chatFeed.removeChild(chatFeed.firstChild);
+            }
+        }
+
+        function showAchievement(title, desc) {
+            const popup = document.getElementById('achievementPopup');
+            document.getElementById('achievementDesc').textContent = desc;
+            popup.classList.add('show');
+            playSound('win');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('winStreak').textContent = winStreak;
+            document.getElementById('bestStreak').textContent = bestStreak;
+            document.getElementById('totalWins').textContent = totalWins;
+            document.getElementById('globalRank').textContent = globalRank.toLocaleString();
+        }
+
+        function generateLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            
+            const leaders = [];
+            for (let i = 0; i < 20; i++) {
+                leaders.push({
+                    name: playerNames[Math.floor(Math.random() * playerNames.length)] + Math.floor(Math.random() * 1000),
+                    streak: Math.floor(Math.random() * 50) + 1
+                });
+            }
+            
+            // Add player
+            leaders.push({ name: 'YOU', streak: winStreak });
+            leaders.sort((a, b) => b.streak - a.streak);
+            
+            leaders.forEach((leader, i) => {
+                const entry = document.createElement('div');
+                entry.className = 'leaderboard-entry' + (leader.name === 'YOU' ? ' you' : '');
+                
+                let rankClass = '';
+                if (i === 0) rankClass = 'gold';
+                else if (i === 1) rankClass = 'silver';
+                else if (i === 2) rankClass = 'bronze';
+                
+                entry.innerHTML = `
+                    <div class="rank ${rankClass}">#${i + 1}</div>
+                    <div class="player-name">${leader.name}</div>
+                    <div class="streak">${leader.streak} 🔥</div>
+                `;
+                list.appendChild(entry);
+            });
+            
+            // Update global rank
+            globalRank = leaders.findIndex(l => l.name === 'YOU') + 1;
+            updateStats();
+        }
+
+        function showLeaderboard() {
+            generateLeaderboard();
+            document.getElementById('leaderboardModal').classList.add('show');
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').classList.remove('show');
+        }
+
+        function closeCheatMenu() {
+            document.getElementById('cheatMenu').classList.remove('show');
+        }
+
+        // Cheat functions
+        function instantWin() {
+            cheatsActive = true;
+            document.getElementById('cheatIndicator').classList.add('show');
+            
+            reactiveChat('instant_win');
+            
+            // Find winning combo for player
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                if (megaBoard[a] === '' && megaBoard[b] === '' && megaBoard[c] === '') {
+                    // Win these boards
+                    [a, b, c].forEach(board => {
+                        if (megaBoard[board] === '') {
+                            megaBoard[board] = 'X';
+                            markBoardWon(board, 'X');
+                        }
+                    });
+                    endGame('X');
+                    return;
+                }
+            }
+        }
+
+        function toggleHints() {
+            hintsEnabled = !hintsEnabled;
+            document.getElementById('hintStatus').textContent = hintsEnabled ? 'ON' : 'OFF';
+            
+            if (hintsEnabled) {
+                cheatsActive = true;
+                document.getElementById('cheatIndicator').classList.add('show');
+                addChatMessage('System', '💡 Hints enabled');
+                updateHint();
+            } else {
+                document.querySelectorAll('.cell').forEach(c => c.classList.remove('hint'));
+                addChatMessage('System', '💡 Hints disabled');
+            }
+        }
+
+        function updateHint() {
+            if (!hintsEnabled) return;
+            
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('hint'));
+            
+            // Get ALL available moves across ALL boards
+            const moves = getAvailableMoves();
+            
+            if (moves.length > 0 && gameActive && currentPlayer === 'X') {
+                // Evaluate ALL possible moves
+                let bestMove = null;
+                let bestScore = -Infinity;
+
+                moves.forEach(move => {
+                    const score = evaluateMoveForPlayer(move);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = move;
+                    }
+                });
+
+                // Show the absolute best move across ALL boards
+                if (bestMove) {
+                    const cell = document.querySelector(`[data-board="${bestMove.board}"][data-cell="${bestMove.cell}"]`);
+                    if (cell && !cell.classList.contains('taken')) {
+                        cell.classList.add('hint');
+                    }
+                }
+            }
+        }
+
+        function evaluateMoveForPlayer(move) {
+            let score = 0;
+
+            // MEGA BOARD WINNING - HIGHEST PRIORITY
+            // Check if this move would directly win a small board that completes a mega board win
+            const tempMiniBoard = [...miniBoards[move.board]];
+            tempMiniBoard[move.cell] = 'X';
+            if (checkWin(tempMiniBoard)) {
+                // This wins the small board, check if it wins mega board
+                const tempMegaBoard = [...megaBoard];
+                tempMegaBoard[move.board] = 'X';
+                if (checkWin(tempMegaBoard)) {
+                    score += 10000; // INSTANT WIN!
+                }
+                
+                // Check if this creates a 2-in-a-row on mega board
+                for (let condition of winConditions) {
+                    const [a, b, c] = condition;
+                    const boards = [tempMegaBoard[a], tempMegaBoard[b], tempMegaBoard[c]];
+                    if (boards.filter(b => b === 'X').length === 2 && boards.includes('')) {
+                        score += 500; // Sets up mega board win
+                    }
+                }
+                
+                score += 100; // Winning any board is good
+            }
+
+            // BLOCK OPPONENT FROM WINNING MEGA BOARD
+            const blockMiniBoard = [...miniBoards[move.board]];
+            blockMiniBoard[move.cell] = 'O';
+            if (checkWin(blockMiniBoard)) {
+                const tempMegaBoard = [...megaBoard];
+                tempMegaBoard[move.board] = 'O';
+                if (checkWin(tempMegaBoard)) {
+                    score += 8000; // MUST BLOCK opponent from winning!
+                }
+                
+                // Check if opponent would get 2-in-a-row on mega board
+                for (let condition of winConditions) {
+                    const [a, b, c] = condition;
+                    const boards = [tempMegaBoard[a], tempMegaBoard[b], tempMegaBoard[c]];
+                    if (boards.filter(b => b === 'O').length === 2 && boards.includes('')) {
+                        score += 400; // Must block this threat
+                    }
+                }
+                
+                score += 60; // Blocking any board win is important
+            }
+
+            // STRATEGIC POSITIONING
+            // Prefer center cells (more winning combinations)
+            if (move.cell === 4) score += 15;
+            // Prefer corners (second best)
+            if ([0, 2, 6, 8].includes(move.cell)) score += 8;
+
+            // BOARD CONTROL - prefer sending opponent to bad boards
+            // If opponent would go to a won/full board (can play anywhere), that's good
+            if (megaBoard[move.cell] !== '') {
+                score += 50; // Opponent sent to dead board
+            }
+            // If opponent goes to a board where we have 2-in-a-row, that's bad
+            else if (miniBoards[move.cell]) {
+                const opponentBoard = miniBoards[move.cell];
+                const tempOpponentBoard = [...opponentBoard];
+                for (let i = 0; i < 9; i++) {
+                    if (tempOpponentBoard[i] === '') {
+                        tempOpponentBoard[i] = 'X';
+                        if (checkWin(tempOpponentBoard)) {
+                            score -= 30; // Opponent could win this board
+                        }
+                        tempOpponentBoard[i] = '';
+                    }
+                }
+            }
+
+            return score;
+        }
+
+        function toggleAutoPlay() {
+            autoPlayEnabled = !autoPlayEnabled;
+            document.getElementById('autoPlayStatus').textContent = autoPlayEnabled ? 'ON' : 'OFF';
+            cheatsActive = autoPlayEnabled;
+            document.getElementById('cheatIndicator').classList.toggle('show', cheatsActive);
+            
+            if (autoPlayEnabled) {
+                reactiveChat('cheat_detected');
+            }
+            
+            if (autoPlayEnabled && currentPlayer === 'X' && gameActive) {
+                setTimeout(autoPlayMove, 500);
+            }
+        }
+
+        function autoPlayMove() {
+            if (!autoPlayEnabled || !gameActive || currentPlayer !== 'X') return;
+            
+            const move = impossibleAI();
+            if (move) {
+                makeMove(move.board, move.cell);
+            }
+        }
+
+        function toggleRainbow() {
+            document.body.classList.toggle('rainbow-mode');
+        }
+
+        function addWinStreak() {
+            winStreak += 10;
+            if (winStreak > bestStreak) bestStreak = winStreak;
+            totalWins += 10;
+            updateStats();
+        }
+
+        function maxStats() {
+            winStreak = 999;
+            bestStreak = 999;
+            totalWins = 9999;
+            globalRank = 1;
+            updateStats();
+        }
+
+        function togglePlayAnywhere() {
+            playAnywhereEnabled = !playAnywhereEnabled;
+            document.getElementById('playAnywhereStatus').textContent = playAnywhereEnabled ? 'ON' : 'OFF';
+            cheatsActive = playAnywhereEnabled || overwriteMovesEnabled || autoPlayEnabled || hintsEnabled;
+            document.getElementById('cheatIndicator').classList.toggle('show', cheatsActive);
+
+            if (playAnywhereEnabled) {
+                addChatMessage('System', '🎯 Play Anywhere enabled');
+                unlockAchievement('cheater'); // Unlock cheater achievement
+                if (Math.random() < 0.5) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const suspiciousMessages = ['wait how did you move there???', 'thats not legal lol', 'huh??', 'MODS'];
+                        addChatMessage(player, suspiciousMessages[Math.floor(Math.random() * suspiciousMessages.length)]);
+                    }, 1000);
+                }
+            } else {
+                addChatMessage('System', '🎯 Play Anywhere disabled');
+            }
+        }
+
+        function toggleOverwriteMoves() {
+            overwriteMovesEnabled = !overwriteMovesEnabled;
+            document.getElementById('overwriteStatus').textContent = overwriteMovesEnabled ? 'ON' : 'OFF';
+            cheatsActive = playAnywhereEnabled || overwriteMovesEnabled || autoPlayEnabled || hintsEnabled;
+            document.getElementById('cheatIndicator').classList.toggle('show', cheatsActive);
+
+            if (overwriteMovesEnabled) {
+                addChatMessage('System', '✏️ Overwrite Moves enabled');
+                unlockAchievement('cheater'); // Unlock cheater achievement
+                if (Math.random() < 0.5) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const confusedMessages = ['did that move just change??', 'am i going crazy', 'wtf???', 'glitching rn', 'BRO WHAT'];
+                        addChatMessage(player, confusedMessages[Math.floor(Math.random() * confusedMessages.length)]);
+                    }, 1200);
+                }
+            } else {
+                addChatMessage('System', '✏️ Overwrite Moves disabled');
+            }
+        }
+
+        // Achievement System
+        function unlockAchievement(id) {
+            if (achievements.includes(id)) return false;
+
+            const achievement = allAchievements.find(a => a.id === id);
+            if (!achievement) return false;
+
+            achievements.push(id);
+            localStorage.setItem('tttAchievements', JSON.stringify(achievements));
+            showAchievement(achievement.name, achievement.desc);
+            return true;
+        }
+
+        function checkAchievements() {
+            allAchievements.forEach(achievement => {
+                if (!achievements.includes(achievement.id) && achievement.check()) {
+                    unlockAchievement(achievement.id);
+                }
+            });
+        }
+
+        function showAchievements() {
+            const listEl = document.getElementById('achievementsList');
+
+            listEl.innerHTML = allAchievements.map(achievement => {
+                const unlocked = achievements.includes(achievement.id);
+
+                return `
+                    <div class="leaderboard-entry ${unlocked ? '' : ''}" style="opacity: ${unlocked ? '1' : '0.5'};">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; margin-bottom: 3px;">${achievement.name}</div>
+                            <div style="font-size: 0.85em; opacity: 0.9;">${achievement.desc}</div>
+                        </div>
+                        <div style="font-size: 1.5em;">${unlocked ? '✅' : '🔒'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('achievementsModal').classList.add('show');
+        }
+
+        function closeAchievements() {
+            document.getElementById('achievementsModal').classList.remove('show');
+        }
+
+        // Rich Whale System
+        function spawnRichWhale() {
+            if (richWhaleActive || spectators < 5000) return;
+
+            richWhaleActive = true;
+            const whaleName = ['xXMegaWhaleXx', 'BillionaireGaming', 'RichDude2024', 'MoneyBagz', 'LuxuryPlayer', 'DiamondHands', 'CryptoKing'][Math.floor(Math.random() * 7)];
+
+            // Sound effect!
+            playSound('whale');
+
+            // Chat goes CRAZY
+            setTimeout(() => {
+                addChatMessage('System', `💎 ${whaleName} (MEGA WHALE) has joined! 💎`);
+            }, 200);
+
+            setTimeout(() => {
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'YOOO A WHALE!!!');
+            }, 800);
+
+            setTimeout(() => {
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'BIG MONEY IN THE CHAT');
+            }, 1400);
+
+            setTimeout(() => {
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'we bout to get PAID 💰');
+            }, 2000);
+
+            // Whale donates every 5-10 seconds
+            let donationCount = 0;
+            const maxDonations = 5 + Math.floor(Math.random() * 10); // 5-15 donations
+
+            richWhaleInterval = setInterval(() => {
+                if (!gameActive || !richWhaleActive || donationCount >= maxDonations) {
+                    clearInterval(richWhaleInterval);
+                    richWhaleActive = false;
+                    if (donationCount >= maxDonations) {
+                        setTimeout(() => {
+                            addChatMessage(whaleName, 'gg gotta go 👋');
+                            setTimeout(() => {
+                                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'thanks for the dono king');
+                            }, 800);
+                        }, 2000);
+                    }
+                    return;
+                }
+
+                // Whale donates BIG MONEY
+                const donation = 100 + Math.floor(Math.random() * 400); // $100-500
+                spawnDonation(donation);
+                addChatMessage(whaleName, `💎 donated $${donation}! Keep going!`);
+
+                donationCount++;
+            }, 5000 + Math.random() * 5000); // Every 5-10 seconds
+        }
+
+        // Matchmaking animation
+        function showMatchmaking() {
+            const statuses = ['Finding opponent...', 'Connecting...', 'Match found!'];
+            let i = 0;
+            const interval = setInterval(() => {
+                document.getElementById('status').textContent = statuses[i] + ' 🔍';
+                i++;
+                if (i >= statuses.length) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        updateActiveBoard();
+                    }, 500);
+                }
+            }, 700);
+        }
+
+        function createBoard() {
+            const megaBoardEl = document.getElementById('megaBoard');
+            megaBoardEl.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const miniBoardEl = document.createElement('div');
+                miniBoardEl.className = 'mini-board';
+                miniBoardEl.dataset.board = i;
+
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.board = i;
+                    cell.dataset.cell = j;
+                    cell.addEventListener('click', handleCellClick);
+                    miniBoardEl.appendChild(cell);
+                }
+
+                megaBoardEl.appendChild(miniBoardEl);
+            }
+        }
+
+        function handleCellClick(e) {
+            if (!gameActive || currentPlayer !== 'X') return;
+
+            const boardIndex = parseInt(e.target.dataset.board);
+            const cellIndex = parseInt(e.target.dataset.cell);
+
+            // CHEAT: Play Anywhere - ignore board restrictions
+            if (!playAnywhereEnabled) {
+                if (activeBoard !== null && activeBoard !== boardIndex) return;
+                if (megaBoard[boardIndex] !== '') return;
+            }
+
+            // CHEAT: Overwrite Moves - can click on taken cells
+            if (!overwriteMovesEnabled) {
+                if (miniBoards[boardIndex][cellIndex] !== '') return;
+            } else {
+                // If overwriting, clear the cell first
+                if (miniBoards[boardIndex][cellIndex] !== '') {
+                    miniBoards[boardIndex][cellIndex] = '';
+                    // Update visual
+                    const cells = document.querySelectorAll(`[data-board="${boardIndex}"][data-cell="${cellIndex}"]`);
+                    cells.forEach(cell => {
+                        cell.textContent = '';
+                        cell.classList.remove('x', 'o', 'taken', 'ai-move', 'last-move');
+                    });
+                }
+            }
+
+            playSound('click');
+            makeMove(boardIndex, cellIndex);
+        }
+
+        function makeMove(boardIndex, cellIndex, isAI = false) {
+            if (!isAI) moveCount++;
+            
+            miniBoards[boardIndex][cellIndex] = currentPlayer;
+            updateCell(boardIndex, cellIndex, isAI);
+
+            const boardWon = checkWin(miniBoards[boardIndex]);
+            if (boardWon) {
+                megaBoard[boardIndex] = currentPlayer;
+                markBoardWon(boardIndex, currentPlayer);
+
+                // PLAYER WINS A MINI BOARD - CHAT SPAM AND DONATIONS!
+                if (!isAI && currentPlayer === 'X' && spectators > 50) {
+                    // Chat spam messages for board wins
+                    const boardWinMessages = [
+                        'NICE BOARD!',
+                        'LETS GO!',
+                        'clean board win',
+                        'POG',
+                        'gg that board',
+                        'well played',
+                        '🔥',
+                        'nice',
+                        'W',
+                        'clutch board'
+                    ];
+
+                    // Spam 1-3 messages based on spectator count
+                    let messageCount = spectators > 1000 ? 3 : (spectators > 500 ? 2 : 1);
+
+                    for (let i = 0; i < messageCount; i++) {
+                        setTimeout(() => {
+                            const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                            const message = boardWinMessages[Math.floor(Math.random() * boardWinMessages.length)];
+                            addChatMessage(player, message);
+                        }, 300 + (i * 400));
+                    }
+
+                    // Donation chance - higher with more spectators
+                    let boardWinDonationChance = 0;
+
+                    if (spectators < 200) boardWinDonationChance = 0.15; // 15%
+                    else if (spectators < 500) boardWinDonationChance = 0.3; // 30%
+                    else if (spectators < 1000) boardWinDonationChance = 0.45; // 45%
+                    else if (spectators < 5000) boardWinDonationChance = 0.6; // 60%
+                    else if (spectators < 10000) boardWinDonationChance = 0.8; // 80%
+                    else boardWinDonationChance = 0.95; // 95% for massive audiences
+
+                    if (Math.random() < boardWinDonationChance) {
+                        setTimeout(() => {
+                            let minDono = 3;
+                            let maxDono = 15;
+
+                            if (spectators > 1000) { minDono = 8; maxDono = 30; }
+                            if (spectators > 5000) { minDono = 15; maxDono = 60; }
+                            if (spectators > 10000) { minDono = 25; maxDono = 120; }
+
+                            const donation = Math.floor(Math.random() * (maxDono - minDono + 1)) + minDono;
+                            spawnDonation(donation);
+                            const donor = playerNames[Math.floor(Math.random() * playerNames.length)];
+                            addChatMessage(donor, `donated $${donation}!`);
+                        }, 600);
+                    }
+                }
+            } else if (!miniBoards[boardIndex].includes('')) {
+                megaBoard[boardIndex] = 'TIE';
+                markBoardWon(boardIndex, 'TIE');
+            }
+
+            const megaWinner = checkWin(megaBoard);
+            if (megaWinner) {
+                endGame(currentPlayer);
+                return;
+            }
+
+            const allBoardsFull = megaBoard.every(b => b !== '');
+            if (allBoardsFull) {
+                endGame('TIE');
+                return;
+            }
+
+            if (megaBoard[cellIndex] === '') {
+                activeBoard = cellIndex;
+            } else {
+                activeBoard = null;
+            }
+
+            updateActiveBoard();
+            changePlayer();
+
+            // Update hint after move if hints are enabled
+            if (hintsEnabled && currentPlayer === 'X') {
+                setTimeout(updateHint, 100);
+            }
+
+            if (currentPlayer === 'O' && gameActive) {
+                document.getElementById('status').textContent = 'Opponent thinking... 🤔';
+                setTimeout(aiMove, 700);
+            } else if (autoPlayEnabled && currentPlayer === 'X' && gameActive) {
+                setTimeout(autoPlayMove, 500);
+            }
+        }
+
+        function updateCell(boardIndex, cellIndex, isAI = false) {
+            if (isAI) {
+                document.querySelectorAll('.cell').forEach(c => c.classList.remove('last-move'));
+            }
+            
+            const cells = document.querySelectorAll(`[data-board="${boardIndex}"][data-cell="${cellIndex}"]`);
+            cells.forEach(cell => {
+                cell.textContent = currentPlayer;
+                cell.classList.add(currentPlayer.toLowerCase(), 'taken');
+                if (isAI) {
+                    cell.classList.add('ai-move', 'last-move');
+                    setTimeout(() => cell.classList.remove('ai-move'), 600);
+                }
+            });
+        }
+
+        function markBoardWon(boardIndex, winner) {
+            const board = document.querySelector(`[data-board="${boardIndex}"].mini-board`);
+            board.classList.add('won');
+            if (winner !== 'TIE') {
+                board.classList.add(winner.toLowerCase() + '-won');
+                board.dataset.winner = winner;
+            }
+        }
+
+        function checkWin(board) {
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                if (board[a] && 
+                    board[a] !== '' && 
+                    board[a] !== 'TIE' && 
+                    board[a] === board[b] && 
+                    board[a] === board[c]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function updateActiveBoard() {
+            document.querySelectorAll('.mini-board').forEach((board, i) => {
+                board.classList.remove('active');
+                if ((activeBoard === null && megaBoard[i] === '') || activeBoard === i) {
+                    if (megaBoard[i] === '') {
+                        board.classList.add('active');
+                    }
+                }
+            });
+
+            if (currentPlayer === 'X' && gameActive) {
+                if (activeBoard === null) {
+                    document.getElementById('status').textContent = 'Your turn! Play anywhere! 🔥';
+                } else {
+                    document.getElementById('status').textContent = `Your turn! Play in glowing board! 🎯`;
+                }
+                
+                // Update hint when board changes
+                if (hintsEnabled) {
+                    setTimeout(updateHint, 100);
+                }
+            }
+        }
+
+        function changePlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+
+        function endGame(winner) {
+            gameActive = false;
+            const gameTime = (Date.now() - gameStartTime) / 1000; // seconds
+            
+            if (winner === 'X') {
+                playSound('win');
+                document.getElementById('status').textContent = '🎉 VICTORY! 🔥';
+                scores.player++;
+                document.getElementById('playerScore').textContent = scores.player;
+                createConfetti(window.innerWidth / 2, window.innerHeight / 2);
+                
+                // Tournament winnings
+                if (currentTournament) {
+                    const winAmount = currentTournament.win;
+                    bankBalance += winAmount;
+                    updateBankDisplay();
+                    addTransaction('win', winAmount, `🏆 ${currentTournament.name} Victory!`);
+                    
+                    // BIG POPUP showing winnings
+                    setTimeout(() => {
+                        showMoneyWon(winAmount);
+                    }, 1500);
+                    
+                    setTimeout(() => {
+                        addChatMessage('System', `💰 You won $${winAmount.toLocaleString()}!`);
+                        spawnEmote('💰');
+                    }, 1000);
+                    
+                    currentTournament = null;
+                    currentBet = 0;
+                } else {
+                    // Quick match small reward
+                    const reward = 5 + Math.floor(Math.random() * 10);
+                    bankBalance += reward;
+                    updateBankDisplay();
+                    addTransaction('win', reward, '🎮 Quick Match Win');
+                    
+                    // Small notification for quick match
+                    setTimeout(() => {
+                        spawnDonation(reward);
+                    }, 1000);
+                }
+                
+                // CHAT SPAM EXPLOSION when player wins!
+                const chatSpamMessages = [
+                    'GG!!',
+                    'LETS GOOO',
+                    'GGWP',
+                    'clean win',
+                    'ez clap',
+                    'POG',
+                    'that was insane',
+                    'wp wp',
+                    'GOAT',
+                    '🔥🔥🔥',
+                    'clutch!',
+                    'too good',
+                    'gg well played',
+                    'absolute legend',
+                    'SHEEEESH',
+                    'W W W W W',
+                    'MASSIVE W',
+                    'NO WAY',
+                    'POGGERS',
+                    'THIS GUY IS CRACKED',
+                    'insane gameplay',
+                    'what a match!',
+                    'GGs only',
+                    'respect',
+                    'built different',
+                    'HES HIM',
+                    'literal demon',
+                    'HOW???',
+                    'teach me pls',
+                    'god tier',
+                    'KING 👑',
+                    'destroyed',
+                    'monster plays',
+                    'unbeatable',
+                    'chad energy',
+                    'absolute unit',
+                    'goated fr',
+                    'WENT CRAZY',
+                    'certified beast',
+                    'ayo???',
+                    'nasty win',
+                    'clean sweep',
+                    'perfection',
+                    'S tier player',
+                    'not even close',
+                    'made it look easy',
+                    'calculated',
+                    'GIGACHAD',
+                    'legend status',
+                    'hall of fame'
+                ];
+                
+                // Spam chat based on viewer count (more viewers = WAY more spam)
+                let spamCount;
+                if (spectators < 100) spamCount = 3;
+                else if (spectators < 500) spamCount = 5;
+                else if (spectators < 1000) spamCount = 8;
+                else if (spectators < 5000) spamCount = 12;
+                else if (spectators < 10000) spamCount = 18;
+                else spamCount = 25; // MASSIVE SPAM for huge tournaments
+
+                for (let i = 0; i < spamCount; i++) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const message = chatSpamMessages[Math.floor(Math.random() * chatSpamMessages.length)];
+                        addChatMessage(player, message);
+                    }, 500 + (i * 250)); // Faster stagger for more spam
+                }
+                
+                // Random viewer donations during wins - MORE VIEWERS = MORE DONATIONS!
+                let donationChance = 0;
+                let numDonations = 0;
+
+                if (spectators < 100) {
+                    donationChance = 0.2; // 20% chance, 1 donation
+                    numDonations = 1;
+                } else if (spectators < 500) {
+                    donationChance = 0.5; // 50% chance, 1-2 donations
+                    numDonations = Math.random() < 0.5 ? 1 : 2;
+                } else if (spectators < 1000) {
+                    donationChance = 0.7; // 70% chance, 2-3 donations
+                    numDonations = 2 + Math.floor(Math.random() * 2);
+                } else if (spectators < 5000) {
+                    donationChance = 0.9; // 90% chance, 3-5 donations
+                    numDonations = 3 + Math.floor(Math.random() * 3);
+                } else if (spectators < 10000) {
+                    donationChance = 1.0; // 100% chance, 5-8 donations
+                    numDonations = 5 + Math.floor(Math.random() * 4);
+                } else {
+                    donationChance = 1.0; // 100% chance, 8-15 donations for HUGE audiences
+                    numDonations = 8 + Math.floor(Math.random() * 8);
+                }
+
+                if (Math.random() < donationChance) {
+                    // Stagger donations over time
+                    for (let i = 0; i < numDonations; i++) {
+                        setTimeout(() => {
+                            // Donation amount scales with viewer count too
+                            let minDonation = 5;
+                            let maxDonation = 20;
+
+                            if (spectators > 1000) {
+                                minDonation = 10;
+                                maxDonation = 50;
+                            }
+                            if (spectators > 5000) {
+                                minDonation = 25;
+                                maxDonation = 100;
+                            }
+                            if (spectators > 10000) {
+                                minDonation = 50;
+                                maxDonation = 250;
+                            }
+
+                            const donation = Math.floor(Math.random() * (maxDonation - minDonation + 1)) + minDonation;
+                            spawnDonation(donation);
+                            const donor = playerNames[Math.floor(Math.random() * playerNames.length)];
+                            addChatMessage(donor, `donated $${donation}! 💰`);
+                        }, 1500 + (i * 800)); // Stagger donations
+                    }
+                }
+                
+                winStreak++;
+                totalWins++;
+
+                // Check for achievements!
+                checkAchievements();
+
+                // Specific difficulty achievements
+                if (currentTournament) {
+                    if (currentTournament.difficulty === 'expert') unlockAchievement('beat_expert');
+                    if (currentTournament.difficulty === 'impossible') unlockAchievement('beat_impossible');
+                    if (currentTournament.difficulty === 'nightmare') unlockAchievement('beat_nightmare');
+                    if (currentTournament.difficulty === 'godlike') unlockAchievement('beat_godlike');
+
+                    // Tournament-specific achievements
+                    unlockAchievement('tournament_winner');
+                    if (currentTournament.name === 'WHALE WARS 🐋') unlockAchievement('whale_wars_winner');
+                    if (currentTournament.name === 'THE FINAL BOSS 💎') unlockAchievement('final_boss_winner');
+                }
+
+                // Fast win achievement
+                if (gameTime < 30) unlockAchievement('fast_win');
+
+                // Reactive chat based on conditions
+                if (cheatsActive) {
+                    reactiveChat('cheat_detected');
+                } else if (gameTime < 30 && moveCount < 10) {
+                    reactiveChat('fast_win');
+                } else if (winStreak >= 5) {
+                    reactiveChat('big_streak', { streak: winStreak });
+                } else if (difficulty === 'impossible') {
+                    reactiveChat('rage_quit');
+                } else {
+                    reactiveChat('normal_win');
+                }
+                
+                if (winStreak > bestStreak) {
+                    bestStreak = winStreak;
+                    if (bestStreak === 3) showAchievement('🔥 On Fire!', 'Win 3 games in a row');
+                    if (bestStreak === 5) showAchievement('🌟 Unstoppable!', 'Win 5 games in a row');
+                    if (bestStreak === 10) showAchievement('👑 LEGEND!', 'Win 10 games in a row');
+                }
+                if (globalRank > 100) globalRank -= Math.floor(Math.random() * 50) + 10;
+                updateStats();
+                
+                setTimeout(() => {
+                    const opponent = playerNames[Math.floor(Math.random() * playerNames.length)];
+                    addChatMessage(opponent, 'gg wp');
+                }, 1500);
+            } else if (winner === 'O') {
+                playSound('lose');
+                document.getElementById('status').textContent = '💀 DEFEAT! Try again!';
+                scores.ai++;
+                document.getElementById('aiScore').textContent = scores.ai;
+                
+                // Lose tournament bet (already deducted, just record the loss)
+                if (currentTournament) {
+                    addTransaction('loss', 0, `💀 ${currentTournament.name} - Defeated`);
+                    addChatMessage('System', `You lost $${currentBet}! 😭`);
+                    currentTournament = null;
+                    currentBet = 0;
+                }
+                
+                // CHAT BOOS AND LAUGHS when AI wins!
+                const booMessages = [
+                    'BOOOOO',
+                    'L',
+                    'rip',
+                    'unlucky',
+                    'better luck next time',
+                    'gg tho',
+                    'close one',
+                    'F',
+                    'almost had it',
+                    'tough loss',
+                    'gg anyway',
+                    'L + ratio',
+                    'sadge',
+                    'oof',
+                    'rip bozo',
+                    'KEKW',
+                    'you tried',
+                    'next time king',
+                    'F in chat',
+                    'so close!',
+                    'unlucky really',
+                    'it happens',
+                    'dont give up',
+                    'keep grinding',
+                    'we believe',
+                    'comeback time?',
+                    'just lag',
+                    'run it back',
+                    'rematch!',
+                    'AI too strong',
+                    'need more practice',
+                    'pain',
+                    'sadness',
+                    '💀💀💀',
+                    'big L',
+                    'unlucky gg',
+                    'respectable try',
+                    'youll get em',
+                    'tough opponent',
+                    'F F F F F',
+                    'not your game',
+                    'happens to everyone',
+                    'still learning',
+                    'W for effort',
+                    'valiant attempt'
+                ];
+                
+                // Less spam than winning, but still significant reaction based on viewers
+                let booCount;
+                if (spectators < 100) booCount = 2;
+                else if (spectators < 500) booCount = 4;
+                else if (spectators < 1000) booCount = 6;
+                else if (spectators < 5000) booCount = 10;
+                else if (spectators < 10000) booCount = 14;
+                else booCount = 20; // Still lots of reaction for huge audiences
+
+                for (let i = 0; i < booCount; i++) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const message = booMessages[Math.floor(Math.random() * booMessages.length)];
+                        addChatMessage(player, message);
+                    }, 500 + (i * 350)); // Slightly slower than win spam
+                }
+                
+                winStreak = 0;
+                if (globalRank < 9999) globalRank += Math.floor(Math.random() * 20) + 5;
+                updateStats();
+            } else {
+                document.getElementById('status').textContent = '🤝 DRAW!';
+                scores.tie++;
+                document.getElementById('tieScore').textContent = scores.tie;
+                
+                // Refund tournament bet on tie
+                if (currentTournament) {
+                    bankBalance += currentBet;
+                    updateBankDisplay();
+                    addTransaction('refund', currentBet, `🤝 ${currentTournament.name} - Tie Refund`);
+                    currentTournament = null;
+                    currentBet = 0;
+                }
+                
+                // Some chat for ties
+                setTimeout(() => {
+                    addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'draw gg');
+                }, 500);
+                setTimeout(() => {
+                    addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'fair game');
+                }, 1000);
+            }
+        }
+
+        function createConfetti(x, y) {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = (x + (Math.random() - 0.5) * 300) + 'px';
+                confetti.style.top = (y + (Math.random() - 0.5) * 300) + 'px';
+                confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function aiMove() {
+            if (!gameActive) return;
+            
+            let move;
+            switch(difficulty) {
+                case 'baby': move = babyAI(); break;
+                case 'easy': move = easyAI(); break;
+                case 'medium': move = mediumAI(); break;
+                case 'hard': move = hardAI(); break;
+                case 'expert': move = expertAI(); break;
+                case 'impossible': move = impossibleAI(); break;
+                case 'nightmare': move = nightmareAI(); break;
+                case 'godlike': move = godlikeAI(); break;
+                default: move = mediumAI(); break;
+            }
+
+            if (move) {
+                makeMove(move.board, move.cell, true);
+            }
+        }
+
+        function getAvailableMoves() {
+            const moves = [];
+            if (activeBoard !== null) {
+                if (megaBoard[activeBoard] === '') {
+                    miniBoards[activeBoard].forEach((cell, i) => {
+                        if (cell === '') moves.push({ board: activeBoard, cell: i });
+                    });
+                }
+            } else {
+                miniBoards.forEach((board, bIdx) => {
+                    if (megaBoard[bIdx] === '') {
+                        board.forEach((cell, cIdx) => {
+                            if (cell === '') moves.push({ board: bIdx, cell: cIdx });
+                        });
+                    }
+                });
+            }
+            return moves;
+        }
+
+        function babyAI() {
+            // Completely random, doesn't even try to win or block
+            const moves = getAvailableMoves();
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+
+        function easyAI() {
+            // Mostly random, but occasionally tries to win (30% chance)
+            const moves = getAvailableMoves();
+
+            if (Math.random() < 0.3 && activeBoard !== null) {
+                const winMove = findWinningMove(miniBoards[activeBoard], 'O');
+                if (winMove !== -1) return { board: activeBoard, cell: winMove };
+            }
+
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+
+        function mediumAI() {
+            if (Math.random() < 0.3) return easyAI();
+            
+            if (activeBoard !== null) {
+                const winMove = findWinningMove(miniBoards[activeBoard], 'O');
+                if (winMove !== -1) return { board: activeBoard, cell: winMove };
+                
+                const blockMove = findWinningMove(miniBoards[activeBoard], 'X');
+                if (blockMove !== -1) return { board: activeBoard, cell: blockMove };
+            }
+            
+            return easyAI();
+        }
+
+        function hardAI() {
+            const megaWin = findMegaBoardWin('O');
+            if (megaWin) return megaWin;
+
+            const megaBlock = findMegaBoardWin('X');
+            if (megaBlock) return megaBlock;
+
+            if (activeBoard !== null && megaBoard[activeBoard] === '') {
+                const winMove = findWinningMove(miniBoards[activeBoard], 'O');
+                if (winMove !== -1) return { board: activeBoard, cell: winMove };
+                
+                const blockMove = findWinningMove(miniBoards[activeBoard], 'X');
+                if (blockMove !== -1) return { board: activeBoard, cell: blockMove };
+            }
+
+            return mediumAI();
+        }
+
+        function expertAI() {
+            if (Math.random() < 0.15) return hardAI();
+            return impossibleAI();
+        }
+
+        function impossibleAI() {
+            const megaWin = findMegaBoardWin('O');
+            if (megaWin) return megaWin;
+
+            const megaBlock = findMegaBoardWin('X');
+            if (megaBlock) return megaBlock;
+
+            const moves = getAvailableMoves();
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            moves.forEach(move => {
+                const score = evaluateMove(move);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            });
+
+            return bestMove || easyAI();
+        }
+
+        function nightmareAI() {
+            // Like impossible, but evaluates TWICE for each move with lookahead
+            const megaWin = findMegaBoardWin('O');
+            if (megaWin) return megaWin;
+
+            const megaBlock = findMegaBoardWin('X');
+            if (megaBlock) return megaBlock;
+
+            const moves = getAvailableMoves();
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            moves.forEach(move => {
+                let score = evaluateMove(move);
+
+                // LOOKAHEAD: Simulate this move and evaluate opponent's best response
+                const savedMiniBoards = miniBoards.map(b => [...b]);
+                const savedMegaBoard = [...megaBoard];
+
+                // Simulate our move
+                miniBoards[move.board][move.cell] = 'O';
+                if (checkWin(miniBoards[move.board])) {
+                    megaBoard[move.board] = 'O';
+                }
+
+                // Find opponent's best counter-move
+                const opponentMoves = getAvailableMoves();
+                let worstOpponentScore = Infinity;
+
+                opponentMoves.slice(0, 10).forEach(oppMove => { // Check top 10 opponent moves
+                    miniBoards[oppMove.board][oppMove.cell] = 'X';
+                    if (checkWin(miniBoards[oppMove.board])) {
+                        worstOpponentScore = Math.min(worstOpponentScore, -100);
+                    }
+                    miniBoards[oppMove.board][oppMove.cell] = '';
+                });
+
+                // Restore boards
+                miniBoards = savedMiniBoards;
+                megaBoard = savedMegaBoard;
+
+                // Adjust score based on opponent's response
+                score += worstOpponentScore * 0.5;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            });
+
+            return bestMove || impossibleAI();
+        }
+
+        function godlikeAI() {
+            // The ULTIMATE AI - perfect play with deep lookahead
+            const megaWin = findMegaBoardWin('O');
+            if (megaWin) return megaWin;
+
+            const megaBlock = findMegaBoardWin('X');
+            if (megaBlock) return megaBlock;
+
+            const moves = getAvailableMoves();
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            // Evaluate ALL moves with deep analysis
+            moves.forEach(move => {
+                let score = evaluateMove(move) * 1.2; // Boost evaluation scores
+
+                // DEEP LOOKAHEAD: 2 moves ahead
+                const savedMiniBoards = miniBoards.map(b => [...b]);
+                const savedMegaBoard = [...megaBoard];
+
+                // Simulate our move
+                miniBoards[move.board][move.cell] = 'O';
+                if (checkWin(miniBoards[move.board])) {
+                    megaBoard[move.board] = 'O';
+                }
+
+                // Check if we won
+                if (checkWin(megaBoard)) {
+                    miniBoards = savedMiniBoards;
+                    megaBoard = savedMegaBoard;
+                    return { board: move.board, cell: move.cell }; // INSTANT WIN!
+                }
+
+                // Evaluate ALL opponent responses
+                const opponentMoves = getAvailableMoves();
+                let totalOpponentThreat = 0;
+
+                opponentMoves.forEach(oppMove => {
+                    miniBoards[oppMove.board][oppMove.cell] = 'X';
+
+                    if (checkWin(miniBoards[oppMove.board])) {
+                        megaBoard[oppMove.board] = 'X';
+                        if (checkWin(megaBoard)) {
+                            totalOpponentThreat -= 200; // They can win!
+                        } else {
+                            totalOpponentThreat -= 50; // They win a board
+                        }
+                        megaBoard[oppMove.board] = '';
+                    }
+
+                    miniBoards[oppMove.board][oppMove.cell] = '';
+                });
+
+                // Restore boards
+                miniBoards = savedMiniBoards;
+                megaBoard = savedMegaBoard;
+
+                // Factor in opponent threats
+                score += totalOpponentThreat / opponentMoves.length;
+
+                // Add perfect strategic positioning bonus
+                if (move.cell === 4) score += 20; // Center is KING
+                if ([0, 2, 6, 8].includes(move.cell)) score += 12; // Corners are STRONG
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            });
+
+            return bestMove || nightmareAI();
+        }
+
+        function evaluateMove(move) {
+            let score = 0;
+
+            // PRIORITY 1: Check if this wins a small board
+            const tempBoard = [...miniBoards[move.board]];
+            tempBoard[move.cell] = 'O';
+            if (checkWin(tempBoard)) {
+                score += 100;
+
+                // PRIORITY 1A: Does winning this board win the mega board?
+                const tempMega = [...megaBoard];
+                tempMega[move.board] = 'O';
+                if (checkWin(tempMega)) {
+                    return 10000; // INSTANT WIN!
+                }
+
+                // Check if winning this creates mega board threats
+                for (let condition of winConditions) {
+                    const [a, b, c] = condition;
+                    const boards = [tempMega[a], tempMega[b], tempMega[c]];
+                    if (boards.filter(b => b === 'O').length === 2 && boards.includes('')) {
+                        score += 300; // Creates a winning threat on mega board!
+                    }
+                }
+            }
+
+            // PRIORITY 2: Check if opponent could win this board if we don't play here
+            const blockBoard = [...miniBoards[move.board]];
+            blockBoard[move.cell] = 'X';
+            if (checkWin(blockBoard)) {
+                score += 80;
+
+                // Is this blocking a mega board win?
+                const blockMega = [...megaBoard];
+                blockMega[move.board] = 'X';
+                if (checkWin(blockMega)) {
+                    return 9000; // MUST BLOCK!
+                }
+
+                // Blocking a mega board threat
+                for (let condition of winConditions) {
+                    const [a, b, c] = condition;
+                    const boards = [blockMega[a], blockMega[b], blockMega[c]];
+                    if (boards.filter(b => b === 'X').length === 2 && boards.includes('')) {
+                        score += 250; // Block mega board threat!
+                    }
+                }
+            }
+
+            // PRIORITY 3: Check if this creates 2-in-a-row on current board
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                const cells = [tempBoard[a], tempBoard[b], tempBoard[c]];
+                if (cells.filter(c => c === 'O').length === 2 && cells.includes('')) {
+                    score += 40; // Creating a threat
+                }
+
+                // Block opponent's 2-in-a-row
+                const blockCells = [miniBoards[move.board][a], miniBoards[move.board][b], miniBoards[move.board][c]];
+                if (blockCells.filter(c => c === 'X').length === 2 && blockCells.includes('')) {
+                    if ([a, b, c].includes(move.cell)) {
+                        score += 35; // Block their threat
+                    }
+                }
+            }
+
+            // PRIORITY 4: Strategic positioning - center and corners
+            if (move.cell === 4) score += 10; // Center is good
+            if ([0, 2, 6, 8].includes(move.cell)) score += 6; // Corners are decent
+
+            // PRIORITY 5: Where will opponent be sent?
+            const nextBoard = move.cell;
+
+            // If we send them to a won/tied board (they can play anywhere), that's GOOD
+            if (megaBoard[nextBoard] !== '') {
+                score += 45;
+            } else {
+                // If we send them to a board where they could win, that's BAD
+                const opponentWinMove = findWinningMove(miniBoards[nextBoard], 'X');
+                if (opponentWinMove !== -1) {
+                    score -= 60; // Bad! They can win that board
+
+                    // Even worse if that board win would give them mega board advantage
+                    const futureOpponentMega = [...megaBoard];
+                    futureOpponentMega[nextBoard] = 'X';
+                    for (let condition of winConditions) {
+                        const [a, b, c] = condition;
+                        const boards = [futureOpponentMega[a], futureOpponentMega[b], futureOpponentMega[c]];
+                        if (boards.filter(b => b === 'X').length === 2 && boards.includes('')) {
+                            score -= 40; // They'd get a mega threat!
+                        }
+                    }
+                }
+
+                // If we send them to a board where WE have 2-in-a-row, that's also bad
+                const weCanWinThere = findWinningMove(miniBoards[nextBoard], 'O');
+                if (weCanWinThere !== -1) {
+                    score -= 25; // We're giving up a board we could win later
+                }
+            }
+
+            // PRIORITY 6: Mega board positioning
+            // Prefer moves that help us control strategic mega board positions
+            const megaBoardPos = move.board;
+            if (megaBoardPos === 4) score += 15; // Center mega board
+            if ([0, 2, 6, 8].includes(megaBoardPos)) score += 8; // Corner mega boards
+
+            // PRIORITY 7: Add some randomness to avoid being too predictable (5% variance)
+            score += (Math.random() - 0.5) * 10;
+
+            return score;
+        }
+
+        function findWinningMove(board, player) {
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = player;
+                    const won = checkWin(board);
+                    board[i] = '';
+                    if (won) return i;
+                }
+            }
+            return -1;
+        }
+
+        function findMegaBoardWin(player) {
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                const boards = [megaBoard[a], megaBoard[b], megaBoard[c]];
+                
+                if (boards.filter(b => b === player).length === 2 && boards.includes('')) {
+                    const targetBoard = [a, b, c].find(i => megaBoard[i] === '');
+                    if (activeBoard === null || activeBoard === targetBoard) {
+                        const move = findWinningMove(miniBoards[targetBoard], 'O');
+                        if (move !== -1) return { board: targetBoard, cell: move };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function resetGame() {
+            miniBoards = Array(9).fill(null).map(() => ['', '', '', '', '', '', '', '', '']);
+            megaBoard = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            activeBoard = null;
+            gameActive = true;
+            moveCount = 0;
+            gameStartTime = Date.now();
+            
+            createBoard();
+            showMatchmaking();
+            updateSpectators();
+        }
+
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                difficulty = btn.dataset.difficulty;
+                resetGame();
+            });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Quick Match clears tournament
+            currentTournament = null;
+            currentBet = 0;
+            resetGame();
+        });
+
+        // Bank System Functions
+        function updateBankDisplay() {
+            document.getElementById('bankBalance').textContent = bankBalance.toLocaleString();
+            document.getElementById('bankBalanceModal').textContent = bankBalance.toLocaleString();
+            localStorage.setItem('tttBalance', bankBalance);
+        }
+
+        function addTransaction(type, amount, description) {
+            const transaction = {
+                type,
+                amount,
+                description,
+                date: new Date().toLocaleString()
+            };
+            transactions.unshift(transaction);
+            if (transactions.length > 20) transactions.pop();
+            localStorage.setItem('tttTransactions', JSON.stringify(transactions));
+        }
+
+        function showBank() {
+            document.getElementById('bankModal').classList.add('show');
+            updateTransactionHistory();
+        }
+
+        function closeBank() {
+            document.getElementById('bankModal').classList.remove('show');
+        }
+
+        function updateTransactionHistory() {
+            const historyEl = document.getElementById('transactionHistory');
+            if (transactions.length === 0) {
+                historyEl.innerHTML = '<div style="text-align: center; opacity: 0.6; padding: 20px;">No transactions yet</div>';
+                return;
+            }
+            
+            historyEl.innerHTML = transactions.map(t => `
+                <div class="transaction ${t.type === 'win' || t.type === 'bonus' ? 'positive' : 'negative'}">
+                    <div>
+                        <div>${t.description}</div>
+                        <div style="font-size: 0.75em; opacity: 0.7;">${t.date}</div>
+                    </div>
+                    <div style="font-weight: bold; color: ${t.type === 'win' || t.type === 'bonus' ? '#43e97b' : '#ff6b6b'}">
+                        ${t.type === 'win' || t.type === 'bonus' ? '+' : '-'}$${Math.abs(t.amount).toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function dailyBonus() {
+            const today = new Date().toDateString();
+            if (lastDailyBonus === today) {
+                alert('You already claimed your daily bonus! Come back tomorrow! 🎁');
+                return;
+            }
+            
+            bankBalance += 50;
+            lastDailyBonus = today;
+            localStorage.setItem('tttLastDaily', lastDailyBonus);
+            addTransaction('bonus', 50, '🎁 Daily Login Bonus');
+            updateBankDisplay();
+            updateTransactionHistory();
+            spawnEmote('💰');
+            addChatMessage('System', 'claimed daily bonus!');
+        }
+
+        function addMoney() {
+            bankBalance += 1000;
+            addTransaction('bonus', 1000, '🔓 Dev Bonus');
+            updateBankDisplay();
+            updateTransactionHistory();
+        }
+
+        // Tournament System
+        function showTournaments() {
+            const listEl = document.getElementById('tournamentList');
+            listEl.innerHTML = tournaments.map((t, i) => {
+                const canAfford = bankBalance >= t.bet;
+                const locked = t.locked && bankBalance < t.unlockAt;
+                const isLocked = locked || !canAfford;
+
+                return `
+                    <div class="tournament-card ${isLocked ? 'locked' : ''}" onclick="${isLocked ? '' : `startTournament(${i})`}">
+                        <div class="tournament-name">${t.name}</div>
+                        <div class="tournament-details">
+                            <span class="tournament-bet">💸 Entry Fee: $${t.bet.toLocaleString()}</span>
+                        </div>
+                        <div class="tournament-details" style="font-size: 1.1em; color: #43e97b;">
+                            <span class="tournament-win">🏆 Win Prize: $${t.win.toLocaleString()}</span>
+                        </div>
+                        <div class="tournament-details" style="font-size: 0.8em; opacity: 0.7; margin-top: 5px;">
+                            ⚠️ You pay $${t.bet.toLocaleString()} now. Win = Get $${t.win.toLocaleString()}. Lose = Lose $${t.bet.toLocaleString()}!
+                        </div>
+                        <div class="tournament-details">
+                            👁️ ${t.viewers.toLocaleString()} viewers •
+                            Difficulty: ${t.difficulty.toUpperCase()}
+                        </div>
+                        ${locked ? '<div style="color: #ffd700; font-size: 0.85em;">🔒 Unlock at $' + t.unlockAt.toLocaleString() + '</div>' : ''}
+                        ${!canAfford && !locked ? '<div style="color: #ff6b6b; font-size: 0.85em;">❌ Need $' + t.bet.toLocaleString() + '</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('tournamentModal').classList.add('show');
+        }
+
+        function closeTournaments() {
+            document.getElementById('tournamentModal').classList.remove('show');
+        }
+
+        function showCustomTournament() {
+            document.getElementById('tournamentModal').classList.remove('show');
+            document.getElementById('customTournamentModal').classList.add('show');
+            
+            // Update preview on input changes
+            const updatePreview = () => {
+                const bet = parseInt(document.getElementById('customBet').value) || 100;
+                const multiplier = parseFloat(document.getElementById('customMultiplier').value) || 5;
+                const prize = Math.floor(bet * multiplier);
+                document.getElementById('customPreview').innerHTML = 
+                    `💰 Preview: Pay <span style="color: #ff6b6b;">$${bet.toLocaleString()}</span> → Win <span style="color: #43e97b;">$${prize.toLocaleString()}</span>`;
+            };
+            
+            document.getElementById('customBet').addEventListener('input', updatePreview);
+            document.getElementById('customMultiplier').addEventListener('input', updatePreview);
+            updatePreview();
+        }
+
+        function closeCustomTournament() {
+            document.getElementById('customTournamentModal').classList.remove('show');
+        }
+
+        function createCustomTournament() {
+            const name = document.getElementById('customName').value || 'Custom Tournament';
+            const bet = parseInt(document.getElementById('customBet').value) || 100;
+            const multiplier = parseFloat(document.getElementById('customMultiplier').value) || 5;
+            const difficulty = document.getElementById('customDifficulty').value;
+            const viewers = parseInt(document.getElementById('customViewers').value) || 1000;
+            
+            const win = Math.floor(bet * multiplier);
+            
+            if (bet < 1) {
+                alert('Entry fee must be at least $1!');
+                return;
+            }
+            
+            if (bankBalance < bet) {
+                alert('Insufficient funds! 💸');
+                return;
+            }
+            
+            const customTournament = {
+                name,
+                bet,
+                win,
+                difficulty,
+                viewers
+            };
+            
+            // Deduct bet
+            bankBalance -= bet;
+            currentBet = bet;
+            currentTournament = customTournament;
+            updateBankDisplay();
+            addTransaction('bet', -bet, `🎮 ${name} Entry Fee`);
+            
+            // Set difficulty
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.difficulty === difficulty) {
+                    btn.classList.add('active');
+                }
+            });
+            window.difficulty = difficulty;
+            
+            closeCustomTournament();
+            resetGame();
+            
+            addChatMessage('System', `🏆 ${name} starting! ${viewers.toLocaleString()} viewers watching!`);
+            setTimeout(() => {
+                reactiveChat('spectator_join');
+                spawnEmote('🔥');
+            }, 2000);
+        }
+
+        function startTournament(index) {
+            const tournament = tournaments[index];
+
+            if (bankBalance < tournament.bet) {
+                alert('Insufficient funds! 💸');
+                return;
+            }
+
+            // Deduct bet
+            bankBalance -= tournament.bet;
+            currentBet = tournament.bet;
+            currentTournament = tournament;
+            updateBankDisplay();
+            addTransaction('bet', -tournament.bet, `🎮 ${tournament.name} Entry Fee`);
+
+            // Set difficulty
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.difficulty === tournament.difficulty) {
+                    btn.classList.add('active');
+                }
+            });
+            difficulty = tournament.difficulty;
+            
+            closeTournaments();
+            resetGame();
+
+            addChatMessage('System', `🏆 ${tournament.name} starting! ${tournament.viewers.toLocaleString()} viewers watching!`);
+            setTimeout(() => {
+                reactiveChat('spectator_join');
+                spawnEmote('🔥');
+            }, 2000);
+
+            // RICH WHALE SPAWN CHANCE based on tournament size!
+            let whaleSpawnChance = 0;
+            if (tournament.viewers >= 5000 && tournament.viewers < 10000) whaleSpawnChance = 0.1; // 10%
+            else if (tournament.viewers >= 10000 && tournament.viewers < 25000) whaleSpawnChance = 0.2; // 20%
+            else if (tournament.viewers >= 25000 && tournament.viewers < 75000) whaleSpawnChance = 0.35; // 35%
+            else if (tournament.viewers >= 75000 && tournament.viewers < 150000) whaleSpawnChance = 0.5; // 50%
+            else if (tournament.viewers >= 150000) whaleSpawnChance = 0.7; // 70% for massive tournaments!
+
+            if (Math.random() < whaleSpawnChance) {
+                setTimeout(() => {
+                    spawnRichWhale();
+                }, 3000 + Math.floor(Math.random() * 5000)); // Spawn 3-8 seconds into the game
+            }
+        }
+
+        function spawnDonation(amount) {
+            const popup = document.createElement('div');
+            popup.className = 'donation-popup';
+            popup.textContent = `+$${amount} 💰`;
+            popup.style.left = (Math.random() * (window.innerWidth - 150)) + 'px';
+            popup.style.top = (window.innerHeight * 0.3) + 'px';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+            
+            playSound('click');
+            bankBalance += amount;
+            updateBankDisplay();
+            addTransaction('bonus', amount, '💝 Viewer Donation');
+        }
+
+        createBoard();
+        showMatchmaking();
+        updateStats();
+        gameStartTime = Date.now();
+        updateSpectators();
+        updateBankDisplay();
+    </script>
+</body>
+</html>
