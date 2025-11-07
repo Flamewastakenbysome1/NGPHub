@@ -1908,6 +1908,85 @@
             }
         }, 15000);
 
+        // IDLE CHAT CONVERSATIONS - Players talking to each other!
+        setInterval(() => {
+            if (!gameActive || currentPlayer !== 'X') return;
+
+            // More likely to chat when there are more people online
+            let conversationChance = 0.3; // 30% base
+            if (currentOnline > 1000) conversationChance = 0.5;
+            if (currentOnline > 10000) conversationChance = 0.7;
+            if (currentOnline > 50000) conversationChance = 0.9;
+
+            if (Math.random() < conversationChance) {
+                // Pick 2 random players for conversation
+                const player1 = playerNames[Math.floor(Math.random() * playerNames.length)];
+                let player2 = playerNames[Math.floor(Math.random() * playerNames.length)];
+                while (player2 === player1) {
+                    player2 = playerNames[Math.floor(Math.random() * playerNames.length)];
+                }
+
+                // Conversation templates
+                const conversations = [
+                    // Hype conversations
+                    { p1: 'anyone else hyped?', p2: 'SO HYPED', delay: 1200 },
+                    { p1: 'this is gonna be good', p2: 'for real', delay: 1000 },
+                    { p1: 'lets gooo', p2: 'HYPE', delay: 800 },
+                    { p1: 'who winning this?', p2: 'player for sure', delay: 1300 },
+                    { p1: 'ez win incoming', p2: 'doubt', delay: 1100 },
+
+                    // Casual chat
+                    { p1: 'gl everyone', p2: 'u2!', delay: 900 },
+                    { p1: 'first time watching?', p2: 'nah been here', delay: 1400 },
+                    { p1: 'this player is nuts', p2: 'fr fr', delay: 1000 },
+                    { p1: 'bet they win this', p2: 'hope so', delay: 1200 },
+                    { p1: 'clutch potential?', p2: 'maybe', delay: 1000 },
+
+                    // Tournament specific
+                    { p1: 'big tournament energy', p2: 'stakes are high', delay: 1300 },
+                    { p1: 'imagine losing here', p2: 'would be tragic', delay: 1400 },
+                    { p1: 'chat moving fast', p2: 'tons of people here', delay: 1200 },
+                    { p1: 'whos donated the most?', p2: 'idk but its a lot', delay: 1500 },
+
+                    // Funny banter
+                    { p1: 'im eating popcorn rn', p2: 'same lol', delay: 1100 },
+                    { p1: 'should i donate', p2: 'DO IT', delay: 900 },
+                    { p1: 'my mouse died', p2: 'rip', delay: 800 },
+                    { p1: 'lag?', p2: 'nope just you', delay: 1000 },
+                    { p1: 'this game is addicting', p2: 'been here 3 hours', delay: 1400 },
+
+                    // Strategy talk
+                    { p1: 'that was smart', p2: 'big brain play', delay: 1200 },
+                    { p1: 'predict the next move', p2: 'probably center', delay: 1300 },
+                    { p1: 'AI looking tough', p2: 'yeah this is hard', delay: 1200 },
+                    { p1: 'comeback possible?', p2: 'still in it', delay: 1100 },
+
+                    // Meta chat
+                    { p1: 'wish i was playing', p2: 'same fr', delay: 1000 },
+                    { p1: 'spectating is fun tho', p2: 'true no pressure', delay: 1300 },
+                    { p1: 'donate gang', p2: '💰💰💰', delay: 900 },
+                    { p1: 'W stream', p2: 'W community', delay: 1100 },
+
+                    // Economy chat
+                    { p1: 'taxes are brutal', p2: 'government taking everything 💀', delay: 1400 },
+                    { p1: 'how much they won so far?', p2: 'not enough after tax lol', delay: 1500 },
+                    { p1: 'i rebirthed yesterday', p2: 'worth it?', delay: 1200 },
+                    { p1: 'shop prices crazy', p2: 'inflation hit different', delay: 1300 },
+                    { p1: 'whale incoming?', p2: 'hopefully 🐋', delay: 1100 }
+                ];
+
+                const convo = conversations[Math.floor(Math.random() * conversations.length)];
+
+                // First message
+                addChatMessage(player1, convo.p1);
+
+                // Reply after delay
+                setTimeout(() => {
+                    addChatMessage(player2, convo.p2);
+                }, convo.delay);
+            }
+        }, 7000); // Check every 7 seconds
+
         function showMoneyWon(amount) {
             const popup = document.getElementById('moneyWonPopup');
             const amountEl = document.getElementById('moneyWonAmount');
@@ -2439,9 +2518,9 @@
                 addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'we bout to get PAID 💰');
             }, 2000);
 
-            // Whale donates every 5-10 seconds
+            // Whale donates every 3-6 seconds (MORE FREQUENT!)
             let donationCount = 0;
-            const maxDonations = 5 + Math.floor(Math.random() * 10); // 5-15 donations
+            const maxDonations = 15 + Math.floor(Math.random() * 25); // 15-40 donations (WAY MORE!)
 
             richWhaleInterval = setInterval(() => {
                 if (!gameActive || !richWhaleActive || donationCount >= maxDonations) {
@@ -2458,13 +2537,50 @@
                     return;
                 }
 
-                // Whale donates BIG MONEY
-                const donation = 100 + Math.floor(Math.random() * 400); // $100-500
+                // Whale donates MASSIVE MONEY (scales with spectators!)
+                let minDono = 2000;
+                let maxDono = 10000;
+
+                if (spectators > 50000) { minDono = 5000; maxDono = 25000; }
+                if (spectators > 100000) { minDono = 10000; maxDono = 50000; }
+                if (spectators > 500000) { minDono = 25000; maxDono = 100000; } // THE FINAL BOSS whale
+
+                const donation = minDono + Math.floor(Math.random() * (maxDono - minDono));
                 spawnDonation(donation);
-                addChatMessage(whaleName, `💎 donated $${donation}! Keep going!`);
+
+                // Whale messages scale with donation size
+                let whaleMessage;
+                if (donation >= 50000) {
+                    whaleMessage = `💎💎 DONATED $${donation}!! YOU GOT THIS!! 💎💎`;
+                } else if (donation >= 20000) {
+                    whaleMessage = `💎 donated $${donation}! CARRYING YOU!`;
+                } else if (donation >= 10000) {
+                    whaleMessage = `💵 donated $${donation}! Keep it up!`;
+                } else {
+                    whaleMessage = `💰 donated $${donation}! Let's go!`;
+                }
+
+                addChatMessage(whaleName, whaleMessage);
+
+                // Chat reacts to BIG donations
+                if (donation >= 20000 && Math.random() < 0.7) {
+                    setTimeout(() => {
+                        const bigReactions = [
+                            'HOLY WHALE',
+                            'THIS GUY IS INSANE',
+                            'DROP THE WALLET',
+                            'BIG MONEY MOVES',
+                            'CASUALLY DROPPING BAGS',
+                            'ACTUAL BILLIONAIRE',
+                            'im broke watching this'
+                        ];
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                            bigReactions[Math.floor(Math.random() * bigReactions.length)]);
+                    }, 400);
+                }
 
                 donationCount++;
-            }, 5000 + Math.random() * 5000); // Every 5-10 seconds
+            }, 3000 + Math.random() * 3000); // Every 3-6 seconds (FASTER!)
         }
 
         // Matchmaking animation
