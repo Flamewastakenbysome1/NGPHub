@@ -1422,9 +1422,11 @@
                     </div>
                     <div id="currentBetDisplay" style="text-align: center; font-size: 0.9em; opacity: 0.8; margin-bottom: 10px;"></div>
 
-                    <!-- Mini Board Display (simplified) -->
-                    <div id="spectatorBoard" style="text-align: center; font-size: 1.5em; margin: 15px 0;">
-                        🎮 Match in progress...
+                    <!-- Visual Board Display -->
+                    <div id="spectatorBoard" style="margin: 15px 0;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 450px; margin: 0 auto;">
+                            <!-- 9 mini boards displayed as mega board -->
+                        </div>
                     </div>
 
                     <!-- Donation Section -->
@@ -4620,9 +4622,52 @@
             document.getElementById('specPlayer1Score').textContent = currentSpectatingMatch.player1Score;
             document.getElementById('specPlayer2Score').textContent = currentSpectatingMatch.player2Score;
 
-            // Update board display (simplified)
-            const boardStatus = `📊 ${currentSpectatingMatch.player1}: ${currentSpectatingMatch.player1Score} boards | ${currentSpectatingMatch.player2}: ${currentSpectatingMatch.player2Score} boards`;
-            document.getElementById('spectatorBoard').textContent = boardStatus;
+            // Render the actual board visually!
+            const boardEl = document.getElementById('spectatorBoard');
+
+            let boardHTML = '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 500px; margin: 0 auto; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">';
+
+            for (let i = 0; i < 9; i++) {
+                const megaCell = currentSpectatingMatch.megaBoard[i];
+                const isActive = currentSpectatingMatch.activeBoard === i;
+
+                if (megaCell !== '') {
+                    // Mini board is won - show winner
+                    const color = megaCell === 'X' ? '#43e97b' : '#ff6b6b';
+                    const borderColor = isActive ? '#ffd700' : 'rgba(255,255,255,0.2)';
+                    boardHTML += `
+                        <div style="aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 3px solid ${borderColor}; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3em; font-weight: bold; color: ${color};">
+                            ${megaCell}
+                        </div>
+                    `;
+                } else {
+                    // Mini board is in play - show grid of cells
+                    const borderColor = isActive ? '#ffd700' : 'rgba(255,255,255,0.2)';
+                    boardHTML += `
+                        <div style="aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 3px solid ${borderColor}; border-radius: 8px; padding: 3px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;">
+                    `;
+
+                    for (let j = 0; j < 9; j++) {
+                        const cell = currentSpectatingMatch.miniBoards[i][j];
+                        const cellColor = cell === 'X' ? '#43e97b' : cell === 'O' ? '#ff6b6b' : 'rgba(255,255,255,0.1)';
+                        const fontSize = cell === '' ? '0.5em' : '0.8em';
+                        boardHTML += `
+                            <div style="background: ${cellColor}; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: ${fontSize}; font-weight: bold; color: white;">
+                                ${cell}
+                            </div>
+                        `;
+                    }
+
+                    boardHTML += '</div>';
+                }
+            }
+
+            boardHTML += '</div>';
+            boardHTML += `<div style="text-align: center; margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                ${currentSpectatingMatch.activeBoard !== null ? '🎯 Playing in highlighted board' : '🌐 Can play anywhere'}
+            </div>`;
+
+            boardEl.innerHTML = boardHTML;
         }
 
         function updateOdds() {
