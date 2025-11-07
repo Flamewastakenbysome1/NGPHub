@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1413,11 +1412,11 @@
 
                     <!-- Betting Section -->
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button class="cheat-btn" style="flex: 1;" onclick="placeBet('player1')">
+                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="placeBet('player1')">
                             💰 Bet on <span id="betPlayer1Name">Player1</span> (<span id="betPlayer1Odds">2.0</span>x)
                         </button>
                         <input type="number" id="betAmount" placeholder="Bet $" value="100" style="width: 100px; padding: 8px; border-radius: 5px; border: none; background: rgba(255,255,255,0.2); color: white; text-align: center;" />
-                        <button class="cheat-btn" style="flex: 1;" onclick="placeBet('player2')">
+                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="placeBet('player2')">
                             💰 Bet on <span id="betPlayer2Name">Player2</span> (<span id="betPlayer2Odds">2.0</span>x)
                         </button>
                     </div>
@@ -1432,10 +1431,10 @@
 
                     <!-- Donation Section -->
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="donateToPlayer('player1')">
+                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="donateToPlayer('player1')">
                             💝 Donate $50 to <span id="donatePlayer1Name">Player1</span>
                         </button>
-                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="donateToPlayer('player2')">
+                        <button class="cheat-btn" style="flex: 1; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="donateToPlayer('player2')">
                             💝 Donate $50 to <span id="donatePlayer2Name">Player2</span>
                         </button>
                     </div>
@@ -4681,6 +4680,8 @@
                     // Check mega board win
                     if (checkWin(currentSpectatingMatch.megaBoard)) {
                         currentSpectatingMatch.winner = currentSpectatingMatch.currentPlayer === 'X' ? 'player1' : 'player2';
+                        updateSpectatorView(); // Update to show the final winning board!
+                        updateOdds();
                         handleMatchEnd();
                         return;
                     }
