@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4468,7 +4469,11 @@
                     megaBoard: ['', '', '', '', '', '', '', '', ''],
                     currentPlayer: Math.random() > 0.5 ? 'X' : 'O',
                     activeBoard: null,
-                    chatMessages: []
+                    chatMessages: [],
+                    player1Boost: 0, // Boost percentage (5% per donation, stackable)
+                    player2Boost: 0,
+                    player1BoostExpiry: 0, // Timestamp when boost expires
+                    player2BoostExpiry: 0
                 });
             }
         }
@@ -4534,6 +4539,66 @@
             simulateMatch();
         }
 
+        function evaluateSpectatorMove(availableMoves, match) {
+            // Smart move evaluation for boosted players!
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            const player = match.currentPlayer;
+            const opponent = player === 'X' ? 'O' : 'X';
+
+            for (let move of availableMoves) {
+                let score = 0;
+
+                // Simulate the move
+                const tempBoard = [...match.miniBoards[move.board]];
+                tempBoard[move.cell] = player;
+
+                // PRIORITY 1: Does this win the mini board?
+                if (checkWin(tempBoard)) {
+                    score += 100;
+
+                    // Does winning this board win the mega board?
+                    const tempMega = [...match.megaBoard];
+                    tempMega[move.board] = player;
+                    if (checkWin(tempMega)) {
+                        return move; // INSTANT WIN!
+                    }
+                }
+
+                // PRIORITY 2: Does this block opponent from winning mini board?
+                const blockBoard = [...match.miniBoards[move.board]];
+                blockBoard[move.cell] = opponent;
+                if (checkWin(blockBoard)) {
+                    score += 80;
+                }
+
+                // PRIORITY 3: Center is good
+                if (move.cell === 4) score += 15;
+                // Corners are decent
+                if ([0, 2, 6, 8].includes(move.cell)) score += 8;
+
+                // PRIORITY 4: Check if this creates threats (2-in-a-row)
+                for (let condition of winConditions) {
+                    const [a, b, c] = condition;
+                    const cells = [tempBoard[a], tempBoard[b], tempBoard[c]];
+                    if (cells.filter(c => c === player).length === 2 && cells.includes('')) {
+                        score += 30;
+                    }
+                }
+
+                // Add small randomness to avoid being too predictable
+                score += Math.random() * 5;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            }
+
+            return bestMove || availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        }
+
         function simulateMatch() {
             if (matchSimulationInterval) clearInterval(matchSimulationInterval);
 
@@ -4564,8 +4629,32 @@
                     return;
                 }
 
-                // Make random move
-                const move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                // Check if player has boost (makes them smarter!)
+                const currentBoost = currentSpectatingMatch.currentPlayer === 'X' ?
+                    currentSpectatingMatch.player1Boost : currentSpectatingMatch.player2Boost;
+                const boostExpiry = currentSpectatingMatch.currentPlayer === 'X' ?
+                    currentSpectatingMatch.player1BoostExpiry : currentSpectatingMatch.player2BoostExpiry;
+
+                // Decay boost if expired
+                if (Date.now() > boostExpiry) {
+                    if (currentSpectatingMatch.currentPlayer === 'X') {
+                        currentSpectatingMatch.player1Boost = 0;
+                    } else {
+                        currentSpectatingMatch.player2Boost = 0;
+                    }
+                }
+
+                let move;
+                // Use smart move selection based on boost level!
+                const smartChance = Math.min(0.95, currentBoost); // Max 95% smart moves
+                if (Math.random() < smartChance && currentBoost > 0) {
+                    // BOOSTED MOVE - Evaluate and pick best move!
+                    move = evaluateSpectatorMove(availableMoves, currentSpectatingMatch);
+                } else {
+                    // Random move
+                    move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+
                 currentSpectatingMatch.miniBoards[move.board][move.cell] = currentSpectatingMatch.currentPlayer;
 
                 // Check if mini board is won
@@ -4666,6 +4755,27 @@
             boardHTML += `<div style="text-align: center; margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
                 ${currentSpectatingMatch.activeBoard !== null ? '🎯 Playing in highlighted board' : '🌐 Can play anywhere'}
             </div>`;
+
+            // Show boost status!
+            const p1Boost = Math.round(currentSpectatingMatch.player1Boost * 100);
+            const p2Boost = Math.round(currentSpectatingMatch.player2Boost * 100);
+            const p1Active = p1Boost > 0 && Date.now() < currentSpectatingMatch.player1BoostExpiry;
+            const p2Active = p2Boost > 0 && Date.now() < currentSpectatingMatch.player2BoostExpiry;
+
+            if (p1Active || p2Active) {
+                boardHTML += '<div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 0.85em;">';
+                if (p1Active) {
+                    boardHTML += `<div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 5px 10px; border-radius: 5px; font-weight: bold;">
+                        🧠 ${currentSpectatingMatch.player1}: +${p1Boost}% BOOST
+                    </div>`;
+                }
+                if (p2Active) {
+                    boardHTML += `<div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 5px 10px; border-radius: 5px; font-weight: bold;">
+                        🧠 ${currentSpectatingMatch.player2}: +${p2Boost}% BOOST
+                    </div>`;
+                }
+                boardHTML += '</div>';
+            }
 
             boardEl.innerHTML = boardHTML;
         }
@@ -4817,19 +4927,32 @@
             updateBankDisplay();
             addTransaction('bet', -donationAmount, `💝 Donated to ${playerName}`);
 
+            // ADD BOOST! 5% smarter for 5 seconds (stackable!)
+            if (player === 'player1') {
+                currentSpectatingMatch.player1Boost += 0.05; // +5% per donation!
+                currentSpectatingMatch.player1BoostExpiry = Date.now() + 5000; // 5 seconds from now
+            } else {
+                currentSpectatingMatch.player2Boost += 0.05;
+                currentSpectatingMatch.player2BoostExpiry = Date.now() + 5000;
+            }
+
+            const currentBoost = player === 'player1' ? currentSpectatingMatch.player1Boost : currentSpectatingMatch.player2Boost;
+            const boostPercent = Math.round(currentBoost * 100);
+
             addSpectatorChat('You', `💝 Donated $50 to ${playerName}!`);
-            addSpectatorChat('System', `${playerName} received a $50 donation!`);
+            addSpectatorChat('System', `🧠 ${playerName} is now ${boostPercent}% smarter! (5 seconds)`);
 
             // Random thank you response
             if (Math.random() > 0.5) {
                 setTimeout(() => {
-                    const thanks = ['Thanks!', 'Appreciate it!', 'TYSM!', 'Legend!', 'Much love!'];
+                    const thanks = ['Thanks!', 'Appreciate it!', 'TYSM!', 'Legend!', 'Much love!', 'I feel smarter!', 'Big brain time!'];
                     addSpectatorChat(playerName, thanks[Math.floor(Math.random() * thanks.length)]);
                 }, 1000);
             }
 
             playSound('click');
             spawnEmote('💝');
+            updateSpectatorView(); // Update to show boost status
         }
 
         function sendSpectatorMessage() {
