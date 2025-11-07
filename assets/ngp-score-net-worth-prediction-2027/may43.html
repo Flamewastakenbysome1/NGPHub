@@ -3164,21 +3164,23 @@
                 // Tournament winnings WITH TAXES!
                 if (currentTournament) {
                     const grossWin = currentTournament.win * rebirthMultiplier;
-                    const taxAmount = Math.floor(grossWin * taxRate);
-                    const netWin = Math.floor(grossWin - taxAmount);
+                    const betRefund = currentBet; // GET YOUR BET BACK!
+                    const totalGross = grossWin + betRefund;
+                    const taxAmount = Math.floor(grossWin * taxRate); // Tax only on winnings, not bet refund
+                    const netTotal = Math.floor(totalGross - taxAmount);
 
-                    bankBalance += netWin;
+                    bankBalance += netTotal;
                     updateBankDisplay();
-                    addTransaction('win', netWin, `🏆 ${currentTournament.name} Victory!`);
+                    addTransaction('win', netTotal, `🏆 ${currentTournament.name} Victory! (Bet refund: $${betRefund.toLocaleString()})`);
                     addTransaction('tax', -taxAmount, `💸 Government Tax (${(taxRate * 100)}%)`);
 
                     // BIG POPUP showing winnings
                     setTimeout(() => {
-                        showMoneyWon(netWin);
+                        showMoneyWon(netTotal);
                     }, 1500);
 
                     setTimeout(() => {
-                        addChatMessage('System', `💰 Won $${grossWin.toLocaleString()}! After tax: $${netWin.toLocaleString()}`);
+                        addChatMessage('System', `💰 Won $${grossWin.toLocaleString()} + $${betRefund.toLocaleString()} refund! After tax: $${netTotal.toLocaleString()}`);
                         spawnEmote('💰');
                     }, 1000);
 
@@ -3196,7 +3198,7 @@
                         addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
                             taxComplaints[Math.floor(Math.random() * taxComplaints.length)]);
                     }, 2000);
-                    
+
                     currentTournament = null;
                     currentBet = 0;
                 } else {
@@ -4472,7 +4474,11 @@
                     player1Boost: 0, // Boost percentage (5% per donation, stackable)
                     player2Boost: 0,
                     player1BoostExpiry: 0, // Timestamp when boost expires
-                    player2BoostExpiry: 0
+                    player2BoostExpiry: 0,
+                    player1DonationCount: 0, // Track donations for price increase
+                    player2DonationCount: 0,
+                    player1DonationCost: 50, // Starting cost
+                    player2DonationCost: 50
                 });
             }
         }
@@ -4533,9 +4539,27 @@
             spectatorBet = null;
             document.getElementById('currentBetDisplay').textContent = '';
 
+            // Update donation button prices
+            updateDonationButtons();
+
             // Start simulating the match
             updateSpectatorView();
             simulateMatch();
+        }
+
+        function updateDonationButtons() {
+            if (!currentSpectatingMatch) return;
+
+            // Update button text with current prices
+            const donateBtn1 = document.querySelector('[onclick="donateToPlayer(\'player1\')"]');
+            const donateBtn2 = document.querySelector('[onclick="donateToPlayer(\'player2\')"]');
+
+            if (donateBtn1) {
+                donateBtn1.innerHTML = `💝 Donate $${currentSpectatingMatch.player1DonationCost} to <span id="donatePlayer1Name">${currentSpectatingMatch.player1}</span>`;
+            }
+            if (donateBtn2) {
+                donateBtn2.innerHTML = `💝 Donate $${currentSpectatingMatch.player2DonationCost} to <span id="donatePlayer2Name">${currentSpectatingMatch.player2}</span>`;
+            }
         }
 
         function evaluateSpectatorMove(availableMoves, match) {
@@ -4877,18 +4901,19 @@
             // Handle bet result
             if (spectatorBet) {
                 if (currentSpectatingMatch.winner === spectatorBet.player) {
-                    const winAmount = Math.floor(spectatorBet.amount * spectatorBet.odds);
+                    const totalPayout = Math.floor(spectatorBet.amount * spectatorBet.odds); // Total including bet refund
+                    const profit = totalPayout - spectatorBet.amount; // Profit only
 
-                    // Apply taxes
-                    const taxAmount = Math.floor(winAmount * taxRate);
-                    const netWin = winAmount - taxAmount;
+                    // Apply taxes ONLY on profit, not on bet refund!
+                    const taxAmount = Math.floor(profit * taxRate);
+                    const netWin = totalPayout - taxAmount; // Bet refund + profit - tax
 
                     bankBalance += netWin;
                     updateBankDisplay();
-                    addTransaction('win', netWin, `🎰 Won bet on ${spectatorBet.playerName}`);
+                    addTransaction('win', netWin, `🎰 Won bet on ${spectatorBet.playerName} (Bet refund: $${spectatorBet.amount.toLocaleString()})`);
                     addTransaction('tax', -taxAmount, `💸 Government Tax (${(taxRate * 100)}%)`);
 
-                    addSpectatorChat('System', `💰 You won $${netWin.toLocaleString()}! (After ${(taxRate * 100)}% tax)`);
+                    addSpectatorChat('System', `💰 You won $${netWin.toLocaleString()}! (Profit: $${profit.toLocaleString()}, Tax: $${taxAmount.toLocaleString()})`);
                     playSound('win');
                     spawnEmote('💰');
                 } else if (currentSpectatingMatch.winner === 'draw') {
@@ -4915,10 +4940,11 @@
                 return;
             }
 
-            const donationAmount = 50;
+            // Get current donation cost for this player
+            const donationAmount = player === 'player1' ? currentSpectatingMatch.player1DonationCost : currentSpectatingMatch.player2DonationCost;
 
             if (bankBalance < donationAmount) {
-                alert('You need at least $50 to donate! 💸');
+                alert(`You need at least $${donationAmount} to donate! 💸`);
                 return;
             }
 
@@ -4932,21 +4958,42 @@
             if (player === 'player1') {
                 currentSpectatingMatch.player1Boost += 0.05; // +5% per donation!
                 currentSpectatingMatch.player1BoostExpiry = Date.now() + 5000; // 5 seconds from now
+                currentSpectatingMatch.player1DonationCount++;
+
+                // Increase price by $25 each donation!
+                currentSpectatingMatch.player1DonationCost += 25;
             } else {
                 currentSpectatingMatch.player2Boost += 0.05;
                 currentSpectatingMatch.player2BoostExpiry = Date.now() + 5000;
+                currentSpectatingMatch.player2DonationCount++;
+
+                // Increase price by $25 each donation!
+                currentSpectatingMatch.player2DonationCost += 25;
             }
 
             const currentBoost = player === 'player1' ? currentSpectatingMatch.player1Boost : currentSpectatingMatch.player2Boost;
             const boostPercent = Math.round(currentBoost * 100);
+            const donationCount = player === 'player1' ? currentSpectatingMatch.player1DonationCount : currentSpectatingMatch.player2DonationCount;
 
-            addSpectatorChat('You', `💝 Donated $50 to ${playerName}!`);
+            addSpectatorChat('You', `💝 Donated $${donationAmount} to ${playerName}!`);
             addSpectatorChat('System', `🧠 ${playerName} is now ${boostPercent}% smarter! (5 seconds)`);
+
+            // Cycle through difficulties every 3 donations!
+            const difficultyLevels = ['easy', 'medium', 'hard', 'expert', 'impossible', 'godlike', 'yoadish'];
+            if (donationCount % 3 === 0) {
+                const newDifficultyIndex = Math.min(donationCount / 3, difficultyLevels.length - 1);
+                const newDifficulty = difficultyLevels[newDifficultyIndex];
+                addSpectatorChat('System', `⬆️ ${playerName} leveled up to ${newDifficulty.toUpperCase()} difficulty!`);
+                spawnEmote('⬆️');
+            }
+
+            // Update donation buttons to show new price
+            updateDonationButtons();
 
             // Random thank you response
             if (Math.random() > 0.5) {
                 setTimeout(() => {
-                    const thanks = ['Thanks!', 'Appreciate it!', 'TYSM!', 'Legend!', 'Much love!', 'I feel smarter!', 'Big brain time!'];
+                    const thanks = ['Thanks!', 'Appreciate it!', 'TYSM!', 'Legend!', 'Much love!', 'I feel smarter!', 'Big brain time!', 'Getting stronger!'];
                     addSpectatorChat(playerName, thanks[Math.floor(Math.random() * thanks.length)]);
                 }, 1000);
             }
