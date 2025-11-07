@@ -1601,11 +1601,88 @@
         ];
 
         const playerNames = [
+            // Original gamer names
             'xXDarkLordXx', 'Pro_Gamer_420', 'NoobMaster69', 'ShadowNinja',
             'Epic_Fail', 'TryHard_2024', 'MLG_Pro', 'GG_EZ', 'Flame_Thrower',
             'Ice_Breaker', 'Thunder_Strike', 'Toxic_Player', 'Silent_Killer',
             'Rage_Quitter', 'Bot_Destroyer', 'Clutch_Master', 'Sniper_Elite',
-            'Speed_Demon', 'Lag_Wizard', 'Camping_King', 'Spawn_Killer'
+            'Speed_Demon', 'Lag_Wizard', 'Camping_King', 'Spawn_Killer',
+
+            // Baldi's Basics
+            'Baldi', 'Principal_of_Thing', 'Playtime', 'Its_A_Bully', 'Gotta_Sweep',
+            'First_Prize', 'Filename2', 'Arts_Crafters', 'Cloudy_Copter', 'Beans',
+
+            // Dexter's Lab
+            'Dexter', 'Dee_Dee', 'Mandark', 'Mom_Dexter', 'Dad_Dexter', 'Monkey',
+            'Agent_Honeydew', 'Major_Glory', 'Krunk', 'Val_Hallen',
+
+            // More gaming references
+            'Steve_Minecraft', 'Creeper_Aww_Man', 'Diamond_Miner', 'Herobrine',
+            'Ender_Dragon', 'Notch', 'Dream_Stan', 'Technoblade_Fan', 'Philza',
+            'Sans_Undertale', 'Papyrus', 'Flowey_The_Flower', 'Frisk', 'Chara',
+            'Toriel_Mom', 'Undyne', 'Alphys', 'Mettaton', 'Asgore',
+
+            // Roblox
+            'Builderman', 'Roblox_Noob', 'Bacon_Hair', 'Guest_12345', 'Oof_Sound',
+            'Bloxy_Awards', 'Robux_Collector', 'Flamingo_Fan', 'Albertsstuff',
+
+            // FNaF
+            'Freddy_Fazbear', 'Bonnie_Bunny', 'Chica', 'Foxy', 'Golden_Freddy',
+            'Purple_Guy', 'Phone_Guy', 'Springtrap', 'Puppet', 'Balloon_Boy',
+
+            // Sonic
+            'Sonic_Speed', 'Tails', 'Knuckles', 'Shadow_Hedgehog', 'Dr_Eggman',
+            'Amy_Rose', 'Rouge', 'Silver', 'Blaze', 'Metal_Sonic',
+
+            // Mario
+            'Its_A_Me_Mario', 'Luigi_Time', 'Princess_Peach', 'Bowser_King',
+            'Toad', 'Yoshi', 'Wario', 'Waluigi', 'Daisy', 'Rosalina',
+
+            // Pokemon
+            'Pikachu', 'Charizard', 'Mewtwo', 'Eevee', 'Snorlax', 'Gardevoir',
+            'Lucario', 'Greninja', 'Ash_Ketchum', 'Professor_Oak', 'Team_Rocket',
+
+            // Among Us
+            'Red_Sus', 'Blue_Crewmate', 'Imposter', 'Emergency_Meeting', 'Cyan',
+            'Pink', 'White_Sus', 'I_Saw_Black', 'Electrical', 'Medbay_Scan',
+
+            // Fortnite
+            'Jonesy', 'Peely', 'Fishstick', 'Midas', 'Drift', 'Raptor',
+            'Victory_Royale', 'Cranking_90s', 'Default_Skin', 'OG_Player',
+
+            // League/Valorant
+            'Yasuo_Main', 'Teemo_Satan', 'Jett_Dash', 'Sage_Heal', 'Phoenix',
+            'Reyna', 'Sova_Arrow', 'Yoru', 'Neon', 'Chamber',
+
+            // Classic memes
+            'Doge', 'Pepe', 'Shrek', 'Shaggy', 'Big_Chungus', 'Ugandan_Knuckles',
+            'Harambe', 'Grumpy_Cat', 'Nyan_Cat', 'Keyboard_Cat', 'Success_Kid',
+
+            // Twitch/YouTube
+            'PewDiePie', 'MrBeast', 'KSI', 'Logan_Paul', 'xQc', 'Ninja_Fortnite',
+            'Pokimane', 'Valkyrae', 'Sykkuno', 'Corpse_Husband', 'Dream_Speedrun',
+
+            // Random internet culture
+            '69420_Funny', 'Big_Brain_Time', 'No_U', 'UNO_Reverse', 'STONKS',
+            'Press_F', 'Bruh_Moment', 'Yeet', 'Dab', 'Ratio', 'Based',
+            'Cringe', 'Sigma_Male', 'Chad', 'Virgin', 'Gigachad',
+
+            // More gamer tags
+            'Headshot_Only', 'Carry_Me_Plz', 'AFK_Player', 'Keyboard_Warrior',
+            'Mouse_Broken', 'Wifi_Died', 'Mom_Called', 'Bathroom_Break',
+            'Pizza_Delivery', 'Cat_On_Keyboard', 'Dog_Barking', 'Baby_Crying',
+
+            // Competitive
+            'Top_500', 'Grandmaster', 'Diamond_Peak', 'Plat_Stuck', 'Gold_Forever',
+            'Silver_Hell', 'Bronze_King', 'Unranked_God', 'Smurf_Account',
+
+            // Anime references
+            'Naruto_Kun', 'Sasuke', 'Goku', 'Vegeta', 'Luffy', 'Zoro',
+            'Light_Yagami', 'L', 'All_Might', 'Deku', 'Eren_Yeager',
+
+            // Misc games
+            'Master_Chief', 'Doom_Slayer', 'Kratos', 'Link', 'Cloud_Strife',
+            'Sephiroth', 'Sora', 'Ryu', 'Ken', 'Chun_Li', 'Steve_Smash'
         ];
 
         const chatMessages = [
@@ -2008,10 +2085,27 @@
             msgDiv.innerHTML = `<span class="chat-player">${player}</span>: ${message}`;
             chatFeed.appendChild(msgDiv);
             chatFeed.scrollTop = chatFeed.scrollHeight;
-            
+
             // Keep only last 10 messages
             while (chatFeed.children.length > 10) {
                 chatFeed.removeChild(chatFeed.firstChild);
+            }
+        }
+
+        // MASSIVE CHAT SPAM FUNCTION! Percentage of viewers spam messages!
+        function massiveChatSpam(percentage, messageArray, duration = 3000) {
+            // Calculate how many people spam (based on current online count)
+            const spammerCount = Math.floor(currentOnline * percentage);
+            const messagesPerSecond = Math.min(spammerCount / (duration / 1000), 30); // Cap at 30 msg/sec
+            const totalMessages = Math.min(spammerCount, 100); // Cap at 100 total messages
+
+            // Spam messages over the duration
+            for (let i = 0; i < totalMessages; i++) {
+                setTimeout(() => {
+                    const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                    const message = messageArray[Math.floor(Math.random() * messageArray.length)];
+                    addChatMessage(player, message);
+                }, Math.random() * duration); // Random timing spread over duration
             }
         }
 
@@ -2677,6 +2771,20 @@
                 }
             }
 
+            // 25% OF CHAT SPAMS ON EVERY SINGLE MOVE!! (SOMEHOW?! 😭)
+            if (!isAI && currentPlayer === 'X' && currentOnline > 50) {
+                const anyMoveMessages = [
+                    'nice', 'ok', 'i see', 'interesting', 'hmm', 'lets see', 'yep',
+                    'good', 'solid', 'okay', 'bet', 'aight', 'kk', 'mhm', 'sure',
+                    'oooh', 'alright', 'cool', 'got it', 'makes sense', 'fair',
+                    'lol', 'bruh', 'wait', 'yo', 'huh', 'what', 'oh', 'uhh',
+                    '👀', '👍', '🤔', 'fr?', 'ngl', 'tbh', 'lowkey', 'highkey'
+                ];
+
+                // 25% OF VIEWERS SPAM (FOR SOME REASON!)
+                massiveChatSpam(0.25, anyMoveMessages, 1500);
+            }
+
             // INTERACTIVE CHAT - React to specific moves!
             if (!isAI && currentPlayer === 'X' && currentOnline > 100 && Math.random() < 0.15) {
                 const interactiveMessages = [];
@@ -2712,32 +2820,19 @@
                 megaBoard[boardIndex] = currentPlayer;
                 markBoardWon(boardIndex, currentPlayer);
 
-                // PLAYER WINS A MINI BOARD - CHAT SPAM AND DONATIONS!
+                // PLAYER WINS A MINI BOARD - 75% OF CHAT GOES CRAZY!!
                 if (!isAI && currentPlayer === 'X' && currentOnline > 50) {
                     // Chat spam messages for board wins
                     const boardWinMessages = [
-                        'NICE BOARD!',
-                        'LETS GO!',
-                        'clean board win',
-                        'POG',
-                        'gg that board',
-                        'well played',
-                        '🔥',
-                        'nice',
-                        'W',
-                        'clutch board'
+                        'NICE BOARD!', 'LETS GO!', 'clean board win', 'POG', 'gg that board',
+                        'well played', '🔥', 'nice', 'W', 'clutch board', 'POGGIES',
+                        'CLEAN', 'SHEESH', 'HUGE', 'GG', 'that was nasty', 'EZ BOARD',
+                        'gg wp', 'calculated', 'BIG BRAIN', 'pro plays', 'outplayed',
+                        'skill issue (for AI)', 'GOT EM', 'DOMINATED', 'too ez'
                     ];
 
-                    // Spam 1-3 messages based on spectator count
-                    let messageCount = spectators > 1000 ? 3 : (spectators > 500 ? 2 : 1);
-
-                    for (let i = 0; i < messageCount; i++) {
-                        setTimeout(() => {
-                            const player = playerNames[Math.floor(Math.random() * playerNames.length)];
-                            const message = boardWinMessages[Math.floor(Math.random() * boardWinMessages.length)];
-                            addChatMessage(player, message);
-                        }, 300 + (i * 400));
-                    }
+                    // 75% OF VIEWERS SPAM! (ABSOLUTE CHAOS!)
+                    massiveChatSpam(0.75, boardWinMessages, 2500);
 
                     // Donation chance - higher with more spectators
                     let boardWinDonationChance = 0;
@@ -2764,6 +2859,20 @@
                             addChatMessage(donor, `donated $${donation}!`);
                         }, 600);
                     }
+                }
+
+                // AI WINS A MINI BOARD - 50% OF CHAT BOOS!!
+                if (isAI && currentPlayer === 'O' && currentOnline > 50) {
+                    const booMessages = [
+                        'BOOO', 'BOO', 'nooo', 'rip', 'NOOOO', 'unlucky', 'sadge',
+                        'L', 'oof', 'damn', 'bruh', 'pain', 'F', 'rough', 'tragic',
+                        'comeback time', 'its over', 'we lost', 'gg go next', 'AI op',
+                        'nerf AI', 'AI diff', 'skill issue', 'outplayed', 'bot diff',
+                        'how', 'RIGGED', 'scripted', 'unfair', 'hacks', 'sus AI'
+                    ];
+
+                    // 50% OF VIEWERS BOO! (HALF THE CHAT!)
+                    massiveChatSpam(0.50, booMessages, 2000);
                 }
             } else if (!miniBoards[boardIndex].includes('')) {
                 megaBoard[boardIndex] = 'TIE';
@@ -3001,23 +3110,9 @@
                     'legend status',
                     'hall of fame'
                 ];
-                
-                // Spam chat based on viewer count (more viewers = WAY more spam)
-                let spamCount;
-                if (spectators < 100) spamCount = 3;
-                else if (spectators < 500) spamCount = 5;
-                else if (spectators < 1000) spamCount = 8;
-                else if (spectators < 5000) spamCount = 12;
-                else if (spectators < 10000) spamCount = 18;
-                else spamCount = 25; // MASSIVE SPAM for huge tournaments
 
-                for (let i = 0; i < spamCount; i++) {
-                    setTimeout(() => {
-                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
-                        const message = chatSpamMessages[Math.floor(Math.random() * chatSpamMessages.length)];
-                        addChatMessage(player, message);
-                    }, 500 + (i * 250)); // Faster stagger for more spam
-                }
+                // 90% OF ALL VIEWERS SPAM!! (ABSOLUTE INSANITY!! 🔥🔥🔥)
+                massiveChatSpam(0.90, chatSpamMessages, 4000);
                 
                 // Random viewer donations during wins - MORE VIEWERS = MORE DONATIONS!
                 let donationChance = 0;
