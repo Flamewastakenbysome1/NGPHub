@@ -1258,6 +1258,7 @@
             <button class="cheat-btn" onclick="toggleAutoPlay()">🤖 Auto-Play (<span id="autoPlayStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="togglePlayAnywhere()">🎯 Play Anywhere (<span id="playAnywhereStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="toggleOverwriteMoves()">✏️ Overwrite Moves (<span id="overwriteStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="toggleInstantBoardWin()">⚡ Instant Board Win (<span id="instantBoardWinStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="toggleRainbow()">🌈 Rainbow Mode (<span id="rainbowStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="boostOnlinePlayers()">📈 +10K Online Players</button>
             <button class="cheat-btn" onclick="addWinStreak()">📈 +10 Win Streak</button>
@@ -1525,6 +1526,7 @@
         let hintsEnabled = false;
         let playAnywhereEnabled = false;
         let overwriteMovesEnabled = false;
+        let instantBoardWinEnabled = false;
         let spectators = 0;
         let moveCount = 0;
         let gameStartTime = 0;
@@ -2432,6 +2434,58 @@
             }
         }
 
+        function toggleInstantBoardWin() {
+            instantBoardWinEnabled = !instantBoardWinEnabled;
+            document.getElementById('instantBoardWinStatus').textContent = instantBoardWinEnabled ? 'ON' : 'OFF';
+            cheatsActive = playAnywhereEnabled || overwriteMovesEnabled || autoPlayEnabled || hintsEnabled || instantBoardWinEnabled;
+            document.getElementById('cheatIndicator').classList.toggle('show', cheatsActive);
+
+            if (instantBoardWinEnabled) {
+                addChatMessage('System', '🎯 Instant Board Win enabled (Left=X, Right=O)');
+                unlockAchievement('cheater');
+                setTimeout(() => {
+                    const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                    const messages = ['wait how did that board just get won???', 'MODS', 'board just disappeared', 'huh???', 'this is rigged'];
+                    addChatMessage(player, messages[Math.floor(Math.random() * messages.length)]);
+                }, 1200);
+            } else {
+                addChatMessage('System', '🎯 Instant Board Win disabled');
+            }
+        }
+
+        function instantWinBoard(boardIndex, winner) {
+            if (!gameActive) return;
+            if (megaBoard[boardIndex] !== '') return; // Already won
+
+            // Mark the board as won
+            megaBoard[boardIndex] = winner;
+            markBoardWon(boardIndex, winner);
+
+            // Chat reacts!
+            if (Math.random() < 0.6) {
+                setTimeout(() => {
+                    const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                    const reactions = [
+                        'did anyone else see that?',
+                        'board glitched',
+                        'instant win???',
+                        'WHAT JUST HAPPENED',
+                        'magic board',
+                        'hacker confirmed',
+                        'sus board',
+                        'teleported to victory'
+                    ];
+                    addChatMessage(player, reactions[Math.floor(Math.random() * reactions.length)]);
+                }, 500);
+            }
+
+            // Check if game is won
+            const megaWinner = checkWin(megaBoard);
+            if (megaWinner) {
+                endGame(megaWinner);
+            }
+        }
+
         // Achievement System
         function unlockAchievement(id) {
             if (achievements.includes(id)) return false;
@@ -2701,6 +2755,26 @@
                 const miniBoardEl = document.createElement('div');
                 miniBoardEl.className = 'mini-board';
                 miniBoardEl.dataset.board = i;
+
+                // CHEAT: Instant Board Win (left-click = X wins, right-click = O wins)
+                miniBoardEl.addEventListener('click', (e) => {
+                    if (!instantBoardWinEnabled) return;
+                    if (e.target.classList.contains('mini-board')) {
+                        const boardIndex = parseInt(e.target.dataset.board);
+                        instantWinBoard(boardIndex, 'X');
+                        e.stopPropagation();
+                    }
+                });
+
+                miniBoardEl.addEventListener('contextmenu', (e) => {
+                    if (!instantBoardWinEnabled) return;
+                    e.preventDefault();
+                    if (e.target.classList.contains('mini-board')) {
+                        const boardIndex = parseInt(e.target.dataset.board);
+                        instantWinBoard(boardIndex, 'O');
+                        e.stopPropagation();
+                    }
+                });
 
                 for (let j = 0; j < 9; j++) {
                     const cell = document.createElement('div');
@@ -3112,7 +3186,9 @@
                 ];
 
                 // 90% OF ALL VIEWERS SPAM!! (ABSOLUTE INSANITY!! 🔥🔥🔥)
-                massiveChatSpam(0.90, chatSpamMessages, 4000);
+                // Random duration between 6-13 seconds!
+                const victorySpamDuration = 6000 + Math.floor(Math.random() * 7000); // 6000-13000ms
+                massiveChatSpam(0.90, chatSpamMessages, victorySpamDuration);
                 
                 // Random viewer donations during wins - MORE VIEWERS = MORE DONATIONS!
                 let donationChance = 0;
