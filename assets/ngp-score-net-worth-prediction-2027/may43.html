@@ -1173,6 +1173,9 @@
             <div class="bank-balance" onclick="showBank()">
                 💰 $<span id="bankBalance">100</span>
             </div>
+            <div class="bank-balance" onclick="showShop()" style="background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%); cursor: pointer;">
+                🛒 SHOP
+            </div>
             <div class="global-rank">
                 Rank #<span id="globalRank">9,999</span>
             </div>
@@ -1364,6 +1367,18 @@
         </div>
     </div>
 
+    <!-- Shop Modal -->
+    <div class="leaderboard-modal" id="shopModal">
+        <div class="modal-content">
+            <div class="modal-header">🛒 SHOP 🛒</div>
+            <div style="font-size: 0.9em; margin-bottom: 15px; opacity: 0.9;">
+                💰 Your Balance: $<span id="shopBalance">0</span>
+            </div>
+            <div id="shopList"></div>
+            <button class="close-btn" onclick="closeShop()">Close</button>
+        </div>
+    </div>
+
     <script>
         // Sound effects (using Web Audio API)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1509,6 +1524,7 @@
         let moveCount = 0;
         let gameStartTime = 0;
         let achievements = JSON.parse(localStorage.getItem('tttAchievements')) || [];
+        let purchasedItems = JSON.parse(localStorage.getItem('tttPurchased')) || [];
         let richWhaleActive = false;
         let richWhaleInterval = null;
         let bankBalance = parseInt(localStorage.getItem('tttBalance')) || 100;
@@ -1559,6 +1575,21 @@
             { id: 'final_boss_winner', name: '💎 Final Boss Defeated', desc: 'Win The Final Boss tournament', check: () => false },
             { id: 'cheater', name: '🔓 Script Kiddie', desc: 'Enable any cheat', check: () => cheatsActive },
             { id: 'donation_hunter', name: '💸 Donation Magnet', desc: 'Receive 50 donations in one game', check: () => false }
+        ];
+
+        const shopItems = [
+            { id: 'vip_badge', name: '👑 VIP Badge', desc: 'Show off in chat with a VIP tag', price: 1000, category: 'cosmetic' },
+            { id: 'diamond_badge', name: '💎 Diamond Badge', desc: 'Ultra rare diamond status', price: 5000, category: 'cosmetic' },
+            { id: 'whale_badge', name: '🐋 Whale Badge', desc: 'Flex your wealth!', price: 25000, category: 'cosmetic' },
+            { id: 'godlike_badge', name: '👹 GODLIKE Badge', desc: 'The ultimate flex', price: 100000, category: 'cosmetic' },
+            { id: 'double_donations', name: '💰 2x Donations', desc: 'Double all donation amounts!', price: 10000, category: 'modifier' },
+            { id: 'streak_protection', name: '🛡️ Streak Protection', desc: 'Next loss won\'t reset streak', price: 15000, category: 'modifier' },
+            { id: 'guaranteed_whale', name: '🐋 Whale Magnet', desc: 'Always spawn whales in big tournaments', price: 50000, category: 'modifier' },
+            { id: 'rainbow_board', name: '🌈 Rainbow Board', desc: 'Permanent rainbow mode!', price: 7500, category: 'cosmetic' },
+            { id: 'golden_x', name: '⭐ Golden X', desc: 'Your moves are golden!', price: 20000, category: 'cosmetic' },
+            { id: 'instant_rank_1', name: '🏆 Instant Rank #1', desc: 'Become #1 on leaderboard', price: 250000, category: 'flex' },
+            { id: 'money_printer', name: '🖨️ Money Printer', desc: 'Passive $100/minute income', price: 500000, category: 'modifier' },
+            { id: 'god_mode', name: '⚡ GOD MODE', desc: 'Can\'t lose. Literally.', price: 1000000, category: 'modifier' }
         ];
 
         const playerNames = [
@@ -2235,6 +2266,113 @@
             document.getElementById('achievementsModal').classList.remove('show');
         }
 
+        // Shop System
+        function showShop() {
+            const listEl = document.getElementById('shopList');
+            document.getElementById('shopBalance').textContent = bankBalance.toLocaleString();
+
+            listEl.innerHTML = shopItems.map(item => {
+                const purchased = purchasedItems.includes(item.id);
+                const canAfford = bankBalance >= item.price;
+
+                return `
+                    <div class="tournament-card ${purchased ? '' : (canAfford ? '' : 'locked')}"
+                         onclick="${purchased ? '' : (canAfford ? `buyItem('${item.id}')` : '')}"
+                         style="cursor: ${purchased ? 'default' : (canAfford ? 'pointer' : 'not-allowed')};">
+                        <div class="tournament-name">${item.name}</div>
+                        <div class="tournament-details" style="margin: 8px 0;">
+                            ${item.desc}
+                        </div>
+                        <div class="tournament-details" style="font-size: 1.2em; color: #ffd700;">
+                            💰 $${item.price.toLocaleString()}
+                        </div>
+                        ${purchased ? '<div style="color: #43e97b; font-size: 1.1em; margin-top: 8px;">✅ OWNED</div>' : ''}
+                        ${!canAfford && !purchased ? '<div style="color: #ff6b6b; font-size: 0.9em; margin-top: 5px;">❌ Not enough money</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('shopModal').classList.add('show');
+        }
+
+        function closeShop() {
+            document.getElementById('shopModal').classList.remove('show');
+        }
+
+        function buyItem(itemId) {
+            const item = shopItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (purchasedItems.includes(itemId)) {
+                alert('You already own this! 🎉');
+                return;
+            }
+
+            if (bankBalance < item.price) {
+                alert('Not enough money! 💸');
+                return;
+            }
+
+            // Purchase item
+            bankBalance -= item.price;
+            purchasedItems.push(itemId);
+            localStorage.setItem('tttPurchased', JSON.stringify(purchasedItems));
+            updateBankDisplay();
+            addTransaction('purchase', -item.price, `🛒 Bought: ${item.name}`);
+
+            // Apply item effects immediately
+            applyItemEffects(itemId);
+
+            // Show success
+            playSound('win');
+            spawnEmote('💰');
+            addChatMessage('System', `✅ Purchased ${item.name}!`);
+
+            // Reactions from chat
+            setTimeout(() => {
+                const reactions = ['BIG SPENDER!', 'whale alert!', 'rich guy', 'ok mr money bags', 'FLEX'];
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                    reactions[Math.floor(Math.random() * reactions.length)]);
+            }, 800);
+
+            // Refresh shop
+            showShop();
+        }
+
+        function applyItemEffects(itemId) {
+            switch(itemId) {
+                case 'rainbow_board':
+                    document.body.classList.add('rainbow-mode');
+                    break;
+                case 'instant_rank_1':
+                    globalRank = 1;
+                    updateStats();
+                    break;
+                case 'god_mode':
+                    addChatMessage('System', '⚡ GOD MODE ACTIVATED ⚡');
+                    setTimeout(() => {
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'uh oh');
+                    }, 1000);
+                    setTimeout(() => {
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'this guy cant lose now');
+                    }, 2000);
+                    break;
+                case 'money_printer':
+                    addChatMessage('System', '🖨️ Money Printer activated! Earning $100/min');
+                    setInterval(() => {
+                        if (purchasedItems.includes('money_printer')) {
+                            bankBalance += 100;
+                            updateBankDisplay();
+                        }
+                    }, 60000);
+                    break;
+            }
+        }
+
+        function hasItem(itemId) {
+            return purchasedItems.includes(itemId);
+        }
+
         // Rich Whale System
         function spawnRichWhale() {
             if (richWhaleActive || spectators < 5000) return;
@@ -2362,9 +2500,39 @@
 
         function makeMove(boardIndex, cellIndex, isAI = false) {
             if (!isAI) moveCount++;
-            
+
             miniBoards[boardIndex][cellIndex] = currentPlayer;
             updateCell(boardIndex, cellIndex, isAI);
+
+            // INTERACTIVE CHAT - React to specific moves!
+            if (!isAI && currentPlayer === 'X' && spectators > 100 && Math.random() < 0.15) {
+                const interactiveMessages = [];
+
+                // React to center moves
+                if (cellIndex === 4) {
+                    interactiveMessages.push('center play!', 'smart move', 'going for center', 'nice positioning');
+                }
+
+                // React to corner moves
+                if ([0, 2, 6, 8].includes(cellIndex)) {
+                    interactiveMessages.push('corner strat', 'classic corner', 'playing corners i see');
+                }
+
+                // React to risky plays
+                if (megaBoard.filter(b => b === 'O').length > megaBoard.filter(b => b === 'X').length) {
+                    interactiveMessages.push('comeback time?', 'trying to catch up', 'still in this');
+                }
+
+                // General hype
+                interactiveMessages.push('good move', 'nice', 'i see you', 'interesting', 'POGGERS');
+
+                if (interactiveMessages.length > 0) {
+                    setTimeout(() => {
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                            interactiveMessages[Math.floor(Math.random() * interactiveMessages.length)]);
+                    }, 400);
+                }
+            }
 
             const boardWon = checkWin(miniBoards[boardIndex]);
             if (boardWon) {
@@ -2531,9 +2699,24 @@
         }
 
         function endGame(winner) {
+            // GOD MODE CHECK - Can't lose!
+            if (hasItem('god_mode') && winner === 'O') {
+                addChatMessage('System', '⚡ GOD MODE: Converting loss to win!');
+                setTimeout(() => {
+                    addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'WHAT');
+                }, 600);
+                setTimeout(() => {
+                    addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'he just won after losing???');
+                }, 1400);
+                setTimeout(() => {
+                    addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'report this guy');
+                }, 2200);
+                winner = 'X'; // Force win!
+            }
+
             gameActive = false;
             const gameTime = (Date.now() - gameStartTime) / 1000; // seconds
-            
+
             if (winner === 'X') {
                 playSound('win');
                 document.getElementById('status').textContent = '🎉 VICTORY! 🔥';
@@ -2825,7 +3008,23 @@
                     }, 500 + (i * 350)); // Slightly slower than win spam
                 }
                 
-                winStreak = 0;
+                // Check for Streak Protection
+                if (hasItem('streak_protection') && winStreak > 0) {
+                    addChatMessage('System', '🛡️ Streak Protection activated! Streak saved!');
+                    setTimeout(() => {
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'wait what');
+                    }, 800);
+                    setTimeout(() => {
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)], 'his streak didnt reset???');
+                    }, 1600);
+
+                    // Remove the protection (one-time use)
+                    purchasedItems = purchasedItems.filter(id => id !== 'streak_protection');
+                    localStorage.setItem('tttPurchased', JSON.stringify(purchasedItems));
+                } else {
+                    winStreak = 0;
+                }
+
                 if (globalRank < 9999) globalRank += Math.floor(Math.random() * 20) + 5;
                 updateStats();
             } else {
@@ -3498,11 +3697,17 @@
 
             // RICH WHALE SPAWN CHANCE based on tournament size!
             let whaleSpawnChance = 0;
-            if (tournament.viewers >= 5000 && tournament.viewers < 10000) whaleSpawnChance = 0.1; // 10%
-            else if (tournament.viewers >= 10000 && tournament.viewers < 25000) whaleSpawnChance = 0.2; // 20%
-            else if (tournament.viewers >= 25000 && tournament.viewers < 75000) whaleSpawnChance = 0.35; // 35%
-            else if (tournament.viewers >= 75000 && tournament.viewers < 150000) whaleSpawnChance = 0.5; // 50%
-            else if (tournament.viewers >= 150000) whaleSpawnChance = 0.7; // 70% for massive tournaments!
+
+            // Whale Magnet item guarantees whale spawn!
+            if (hasItem('guaranteed_whale')) {
+                whaleSpawnChance = 1.0;
+            } else {
+                if (tournament.viewers >= 5000 && tournament.viewers < 10000) whaleSpawnChance = 0.1; // 10%
+                else if (tournament.viewers >= 10000 && tournament.viewers < 25000) whaleSpawnChance = 0.2; // 20%
+                else if (tournament.viewers >= 25000 && tournament.viewers < 75000) whaleSpawnChance = 0.35; // 35%
+                else if (tournament.viewers >= 75000 && tournament.viewers < 150000) whaleSpawnChance = 0.5; // 50%
+                else if (tournament.viewers >= 150000) whaleSpawnChance = 0.7; // 70% for massive tournaments!
+            }
 
             if (Math.random() < whaleSpawnChance) {
                 setTimeout(() => {
@@ -3512,14 +3717,19 @@
         }
 
         function spawnDonation(amount) {
+            // Check for 2x Donations modifier
+            if (hasItem('double_donations')) {
+                amount *= 2;
+            }
+
             const popup = document.createElement('div');
             popup.className = 'donation-popup';
-            popup.textContent = `+$${amount} 💰`;
+            popup.textContent = `+$${amount} 💰${hasItem('double_donations') ? ' (2X!)' : ''}`;
             popup.style.left = (Math.random() * (window.innerWidth - 150)) + 'px';
             popup.style.top = (window.innerHeight * 0.3) + 'px';
             document.body.appendChild(popup);
             setTimeout(() => popup.remove(), 2000);
-            
+
             playSound('click');
             bankBalance += amount;
             updateBankDisplay();
