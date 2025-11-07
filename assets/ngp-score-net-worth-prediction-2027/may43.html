@@ -1632,17 +1632,14 @@
             'Freddy_Fazbear', 'Bonnie_Bunny', 'Chica', 'Foxy', 'Golden_Freddy',
             'Purple_Guy', 'Phone_Guy', 'Springtrap', 'Puppet', 'Balloon_Boy',
 
-            // Sonic
+            // Sonic (SEGA)
             'Sonic_Speed', 'Tails', 'Knuckles', 'Shadow_Hedgehog', 'Dr_Eggman',
             'Amy_Rose', 'Rouge', 'Silver', 'Blaze', 'Metal_Sonic',
 
-            // Mario
-            'Its_A_Me_Mario', 'Luigi_Time', 'Princess_Peach', 'Bowser_King',
-            'Toad', 'Yoshi', 'Wario', 'Waluigi', 'Daisy', 'Rosalina',
-
-            // Pokemon
-            'Pikachu', 'Charizard', 'Mewtwo', 'Eevee', 'Snorlax', 'Gardevoir',
-            'Lucario', 'Greninja', 'Ash_Ketchum', 'Professor_Oak', 'Team_Rocket',
+            // Other gaming icons
+            'Gordon_Freeman', 'Chell', 'Glados', 'Wheatley', 'Cave_Johnson',
+            'Heavy_TF2', 'Scout', 'Medic', 'Spy', 'Engineer',
+            'Portal_Master', 'Companion_Cube', 'Turret', 'Atlas', 'P_Body',
 
             // Among Us
             'Red_Sus', 'Blue_Crewmate', 'Imposter', 'Emergency_Meeting', 'Cyan',
@@ -1683,8 +1680,9 @@
             'Light_Yagami', 'L', 'All_Might', 'Deku', 'Eren_Yeager',
 
             // Misc games
-            'Master_Chief', 'Doom_Slayer', 'Kratos', 'Link', 'Cloud_Strife',
-            'Sephiroth', 'Sora', 'Ryu', 'Ken', 'Chun_Li', 'Steve_Smash'
+            'Master_Chief', 'Doom_Slayer', 'Kratos', 'Ezio', 'Cloud_Strife',
+            'Lara_Croft', 'Nathan_Drake', 'Geralt', 'Witcher', 'Arthur_Morgan',
+            'Joel', 'Ellie', 'Aloy', 'Spyro', 'Crash_Bandicoot', 'Pac_Man'
         ];
 
         const chatMessages = [
@@ -2757,23 +2755,23 @@
                 miniBoardEl.dataset.board = i;
 
                 // CHEAT: Instant Board Win (left-click = X wins, right-click = O wins)
+                // Click ANYWHERE in the mini board!
                 miniBoardEl.addEventListener('click', (e) => {
                     if (!instantBoardWinEnabled) return;
-                    if (e.target.classList.contains('mini-board')) {
-                        const boardIndex = parseInt(e.target.dataset.board);
-                        instantWinBoard(boardIndex, 'X');
-                        e.stopPropagation();
-                    }
+                    // Use currentTarget to get the mini-board, not the clicked element
+                    const boardIndex = parseInt(e.currentTarget.dataset.board);
+                    instantWinBoard(boardIndex, 'X');
+                    e.stopPropagation();
+                    e.preventDefault();
                 });
 
                 miniBoardEl.addEventListener('contextmenu', (e) => {
                     if (!instantBoardWinEnabled) return;
                     e.preventDefault();
-                    if (e.target.classList.contains('mini-board')) {
-                        const boardIndex = parseInt(e.target.dataset.board);
-                        instantWinBoard(boardIndex, 'O');
-                        e.stopPropagation();
-                    }
+                    // Use currentTarget to get the mini-board, not the clicked element
+                    const boardIndex = parseInt(e.currentTarget.dataset.board);
+                    instantWinBoard(boardIndex, 'O');
+                    e.stopPropagation();
                 });
 
                 for (let j = 0; j < 9; j++) {
@@ -2846,7 +2844,8 @@
             }
 
             // 25% OF CHAT SPAMS ON EVERY SINGLE MOVE!! (SOMEHOW?! 😭)
-            if (!isAI && currentPlayer === 'X' && currentOnline > 50) {
+            // Only if there are ENOUGH viewers watching!
+            if (!isAI && currentPlayer === 'X' && currentOnline > 500) {
                 const anyMoveMessages = [
                     'nice', 'ok', 'i see', 'interesting', 'hmm', 'lets see', 'yep',
                     'good', 'solid', 'okay', 'bet', 'aight', 'kk', 'mhm', 'sure',
@@ -2895,7 +2894,8 @@
                 markBoardWon(boardIndex, currentPlayer);
 
                 // PLAYER WINS A MINI BOARD - 75% OF CHAT GOES CRAZY!!
-                if (!isAI && currentPlayer === 'X' && currentOnline > 50) {
+                // Only if there are enough viewers!
+                if (!isAI && currentPlayer === 'X' && currentOnline > 200) {
                     // Chat spam messages for board wins
                     const boardWinMessages = [
                         'NICE BOARD!', 'LETS GO!', 'clean board win', 'POG', 'gg that board',
@@ -2936,7 +2936,8 @@
                 }
 
                 // AI WINS A MINI BOARD - 50% OF CHAT BOOS!!
-                if (isAI && currentPlayer === 'O' && currentOnline > 50) {
+                // Only if there are enough viewers!
+                if (isAI && currentPlayer === 'O' && currentOnline > 200) {
                     const booMessages = [
                         'BOOO', 'BOO', 'nooo', 'rip', 'NOOOO', 'unlucky', 'sadge',
                         'L', 'oof', 'damn', 'bruh', 'pain', 'F', 'rough', 'tragic',
@@ -3187,8 +3188,11 @@
 
                 // 90% OF ALL VIEWERS SPAM!! (ABSOLUTE INSANITY!! 🔥🔥🔥)
                 // Random duration between 6-13 seconds!
-                const victorySpamDuration = 6000 + Math.floor(Math.random() * 7000); // 6000-13000ms
-                massiveChatSpam(0.90, chatSpamMessages, victorySpamDuration);
+                // Only if there are enough viewers watching!
+                if (currentOnline > 100) {
+                    const victorySpamDuration = 6000 + Math.floor(Math.random() * 7000); // 6000-13000ms
+                    massiveChatSpam(0.90, chatSpamMessages, victorySpamDuration);
+                }
                 
                 // Random viewer donations during wins - MORE VIEWERS = MORE DONATIONS!
                 let donationChance = 0;
