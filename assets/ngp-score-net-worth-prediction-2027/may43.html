@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1212,6 +1213,7 @@
                 <button class="difficulty-btn" data-difficulty="impossible">💀 Legend</button>
                 <button class="difficulty-btn" data-difficulty="nightmare">👹 Nightmare</button>
                 <button class="difficulty-btn" data-difficulty="godlike">👑 GODLIKE</button>
+                <button class="difficulty-btn" data-difficulty="yoadish">😺 Yoad-ish</button>
             </div>
         </div>
 
@@ -1557,7 +1559,8 @@
             { name: 'NIGHTMARE GAUNTLET 👹', bet: 8000, win: 60000, difficulty: 'nightmare', viewers: 25000, locked: false, unlockAt: 0 },
             { name: 'GODLIKE ARENA 👑', bet: 20000, win: 160000, difficulty: 'godlike', viewers: 75000, locked: true, unlockAt: 40000 },
             { name: 'WHALE WARS 🐋', bet: 40000, win: 400000, difficulty: 'godlike', viewers: 150000, locked: true, unlockAt: 120000 },
-            { name: 'THE FINAL BOSS 💎', bet: 80000, win: 800000, difficulty: 'godlike', viewers: 500000, locked: true, unlockAt: 400000 }
+            { name: 'THE FINAL BOSS 💎', bet: 80000, win: 800000, difficulty: 'godlike', viewers: 500000, locked: true, unlockAt: 400000 },
+            { name: 'YOAD 😺', bet: 1000000, win: 50000000, difficulty: 'yoadish', viewers: 10000000, locked: true, unlockAt: 5000000 }
         ];
 
         const winConditions = [
@@ -1578,11 +1581,13 @@
             { id: 'beat_impossible', name: '💀 Legend Killer', desc: 'Beat Legend difficulty', check: () => false },
             { id: 'beat_nightmare', name: '👹 Nightmare Conqueror', desc: 'Beat Nightmare difficulty', check: () => false },
             { id: 'beat_godlike', name: '👑 Godslayer', desc: 'Beat GODLIKE difficulty', check: () => false },
+            { id: 'beat_yoad', name: '😺 YOAD DEFEATER', desc: 'Beat YOAD-ISH difficulty', check: () => false },
             { id: 'board_master', name: '🎯 Board Master', desc: 'Win 10 mini boards in one game', check: () => false },
             { id: 'fast_win', name: '⚡ Speed Demon', desc: 'Win in under 30 seconds', check: () => false },
             { id: 'tournament_winner', name: '🏆 Tournament Champion', desc: 'Win any tournament', check: () => false },
             { id: 'whale_wars_winner', name: '🐋 Whale Wars Victor', desc: 'Win the Whale Wars tournament', check: () => false },
             { id: 'final_boss_winner', name: '💎 Final Boss Defeated', desc: 'Win The Final Boss tournament', check: () => false },
+            { id: 'yoad_legend', name: '😺 YOAD LEGEND', desc: 'Win the YOAD tournament', check: () => false },
             { id: 'cheater', name: '🔓 Script Kiddie', desc: 'Enable any cheat', check: () => cheatsActive },
             { id: 'donation_hunter', name: '💸 Donation Magnet', desc: 'Receive 50 donations in one game', check: () => false }
         ];
@@ -3262,11 +3267,13 @@
                     if (currentTournament.difficulty === 'impossible') unlockAchievement('beat_impossible');
                     if (currentTournament.difficulty === 'nightmare') unlockAchievement('beat_nightmare');
                     if (currentTournament.difficulty === 'godlike') unlockAchievement('beat_godlike');
+                    if (currentTournament.difficulty === 'yoadish') unlockAchievement('beat_yoad');
 
                     // Tournament-specific achievements
                     unlockAchievement('tournament_winner');
                     if (currentTournament.name === 'WHALE WARS 🐋') unlockAchievement('whale_wars_winner');
                     if (currentTournament.name === 'THE FINAL BOSS 💎') unlockAchievement('final_boss_winner');
+                    if (currentTournament.name === 'YOAD 😺') unlockAchievement('yoad_legend');
                 }
 
                 // Fast win achievement
@@ -3446,6 +3453,7 @@
                 case 'impossible': move = impossibleAI(); break;
                 case 'nightmare': move = nightmareAI(); break;
                 case 'godlike': move = godlikeAI(); break;
+                case 'yoadish': move = yoadishAI(); break;
                 default: move = mediumAI(); break;
             }
 
@@ -3675,6 +3683,165 @@
             });
 
             return bestMove || nightmareAI();
+        }
+
+        function yoadishAI() {
+            // 😺 YOAD-ISH - UNBEATABLE MINIMAX ALGORITHM! 😺
+            // This is THE LEGENDARY AI!
+
+            // First, check for instant wins/blocks
+            const megaWin = findMegaBoardWin('O');
+            if (megaWin) return megaWin;
+
+            const megaBlock = findMegaBoardWin('X');
+            if (megaBlock) return megaBlock;
+
+            const moves = getAvailableMoves();
+            if (moves.length === 0) return null;
+
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            // MINIMAX with alpha-beta pruning!
+            moves.forEach(move => {
+                // Save current state
+                const savedMiniBoards = miniBoards.map(b => [...b]);
+                const savedMegaBoard = [...megaBoard];
+                const savedActiveBoard = activeBoard;
+
+                // Make the move
+                miniBoards[move.board][move.cell] = 'O';
+                if (checkWin(miniBoards[move.board])) {
+                    megaBoard[move.board] = 'O';
+                }
+
+                // Check if this wins the game
+                if (checkWin(megaBoard)) {
+                    miniBoards = savedMiniBoards;
+                    megaBoard = savedMegaBoard;
+                    activeBoard = savedActiveBoard;
+                    return move; // INSTANT WIN!
+                }
+
+                // Update active board
+                if (megaBoard[move.cell] === '') {
+                    activeBoard = move.cell;
+                } else {
+                    activeBoard = null;
+                }
+
+                // Minimax evaluation (depth-limited for performance)
+                const score = minimaxEvaluate(3, false, -Infinity, Infinity);
+
+                // Restore state
+                miniBoards = savedMiniBoards;
+                megaBoard = savedMegaBoard;
+                activeBoard = savedActiveBoard;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            });
+
+            return bestMove || godlikeAI();
+        }
+
+        function minimaxEvaluate(depth, isMaximizing, alpha, beta) {
+            // Check terminal states
+            if (checkWin(megaBoard)) {
+                return isMaximizing ? -1000 : 1000;
+            }
+
+            const availableMoves = getAvailableMoves();
+            if (availableMoves.length === 0 || depth === 0) {
+                // Evaluate board state
+                return evaluateBoardState();
+            }
+
+            if (isMaximizing) {
+                // AI's turn (O)
+                let maxScore = -Infinity;
+                for (let move of availableMoves) {
+                    const savedMiniBoards = miniBoards.map(b => [...b]);
+                    const savedMegaBoard = [...megaBoard];
+                    const savedActiveBoard = activeBoard;
+
+                    miniBoards[move.board][move.cell] = 'O';
+                    if (checkWin(miniBoards[move.board])) {
+                        megaBoard[move.board] = 'O';
+                    }
+                    if (megaBoard[move.cell] === '') {
+                        activeBoard = move.cell;
+                    } else {
+                        activeBoard = null;
+                    }
+
+                    const score = minimaxEvaluate(depth - 1, false, alpha, beta);
+
+                    miniBoards = savedMiniBoards;
+                    megaBoard = savedMegaBoard;
+                    activeBoard = savedActiveBoard;
+
+                    maxScore = Math.max(maxScore, score);
+                    alpha = Math.max(alpha, score);
+                    if (beta <= alpha) break; // Prune
+                }
+                return maxScore;
+            } else {
+                // Player's turn (X)
+                let minScore = Infinity;
+                for (let move of availableMoves) {
+                    const savedMiniBoards = miniBoards.map(b => [...b]);
+                    const savedMegaBoard = [...megaBoard];
+                    const savedActiveBoard = activeBoard;
+
+                    miniBoards[move.board][move.cell] = 'X';
+                    if (checkWin(miniBoards[move.board])) {
+                        megaBoard[move.board] = 'X';
+                    }
+                    if (megaBoard[move.cell] === '') {
+                        activeBoard = move.cell;
+                    } else {
+                        activeBoard = null;
+                    }
+
+                    const score = minimaxEvaluate(depth - 1, true, alpha, beta);
+
+                    miniBoards = savedMiniBoards;
+                    megaBoard = savedMegaBoard;
+                    activeBoard = savedActiveBoard;
+
+                    minScore = Math.min(minScore, score);
+                    beta = Math.min(beta, score);
+                    if (beta <= alpha) break; // Prune
+                }
+                return minScore;
+            }
+        }
+
+        function evaluateBoardState() {
+            let score = 0;
+
+            // Evaluate mega board control
+            for (let i = 0; i < 9; i++) {
+                if (megaBoard[i] === 'O') score += 10;
+                else if (megaBoard[i] === 'X') score -= 10;
+            }
+
+            // Evaluate potential wins
+            for (let condition of winConditions) {
+                const [a, b, c] = condition;
+                const boards = [megaBoard[a], megaBoard[b], megaBoard[c]];
+
+                const oCount = boards.filter(b => b === 'O').length;
+                const xCount = boards.filter(b => b === 'X').length;
+
+                if (oCount > 0 && xCount === 0) score += oCount * 3;
+                if (xCount > 0 && oCount === 0) score -= xCount * 3;
+            }
+
+            return score;
         }
 
         function evaluateMove(move) {
