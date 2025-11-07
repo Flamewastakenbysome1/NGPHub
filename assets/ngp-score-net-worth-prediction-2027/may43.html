@@ -1989,11 +1989,11 @@
         setInterval(() => {
             if (!gameActive || currentPlayer !== 'X') return;
 
-            // More likely to chat when there are more people online
+            // More likely to chat when there are more viewers watching YOUR game
             let conversationChance = 0.3; // 30% base
-            if (currentOnline > 1000) conversationChance = 0.5;
-            if (currentOnline > 10000) conversationChance = 0.7;
-            if (currentOnline > 50000) conversationChance = 0.9;
+            if (spectators > 1000) conversationChance = 0.5;
+            if (spectators > 10000) conversationChance = 0.7;
+            if (spectators > 50000) conversationChance = 0.9;
 
             if (Math.random() < conversationChance) {
                 // Pick 2 random players for conversation
@@ -2094,10 +2094,13 @@
 
         // MASSIVE CHAT SPAM FUNCTION! Percentage of viewers spam messages!
         function massiveChatSpam(percentage, messageArray, duration = 3000) {
-            // Calculate how many people spam (based on current online count)
-            const spammerCount = Math.floor(currentOnline * percentage);
+            // Calculate how many people spam (based on SPECTATORS watching YOU, not total online)
+            const spammerCount = Math.floor(spectators * percentage);
             const messagesPerSecond = Math.min(spammerCount / (duration / 1000), 30); // Cap at 30 msg/sec
             const totalMessages = Math.min(spammerCount, 100); // Cap at 100 total messages
+
+            // Don't spam if there aren't enough viewers!
+            if (totalMessages < 1) return;
 
             // Spam messages over the duration
             for (let i = 0; i < totalMessages; i++) {
@@ -2844,8 +2847,8 @@
             }
 
             // 25% OF CHAT SPAMS ON EVERY SINGLE MOVE!! (SOMEHOW?! 😭)
-            // Only if there are ENOUGH viewers watching!
-            if (!isAI && currentPlayer === 'X' && currentOnline > 500) {
+            // Only if there are ENOUGH viewers watching YOUR game!
+            if (!isAI && currentPlayer === 'X' && spectators > 500) {
                 const anyMoveMessages = [
                     'nice', 'ok', 'i see', 'interesting', 'hmm', 'lets see', 'yep',
                     'good', 'solid', 'okay', 'bet', 'aight', 'kk', 'mhm', 'sure',
@@ -2859,7 +2862,7 @@
             }
 
             // INTERACTIVE CHAT - React to specific moves!
-            if (!isAI && currentPlayer === 'X' && currentOnline > 100 && Math.random() < 0.15) {
+            if (!isAI && currentPlayer === 'X' && spectators > 100 && Math.random() < 0.15) {
                 const interactiveMessages = [];
 
                 // React to center moves
@@ -2894,8 +2897,8 @@
                 markBoardWon(boardIndex, currentPlayer);
 
                 // PLAYER WINS A MINI BOARD - 75% OF CHAT GOES CRAZY!!
-                // Only if there are enough viewers!
-                if (!isAI && currentPlayer === 'X' && currentOnline > 200) {
+                // Only if there are enough viewers watching YOUR game!
+                if (!isAI && currentPlayer === 'X' && spectators > 200) {
                     // Chat spam messages for board wins
                     const boardWinMessages = [
                         'NICE BOARD!', 'LETS GO!', 'clean board win', 'POG', 'gg that board',
@@ -2936,8 +2939,8 @@
                 }
 
                 // AI WINS A MINI BOARD - 50% OF CHAT BOOS!!
-                // Only if there are enough viewers!
-                if (isAI && currentPlayer === 'O' && currentOnline > 200) {
+                // Only if there are enough viewers watching YOUR game!
+                if (isAI && currentPlayer === 'O' && spectators > 200) {
                     const booMessages = [
                         'BOOO', 'BOO', 'nooo', 'rip', 'NOOOO', 'unlucky', 'sadge',
                         'L', 'oof', 'damn', 'bruh', 'pain', 'F', 'rough', 'tragic',
@@ -3188,8 +3191,8 @@
 
                 // 90% OF ALL VIEWERS SPAM!! (ABSOLUTE INSANITY!! 🔥🔥🔥)
                 // Random duration between 6-13 seconds!
-                // Only if there are enough viewers watching!
-                if (currentOnline > 100) {
+                // Only if there are enough viewers watching YOUR game!
+                if (spectators > 100) {
                     const victorySpamDuration = 6000 + Math.floor(Math.random() * 7000); // 6000-13000ms
                     massiveChatSpam(0.90, chatSpamMessages, victorySpamDuration);
                 }
