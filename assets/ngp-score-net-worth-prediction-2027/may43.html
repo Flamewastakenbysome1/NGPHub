@@ -1258,7 +1258,8 @@
             <button class="cheat-btn" onclick="toggleAutoPlay()">🤖 Auto-Play (<span id="autoPlayStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="togglePlayAnywhere()">🎯 Play Anywhere (<span id="playAnywhereStatus">OFF</span>)</button>
             <button class="cheat-btn" onclick="toggleOverwriteMoves()">✏️ Overwrite Moves (<span id="overwriteStatus">OFF</span>)</button>
-            <button class="cheat-btn" onclick="toggleRainbow()">🌈 Rainbow Mode</button>
+            <button class="cheat-btn" onclick="toggleRainbow()">🌈 Rainbow Mode (<span id="rainbowStatus">OFF</span>)</button>
+            <button class="cheat-btn" onclick="boostOnlinePlayers()">📈 +10K Online Players</button>
             <button class="cheat-btn" onclick="addWinStreak()">📈 +10 Win Streak</button>
             <button class="cheat-btn" onclick="addMoney()">💰 +$1000</button>
             <button class="cheat-btn" onclick="maxStats()">📊 Max All Stats</button>
@@ -1827,22 +1828,30 @@
             updateSpectators();
         }, 5000);
 
-        // Fake chat messages (frequency based on spectators)
+        // Fake chat messages (frequency based on ONLINE PLAYERS - MORE CRAZY!)
         setInterval(() => {
             if (!gameActive) return;
-            
-            // More spectators = more frequent chat
+
+            // More online players = WAY more frequent chat!
             let chatChance = 0.1; // 10% base chance
-            if (spectators > 100) chatChance = 0.3;
-            if (spectators > 500) chatChance = 0.5;
-            if (spectators > 1000) chatChance = 0.7;
-            if (spectators > 5000) chatChance = 0.9;
-            if (spectators > 10000) chatChance = 1.0; // Always chat!
-            
+            if (currentOnline > 100) chatChance = 0.3;
+            if (currentOnline > 500) chatChance = 0.5;
+            if (currentOnline > 1000) chatChance = 0.7;
+            if (currentOnline > 5000) chatChance = 0.9;
+            if (currentOnline > 10000) chatChance = 1.0; // Always chat!
+            if (currentOnline > 50000) chatChance = 1.5; // CHAT EXPLOSION - multiple messages!
+
+            // At super high online counts, spam multiple messages at once!
+            const messageCount = currentOnline > 50000 ? 2 : 1;
+
             if (Math.random() < chatChance) {
-                const player = playerNames[Math.floor(Math.random() * playerNames.length)];
-                const message = chatMessages[Math.floor(Math.random() * chatMessages.length)];
-                addChatMessage(player, message);
+                for (let i = 0; i < messageCount; i++) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const message = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+                        addChatMessage(player, message);
+                    }, i * 200);
+                }
             }
         }, 3000); // Check every 3 seconds
 
@@ -2161,7 +2170,29 @@
         }
 
         function toggleRainbow() {
-            document.body.classList.toggle('rainbow-mode');
+            const isEnabled = document.body.classList.toggle('rainbow-mode');
+            document.getElementById('rainbowStatus').textContent = isEnabled ? 'ON' : 'OFF';
+        }
+
+        function boostOnlinePlayers() {
+            targetOnline += 10000;
+            currentOnline += 10000;
+            document.getElementById('onlineCount').textContent = Math.floor(currentOnline).toLocaleString();
+
+            // Chat reacts!
+            addChatMessage('System', '🚀 Server capacity increased! +10K players online!');
+            setTimeout(() => {
+                const reactions = [
+                    'YOOO MORE PEOPLE!',
+                    'server poppin off',
+                    'huge crowd now',
+                    'everyone\'s watching!',
+                    'this is getting big',
+                    'BLOWN UP'
+                ];
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                    reactions[Math.floor(Math.random() * reactions.length)]);
+            }, 500);
         }
 
         function addWinStreak() {
@@ -2343,6 +2374,7 @@
             switch(itemId) {
                 case 'rainbow_board':
                     document.body.classList.add('rainbow-mode');
+                    document.getElementById('rainbowStatus').textContent = 'ON';
                     break;
                 case 'instant_rank_1':
                     globalRank = 1;
@@ -2504,8 +2536,26 @@
             miniBoards[boardIndex][cellIndex] = currentPlayer;
             updateCell(boardIndex, cellIndex, isAI);
 
+            // TOURNAMENT SPAM - Chat goes CRAZY for 5 seconds on tournament moves!
+            if (!isAI && currentPlayer === 'X' && currentTournament) {
+                const tournamentSpamMessages = [
+                    'LETS GO!', 'POGGERS', 'good move', 'nice!', 'W', 'smart play',
+                    'BIG BRAIN', 'calculated', 'ez', 'clean', 'CARRY', 'GOAT',
+                    'sheesh', 'POG', 'GG', 'insane', 'cracked', 'built different'
+                ];
+
+                // Spam messages every 300ms for 5 seconds (17 messages total)
+                for (let i = 0; i < 17; i++) {
+                    setTimeout(() => {
+                        const player = playerNames[Math.floor(Math.random() * playerNames.length)];
+                        const message = tournamentSpamMessages[Math.floor(Math.random() * tournamentSpamMessages.length)];
+                        addChatMessage(player, message);
+                    }, i * 300);
+                }
+            }
+
             // INTERACTIVE CHAT - React to specific moves!
-            if (!isAI && currentPlayer === 'X' && spectators > 100 && Math.random() < 0.15) {
+            if (!isAI && currentPlayer === 'X' && currentOnline > 100 && Math.random() < 0.15) {
                 const interactiveMessages = [];
 
                 // React to center moves
@@ -2540,7 +2590,7 @@
                 markBoardWon(boardIndex, currentPlayer);
 
                 // PLAYER WINS A MINI BOARD - CHAT SPAM AND DONATIONS!
-                if (!isAI && currentPlayer === 'X' && spectators > 50) {
+                if (!isAI && currentPlayer === 'X' && currentOnline > 50) {
                     // Chat spam messages for board wins
                     const boardWinMessages = [
                         'NICE BOARD!',
