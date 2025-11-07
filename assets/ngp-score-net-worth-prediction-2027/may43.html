@@ -1279,8 +1279,12 @@
                 <div style="font-weight: bold; margin-bottom: 8px;">Recent Transactions:</div>
                 <div id="transactionHistory" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
-            <button class="cheat-btn" onclick="dailyBonus()">🎁 Daily Bonus ($50)</button>
-            <button class="cheat-btn" style="opacity: 0.5;" onclick="alert('Coming soon!')">🏦 Withdraw (Coming Soon)</button>
+            <div style="text-align: center; margin: 15px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <div style="font-weight: bold; color: #f093fb;">🔄 Rebirth Level: <span id="rebirthLevelDisplay">0</span></div>
+                <div style="font-size: 0.85em; opacity: 0.9; margin-top: 5px;">Income Multiplier: <span id="rebirthMultDisplay">1.0</span>x | Tax Rate: <span id="taxRateDisplay">25</span>%</div>
+            </div>
+            <button class="cheat-btn" onclick="dailyBonus()">🎁 Daily Bonus ($400)</button>
+            <button class="cheat-btn" onclick="performRebirth()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔄 REBIRTH ($1,000,000)</button>
             <button class="close-btn" onclick="closeBank()">Close</button>
         </div>
     </div>
@@ -1528,27 +1532,30 @@
         let purchasedItems = JSON.parse(localStorage.getItem('tttPurchased')) || [];
         let richWhaleActive = false;
         let richWhaleInterval = null;
-        let bankBalance = parseInt(localStorage.getItem('tttBalance')) || 100;
+        let bankBalance = parseInt(localStorage.getItem('tttBalance')) || 800;
         let transactions = JSON.parse(localStorage.getItem('tttTransactions')) || [];
         let lastDailyBonus = localStorage.getItem('tttLastDaily') || '';
         let currentBet = 0;
         let currentTournament = null;
+        let taxRate = 0.25; // 25% tax on all income (brutal!)
+        let rebirthLevel = parseInt(localStorage.getItem('tttRebirth')) || 0;
+        let rebirthMultiplier = 1 + (rebirthLevel * 0.5); // +50% per rebirth!
         let targetSpectators = 0;
         let spectatorInterval = null;
 
         const tournaments = [
-            { name: 'Casual Match 🎮', bet: 5, win: 15, difficulty: 'easy', viewers: 20, locked: false, unlockAt: 0 },
-            { name: 'Beginner Bracket', bet: 10, win: 30, difficulty: 'medium', viewers: 75, locked: false, unlockAt: 0 },
-            { name: 'Amateur League', bet: 25, win: 75, difficulty: 'medium', viewers: 200, locked: false, unlockAt: 0 },
-            { name: 'Pro Circuit ⚡', bet: 50, win: 150, difficulty: 'hard', viewers: 500, locked: false, unlockAt: 0 },
-            { name: 'Elite Tournament', bet: 100, win: 350, difficulty: 'hard', viewers: 1000, locked: false, unlockAt: 0 },
-            { name: 'Master Series 🔥', bet: 200, win: 750, difficulty: 'expert', viewers: 2500, locked: false, unlockAt: 0 },
-            { name: 'Grand Championship', bet: 350, win: 1500, difficulty: 'expert', viewers: 5000, locked: false, unlockAt: 0 },
-            { name: 'LEGEND ULTIMATE 💀', bet: 500, win: 3000, difficulty: 'impossible', viewers: 10000, locked: false, unlockAt: 0 },
-            { name: 'NIGHTMARE GAUNTLET 👹', bet: 1000, win: 7500, difficulty: 'nightmare', viewers: 25000, locked: false, unlockAt: 0 },
-            { name: 'GODLIKE ARENA 👑', bet: 2500, win: 20000, difficulty: 'godlike', viewers: 75000, locked: true, unlockAt: 5000 },
-            { name: 'WHALE WARS 🐋', bet: 5000, win: 50000, difficulty: 'godlike', viewers: 150000, locked: true, unlockAt: 15000 },
-            { name: 'THE FINAL BOSS 💎', bet: 10000, win: 100000, difficulty: 'godlike', viewers: 500000, locked: true, unlockAt: 50000 }
+            { name: 'Casual Match 🎮', bet: 40, win: 120, difficulty: 'easy', viewers: 20, locked: false, unlockAt: 0 },
+            { name: 'Beginner Bracket', bet: 80, win: 240, difficulty: 'medium', viewers: 75, locked: false, unlockAt: 0 },
+            { name: 'Amateur League', bet: 200, win: 600, difficulty: 'medium', viewers: 200, locked: false, unlockAt: 0 },
+            { name: 'Pro Circuit ⚡', bet: 400, win: 1200, difficulty: 'hard', viewers: 500, locked: false, unlockAt: 0 },
+            { name: 'Elite Tournament', bet: 800, win: 2800, difficulty: 'hard', viewers: 1000, locked: false, unlockAt: 0 },
+            { name: 'Master Series 🔥', bet: 1600, win: 6000, difficulty: 'expert', viewers: 2500, locked: false, unlockAt: 0 },
+            { name: 'Grand Championship', bet: 2800, win: 12000, difficulty: 'expert', viewers: 5000, locked: false, unlockAt: 0 },
+            { name: 'LEGEND ULTIMATE 💀', bet: 4000, win: 24000, difficulty: 'impossible', viewers: 10000, locked: false, unlockAt: 0 },
+            { name: 'NIGHTMARE GAUNTLET 👹', bet: 8000, win: 60000, difficulty: 'nightmare', viewers: 25000, locked: false, unlockAt: 0 },
+            { name: 'GODLIKE ARENA 👑', bet: 20000, win: 160000, difficulty: 'godlike', viewers: 75000, locked: true, unlockAt: 40000 },
+            { name: 'WHALE WARS 🐋', bet: 40000, win: 400000, difficulty: 'godlike', viewers: 150000, locked: true, unlockAt: 120000 },
+            { name: 'THE FINAL BOSS 💎', bet: 80000, win: 800000, difficulty: 'godlike', viewers: 500000, locked: true, unlockAt: 400000 }
         ];
 
         const winConditions = [
@@ -1579,18 +1586,18 @@
         ];
 
         const shopItems = [
-            { id: 'vip_badge', name: '👑 VIP Badge', desc: 'Show off in chat with a VIP tag', price: 1000, category: 'cosmetic' },
-            { id: 'diamond_badge', name: '💎 Diamond Badge', desc: 'Ultra rare diamond status', price: 5000, category: 'cosmetic' },
-            { id: 'whale_badge', name: '🐋 Whale Badge', desc: 'Flex your wealth!', price: 25000, category: 'cosmetic' },
-            { id: 'godlike_badge', name: '👹 GODLIKE Badge', desc: 'The ultimate flex', price: 100000, category: 'cosmetic' },
-            { id: 'double_donations', name: '💰 2x Donations', desc: 'Double all donation amounts!', price: 10000, category: 'modifier' },
-            { id: 'streak_protection', name: '🛡️ Streak Protection', desc: 'Next loss won\'t reset streak', price: 15000, category: 'modifier' },
-            { id: 'guaranteed_whale', name: '🐋 Whale Magnet', desc: 'Always spawn whales in big tournaments', price: 50000, category: 'modifier' },
-            { id: 'rainbow_board', name: '🌈 Rainbow Board', desc: 'Permanent rainbow mode!', price: 7500, category: 'cosmetic' },
-            { id: 'golden_x', name: '⭐ Golden X', desc: 'Your moves are golden!', price: 20000, category: 'cosmetic' },
-            { id: 'instant_rank_1', name: '🏆 Instant Rank #1', desc: 'Become #1 on leaderboard', price: 250000, category: 'flex' },
-            { id: 'money_printer', name: '🖨️ Money Printer', desc: 'Passive $100/minute income', price: 500000, category: 'modifier' },
-            { id: 'god_mode', name: '⚡ GOD MODE', desc: 'Can\'t lose. Literally.', price: 1000000, category: 'modifier' }
+            { id: 'vip_badge', name: '👑 VIP Badge', desc: 'Show off in chat with a VIP tag', price: 8000, category: 'cosmetic' },
+            { id: 'diamond_badge', name: '💎 Diamond Badge', desc: 'Ultra rare diamond status', price: 40000, category: 'cosmetic' },
+            { id: 'whale_badge', name: '🐋 Whale Badge', desc: 'Flex your wealth!', price: 200000, category: 'cosmetic' },
+            { id: 'godlike_badge', name: '👹 GODLIKE Badge', desc: 'The ultimate flex', price: 800000, category: 'cosmetic' },
+            { id: 'double_donations', name: '💰 2x Donations', desc: 'Double all donation amounts!', price: 80000, category: 'modifier' },
+            { id: 'streak_protection', name: '🛡️ Streak Protection', desc: 'Next loss won\'t reset streak', price: 120000, category: 'modifier' },
+            { id: 'guaranteed_whale', name: '🐋 Whale Magnet', desc: 'Always spawn whales in big tournaments', price: 400000, category: 'modifier' },
+            { id: 'rainbow_board', name: '🌈 Rainbow Board', desc: 'Permanent rainbow mode!', price: 60000, category: 'cosmetic' },
+            { id: 'golden_x', name: '⭐ Golden X', desc: 'Your moves are golden!', price: 160000, category: 'cosmetic' },
+            { id: 'instant_rank_1', name: '🏆 Instant Rank #1', desc: 'Become #1 on leaderboard', price: 2000000, category: 'flex' },
+            { id: 'money_printer', name: '🖨️ Money Printer', desc: 'Passive $800/minute income', price: 4000000, category: 'modifier' },
+            { id: 'god_mode', name: '⚡ GOD MODE', desc: 'Can\'t lose. Literally.', price: 8000000, category: 'modifier' }
         ];
 
         const playerNames = [
@@ -2390,10 +2397,10 @@
                     }, 2000);
                     break;
                 case 'money_printer':
-                    addChatMessage('System', '🖨️ Money Printer activated! Earning $100/min');
+                    addChatMessage('System', '🖨️ Money Printer activated! Earning $800/min');
                     setInterval(() => {
                         if (purchasedItems.includes('money_printer')) {
-                            bankBalance += 100;
+                            bankBalance += 800;
                             updateBankDisplay();
                         }
                     }, 60000);
@@ -2774,22 +2781,41 @@
                 document.getElementById('playerScore').textContent = scores.player;
                 createConfetti(window.innerWidth / 2, window.innerHeight / 2);
                 
-                // Tournament winnings
+                // Tournament winnings WITH TAXES!
                 if (currentTournament) {
-                    const winAmount = currentTournament.win;
-                    bankBalance += winAmount;
+                    const grossWin = currentTournament.win * rebirthMultiplier;
+                    const taxAmount = Math.floor(grossWin * taxRate);
+                    const netWin = Math.floor(grossWin - taxAmount);
+
+                    bankBalance += netWin;
                     updateBankDisplay();
-                    addTransaction('win', winAmount, `🏆 ${currentTournament.name} Victory!`);
-                    
+                    addTransaction('win', netWin, `🏆 ${currentTournament.name} Victory!`);
+                    addTransaction('tax', -taxAmount, `💸 Government Tax (${(taxRate * 100)}%)`);
+
                     // BIG POPUP showing winnings
                     setTimeout(() => {
-                        showMoneyWon(winAmount);
+                        showMoneyWon(netWin);
                     }, 1500);
-                    
+
                     setTimeout(() => {
-                        addChatMessage('System', `💰 You won $${winAmount.toLocaleString()}!`);
+                        addChatMessage('System', `💰 Won $${grossWin.toLocaleString()}! After tax: $${netWin.toLocaleString()}`);
                         spawnEmote('💰');
                     }, 1000);
+
+                    // Tax complaints from chat!
+                    setTimeout(() => {
+                        const taxComplaints = [
+                            'RIP TAXES 💀',
+                            'government moment',
+                            'taxed to death',
+                            '25% BRUTAL',
+                            'they took your money lol',
+                            'tax man got you',
+                            'oof those taxes'
+                        ];
+                        addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                            taxComplaints[Math.floor(Math.random() * taxComplaints.length)]);
+                    }, 2000);
                     
                     currentTournament = null;
                     currentBet = 0;
@@ -3550,6 +3576,10 @@
         function showBank() {
             document.getElementById('bankModal').classList.add('show');
             updateTransactionHistory();
+            // Update rebirth display
+            document.getElementById('rebirthLevelDisplay').textContent = rebirthLevel;
+            document.getElementById('rebirthMultDisplay').textContent = rebirthMultiplier.toFixed(1);
+            document.getElementById('taxRateDisplay').textContent = (taxRate * 100).toFixed(0);
         }
 
         function closeBank() {
@@ -3582,11 +3612,12 @@
                 alert('You already claimed your daily bonus! Come back tomorrow! 🎁');
                 return;
             }
-            
-            bankBalance += 50;
+
+            const bonusAmount = Math.floor(400 * rebirthMultiplier);
+            bankBalance += bonusAmount;
             lastDailyBonus = today;
             localStorage.setItem('tttLastDaily', lastDailyBonus);
-            addTransaction('bonus', 50, '🎁 Daily Login Bonus');
+            addTransaction('bonus', bonusAmount, '🎁 Daily Login Bonus');
             updateBankDisplay();
             updateTransactionHistory();
             spawnEmote('💰');
@@ -3594,10 +3625,70 @@
         }
 
         function addMoney() {
-            bankBalance += 1000;
-            addTransaction('bonus', 1000, '🔓 Dev Bonus');
+            bankBalance += 8000;
+            addTransaction('bonus', 8000, '🔓 Dev Bonus');
             updateBankDisplay();
             updateTransactionHistory();
+        }
+
+        function performRebirth() {
+            if (bankBalance < 1000000) {
+                alert(`You need $1,000,000 to rebirth! Current: $${bankBalance.toLocaleString()}`);
+                return;
+            }
+
+            const confirmRebirth = confirm(`🔄 REBIRTH CONFIRMATION 🔄\n\nYou will LOSE:\n- All money\n- All stats\n- All achievements\n- All shop items\n\nYou will GAIN:\n- Rebirth Level +1\n- Income Multiplier +50%\n- Tax Rate -5%\n- Permanent advantage!\n\nProceed?`);
+
+            if (!confirmRebirth) return;
+
+            // Increment rebirth
+            rebirthLevel++;
+            rebirthMultiplier = 1 + (rebirthLevel * 0.5);
+            taxRate = Math.max(0.05, 0.25 - (rebirthLevel * 0.05)); // Reduce tax by 5% per rebirth, minimum 5%
+
+            // Reset everything
+            bankBalance = 800;
+            winStreak = 0;
+            bestStreak = 0;
+            totalWins = 0;
+            globalRank = 999999;
+            achievements = [];
+            purchasedItems = [];
+            transactions = [];
+
+            // Save rebirth to localStorage
+            localStorage.setItem('tttRebirth', rebirthLevel);
+            localStorage.setItem('tttBalance', bankBalance);
+            localStorage.setItem('tttAchievements', JSON.stringify(achievements));
+            localStorage.setItem('tttPurchased', JSON.stringify(purchasedItems));
+            localStorage.setItem('tttTransactions', JSON.stringify(transactions));
+
+            // Update UI
+            updateStats();
+            updateBankDisplay();
+            updateTransactionHistory();
+            document.getElementById('rebirthLevelDisplay').textContent = rebirthLevel;
+            document.getElementById('rebirthMultDisplay').textContent = rebirthMultiplier.toFixed(1);
+            document.getElementById('taxRateDisplay').textContent = (taxRate * 100).toFixed(0);
+
+            // Chat reactions
+            playSound('win');
+            addChatMessage('System', `🔄 ${playerNames[0]} HAS REBIRTHED! Level ${rebirthLevel}!`);
+            setTimeout(() => {
+                const rebirthMessages = [
+                    'THEY RESET EVERYTHING?!',
+                    'absolute madlad',
+                    'starting over with power',
+                    'PRESTIGE MODE',
+                    'built different fr',
+                    'the grind never stops',
+                    `${rebirthMultiplier.toFixed(1)}x income now wtf`
+                ];
+                addChatMessage(playerNames[Math.floor(Math.random() * playerNames.length)],
+                    rebirthMessages[Math.floor(Math.random() * rebirthMessages.length)]);
+            }, 1000);
+
+            alert(`✅ REBIRTH COMPLETE!\n\nYou are now Rebirth Level ${rebirthLevel}!\nIncome Multiplier: ${rebirthMultiplier.toFixed(1)}x\nTax Rate: ${(taxRate * 100).toFixed(0)}%\n\nGood luck!`);
         }
 
         // Tournament System
@@ -3772,18 +3863,25 @@
                 amount *= 2;
             }
 
+            // Apply rebirth multiplier
+            amount = Math.floor(amount * rebirthMultiplier);
+
+            // Apply TAXES (even on donations!)
+            const taxAmount = Math.floor(amount * taxRate);
+            const netAmount = amount - taxAmount;
+
             const popup = document.createElement('div');
             popup.className = 'donation-popup';
-            popup.textContent = `+$${amount} 💰${hasItem('double_donations') ? ' (2X!)' : ''}`;
+            popup.textContent = `+$${netAmount} 💰${hasItem('double_donations') ? ' (2X!)' : ''} (-${taxAmount} tax)`;
             popup.style.left = (Math.random() * (window.innerWidth - 150)) + 'px';
             popup.style.top = (window.innerHeight * 0.3) + 'px';
             document.body.appendChild(popup);
             setTimeout(() => popup.remove(), 2000);
 
             playSound('click');
-            bankBalance += amount;
+            bankBalance += netAmount;
             updateBankDisplay();
-            addTransaction('bonus', amount, '💝 Viewer Donation');
+            addTransaction('bonus', netAmount, '💝 Viewer Donation');
         }
 
         createBoard();
