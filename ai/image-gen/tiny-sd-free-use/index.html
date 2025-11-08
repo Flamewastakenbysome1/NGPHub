@@ -337,12 +337,6 @@
             <button class="preset-btn" onclick="setPreset('portrait')">👤 Portrait</button>
             <button class="preset-btn" onclick="setPreset('anime')">🎌 Anime</button>
             <button class="preset-btn" onclick="setPreset('abstract')">🎨 Abstract</button>
-            <button class="preset-btn" onclick="setPreset('cyberpunk')">🤖 Cyberpunk</button>
-            <button class="preset-btn" onclick="setPreset('fantasy')">⚔️ Fantasy</button>
-            <button class="preset-btn" onclick="setPreset('scifi')">🚀 Sci-Fi</button>
-            <button class="preset-btn" onclick="setPreset('horror')">👻 Horror</button>
-            <button class="preset-btn" onclick="setPreset('watercolor')">🖌️ Watercolor</button>
-            <button class="preset-btn" onclick="setPreset('pixel')">👾 Pixel Art</button>
           </div>
         </div>
       </div>
@@ -385,67 +379,10 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
   
-  // Credit system - 6 free images every 45 minutes
-  const MAX_FREE_CREDITS = 6;
-  const CREDIT_RESET_TIME = 45 * 60 * 1000; // 45 minutes in milliseconds
-  
-  let credits = parseInt(localStorage.getItem('imageCredits') || MAX_FREE_CREDITS);
-  let lastResetTime = parseInt(localStorage.getItem('lastCreditReset') || Date.now());
+  // Credit system
+  let credits = parseInt(localStorage.getItem('imageCredits') || '25');
   let isAuthenticated = false;
-  const CREDITS_PER_IMAGE = 1;
-  
-  // Check if credits should reset
-  function checkCreditReset() {
-    const now = Date.now();
-    if (now - lastResetTime >= CREDIT_RESET_TIME) {
-      credits = MAX_FREE_CREDITS;
-      lastResetTime = now;
-      localStorage.setItem('imageCredits', credits.toString());
-      localStorage.setItem('lastCreditReset', lastResetTime.toString());
-      updateCreditsDisplay();
-    }
-  }
-  
-  function getTimeUntilReset() {
-    const now = Date.now();
-    const timePassed = now - lastResetTime;
-    const timeRemaining = CREDIT_RESET_TIME - timePassed;
-    const minutes = Math.floor(timeRemaining / 60000);
-    const seconds = Math.floor((timeRemaining % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  }
-  
-  function updateCreditsDisplay() {
-    const display = document.getElementById('creditsDisplay');
-    if (isAuthenticated) {
-      display.innerHTML = `
-        <div class="credits-badge unlimited">
-          <span>⚡</span>
-          <span>Unlimited + 50 Steps</span>
-        </div>
-      `;
-    } else {
-      const timeUntilReset = credits <= 0 ? ` • Resets in ${getTimeUntilReset()}` : '';
-      display.innerHTML = `
-        <div class="credits-badge">
-          <span>Free Credits:</span>
-          <span class="credits-number">${credits}</span>
-          <span>/ ${MAX_FREE_CREDITS}${timeUntilReset}</span>
-        </div>
-        <span class="unlock-text">
-          <a href="/login">Sign in</a> for unlimited + 50 step generations!
-        </span>
-      `;
-    }
-  }
-  
-  // Update credits display every second if out of credits
-  setInterval(() => {
-    checkCreditReset();
-    if (!isAuthenticated && credits <= 0) {
-      updateCreditsDisplay();
-    }
-  }, 1000);
+  const CREDITS_PER_IMAGE = 3;
   
   function updateCreditsDisplay() {
     const display = document.getElementById('creditsDisplay');
@@ -471,10 +408,10 @@
   }
   
   function unlockAllControls() {
-    // Unlock steps (10-50 for authenticated users)
+    // Unlock steps (10-30)
     const stepsInput = document.getElementById('steps');
     stepsInput.disabled = false;
-    stepsInput.max = 50;
+    stepsInput.max = 30;
     document.getElementById('stepsLock').classList.remove('show-lock');
     
     // Unlock guidance scale (5-15)
@@ -483,7 +420,7 @@
     guidanceInput.max = 15;
     document.getElementById('guidanceLock').classList.remove('show-lock');
     
-    // Unlock image size (up to 1024x1024)
+    // Unlock image size
     document.getElementById('width').disabled = false;
     document.getElementById('height').disabled = false;
     document.getElementById('sizeLock').classList.remove('show-lock');
@@ -518,30 +455,6 @@
       abstract: {
         prompt: "abstract art, vibrant colors, geometric patterns, modern art, high quality",
         negative: "blurry, ugly, low quality, realistic"
-      },
-      cyberpunk: {
-        prompt: "cyberpunk city, neon lights, futuristic architecture, rain, night scene, highly detailed, cinematic",
-        negative: "blurry, ugly, low quality, daytime, bright"
-      },
-      fantasy: {
-        prompt: "fantasy landscape, magical forest, glowing mushrooms, ethereal lighting, mystical atmosphere, highly detailed",
-        negative: "blurry, ugly, modern, realistic, low quality"
-      },
-      scifi: {
-        prompt: "sci-fi spaceship, futuristic technology, space station, stars, nebula, highly detailed, 4k",
-        negative: "blurry, ugly, low quality, fantasy, medieval"
-      },
-      horror: {
-        prompt: "dark atmospheric horror scene, eerie lighting, abandoned building, fog, creepy, cinematic",
-        negative: "blurry, bright, cheerful, colorful, low quality"
-      },
-      watercolor: {
-        prompt: "watercolor painting style, soft colors, artistic, flowing paint, dreamy, beautiful composition",
-        negative: "blurry, digital, photograph, 3d render, low quality"
-      },
-      pixel: {
-        prompt: "pixel art style, retro gaming aesthetic, 16-bit graphics, vibrant colors, detailed sprites",
-        negative: "blurry, realistic, 3d, photograph, low quality"
       }
     };
     
@@ -553,11 +466,9 @@
     // Check credits for non-authenticated users
     if (!isAuthenticated) {
       if (credits < CREDITS_PER_IMAGE) {
-        checkCreditReset(); // Try to reset if time has passed
-        if (credits < CREDITS_PER_IMAGE) {
-          alert(`⚠️ Out of free credits! Your credits will reset in ${getTimeUntilReset()}.\n\nOr sign in now for unlimited generations + 50 steps!`);
-          return;
-        }
+        alert('⚠️ Not enough credits! Sign in for unlimited generations.');
+        window.location.href = '/login';
+        return;
       }
     }
     
@@ -603,9 +514,9 @@
           localStorage.setItem('imageCredits', credits.toString());
           updateCreditsDisplay();
           
-          if (credits <= 0) {
+          if (credits < CREDITS_PER_IMAGE) {
             setTimeout(() => {
-              alert(`🎉 Nice work! You've used all your free credits.\n\nThey'll reset in ${getTimeUntilReset()}, or sign in for unlimited!`);
+              alert('🎉 You\'ve used your free credits! Sign in for unlimited generations.');
             }, 1000);
           }
         }
