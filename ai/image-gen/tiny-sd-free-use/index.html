@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Image Generator — NGP Hub</title>
+
+<meta property="og:title" content="NGP Hub — AI Image Generator" />
+<meta property="og:description" content="Generate stunning AI images for free using NGP's Tiny-SD image generator. Fast, powerful, and completely free." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/imagegen" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Hub — AI Image Generator" />
+<meta name="twitter:description" content="Generate stunning AI images for free using NGP's Tiny-SD image generator." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="Generate stunning AI images for free using NGP's Tiny-SD image generator. Fast, powerful, and completely free." />
+<meta name="keywords" content="NGP, AI image generator, free, Tiny-SD, stable diffusion, image generation" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0}
+  body{
+    background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  /* Main Content */
+  main{padding:40px 0 60px}
+  
+  .hero{text-align:center; margin-bottom:40px; position:relative}
+  .hero h2{
+    font-size:2.5rem; margin:0 0 12px; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero p{color:var(--muted); font-size:1.1rem; margin:0}
+  
+  .credits-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); border:2px solid rgba(255,255,255,.1);
+    padding:10px 20px; border-radius:12px; margin-top:16px;
+    font-weight:600; font-size:1rem;
+  }
+  .credits-badge.unlimited{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border-color:transparent;
+  }
+  .credits-number{font-size:1.3rem; color:var(--brandB)}
+  .credits-badge.unlimited .credits-number{color:white}
+  .unlock-text{
+    color:var(--muted); font-size:.9rem; margin-top:8px;
+    display:block;
+  }
+  .unlock-text a{color:var(--brandB); text-decoration:none; font-weight:600}
+  .unlock-text a:hover{text-decoration:underline}
+  
+  .generator-grid{
+    display:grid; grid-template-columns:400px 1fr; gap:30px; margin-top:30px;
+  }
+  
+  .controls{
+    background:var(--card); border-radius:var(--radius); padding:24px;
+    border:1px solid rgba(255,255,255,.06); box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:20px;
+  }
+  
+  .control-group{display:flex; flex-direction:column; gap:8px}
+  
+  label{
+    font-weight:600; color:var(--ink); font-size:.9em;
+    text-transform:uppercase; letter-spacing:.5px;
+  }
+  
+  input[type="text"], textarea, input[type="number"]{
+    padding:12px; background:rgba(255,255,255,.03);
+    border:2px solid rgba(255,255,255,.1); border-radius:10px;
+    color:var(--ink); font-size:1em; transition:all .2s;
+    font-family:inherit;
+  }
+  
+  input[type="text"]:focus, textarea:focus, input[type="number"]:focus{
+    outline:none; border-color:var(--brandB);
+    box-shadow:var(--ring);
+  }
+  
+  input[type="text"]:disabled, textarea:disabled, input[type="number"]:disabled,
+  input[type="range"]:disabled{
+    opacity:.4; cursor:not-allowed;
+  }
+  
+  .locked-overlay{
+    position:relative;
+  }
+  .locked-overlay::after{
+    content:'🔒 Sign in to unlock';
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.8); color:var(--brandB);
+    padding:8px 16px; border-radius:8px; font-weight:600;
+    font-size:.85rem; pointer-events:none; opacity:0;
+    transition:opacity .2s;
+  }
+  .locked-overlay.show-lock::after{opacity:1}
+  
+  textarea{resize:vertical; min-height:80px}
+  
+  .slider-group{display:flex; flex-direction:column; gap:8px}
+  
+  .slider-label{
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  
+  .slider-value{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    color:white; padding:4px 12px; border-radius:20px;
+    font-weight:600; font-size:.9em;
+  }
+  
+  input[type="range"]{
+    width:100%; height:6px; border-radius:5px;
+    background:rgba(255,255,255,.1); outline:none;
+    -webkit-appearance:none; cursor:pointer;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px;
+    border-radius:50%; background:var(--brandB);
+    cursor:pointer; transition:transform .2s;
+    box-shadow:0 2px 8px rgba(37,117,252,.4);
+  }
+  
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+  
+  .size-inputs{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  
+  .btn{
+    padding:15px 30px; background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    color:white; border:none; border-radius:10px;
+    font-size:1.1em; font-weight:600; cursor:pointer;
+    transition:all .2s; text-transform:uppercase;
+    letter-spacing:1px; font-family:inherit;
+  }
+  
+  .btn:hover:not(:disabled){
+    transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,117,252,.4);
+  }
+  
+  .btn:disabled{opacity:.6; cursor:not-allowed}
+  
+  .presets{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  
+  .preset-btn{
+    padding:10px; background:rgba(255,255,255,.03);
+    color:var(--ink); border:2px solid rgba(255,255,255,.1);
+    border-radius:10px; font-size:.9em; cursor:pointer;
+    transition:all .2s; font-family:inherit; font-weight:500;
+  }
+  
+  .preset-btn:hover{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border-color:transparent; transform:translateY(-2px);
+  }
+  
+  .output{
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:20px;
+  }
+  
+  #generatedImage{
+    max-width:100%; border-radius:12px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.06);
+    display:none;
+  }
+  
+  .placeholder{
+    width:512px; height:512px;
+    background:var(--card); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:1.2em; text-align:center;
+    padding:20px; border:1px solid rgba(255,255,255,.06);
+  }
+  
+  .loading{
+    display:none; flex-direction:column; align-items:center; gap:20px;
+  }
+  
+  .spinner{
+    width:50px; height:50px;
+    border:5px solid rgba(255,255,255,.1);
+    border-top:5px solid var(--brandB);
+    border-radius:50%; animation:spin 1s linear infinite;
+  }
+  
+  @keyframes spin{
+    0%{transform:rotate(0deg)}
+    100%{transform:rotate(360deg)}
+  }
+  
+  .status{
+    color:var(--brandB); font-weight:600; font-size:1.1em;
+  }
+  
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+  
+  @media (max-width: 900px){
+    .generator-grid{grid-template-columns:1fr}
+    .hero h2{font-size:2rem}
+  }
+  
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <h2>🎨 AI Image Generator</h2>
+      <p>Fast, free AI image generation powered by Tiny-SD</p>
+      <div id="creditsDisplay"></div>
+    </div>
+    
+    <div class="generator-grid">
+      <div class="controls">
+        <div class="control-group">
+          <label>Prompt</label>
+          <textarea id="prompt" placeholder="a beautiful landscape with mountains and a lake at sunset, highly detailed, 4k">a beautiful landscape with mountains and a lake at sunset, highly detailed, 4k</textarea>
+        </div>
+        
+        <div class="control-group">
+          <label>Negative Prompt</label>
+          <textarea id="negativePrompt" placeholder="blurry, ugly, distorted, low quality">blurry, ugly, distorted, low quality</textarea>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-label">
+            <label>Steps</label>
+            <span class="slider-value" id="stepsValue">15</span>
+          </div>
+          <div class="locked-overlay" id="stepsLock">
+            <input type="range" id="steps" min="10" max="30" value="15" oninput="updateSlider('steps')" disabled>
+          </div>
+        </div>
+        
+        <div class="slider-group">
+          <div class="slider-label">
+            <label>Guidance Scale</label>
+            <span class="slider-value" id="guidanceValue">7.5</span>
+          </div>
+          <div class="locked-overlay" id="guidanceLock">
+            <input type="range" id="guidance" min="5" max="7.5" step="0.5" value="7.5" oninput="updateSlider('guidance')" disabled>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label>Seed (optional)</label>
+          <input type="text" id="seed" placeholder="Leave empty for random">
+        </div>
+        
+        <div class="control-group">
+          <label>Image Size</label>
+          <div class="locked-overlay" id="sizeLock">
+            <div class="size-inputs">
+              <input type="number" id="width" value="512" min="256" max="768" step="64" disabled>
+              <input type="number" id="height" value="512" min="256" max="768" step="64" disabled>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn" id="generateBtn" onclick="generate()">Generate Image</button>
+        
+        <div class="control-group">
+          <label>Quick Presets</label>
+          <div class="presets">
+            <button class="preset-btn" onclick="setPreset('landscape')">🏞️ Landscape</button>
+            <button class="preset-btn" onclick="setPreset('portrait')">👤 Portrait</button>
+            <button class="preset-btn" onclick="setPreset('anime')">🎌 Anime</button>
+            <button class="preset-btn" onclick="setPreset('abstract')">🎨 Abstract</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="output">
+        <div class="placeholder" id="placeholder">
+          Your generated image will appear here ✨
+        </div>
+        <img id="generatedImage" alt="Generated image">
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <div class="status">Generating your masterpiece...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  
+  // Credit system
+  let credits = parseInt(localStorage.getItem('imageCredits') || '25');
+  let isAuthenticated = false;
+  const CREDITS_PER_IMAGE = 3;
+  
+  function updateCreditsDisplay() {
+    const display = document.getElementById('creditsDisplay');
+    if (isAuthenticated) {
+      display.innerHTML = `
+        <div class="credits-badge unlimited">
+          <span>⚡</span>
+          <span>Unlimited Generations</span>
+        </div>
+      `;
+    } else {
+      display.innerHTML = `
+        <div class="credits-badge">
+          <span>Credits:</span>
+          <span class="credits-number">${credits}</span>
+          <span>/ 25</span>
+        </div>
+        <span class="unlock-text">
+          <a href="/login">Sign in</a> for unlimited generations!
+        </span>
+      `;
+    }
+  }
+  
+  function unlockAllControls() {
+    // Unlock steps (10-30)
+    const stepsInput = document.getElementById('steps');
+    stepsInput.disabled = false;
+    stepsInput.max = 30;
+    document.getElementById('stepsLock').classList.remove('show-lock');
+    
+    // Unlock guidance scale (5-15)
+    const guidanceInput = document.getElementById('guidance');
+    guidanceInput.disabled = false;
+    guidanceInput.max = 15;
+    document.getElementById('guidanceLock').classList.remove('show-lock');
+    
+    // Unlock image size
+    document.getElementById('width').disabled = false;
+    document.getElementById('height').disabled = false;
+    document.getElementById('sizeLock').classList.remove('show-lock');
+  }
+  
+  function lockControls() {
+    document.getElementById('stepsLock').classList.add('show-lock');
+    document.getElementById('guidanceLock').classList.add('show-lock');
+    document.getElementById('sizeLock').classList.add('show-lock');
+  }
+  
+  function updateSlider(id) {
+    const slider = document.getElementById(id);
+    const value = document.getElementById(id + 'Value');
+    value.textContent = slider.value;
+  }
+  
+  function setPreset(type) {
+    const prompts = {
+      landscape: {
+        prompt: "beautiful natural landscape, mountains, lake, sunset, highly detailed, professional photography, 4k",
+        negative: "blurry, ugly, distorted, low quality, people, buildings"
+      },
+      portrait: {
+        prompt: "portrait of a person, professional headshot, natural lighting, soft focus background, highly detailed",
+        negative: "blurry, distorted, ugly, bad anatomy, deformed"
+      },
+      anime: {
+        prompt: "anime style illustration, vibrant colors, detailed, high quality artwork",
+        negative: "blurry, ugly, distorted, low quality, western cartoon"
+      },
+      abstract: {
+        prompt: "abstract art, vibrant colors, geometric patterns, modern art, high quality",
+        negative: "blurry, ugly, low quality, realistic"
+      }
+    };
+    
+    document.getElementById('prompt').value = prompts[type].prompt;
+    document.getElementById('negativePrompt').value = prompts[type].negative;
+  }
+  
+  async function generate() {
+    // Check credits for non-authenticated users
+    if (!isAuthenticated) {
+      if (credits < CREDITS_PER_IMAGE) {
+        alert('⚠️ Not enough credits! Sign in for unlimited generations.');
+        window.location.href = '/login';
+        return;
+      }
+    }
+    
+    const btn = document.getElementById('generateBtn');
+    const loading = document.getElementById('loading');
+    const placeholder = document.getElementById('placeholder');
+    const img = document.getElementById('generatedImage');
+    
+    btn.disabled = true;
+    loading.style.display = 'flex';
+    placeholder.style.display = 'none';
+    img.style.display = 'none';
+    
+    const data = {
+      prompt: document.getElementById('prompt').value,
+      negative_prompt: document.getElementById('negativePrompt').value,
+      steps: document.getElementById('steps').value,
+      guidance: document.getElementById('guidance').value,
+      seed: document.getElementById('seed').value,
+      width: document.getElementById('width').value,
+      height: document.getElementById('height').value
+    };
+    
+    try {
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        img.src = result.image;
+        img.style.display = 'block';
+        console.log('Generated in ' + result.time);
+        
+        // Deduct credits for non-authenticated users
+        if (!isAuthenticated) {
+          credits -= CREDITS_PER_IMAGE;
+          localStorage.setItem('imageCredits', credits.toString());
+          updateCreditsDisplay();
+          
+          if (credits < CREDITS_PER_IMAGE) {
+            setTimeout(() => {
+              alert('🎉 You\'ve used your free credits! Sign in for unlimited generations.');
+            }, 1000);
+          }
+        }
+      } else {
+        alert('Error: ' + result.error);
+        placeholder.style.display = 'flex';
+      }
+    } catch (error) {
+      alert('Error connecting to server: ' + error);
+      placeholder.style.display = 'flex';
+    } finally {
+      loading.style.display = 'none';
+      btn.disabled = false;
+    }
+  }
+  
+  // Allow Ctrl+Enter to generate
+  document.getElementById('prompt').addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+      generate();
+    }
+  });
+  
+  // Initialize
+  lockControls();
+  updateCreditsDisplay();
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isAuthenticated = true;
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+      
+      // Unlock all controls for authenticated users
+      unlockAllControls();
+      updateCreditsDisplay();
+    } else {
+      isAuthenticated = false;
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+      
+      // Lock controls for non-authenticated users
+      lockControls();
+      updateCreditsDisplay();
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+</body>
+</html>
