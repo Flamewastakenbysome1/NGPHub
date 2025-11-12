@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 FIRE HANGMAN 🔥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px #f5576c);
+            }
+            to {
+                filter: drop-shadow(0 0 20px #f093fb);
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .canvas-container {
+            position: relative;
+        }
+
+        canvas {
+            border: 4px solid #667eea;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .word-display {
+            font-size: 3em;
+            letter-spacing: 15px;
+            margin: 30px 0;
+            font-weight: bold;
+            color: #667eea;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .letter {
+            display: inline-block;
+            animation: letterPop 0.5s ease-out;
+        }
+
+        @keyframes letterPop {
+            0% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(-10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .hint {
+            font-size: 1.2em;
+            color: #764ba2;
+            margin: 15px 0;
+            font-style: italic;
+            padding: 10px;
+            background: rgba(118, 75, 162, 0.1);
+            border-radius: 10px;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 10px;
+            margin: 30px 0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .key:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .key:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .key:disabled {
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .key.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            animation: correctPulse 0.5s;
+        }
+
+        .key.wrong {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            animation: wrongShake 0.5s;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .category-select {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 15px;
+            border: 3px solid #667eea;
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideIn 0.5s;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: scale(0.5) rotate(180deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .modal-content.win h2 {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal-content.lose h2 {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty));
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .word-display {
+                font-size: 2em;
+                letter-spacing: 8px;
+            }
+
+            .keyboard {
+                gap: 5px;
+            }
+
+            .key {
+                padding: 10px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <script>
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = particle.style.height = (Math.random() * 30 + 10) + 'px';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="container">
+        <h1>🔥 FIRE HANGMAN 🔥</h1>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div>WINS</div>
+                <div id="wins">0</div>
+            </div>
+            <div class="stat-box">
+                <div>LOSSES</div>
+                <div id="losses">0</div>
+            </div>
+            <div class="stat-box">
+                <div>STREAK</div>
+                <div id="streak">0</div>
+            </div>
+            <div class="stat-box">
+                <div>WRONG GUESSES</div>
+                <div id="wrong">0 / 6</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="canvas-container">
+                <canvas id="hangmanCanvas" width="300" height="350"></canvas>
+            </div>
+        </div>
+
+        <div class="hint" id="hint">Category: <span id="category">Movies</span></div>
+
+        <div class="word-display" id="wordDisplay"></div>
+
+        <div class="keyboard" id="keyboard"></div>
+
+        <div class="controls">
+            <select class="category-select" id="categorySelect">
+                <option value="movies">🎬 Movies</option>
+                <option value="animals">🦁 Animals</option>
+                <option value="countries">🌍 Countries</option>
+                <option value="food">🍕 Food</option>
+                <option value="sports">⚽ Sports</option>
+                <option value="technology">💻 Technology</option>
+            </select>
+            <button class="btn" onclick="newGame()">NEW GAME</button>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent">
+            <h2 id="modalTitle"></h2>
+            <p id="modalText"></p>
+            <button class="btn" onclick="closeModal()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const words = {
+            movies: ['INCEPTION', 'AVATAR', 'TITANIC', 'GLADIATOR', 'INTERSTELLAR', 'MATRIX', 'AVENGERS', 'JOKER', 'FROZEN', 'SPIDERMAN'],
+            animals: ['ELEPHANT', 'GIRAFFE', 'PENGUIN', 'DOLPHIN', 'KANGAROO', 'BUTTERFLY', 'OCTOPUS', 'CHEETAH', 'RHINOCEROS', 'FLAMINGO'],
+            countries: ['AUSTRALIA', 'BRAZIL', 'CANADA', 'GERMANY', 'JAPAN', 'MEXICO', 'FRANCE', 'ITALY', 'SPAIN', 'EGYPT'],
+            food: ['PIZZA', 'HAMBURGER', 'SUSHI', 'TACOS', 'CHOCOLATE', 'STRAWBERRY', 'AVOCADO', 'LASAGNA', 'CROISSANT', 'PANCAKES'],
+            sports: ['BASKETBALL', 'FOOTBALL', 'TENNIS', 'BASEBALL', 'SWIMMING', 'VOLLEYBALL', 'HOCKEY', 'GOLF', 'SKIING', 'SURFING'],
+            technology: ['COMPUTER', 'SMARTPHONE', 'INTERNET', 'ARTIFICIAL', 'KEYBOARD', 'ALGORITHM', 'DATABASE', 'SOFTWARE', 'JAVASCRIPT', 'PYTHON']
+        };
+
+        let currentWord = '';
+        let guessedLetters = [];
+        let wrongGuesses = 0;
+        let wins = 0;
+        let losses = 0;
+        let streak = 0;
+        let currentCategory = 'movies';
+
+        const canvas = document.getElementById('hangmanCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize keyboard
+        const keyboard = document.getElementById('keyboard');
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        letters.forEach(letter => {
+            const button = document.createElement('button');
+            button.className = 'key';
+            button.textContent = letter;
+            button.onclick = () => guessLetter(letter, button);
+            keyboard.appendChild(button);
+        });
+
+        // Category selector
+        document.getElementById('categorySelect').addEventListener('change', (e) => {
+            currentCategory = e.target.value;
+            document.getElementById('category').textContent = e.target.options[e.target.selectedIndex].text;
+            newGame();
+        });
+
+        function newGame() {
+            const categoryWords = words[currentCategory];
+            currentWord = categoryWords[Math.floor(Math.random() * categoryWords.length)];
+            guessedLetters = [];
+            wrongGuesses = 0;
+
+            // Reset keyboard
+            document.querySelectorAll('.key').forEach(key => {
+                key.disabled = false;
+                key.className = 'key';
+            });
+
+            updateDisplay();
+            drawHangman();
+            updateStats();
+        }
+
+        function guessLetter(letter, button) {
+            if (guessedLetters.includes(letter)) return;
+
+            guessedLetters.push(letter);
+            button.disabled = true;
+
+            if (currentWord.includes(letter)) {
+                button.classList.add('correct');
+                createFireworks(button);
+            } else {
+                button.classList.add('wrong');
+                wrongGuesses++;
+                drawHangman();
+            }
+
+            updateDisplay();
+            updateStats();
+            checkGameOver();
+        }
+
+        function updateDisplay() {
+            const display = document.getElementById('wordDisplay');
+            display.innerHTML = '';
+
+            for (let letter of currentWord) {
+                const span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = guessedLetters.includes(letter) ? letter : '_';
+                display.appendChild(span);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('wrong').textContent = `${wrongGuesses} / 6`;
+        }
+
+        function drawHangman() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+
+            // Base
+            if (wrongGuesses >= 0) {
+                ctx.beginPath();
+                ctx.moveTo(20, 330);
+                ctx.lineTo(180, 330);
+                ctx.stroke();
+            }
+
+            // Pole
+            if (wrongGuesses >= 1) {
+                ctx.beginPath();
+                ctx.moveTo(60, 330);
+                ctx.lineTo(60, 30);
+                ctx.stroke();
+            }
+
+            // Top bar
+            if (wrongGuesses >= 2) {
+                ctx.beginPath();
+                ctx.moveTo(60, 30);
+                ctx.lineTo(200, 30);
+                ctx.stroke();
+            }
+
+            // Rope
+            if (wrongGuesses >= 3) {
+                ctx.beginPath();
+                ctx.moveTo(200, 30);
+                ctx.lineTo(200, 70);
+                ctx.stroke();
+            }
+
+            // Head
+            if (wrongGuesses >= 4) {
+                ctx.beginPath();
+                ctx.arc(200, 95, 25, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Eyes (X_X)
+                ctx.beginPath();
+                ctx.moveTo(190, 88);
+                ctx.lineTo(195, 93);
+                ctx.moveTo(195, 88);
+                ctx.lineTo(190, 93);
+                ctx.moveTo(205, 88);
+                ctx.lineTo(210, 93);
+                ctx.moveTo(210, 88);
+                ctx.lineTo(205, 93);
+                ctx.stroke();
+            }
+
+            // Body
+            if (wrongGuesses >= 5) {
+                ctx.beginPath();
+                ctx.moveTo(200, 120);
+                ctx.lineTo(200, 200);
+                ctx.stroke();
+
+                // Arms
+                ctx.beginPath();
+                ctx.moveTo(200, 140);
+                ctx.lineTo(160, 170);
+                ctx.moveTo(200, 140);
+                ctx.lineTo(240, 170);
+                ctx.stroke();
+            }
+
+            // Legs
+            if (wrongGuesses >= 6) {
+                ctx.beginPath();
+                ctx.moveTo(200, 200);
+                ctx.lineTo(170, 260);
+                ctx.moveTo(200, 200);
+                ctx.lineTo(230, 260);
+                ctx.stroke();
+            }
+        }
+
+        function checkGameOver() {
+            const won = currentWord.split('').every(letter => guessedLetters.includes(letter));
+
+            if (won) {
+                wins++;
+                streak++;
+                showModal('🎉 YOU WIN! 🎉', `The word was: ${currentWord}`, 'win');
+                createMassiveFireworks();
+            } else if (wrongGuesses >= 6) {
+                losses++;
+                streak = 0;
+                showModal('💀 GAME OVER 💀', `The word was: ${currentWord}`, 'lose');
+            }
+        }
+
+        function showModal(title, text, type) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            content.className = `modal-content ${type}`;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            newGame();
+        }
+
+        function createFireworks(element) {
+            const rect = element.getBoundingClientRect();
+            const colors = ['#f093fb', '#f5576c', '#667eea', '#38ef7d', '#11998e'];
+
+            for (let i = 0; i < 10; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.left = rect.left + rect.width / 2 + 'px';
+                firework.style.top = rect.top + rect.height / 2 + 'px';
+
+                const angle = (Math.PI * 2 * i) / 10;
+                const velocity = 50 + Math.random() * 50;
+                firework.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
+                firework.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
+
+                document.body.appendChild(firework);
+
+                setTimeout(() => firework.remove(), 1000);
+            }
+        }
+
+        function createMassiveFireworks() {
+            const colors = ['#f093fb', '#f5576c', '#667eea', '#38ef7d', '#11998e'];
+
+            for (let j = 0; j < 50; j++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 20; i++) {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        firework.style.left = Math.random() * window.innerWidth + 'px';
+                        firework.style.top = Math.random() * window.innerHeight + 'px';
+
+                        const angle = (Math.PI * 2 * i) / 20;
+                        const velocity = 100 + Math.random() * 100;
+                        firework.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
+                        firework.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
+
+                        document.body.appendChild(firework);
+
+                        setTimeout(() => firework.remove(), 1000);
+                    }
+                }, j * 100);
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+            if (letters.includes(key)) {
+                const button = Array.from(document.querySelectorAll('.key')).find(
+                    btn => btn.textContent === key && !btn.disabled
+                );
+                if (button) button.click();
+            }
+        });
+
+        // Start the game
+        newGame();
+    </script>
+</body>
+</html>
