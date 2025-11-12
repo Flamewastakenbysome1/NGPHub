@@ -51,10 +51,12 @@
         .container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 30px;
-            padding: 40px;
+            padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
-            width: 90%;
+            max-width: 1400px;
+            width: 95%;
+            max-height: 98vh;
+            overflow-y: auto;
             text-align: center;
             position: relative;
             z-index: 10;
@@ -62,11 +64,11 @@
         }
 
         h1 {
-            font-size: 3em;
+            font-size: 3.5em;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             animation: glow 2s ease-in-out infinite alternate;
         }
@@ -83,17 +85,18 @@
         .stats {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
+            margin: 15px 0;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
 
         .stat-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 15px;
             font-weight: bold;
+            font-size: 0.95em;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s;
         }
@@ -123,17 +126,17 @@
         }
 
         .word-display {
-            font-size: 3em;
-            letter-spacing: 15px;
-            margin: 30px 0;
+            font-size: 2.5em;
+            letter-spacing: 12px;
+            margin: 20px 0;
             font-weight: bold;
             color: #667eea;
-            min-height: 80px;
+            min-height: 70px;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .letter {
@@ -167,10 +170,10 @@
 
         .keyboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-            gap: 10px;
-            margin: 30px 0;
-            max-width: 700px;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            margin: 20px 0;
+            max-width: 800px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -179,8 +182,8 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px;
-            font-size: 1.2em;
+            padding: 12px;
+            font-size: 1.1em;
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
@@ -364,9 +367,163 @@
             }
         }
 
-        @media (max-width: 768px) {
+        /* Optimized for 1920x1080 desktop displays */
+        @media (min-width: 1800px) and (min-height: 1000px) {
+            .container {
+                max-width: 1600px;
+                padding: 50px;
+            }
+
+            h1 {
+                font-size: 4.5em;
+                margin-bottom: 25px;
+            }
+
+            .stat-box {
+                padding: 18px 40px;
+                font-size: 1.2em;
+            }
+
+            canvas {
+                width: 400px !important;
+                height: 467px !important;
+            }
+
+            .word-display {
+                font-size: 3.5em;
+                letter-spacing: 18px;
+                margin: 35px 0;
+                min-height: 100px;
+            }
+
+            .hint {
+                font-size: 1.5em;
+                margin: 25px 0;
+            }
+
+            .keyboard {
+                max-width: 1000px;
+                gap: 12px;
+                margin: 35px 0;
+            }
+
+            .key {
+                padding: 18px;
+                font-size: 1.4em;
+            }
+
+            .btn {
+                padding: 20px 50px;
+                font-size: 1.3em;
+            }
+
+            .category-select {
+                padding: 15px 30px;
+                font-size: 1.3em;
+            }
+        }
+
+        /* Optimized for iPhone 12 and similar devices (390x844) */
+        @media (max-width: 428px) and (max-height: 926px) {
+            body {
+                overflow-y: auto;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                padding: 15px;
+                max-height: none;
+                min-height: 100vh;
+            }
+
             h1 {
                 font-size: 2em;
+                margin-bottom: 10px;
+            }
+
+            .stats {
+                gap: 8px;
+                margin: 10px 0;
+            }
+
+            .stat-box {
+                padding: 8px 15px;
+                font-size: 0.75em;
+                flex: 1 1 calc(50% - 8px);
+                min-width: 120px;
+            }
+
+            .game-area {
+                margin: 15px 0;
+                gap: 15px;
+            }
+
+            canvas {
+                width: 240px !important;
+                height: 280px !important;
+            }
+
+            .hint {
+                font-size: 0.9em;
+                margin: 10px 0;
+                padding: 8px;
+            }
+
+            .word-display {
+                font-size: 1.6em;
+                letter-spacing: 6px;
+                margin: 15px 0;
+                min-height: 50px;
+                gap: 5px;
+            }
+
+            .keyboard {
+                gap: 6px;
+                margin: 15px 0;
+                max-width: 100%;
+            }
+
+            .key {
+                padding: 10px 5px;
+                font-size: 0.9em;
+                min-height: 40px;
+            }
+
+            .controls {
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+            }
+
+            .category-select {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .modal-content {
+                padding: 25px;
+                max-width: 90%;
+            }
+
+            .modal-content h2 {
+                font-size: 2em;
+            }
+
+            .modal-content p {
+                font-size: 0.9em;
+            }
+        }
+
+        /* General mobile/tablet optimization */
+        @media (max-width: 768px) and (min-width: 429px) {
+            h1 {
+                font-size: 2.5em;
             }
 
             .word-display {
@@ -375,12 +532,17 @@
             }
 
             .keyboard {
-                gap: 5px;
+                gap: 6px;
             }
 
             .key {
-                padding: 10px;
+                padding: 12px;
                 font-size: 1em;
+            }
+
+            canvas {
+                width: 270px !important;
+                height: 315px !important;
             }
         }
     </style>
@@ -475,6 +637,26 @@
         const canvas = document.getElementById('hangmanCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Setup canvas with proper scaling
+        function setupCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
+            ctx.scale(dpr, dpr);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+
+            drawHangman();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            setupCanvas();
+        });
+
         // Initialize keyboard
         const keyboard = document.getElementById('keyboard');
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -551,85 +733,92 @@
         }
 
         function drawHangman() {
+            const rect = canvas.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = Math.max(3, w * 0.013);
             ctx.lineCap = 'round';
+
+            // Scale coordinates based on canvas size
+            const scale = w / 300;
 
             // Base
             if (wrongGuesses >= 0) {
                 ctx.beginPath();
-                ctx.moveTo(20, 330);
-                ctx.lineTo(180, 330);
+                ctx.moveTo(20 * scale, h - 20 * scale);
+                ctx.lineTo(180 * scale, h - 20 * scale);
                 ctx.stroke();
             }
 
             // Pole
             if (wrongGuesses >= 1) {
                 ctx.beginPath();
-                ctx.moveTo(60, 330);
-                ctx.lineTo(60, 30);
+                ctx.moveTo(60 * scale, h - 20 * scale);
+                ctx.lineTo(60 * scale, 30 * scale);
                 ctx.stroke();
             }
 
             // Top bar
             if (wrongGuesses >= 2) {
                 ctx.beginPath();
-                ctx.moveTo(60, 30);
-                ctx.lineTo(200, 30);
+                ctx.moveTo(60 * scale, 30 * scale);
+                ctx.lineTo(200 * scale, 30 * scale);
                 ctx.stroke();
             }
 
             // Rope
             if (wrongGuesses >= 3) {
                 ctx.beginPath();
-                ctx.moveTo(200, 30);
-                ctx.lineTo(200, 70);
+                ctx.moveTo(200 * scale, 30 * scale);
+                ctx.lineTo(200 * scale, 70 * scale);
                 ctx.stroke();
             }
 
             // Head
             if (wrongGuesses >= 4) {
                 ctx.beginPath();
-                ctx.arc(200, 95, 25, 0, Math.PI * 2);
+                ctx.arc(200 * scale, 95 * scale, 25 * scale, 0, Math.PI * 2);
                 ctx.stroke();
 
                 // Eyes (X_X)
                 ctx.beginPath();
-                ctx.moveTo(190, 88);
-                ctx.lineTo(195, 93);
-                ctx.moveTo(195, 88);
-                ctx.lineTo(190, 93);
-                ctx.moveTo(205, 88);
-                ctx.lineTo(210, 93);
-                ctx.moveTo(210, 88);
-                ctx.lineTo(205, 93);
+                ctx.moveTo(190 * scale, 88 * scale);
+                ctx.lineTo(195 * scale, 93 * scale);
+                ctx.moveTo(195 * scale, 88 * scale);
+                ctx.lineTo(190 * scale, 93 * scale);
+                ctx.moveTo(205 * scale, 88 * scale);
+                ctx.lineTo(210 * scale, 93 * scale);
+                ctx.moveTo(210 * scale, 88 * scale);
+                ctx.lineTo(205 * scale, 93 * scale);
                 ctx.stroke();
             }
 
             // Body
             if (wrongGuesses >= 5) {
                 ctx.beginPath();
-                ctx.moveTo(200, 120);
-                ctx.lineTo(200, 200);
+                ctx.moveTo(200 * scale, 120 * scale);
+                ctx.lineTo(200 * scale, 200 * scale);
                 ctx.stroke();
 
                 // Arms
                 ctx.beginPath();
-                ctx.moveTo(200, 140);
-                ctx.lineTo(160, 170);
-                ctx.moveTo(200, 140);
-                ctx.lineTo(240, 170);
+                ctx.moveTo(200 * scale, 140 * scale);
+                ctx.lineTo(160 * scale, 170 * scale);
+                ctx.moveTo(200 * scale, 140 * scale);
+                ctx.lineTo(240 * scale, 170 * scale);
                 ctx.stroke();
             }
 
             // Legs
             if (wrongGuesses >= 6) {
                 ctx.beginPath();
-                ctx.moveTo(200, 200);
-                ctx.lineTo(170, 260);
-                ctx.moveTo(200, 200);
-                ctx.lineTo(230, 260);
+                ctx.moveTo(200 * scale, 200 * scale);
+                ctx.lineTo(170 * scale, 260 * scale);
+                ctx.moveTo(200 * scale, 200 * scale);
+                ctx.lineTo(230 * scale, 260 * scale);
                 ctx.stroke();
             }
         }
@@ -721,8 +910,11 @@
             }
         });
 
-        // Start the game
-        newGame();
+        // Initialize canvas and start the game
+        setTimeout(() => {
+            setupCanvas();
+            newGame();
+        }, 100);
     </script>
 </body>
 </html>
