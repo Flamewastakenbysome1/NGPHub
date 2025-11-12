@@ -168,6 +168,41 @@
             border-radius: 10px;
         }
 
+        .message {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 15px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .message.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .message.wrong {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
         .keyboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
@@ -401,6 +436,11 @@
                 margin: 25px 0;
             }
 
+            .message {
+                font-size: 1.5em;
+                min-height: 60px;
+            }
+
             .keyboard {
                 max-width: 1000px;
                 gap: 12px;
@@ -469,6 +509,12 @@
                 font-size: 0.9em;
                 margin: 10px 0;
                 padding: 8px;
+            }
+
+            .message {
+                font-size: 1em;
+                min-height: 45px;
+                margin: 10px 0;
             }
 
             .word-display {
@@ -550,7 +596,8 @@
 <body>
     <!-- Floating particles -->
     <script>
-        for (let i = 0; i < 20; i++) {
+        // Reduced particles for better performance
+        for (let i = 0; i < 8; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             particle.style.left = Math.random() * 100 + '%';
@@ -590,6 +637,8 @@
         </div>
 
         <div class="hint" id="hint">Category: <span id="category">Movies</span></div>
+
+        <div class="message info" id="message">Guess a letter to start!</div>
 
         <div class="word-display" id="wordDisplay"></div>
 
@@ -652,9 +701,13 @@
             drawHangman();
         }
 
-        // Handle window resize
+        // Throttle resize for better performance
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            setupCanvas();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setupCanvas();
+            }, 150);
         });
 
         // Initialize keyboard
@@ -676,6 +729,17 @@
             newGame();
         });
 
+        // Show feedback message
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            // Force reflow for animation
+            messageEl.offsetHeight;
+            messageEl.classList.add('show');
+        }
+
         function newGame() {
             const categoryWords = words[currentCategory];
             currentWord = categoryWords[Math.floor(Math.random() * categoryWords.length)];
@@ -691,6 +755,7 @@
             updateDisplay();
             drawHangman();
             updateStats();
+            showMessage('Guess a letter to start!', 'info');
         }
 
         function guessLetter(letter, button) {
@@ -699,13 +764,31 @@
             guessedLetters.push(letter);
             button.disabled = true;
 
+            // Count how many times the letter appears
+            const count = currentWord.split('').filter(l => l === letter).length;
+
             if (currentWord.includes(letter)) {
                 button.classList.add('correct');
                 createFireworks(button);
+
+                if (count === 1) {
+                    showMessage(`✓ Great! "${letter}" is in the word!`, 'correct');
+                } else {
+                    showMessage(`✓ Awesome! "${letter}" appears ${count} times!`, 'correct');
+                }
             } else {
                 button.classList.add('wrong');
                 wrongGuesses++;
                 drawHangman();
+
+                const remaining = 6 - wrongGuesses;
+                if (remaining > 1) {
+                    showMessage(`✗ Oops! "${letter}" is not in the word. ${remaining} guesses left!`, 'wrong');
+                } else if (remaining === 1) {
+                    showMessage(`✗ Oh no! "${letter}" is not in the word. Last chance!`, 'wrong');
+                } else {
+                    showMessage(`✗ Game Over! The word was "${currentWord}"`, 'wrong');
+                }
             }
 
             updateDisplay();
@@ -829,12 +912,21 @@
             if (won) {
                 wins++;
                 streak++;
-                showModal('🎉 YOU WIN! 🎉', `The word was: ${currentWord}`, 'win');
+                showMessage(`🎉 YOU WIN! The word was "${currentWord}"!`, 'correct');
                 createMassiveFireworks();
+
+                // Delay modal so user can see the complete word
+                setTimeout(() => {
+                    showModal('🎉 YOU WIN! 🎉', `The word was: ${currentWord}`, 'win');
+                }, 800);
             } else if (wrongGuesses >= 6) {
                 losses++;
                 streak = 0;
-                showModal('💀 GAME OVER 💀', `The word was: ${currentWord}`, 'lose');
+
+                // Delay modal slightly
+                setTimeout(() => {
+                    showModal('💀 GAME OVER 💀', `The word was: ${currentWord}`, 'lose');
+                }, 500);
             }
         }
 
@@ -856,14 +948,15 @@
             const rect = element.getBoundingClientRect();
             const colors = ['#f093fb', '#f5576c', '#667eea', '#38ef7d', '#11998e'];
 
-            for (let i = 0; i < 10; i++) {
+            // Reduced from 10 to 5 particles for better performance
+            for (let i = 0; i < 5; i++) {
                 const firework = document.createElement('div');
                 firework.className = 'firework';
                 firework.style.background = colors[Math.floor(Math.random() * colors.length)];
                 firework.style.left = rect.left + rect.width / 2 + 'px';
                 firework.style.top = rect.top + rect.height / 2 + 'px';
 
-                const angle = (Math.PI * 2 * i) / 10;
+                const angle = (Math.PI * 2 * i) / 5;
                 const velocity = 50 + Math.random() * 50;
                 firework.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
                 firework.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
@@ -877,16 +970,17 @@
         function createMassiveFireworks() {
             const colors = ['#f093fb', '#f5576c', '#667eea', '#38ef7d', '#11998e'];
 
-            for (let j = 0; j < 50; j++) {
+            // Drastically reduced from 50x20=1000 to 12x8=96 particles for smooth performance
+            for (let j = 0; j < 12; j++) {
                 setTimeout(() => {
-                    for (let i = 0; i < 20; i++) {
+                    for (let i = 0; i < 8; i++) {
                         const firework = document.createElement('div');
                         firework.className = 'firework';
                         firework.style.background = colors[Math.floor(Math.random() * colors.length)];
                         firework.style.left = Math.random() * window.innerWidth + 'px';
                         firework.style.top = Math.random() * window.innerHeight + 'px';
 
-                        const angle = (Math.PI * 2 * i) / 20;
+                        const angle = (Math.PI * 2 * i) / 8;
                         const velocity = 100 + Math.random() * 100;
                         firework.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
                         firework.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
@@ -895,7 +989,7 @@
 
                         setTimeout(() => firework.remove(), 1000);
                     }
-                }, j * 100);
+                }, j * 120);
             }
         }
 
