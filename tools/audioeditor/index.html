@@ -432,19 +432,20 @@ try {
 
   function createAudioSource() {
     if (!audioBuffer) return;
-    
+
     if (sourceNode) {
       try { sourceNode.stop(); } catch (e) {}
       sourceNode.disconnect();
     }
-    
+
     sourceNode = audioContext.createBufferSource();
     sourceNode.buffer = audioBuffer;
-    
+    sourceNode.loop = isLooping;
+
     const speedMultiplier = parseFloat(elements.speed.value);
     const pitchSemitones = parseFloat(elements.pitch.value);
     const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-    
+
     if (elements.preserve.checked) {
       // When preserving pitch, only apply speed change
       sourceNode.playbackRate.value = speedMultiplier;
@@ -452,25 +453,16 @@ try {
       // When not preserving, apply both speed and pitch
       sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
     }
-    
+
     sourceNode.connect(nodes.muffle);
 
     sourceNode.onended = function() {
-      if (isPlaying) {
-        if (isLooping) {
-          // Restart from beginning
-          currentTime = 0;
-          createAudioSource();
-          startOffset = 0;
-          sourceNode.start(0, 0);
-          lastPlayTime = audioContext.currentTime;
-        } else {
-          isPlaying = false;
-          elements.playBtn.textContent = '▶';
-          if (animationFrame) {
-            cancelAnimationFrame(animationFrame);
-            animationFrame = null;
-          }
+      if (isPlaying && !isLooping) {
+        isPlaying = false;
+        elements.playBtn.textContent = '▶';
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
         }
       }
     };
@@ -613,20 +605,29 @@ try {
   function getCurrentPlaybackTime() {
     if (!audioBuffer) return 0;
     if (!isPlaying) return currentTime;
-    
+
     const elapsed = (audioContext.currentTime - lastPlayTime) * sourceNode.playbackRate.value;
-    return Math.min(audioBuffer.duration, startOffset + elapsed);
+    let time = startOffset + elapsed;
+
+    // Handle looping - wrap time around
+    if (isLooping && time >= audioBuffer.duration) {
+      time = time % audioBuffer.duration;
+    } else {
+      time = Math.min(audioBuffer.duration, time);
+    }
+
+    return time;
   }
 
   function updateTimeDisplay() {
     if (!audioBuffer) return;
-    
+
     currentTime = getCurrentPlaybackTime();
     elements.curTime.textContent = formatTime(currentTime);
     elements.seek.value = currentTime;
     updateProgressIndicator();
-    
-    if (isPlaying && currentTime < audioBuffer.duration) {
+
+    if (isPlaying && (currentTime < audioBuffer.duration || isLooping)) {
       animationFrame = requestAnimationFrame(updateTimeDisplay);
     }
   }
@@ -668,6 +669,11 @@ try {
     isLooping = !isLooping;
     elements.loopBtn.style.opacity = isLooping ? '1' : '0.5';
     elements.loopBtn.style.background = isLooping ? 'rgba(37,117,252,0.3)' : 'rgba(255,255,255,.06)';
+
+    // Update the current source node if playing
+    if (sourceNode) {
+      sourceNode.loop = isLooping;
+    }
   };
 
   // Seek control
