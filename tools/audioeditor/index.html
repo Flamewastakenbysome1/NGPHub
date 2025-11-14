@@ -203,6 +203,11 @@
             <input type="range" id="echo" min="0" max="100" step="1" value="0" />
           </div>
 
+          <div class="knob">
+            <label>Bitcrush <small id="bitcrushLbl">(0%)</small></label>
+            <input type="range" id="bitcrush" min="0" max="100" step="1" value="0" />
+          </div>
+
           <div class="row" style="margin-top:10px">
             <button id="downloadBtn" class="btn" disabled>Download Remix</button>
             <button id="trimBtn" class="btnGhost" disabled>Export selection</button>
@@ -274,6 +279,8 @@ try {
     muffleLbl: document.getElementById('muffleLbl'),
     echo: document.getElementById('echo'),
     echoLbl: document.getElementById('echoLbl'),
+    bitcrush: document.getElementById('bitcrush'),
+    bitcrushLbl: document.getElementById('bitcrushLbl'),
     preserve: document.getElementById('preserve'),
     currentName: document.getElementById('currentName'),
     gainSlider: document.getElementById('gainSlider'),
@@ -305,6 +312,7 @@ try {
     delay: audioContext.createDelay(2.0),
     feedback: audioContext.createGain(),
     echoWet: audioContext.createGain(),
+    bitcrush: audioContext.createWaveShaper(),
     master: audioContext.createGain()
   };
 
@@ -327,8 +335,9 @@ try {
   nodes.bass.connect(nodes.dryGain);
   nodes.bass.connect(nodes.delay);
   nodes.delay.connect(nodes.echoWet);
-  nodes.dryGain.connect(nodes.master);
-  nodes.echoWet.connect(nodes.master);
+  nodes.dryGain.connect(nodes.bitcrush);
+  nodes.echoWet.connect(nodes.bitcrush);
+  nodes.bitcrush.connect(nodes.master);
   nodes.master.connect(audioContext.destination);
 
   // Helper functions
@@ -435,6 +444,7 @@ try {
       // Initialize all effects properly
       updateMuffleFilter();
       updateEchoEffect();
+      updateBitcrushEffect();
       updateGain();
       
       createAudioSource();
@@ -450,10 +460,11 @@ try {
       currentTime = 0;
       updateProgressIndicator();
       
-      const fileInfo = elements.speed.value + '× speed, ' + elements.pitch.value + ' semitones, ' + 
-                      elements.reverb.value + '% reverb, ' + elements.bass.value + ' dB bass, ' + 
-                      elements.muffle.value + '% muffle, ' + elements.echo.value + '% echo';
-      elements.fileList.innerHTML = '<div class="fileRow"><div><div class="fileTitle">' + file.name + 
+      const fileInfo = elements.speed.value + '× speed, ' + elements.pitch.value + ' semitones, ' +
+                      elements.reverb.value + '% reverb, ' + elements.bass.value + ' dB bass, ' +
+                      elements.muffle.value + '% muffle, ' + elements.echo.value + '% echo, ' +
+                      elements.bitcrush.value + '% bitcrush';
+      elements.fileList.innerHTML = '<div class="fileRow"><div><div class="fileTitle">' + file.name +
                                    '</div><div class="fileMeta">' + fileInfo + '</div></div><div>♪</div></div>';
       
       elements.downloadBtn.disabled = false;
@@ -662,15 +673,47 @@ try {
     const echoValue = parseInt(elements.echo.value);
     const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
     const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, echoValue / 100));
-    
+
     const delayTime = 0.08 + (isUnlocked ? 1.2 : 0.42) * range;
     const feedback = Math.min(0.95, (isUnlocked ? 0.95 : 0.85) * range);
     const wetLevel = Math.min(1.2, (isUnlocked ? 1.2 : 0.8) * range);
-    
+
     nodes.delay.delayTime.value = Math.min(2.0, delayTime);
     nodes.feedback.gain.value = feedback;
     nodes.echoWet.gain.value = wetLevel;
     elements.echoLbl.textContent = '(' + echoValue + '%)';
+  }
+
+  function updateBitcrushEffect() {
+    const bitcrushValue = parseInt(elements.bitcrush.value);
+    elements.bitcrushLbl.textContent = '(' + bitcrushValue + '%)';
+
+    if (bitcrushValue === 0) {
+      // No bitcrushing - pass through cleanly
+      nodes.bitcrush.curve = null;
+    } else {
+      // Create bitcrush curve
+      const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
+      const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, bitcrushValue / 100));
+
+      // Calculate bit depth (16-bit down to 1-bit)
+      const bits = Math.max(1, Math.floor(16 - (15 * range)));
+      const levels = Math.pow(2, bits);
+      const step = 2 / levels;
+
+      // Create quantization curve
+      const samples = 65536;
+      const curve = new Float32Array(samples);
+
+      for (let i = 0; i < samples; i++) {
+        const x = (i / samples) * 2 - 1; // -1 to 1
+        const quantized = Math.floor(x / step) * step + step / 2;
+        curve[i] = Math.max(-1, Math.min(1, quantized));
+      }
+
+      nodes.bitcrush.curve = curve;
+      nodes.bitcrush.oversample = 'none';
+    }
   }
 
   elements.speed.oninput = function() {
@@ -736,6 +779,7 @@ try {
 
   elements.muffle.oninput = updateMuffleFilter;
   elements.echo.oninput = updateEchoEffect;
+  elements.bitcrush.oninput = updateBitcrushEffect;
 
   function updateGain() {
     const gainValue = parseInt(elements.gainSlider.value);
@@ -748,6 +792,7 @@ try {
   // Initialize effects
   updateMuffleFilter();
   updateEchoEffect();
+  updateBitcrushEffect();
   updateGain();
 
   // Presets
@@ -762,6 +807,7 @@ try {
         elements.bass.value = 2;
         elements.muffle.value = 10;
         elements.echo.value = 10;
+        elements.bitcrush.value = 0;
         elements.preserve.checked = true;
       } else if (preset === 'nightcore') {
         elements.speed.value = 1.25;
@@ -770,6 +816,7 @@ try {
         elements.bass.value = 0;
         elements.muffle.value = 0;
         elements.echo.value = 0;
+        elements.bitcrush.value = 0;
         elements.preserve.checked = false;
       } else if (preset === 'perfection') {
         elements.speed.value = 0.83;
@@ -778,9 +825,10 @@ try {
         elements.bass.value = 10;
         elements.muffle.value = 12;
         elements.echo.value = 8;
+        elements.bitcrush.value = 0;
         elements.preserve.checked = true;
       }
-      
+
       // Trigger all updates
       elements.speed.oninput();
       elements.pitch.oninput();
@@ -788,6 +836,7 @@ try {
       elements.bass.oninput();
       updateMuffleFilter();
       updateEchoEffect();
+      updateBitcrushEffect();
     };
   });
 
@@ -807,6 +856,7 @@ try {
         bass: parseInt(elements.bass.value),
         muffle: parseInt(elements.muffle.value),
         echo: parseInt(elements.echo.value),
+        bitcrush: parseInt(elements.bitcrush.value),
         gain: parseInt(elements.gainSlider.value),
         preservePitch: elements.preserve.checked,
         isUnlocked: elements.unlockBox && elements.unlockBox.checked
@@ -946,12 +996,32 @@ try {
     delay.delayTime.value = Math.min(2.0, delayTime);
     feedback.gain.value = feedbackAmount;
     echoWet.gain.value = wetLevel;
-    
+
+    // Bitcrush
+    const bitcrushNode = offlineCtx.createWaveShaper();
+    if (params.bitcrush === 0) {
+      bitcrushNode.curve = null;
+    } else {
+      const range = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.bitcrush / 100));
+      const bits = Math.max(1, Math.floor(16 - (15 * range)));
+      const levels = Math.pow(2, bits);
+      const step = 2 / levels;
+      const samples = 65536;
+      const curve = new Float32Array(samples);
+      for (let i = 0; i < samples; i++) {
+        const x = (i / samples) * 2 - 1;
+        const quantized = Math.floor(x / step) * step + step / 2;
+        curve[i] = Math.max(-1, Math.min(1, quantized));
+      }
+      bitcrushNode.curve = curve;
+      bitcrushNode.oversample = 'none';
+    }
+
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
-    
+
     elements.renderProgressFill.style.width = '60%';
-    
+
     // Connect graph - SAME AS LIVE PLAYBACK
     source.connect(muffle);
     muffle.connect(conv);
@@ -961,8 +1031,9 @@ try {
     delay.connect(feedback);
     feedback.connect(delay);
     delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
+    dryGain.connect(bitcrushNode);
+    echoWet.connect(bitcrushNode);
+    bitcrushNode.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
@@ -1064,12 +1135,32 @@ try {
     delay.delayTime.value = Math.min(2.0, 0.08 + (params.isUnlocked ? 1.2 : 0.42) * echoRange);
     feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
     echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
-    
+
+    // Bitcrush
+    const bitcrushNode = offlineCtx.createWaveShaper();
+    if (params.bitcrush === 0) {
+      bitcrushNode.curve = null;
+    } else {
+      const range = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.bitcrush / 100));
+      const bits = Math.max(1, Math.floor(16 - (15 * range)));
+      const levels = Math.pow(2, bits);
+      const step = 2 / levels;
+      const samples = 65536;
+      const curve = new Float32Array(samples);
+      for (let i = 0; i < samples; i++) {
+        const x = (i / samples) * 2 - 1;
+        const quantized = Math.floor(x / step) * step + step / 2;
+        curve[i] = Math.max(-1, Math.min(1, quantized));
+      }
+      bitcrushNode.curve = curve;
+      bitcrushNode.oversample = 'none';
+    }
+
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
-    
+
     elements.renderProgressFill.style.width = '70%';
-    
+
     // Connect - SAME AS LIVE PLAYBACK
     source.connect(muffle);
     muffle.connect(conv);
@@ -1079,8 +1170,9 @@ try {
     delay.connect(feedback);
     feedback.connect(delay);
     delay.connect(echoWet);
-    dryGain.connect(master);
-    echoWet.connect(master);
+    dryGain.connect(bitcrushNode);
+    echoWet.connect(bitcrushNode);
+    bitcrushNode.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
@@ -1197,6 +1289,7 @@ try {
       elements.gainSlider.max = '48';
       elements.muffle.max = '200';
       elements.echo.max = '200';
+      elements.bitcrush.max = '200';
     } else {
       elements.speed.min = '0.5';
       elements.speed.max = '1.5';
@@ -1211,9 +1304,11 @@ try {
       elements.gainSlider.max = '24';
       elements.muffle.max = '100';
       elements.echo.max = '100';
+      elements.bitcrush.max = '100';
     }
     updateMuffleFilter();
     updateEchoEffect();
+    updateBitcrushEffect();
   }
 
   elements.unlockBox.addEventListener('change', function(e) {
