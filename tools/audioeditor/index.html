@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (1.48)</title>
+<title>NGP Hub — Audio Remix (1.5)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -234,6 +234,7 @@
 <div class="playerBar">
   <div class="playerInner">
     <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
+    <button class="play" id="loopBtn" aria-label="Loop" title="Loop" style="font-size:0.8rem">🔁</button>
     <div class="time" id="curTime">0:00</div>
     <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
     <div class="time" id="durTime">0:00</div>
@@ -258,6 +259,7 @@ try {
     fileInput: document.getElementById('fileInput'),
     fileList: document.getElementById('fileList'),
     playBtn: document.getElementById('playBtn'),
+    loopBtn: document.getElementById('loopBtn'),
     seek: document.getElementById('seek'),
     curTime: document.getElementById('curTime'),
     durTime: document.getElementById('durTime'),
@@ -298,6 +300,7 @@ try {
   let audioBuffer = null;
   let sourceNode = null;
   let isPlaying = false;
+  let isLooping = false;
   let currentTime = 0;
   let startOffset = 0;
   let lastPlayTime = 0;
@@ -312,7 +315,15 @@ try {
     delay: audioContext.createDelay(2.0),
     feedback: audioContext.createGain(),
     echoWet: audioContext.createGain(),
-    bitcrush: audioContext.createWaveShaper(),
+    // Bitcrush chain
+    bitcrushBypass: audioContext.createGain(),
+    bitcrushWet: audioContext.createGain(),
+    bitcrushHighpass: audioContext.createBiquadFilter(),
+    bitcrushLowpass: audioContext.createBiquadFilter(),
+    bitcrushCompressor: audioContext.createDynamicsCompressor(),
+    bitcrushMono: audioContext.createGain(), // Mono merger
+    bitcrushGain: audioContext.createGain(),
+    bitcrushMix: audioContext.createGain(),
     master: audioContext.createGain()
   };
 
@@ -327,6 +338,22 @@ try {
   nodes.echoWet.gain.value = 0;
   nodes.master.gain.value = 1;
 
+  // Bitcrush setup
+  nodes.bitcrushBypass.gain.value = 1;
+  nodes.bitcrushWet.gain.value = 0;
+  nodes.bitcrushHighpass.type = 'highpass';
+  nodes.bitcrushHighpass.frequency.value = 100;
+  nodes.bitcrushHighpass.Q.value = 10; // Steep cutoff
+  nodes.bitcrushLowpass.type = 'lowpass';
+  nodes.bitcrushLowpass.frequency.value = 4000;
+  nodes.bitcrushLowpass.Q.value = 10; // Steep cutoff
+  nodes.bitcrushCompressor.threshold.value = -25;
+  nodes.bitcrushCompressor.knee.value = 5;
+  nodes.bitcrushCompressor.ratio.value = 6;
+  nodes.bitcrushCompressor.attack.value = 0.03; // 30ms
+  nodes.bitcrushCompressor.release.value = 0.15; // 150ms
+  nodes.bitcrushGain.gain.value = 3; // Amplify to compensate
+
   // Connect audio graph
   nodes.delay.connect(nodes.feedback);
   nodes.feedback.connect(nodes.delay);
@@ -335,9 +362,23 @@ try {
   nodes.bass.connect(nodes.dryGain);
   nodes.bass.connect(nodes.delay);
   nodes.delay.connect(nodes.echoWet);
-  nodes.dryGain.connect(nodes.bitcrush);
-  nodes.echoWet.connect(nodes.bitcrush);
-  nodes.bitcrush.connect(nodes.master);
+
+  // Bitcrush chain - dry/wet mix
+  nodes.dryGain.connect(nodes.bitcrushBypass);
+  nodes.echoWet.connect(nodes.bitcrushBypass);
+  nodes.dryGain.connect(nodes.bitcrushWet);
+  nodes.echoWet.connect(nodes.bitcrushWet);
+
+  // Bitcrush wet path: filter → compress → gain
+  nodes.bitcrushWet.connect(nodes.bitcrushHighpass);
+  nodes.bitcrushHighpass.connect(nodes.bitcrushLowpass);
+  nodes.bitcrushLowpass.connect(nodes.bitcrushCompressor);
+  nodes.bitcrushCompressor.connect(nodes.bitcrushGain);
+
+  // Mix paths
+  nodes.bitcrushBypass.connect(nodes.bitcrushMix);
+  nodes.bitcrushGain.connect(nodes.bitcrushMix);
+  nodes.bitcrushMix.connect(nodes.master);
   nodes.master.connect(audioContext.destination);
 
   // Helper functions
@@ -413,14 +454,23 @@ try {
     }
     
     sourceNode.connect(nodes.muffle);
-    
+
     sourceNode.onended = function() {
       if (isPlaying) {
-        isPlaying = false;
-        elements.playBtn.textContent = '▶';
-        if (animationFrame) {
-          cancelAnimationFrame(animationFrame);
-          animationFrame = null;
+        if (isLooping) {
+          // Restart from beginning
+          currentTime = 0;
+          createAudioSource();
+          startOffset = 0;
+          sourceNode.start(0, 0);
+          lastPlayTime = audioContext.currentTime;
+        } else {
+          isPlaying = false;
+          elements.playBtn.textContent = '▶';
+          if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+          }
         }
       }
     };
@@ -583,11 +633,11 @@ try {
 
   elements.playBtn.onclick = function() {
     if (!audioBuffer) return;
-    
+
     if (audioContext.state === 'suspended') {
       audioContext.resume();
     }
-    
+
     if (!isPlaying) {
       // Start playback
       createAudioSource();
@@ -599,8 +649,8 @@ try {
       updateTimeDisplay();
     } else {
       // Pause playback
-      try { 
-        sourceNode.stop(); 
+      try {
+        sourceNode.stop();
         sourceNode.disconnect();
       } catch (e) {}
       currentTime = getCurrentPlaybackTime();
@@ -611,6 +661,13 @@ try {
         animationFrame = null;
       }
     }
+  };
+
+  // Loop button
+  elements.loopBtn.onclick = function() {
+    isLooping = !isLooping;
+    elements.loopBtn.style.opacity = isLooping ? '1' : '0.5';
+    elements.loopBtn.style.background = isLooping ? 'rgba(37,117,252,0.3)' : 'rgba(255,255,255,.06)';
   };
 
   // Seek control
@@ -688,32 +745,17 @@ try {
     const bitcrushValue = parseInt(elements.bitcrush.value);
     elements.bitcrushLbl.textContent = '(' + bitcrushValue + '%)';
 
-    if (bitcrushValue === 0) {
-      // No bitcrushing - pass through cleanly
-      nodes.bitcrush.curve = null;
-    } else {
-      // Create bitcrush curve
-      const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
-      const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, bitcrushValue / 100));
+    const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
+    const maxValue = isUnlocked ? 200 : 100;
+    const mix = Math.min(1, bitcrushValue / maxValue);
 
-      // Calculate bit depth (16-bit down to 1-bit)
-      const bits = Math.max(1, Math.floor(16 - (15 * range)));
-      const levels = Math.pow(2, bits);
-      const step = 2 / levels;
+    // Crossfade between bypass (dry) and wet (bitcrushed) signal
+    // Using equal power crossfade for smooth transition
+    const dryGain = Math.cos(mix * Math.PI / 2);
+    const wetGain = Math.sin(mix * Math.PI / 2);
 
-      // Create quantization curve
-      const samples = 65536;
-      const curve = new Float32Array(samples);
-
-      for (let i = 0; i < samples; i++) {
-        const x = (i / samples) * 2 - 1; // -1 to 1
-        const quantized = Math.floor(x / step) * step + step / 2;
-        curve[i] = Math.max(-1, Math.min(1, quantized));
-      }
-
-      nodes.bitcrush.curve = curve;
-      nodes.bitcrush.oversample = 'none';
-    }
+    nodes.bitcrushBypass.gain.value = dryGain;
+    nodes.bitcrushWet.gain.value = wetGain;
   }
 
   elements.speed.oninput = function() {
@@ -997,25 +1039,38 @@ try {
     feedback.gain.value = feedbackAmount;
     echoWet.gain.value = wetLevel;
 
-    // Bitcrush
-    const bitcrushNode = offlineCtx.createWaveShaper();
-    if (params.bitcrush === 0) {
-      bitcrushNode.curve = null;
-    } else {
-      const range = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.bitcrush / 100));
-      const bits = Math.max(1, Math.floor(16 - (15 * range)));
-      const levels = Math.pow(2, bits);
-      const step = 2 / levels;
-      const samples = 65536;
-      const curve = new Float32Array(samples);
-      for (let i = 0; i < samples; i++) {
-        const x = (i / samples) * 2 - 1;
-        const quantized = Math.floor(x / step) * step + step / 2;
-        curve[i] = Math.max(-1, Math.min(1, quantized));
-      }
-      bitcrushNode.curve = curve;
-      bitcrushNode.oversample = 'none';
-    }
+    // Bitcrush chain
+    const maxValue = params.isUnlocked ? 200 : 100;
+    const bitcrushMix = Math.min(1, params.bitcrush / maxValue);
+    const dryGainValue = Math.cos(bitcrushMix * Math.PI / 2);
+    const wetGainValue = Math.sin(bitcrushMix * Math.PI / 2);
+
+    const bitcrushBypass = offlineCtx.createGain();
+    const bitcrushWet = offlineCtx.createGain();
+    bitcrushBypass.gain.value = dryGainValue;
+    bitcrushWet.gain.value = wetGainValue;
+
+    const bitcrushHighpass = offlineCtx.createBiquadFilter();
+    bitcrushHighpass.type = 'highpass';
+    bitcrushHighpass.frequency.value = 100;
+    bitcrushHighpass.Q.value = 10;
+
+    const bitcrushLowpass = offlineCtx.createBiquadFilter();
+    bitcrushLowpass.type = 'lowpass';
+    bitcrushLowpass.frequency.value = 4000;
+    bitcrushLowpass.Q.value = 10;
+
+    const bitcrushCompressor = offlineCtx.createDynamicsCompressor();
+    bitcrushCompressor.threshold.value = -25;
+    bitcrushCompressor.knee.value = 5;
+    bitcrushCompressor.ratio.value = 6;
+    bitcrushCompressor.attack.value = 0.03;
+    bitcrushCompressor.release.value = 0.15;
+
+    const bitcrushGain = offlineCtx.createGain();
+    bitcrushGain.gain.value = 3;
+
+    const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
@@ -1031,9 +1086,21 @@ try {
     delay.connect(feedback);
     feedback.connect(delay);
     delay.connect(echoWet);
-    dryGain.connect(bitcrushNode);
-    echoWet.connect(bitcrushNode);
-    bitcrushNode.connect(master);
+
+    // Bitcrush paths
+    dryGain.connect(bitcrushBypass);
+    echoWet.connect(bitcrushBypass);
+    dryGain.connect(bitcrushWet);
+    echoWet.connect(bitcrushWet);
+
+    bitcrushWet.connect(bitcrushHighpass);
+    bitcrushHighpass.connect(bitcrushLowpass);
+    bitcrushLowpass.connect(bitcrushCompressor);
+    bitcrushCompressor.connect(bitcrushGain);
+
+    bitcrushBypass.connect(bitcrushMixer);
+    bitcrushGain.connect(bitcrushMixer);
+    bitcrushMixer.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
@@ -1136,25 +1203,38 @@ try {
     feedback.gain.value = Math.min(0.95, (params.isUnlocked ? 0.95 : 0.85) * echoRange);
     echoWet.gain.value = Math.min(1.2, (params.isUnlocked ? 1.2 : 0.8) * echoRange);
 
-    // Bitcrush
-    const bitcrushNode = offlineCtx.createWaveShaper();
-    if (params.bitcrush === 0) {
-      bitcrushNode.curve = null;
-    } else {
-      const range = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.bitcrush / 100));
-      const bits = Math.max(1, Math.floor(16 - (15 * range)));
-      const levels = Math.pow(2, bits);
-      const step = 2 / levels;
-      const samples = 65536;
-      const curve = new Float32Array(samples);
-      for (let i = 0; i < samples; i++) {
-        const x = (i / samples) * 2 - 1;
-        const quantized = Math.floor(x / step) * step + step / 2;
-        curve[i] = Math.max(-1, Math.min(1, quantized));
-      }
-      bitcrushNode.curve = curve;
-      bitcrushNode.oversample = 'none';
-    }
+    // Bitcrush chain
+    const maxValue = params.isUnlocked ? 200 : 100;
+    const bitcrushMix = Math.min(1, params.bitcrush / maxValue);
+    const dryGainValue = Math.cos(bitcrushMix * Math.PI / 2);
+    const wetGainValue = Math.sin(bitcrushMix * Math.PI / 2);
+
+    const bitcrushBypass = offlineCtx.createGain();
+    const bitcrushWet = offlineCtx.createGain();
+    bitcrushBypass.gain.value = dryGainValue;
+    bitcrushWet.gain.value = wetGainValue;
+
+    const bitcrushHighpass = offlineCtx.createBiquadFilter();
+    bitcrushHighpass.type = 'highpass';
+    bitcrushHighpass.frequency.value = 100;
+    bitcrushHighpass.Q.value = 10;
+
+    const bitcrushLowpass = offlineCtx.createBiquadFilter();
+    bitcrushLowpass.type = 'lowpass';
+    bitcrushLowpass.frequency.value = 4000;
+    bitcrushLowpass.Q.value = 10;
+
+    const bitcrushCompressor = offlineCtx.createDynamicsCompressor();
+    bitcrushCompressor.threshold.value = -25;
+    bitcrushCompressor.knee.value = 5;
+    bitcrushCompressor.ratio.value = 6;
+    bitcrushCompressor.attack.value = 0.03;
+    bitcrushCompressor.release.value = 0.15;
+
+    const bitcrushGain = offlineCtx.createGain();
+    bitcrushGain.gain.value = 3;
+
+    const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
     master.gain.value = dbToLinear(params.gain);
@@ -1170,9 +1250,21 @@ try {
     delay.connect(feedback);
     feedback.connect(delay);
     delay.connect(echoWet);
-    dryGain.connect(bitcrushNode);
-    echoWet.connect(bitcrushNode);
-    bitcrushNode.connect(master);
+
+    // Bitcrush paths
+    dryGain.connect(bitcrushBypass);
+    echoWet.connect(bitcrushBypass);
+    dryGain.connect(bitcrushWet);
+    echoWet.connect(bitcrushWet);
+
+    bitcrushWet.connect(bitcrushHighpass);
+    bitcrushHighpass.connect(bitcrushLowpass);
+    bitcrushLowpass.connect(bitcrushCompressor);
+    bitcrushCompressor.connect(bitcrushGain);
+
+    bitcrushBypass.connect(bitcrushMixer);
+    bitcrushGain.connect(bitcrushMixer);
+    bitcrushMixer.connect(master);
     master.connect(offlineCtx.destination);
     
     source.start(0);
