@@ -235,16 +235,16 @@
 <main>
   <div class="wrap">
     <div class="hero">
-      <h2>File Converter</h2>
-      <p>Convert between tons of formats — all in your browser</p>
+      <h2>Image Converter</h2>
+      <p>Convert between image formats — all processing happens in your browser</p>
     </div>
 
     <div class="card">
       <div class="upload-zone" id="upload-zone">
         <div class="upload-icon">📤</div>
-        <div class="upload-text">Drop a file here or click to browse</div>
-        <div class="upload-hint">Supports images, videos, audio, documents, and more</div>
-        <input type="file" id="file-input" class="file-input" />
+        <div class="upload-text">Drop an image here or click to browse</div>
+        <div class="upload-hint">Supports PNG, JPG, WebP, GIF, BMP, and more</div>
+        <input type="file" id="file-input" class="file-input" accept="image/*" />
       </div>
 
       <div class="file-info" id="file-info">
@@ -401,65 +401,18 @@
 </script>
 
 <script>
-  // Conversion format mappings
+  // Conversion format mappings - IMAGES ONLY (actual conversion works)
   const formatMap = {
-    // Images
-    'png': ['jpg', 'jpeg', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
-    'jpg': ['png', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
-    'jpeg': ['png', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
-    'webp': ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'avif'],
-    'gif': ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'webm'],
-    'bmp': ['png', 'jpg', 'jpeg', 'webp', 'gif'],
-    'svg': ['png', 'jpg', 'jpeg', 'pdf'],
+    // Images - THESE ACTUALLY WORK
+    'png': ['jpg', 'jpeg', 'webp', 'bmp'],
+    'jpg': ['png', 'webp', 'bmp'],
+    'jpeg': ['png', 'webp', 'bmp'],
+    'webp': ['png', 'jpg', 'jpeg', 'bmp'],
+    'gif': ['png', 'jpg', 'jpeg', 'webp', 'bmp'],
+    'bmp': ['png', 'jpg', 'jpeg', 'webp'],
     'ico': ['png', 'jpg', 'jpeg'],
     'tiff': ['png', 'jpg', 'jpeg', 'webp'],
-    'avif': ['png', 'jpg', 'jpeg', 'webp'],
-    
-    // Videos
-    'mp4': ['webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'gif', 'mp3', 'wav', 'ogg', 'aac'],
-    'webm': ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'gif', 'mp3', 'wav', 'ogg', 'aac'],
-    'avi': ['mp4', 'webm', 'mov', 'mkv', 'flv', 'wmv', 'gif', 'mp3', 'wav'],
-    'mov': ['mp4', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'gif', 'mp3', 'wav'],
-    'mkv': ['mp4', 'webm', 'avi', 'mov', 'flv', 'wmv', 'gif', 'mp3', 'wav', 'ogg', 'aac'],
-    'flv': ['mp4', 'webm', 'avi', 'mov', 'mkv', 'wmv', 'gif'],
-    'wmv': ['mp4', 'webm', 'avi', 'mov', 'mkv', 'gif'],
-    
-    // Audio
-    'mp3': ['wav', 'ogg', 'aac', 'flac', 'm4a', 'wma'],
-    'wav': ['mp3', 'ogg', 'aac', 'flac', 'm4a'],
-    'ogg': ['mp3', 'wav', 'aac', 'flac'],
-    'aac': ['mp3', 'wav', 'ogg', 'flac'],
-    'flac': ['mp3', 'wav', 'ogg', 'aac'],
-    'm4a': ['mp3', 'wav', 'ogg', 'aac'],
-    'wma': ['mp3', 'wav', 'ogg'],
-    
-    // Documents
-    'pdf': ['docx', 'txt', 'html', 'png', 'jpg'],
-    'docx': ['pdf', 'txt', 'html', 'odt', 'rtf'],
-    'doc': ['pdf', 'docx', 'txt', 'html', 'rtf'],
-    'txt': ['pdf', 'docx', 'html', 'md', 'rtf'],
-    'html': ['pdf', 'docx', 'txt', 'md'],
-    'md': ['html', 'pdf', 'docx', 'txt'],
-    'rtf': ['pdf', 'docx', 'txt', 'html'],
-    'odt': ['pdf', 'docx', 'txt', 'html'],
-    'xlsx': ['csv', 'xls', 'pdf', 'html'],
-    'xls': ['xlsx', 'csv', 'pdf', 'html'],
-    'csv': ['xlsx', 'xls', 'json', 'txt'],
-    'pptx': ['pdf', 'ppt', 'html'],
-    'ppt': ['pdf', 'pptx', 'html'],
-    
-    // Code/Data
-    'json': ['csv', 'xml', 'yaml', 'txt'],
-    'xml': ['json', 'csv', 'yaml', 'txt'],
-    'yaml': ['json', 'xml', 'txt'],
-    'yml': ['json', 'xml', 'txt'],
-    
-    // Archives
-    'zip': ['tar', 'gz', '7z', 'rar'],
-    'tar': ['zip', 'gz', '7z'],
-    'gz': ['zip', 'tar', '7z'],
-    '7z': ['zip', 'tar', 'gz'],
-    'rar': ['zip', 'tar', '7z']
+    'avif': ['png', 'jpg', 'jpeg', 'webp']
   };
 
   // Elements
@@ -621,41 +574,28 @@
     console.log('Original image exists?', !!originalImage);
     console.log('File type:', selectedFile.name.split('.').pop().toLowerCase());
     
-    const ext = selectedFile.name.split('.').pop().toLowerCase();
-    const imageFormats = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'ico', 'tiff', 'avif'];
-    const videoFormats = ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv'];
-    
-    // Check if it's an image format
-    if (imageFormats.includes(ext)) {
-      // Show preview if image loaded
-      if (originalImage) {
-        console.log('Image ready, showing preview immediately');
-        showPreview();
-      } else {
-        console.log('⏳ Waiting for image to load...');
-        // Retry multiple times
-        let attempts = 0;
-        const checkInterval = setInterval(() => {
-          attempts++;
-          console.log(`Attempt ${attempts}/10 - Image loaded?`, !!originalImage);
-          
-          if (originalImage) {
-            console.log('✅ Image finally loaded, showing preview');
-            clearInterval(checkInterval);
-            showPreview();
-          } else if (attempts >= 10) {
-            console.error('❌ Gave up waiting for image after 10 attempts');
-            clearInterval(checkInterval);
-            showStatus('error', 'Failed to load image. Try uploading again.');
-          }
-        }, 200);
-      }
-    } else if (videoFormats.includes(ext)) {
-      console.log('📹 Video file detected - no preview/editing available yet');
-      showStatus('info', 'Video conversion will happen without preview. Click Convert when ready.');
+    // Show preview if image loaded
+    if (originalImage) {
+      console.log('Image ready, showing preview immediately');
+      showPreview();
     } else {
-      console.log('📄 Non-image/video file - no preview available');
-      showStatus('info', 'File conversion will happen without preview. Click Convert when ready.');
+      console.log('⏳ Waiting for image to load...');
+      // Retry multiple times
+      let attempts = 0;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        console.log(`Attempt ${attempts}/10 - Image loaded?`, !!originalImage);
+        
+        if (originalImage) {
+          console.log('✅ Image finally loaded, showing preview');
+          clearInterval(checkInterval);
+          showPreview();
+        } else if (attempts >= 10) {
+          console.error('❌ Gave up waiting for image after 10 attempts');
+          clearInterval(checkInterval);
+          showStatus('error', 'Failed to load image. Try uploading again.');
+        }
+      }, 200);
     }
   });
 
