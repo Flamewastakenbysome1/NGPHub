@@ -540,10 +540,14 @@
       console.log('🖼️ Loading image...');
       const reader = new FileReader();
       reader.onload = (e) => {
+        console.log('📥 File read complete, creating Image object...');
         const img = new Image();
         img.onload = () => {
           originalImage = img;
           console.log('✅ Image loaded successfully:', img.width, 'x', img.height);
+          if (ext === 'gif') {
+            console.log('ℹ️ NOTE: GIFs only show first frame in canvas (HTML5 spec limitation)');
+          }
           
           // If format already selected, show preview immediately
           if (currentOutputFormat) {
@@ -551,12 +555,19 @@
             showPreview();
           }
         };
-        img.onerror = () => {
-          console.error('❌ Failed to load image');
+        img.onerror = (err) => {
+          console.error('❌ Failed to load image:', err);
+          showStatus('error', 'Failed to load image. File may be corrupted or unsupported.');
         };
         img.src = e.target.result;
+        console.log('🔄 Image src set, waiting for onload...');
+      };
+      reader.onerror = (err) => {
+        console.error('❌ FileReader error:', err);
+        showStatus('error', 'Failed to read file.');
       };
       reader.readAsDataURL(file);
+      console.log('🔄 FileReader started...');
     } else {
       console.log('⚠️ Not an image format');
     }
