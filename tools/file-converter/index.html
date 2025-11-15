@@ -522,29 +522,49 @@
     selectedFile = file;
     const ext = file.name.split('.').pop().toLowerCase();
     
+    console.log('📁 File uploaded:', file.name, 'Extension:', ext);
+    
     // Display file info
     document.getElementById('file-name').textContent = file.name;
     document.getElementById('file-type').textContent = ext.toUpperCase();
     document.getElementById('file-size').textContent = formatBytes(file.size);
     fileInfo.style.display = 'block';
     
+    // Reset state
+    originalImage = null;
+    currentOutputFormat = null;
+    
     // Load image
     const imageFormats = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'ico', 'tiff', 'avif'];
     if (imageFormats.includes(ext)) {
+      console.log('🖼️ Loading image...');
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           originalImage = img;
-          console.log('✅ Image loaded:', img.width, 'x', img.height);
+          console.log('✅ Image loaded successfully:', img.width, 'x', img.height);
+          
+          // If format already selected, show preview immediately
+          if (currentOutputFormat) {
+            console.log('Format already selected, showing preview now');
+            showPreview();
+          }
+        };
+        img.onerror = () => {
+          console.error('❌ Failed to load image');
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    } else {
+      console.log('⚠️ Not an image format');
     }
     
     // Populate formats
     const formats = formatMap[ext] || [];
+    console.log('🔄 Available formats for', ext, ':', formats);
+    
     outputFormat.innerHTML = '<option value="">Select format...</option>';
     
     if (formats.length > 0) {
@@ -557,20 +577,26 @@
       formatSelectContainer.style.display = 'flex';
       convertBtn.disabled = true;
       convertBtn.textContent = 'Select an output format';
+      console.log('✅ Format dropdown populated');
     } else {
       formatSelectContainer.style.display = 'none';
       showStatus('error', `No conversions available for .${ext} files`);
+      console.error('❌ No formats available for', ext);
     }
     
     // Hide preview until format selected
     previewSection.style.display = 'none';
+    editorControls.classList.remove('active');
     downloadBtn.style.display = 'none';
   }
 
   // Output format selection
   outputFormat.addEventListener('change', () => {
+    console.log('🎯 Format dropdown changed to:', outputFormat.value);
+    
     if (!outputFormat.value) {
       previewSection.style.display = 'none';
+      editorControls.classList.remove('active');
       convertBtn.disabled = true;
       convertBtn.textContent = 'Select an output format';
       return;
@@ -580,38 +606,77 @@
     convertBtn.disabled = false;
     convertBtn.textContent = `Convert to ${currentOutputFormat.toUpperCase()}`;
     
+    console.log('Selected format:', currentOutputFormat);
+    console.log('Original image exists?', !!originalImage);
+    
     // Show preview if image loaded
     if (originalImage) {
+      console.log('Image ready, showing preview immediately');
       showPreview();
     } else {
-      // Wait for image to load
-      setTimeout(() => {
-        if (originalImage) showPreview();
-      }, 500);
+      console.log('⏳ Waiting for image to load...');
+      // Retry multiple times
+      let attempts = 0;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        console.log(`Attempt ${attempts}/10 - Image loaded?`, !!originalImage);
+        
+        if (originalImage) {
+          console.log('✅ Image finally loaded, showing preview');
+          clearInterval(checkInterval);
+          showPreview();
+        } else if (attempts >= 10) {
+          console.error('❌ Gave up waiting for image after 10 attempts');
+          clearInterval(checkInterval);
+          showStatus('error', 'Failed to load image. Try uploading again.');
+        }
+      }, 200);
     }
   });
 
   function showPreview() {
-    console.log('📷 Showing preview for', currentOutputFormat);
+    console.log('========================================');
+    console.log('📷 showPreview() called');
+    console.log('Current output format:', currentOutputFormat);
+    console.log('Original image:', originalImage);
+    console.log('========================================');
+    
+    if (!originalImage) {
+      console.error('❌ ERROR: No original image in showPreview');
+      return;
+    }
+    
+    if (!currentOutputFormat) {
+      console.error('❌ ERROR: No output format in showPreview');
+      return;
+    }
+    
+    console.log('✅ Showing preview section');
     previewSection.style.display = 'block';
     editorControls.classList.add('active');
     
     // Show GIF controls if converting to GIF
     if (currentOutputFormat === 'gif') {
+      console.log('🎨 Showing GIF color controls');
       gifControls.style.display = 'block';
     } else {
+      console.log('📸 Hiding GIF controls (not converting to GIF)');
       gifControls.style.display = 'none';
     }
     
+    console.log('🎨 Calling renderPreview...');
     renderPreview();
   }
 
   function renderPreview() {
+    console.log('🎨 renderPreview() called');
+    
     if (!originalImage) {
       console.error('❌ No image to render');
       return;
     }
     
+    console.log('Drawing to canvas...');
     const canvas = previewCanvas;
     const ctx = canvas.getContext('2d');
     
@@ -619,16 +684,23 @@
     const w = originalImage.width;
     const h = originalImage.height;
     
+    console.log('Image dimensions:', w, 'x', h);
+    console.log('Rotation angle:', filters.rotation, 'degrees');
+    
     // Handle rotation
     const sin = Math.abs(Math.sin(angle));
     const cos = Math.abs(Math.cos(angle));
     canvas.width = w * cos + h * sin;
     canvas.height = w * sin + h * cos;
     
+    console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Apply CSS filters
-    ctx.filter = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px)`;
+    const filterString = `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%) blur(${filters.blur}px)`;
+    console.log('Applying filters:', filterString);
+    ctx.filter = filterString;
     
     // Draw with rotation
     ctx.save();
@@ -637,11 +709,16 @@
     ctx.drawImage(originalImage, -w / 2, -h / 2, w, h);
     ctx.restore();
     
+    console.log('✅ Image drawn to canvas');
+    
     // Apply GIF color reduction
     if (currentOutputFormat === 'gif') {
+      console.log('🎨 Applying GIF color reduction with', filters.gifColors, 'colors');
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       const colorStep = 256 / Math.cbrt(filters.gifColors);
+      
+      console.log('Color step:', colorStep);
       
       for (let i = 0; i < data.length; i += 4) {
         data[i] = Math.round(data[i] / colorStep) * colorStep;
@@ -650,9 +727,10 @@
       }
       
       ctx.putImageData(imageData, 0, 0);
+      console.log('✅ GIF color reduction applied');
     }
     
-    console.log('✅ Preview rendered');
+    console.log('✅✅✅ Preview render complete!');
   }
 
   // Filter controls
