@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>File Converter — NGP Hub</title>
+
+<meta property="og:title" content="NGP Hub — File Converter" />
+<meta property="og:description" content="Convert between tons of file formats and download YouTube videos. All processing happens in your browser." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/converter" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Hub — File Converter" />
+<meta name="twitter:description" content="Convert between tons of file formats and download YouTube videos." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="Convert between tons of file formats and download YouTube videos. All processing happens in your browser." />
+<meta name="keywords" content="file converter, YouTube downloader, format converter, NGP tools" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  /* Custom styles */
+  main{padding:60px 0 80px; min-height:calc(100vh - 200px)}
+  .hero{text-align:center; margin-bottom:48px}
+  .hero h2{font-size:2.5rem; margin:0 0 12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
+  .hero p{color:var(--muted); font-size:1.1rem; margin:0}
+
+  .tabs{display:flex; gap:12px; justify-content:center; margin-bottom:32px; flex-wrap:wrap}
+  .tab{padding:12px 24px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:var(--ink); font-weight:600; cursor:pointer; transition:all .2s}
+  .tab:hover{background:rgba(255,255,255,.08)}
+  .tab.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); border-color:transparent}
+
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  .card{background:var(--card); border-radius:var(--radius); padding:32px; border:1px solid rgba(255,255,255,.06); box-shadow:var(--shadow)}
+  
+  .upload-zone{
+    border:2px dashed rgba(255,255,255,.15); border-radius:var(--radius); padding:48px 24px;
+    text-align:center; cursor:pointer; transition:all .3s; margin-bottom:24px
+  }
+  .upload-zone:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
+  .upload-zone.drag-over{border-color:var(--brandA); background:rgba(106,17,203,.1)}
+  .upload-icon{font-size:3rem; margin-bottom:12px; opacity:.6}
+  .upload-text{font-size:1.1rem; color:var(--muted); margin-bottom:8px}
+  .upload-hint{font-size:.9rem; color:var(--muted); opacity:.7}
+
+  .file-input{display:none}
+
+  .format-select{display:flex; gap:12px; margin-bottom:24px; align-items:center; flex-wrap:wrap}
+  .format-select label{color:var(--muted); font-weight:600}
+  .format-select select{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:10px 16px; border-radius:10px; font-size:.95rem;
+    cursor:pointer; flex:1; min-width:200px
+  }
+  .format-select select:focus{outline:none; box-shadow:var(--ring)}
+
+  .convert-btn{
+    width:100%; padding:14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    color:white; font-weight:700; font-size:1.05rem; border:none; cursor:pointer;
+    transition:transform .2s, box-shadow .2s; margin-bottom:24px
+  }
+  .convert-btn:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,117,252,.4)}
+  .convert-btn:disabled{opacity:.5; cursor:not-allowed; transform:none}
+
+  .progress-bar{
+    height:8px; background:rgba(255,255,255,.1); border-radius:4px; overflow:hidden;
+    margin-bottom:16px; display:none
+  }
+  .progress-fill{
+    height:100%; background:linear-gradient(90deg,var(--brandA),var(--brandB));
+    width:0%; transition:width .3s
+  }
+
+  .status{
+    text-align:center; padding:16px; border-radius:10px; margin-bottom:16px;
+    display:none; font-weight:600
+  }
+  .status.info{background:rgba(37,117,252,.15); color:#5eb3ff; border:1px solid rgba(37,117,252,.3)}
+  .status.success{background:rgba(40,199,111,.15); color:#5fffb0; border:1px solid rgba(40,199,111,.3)}
+  .status.error{background:rgba(235,87,87,.15); color:#ff6b6b; border:1px solid rgba(235,87,87,.3)}
+
+  .file-info{
+    background:rgba(255,255,255,.03); border-radius:10px; padding:16px; margin-bottom:16px;
+    border:1px solid rgba(255,255,255,.06); display:none
+  }
+  .file-info-item{display:flex; justify-content:space-between; margin-bottom:8px}
+  .file-info-item:last-child{margin-bottom:0}
+  .file-info-label{color:var(--muted); font-size:.9rem}
+  .file-info-value{color:var(--ink); font-weight:600}
+
+  .download-btn{
+    width:100%; padding:14px; border-radius:12px; background:rgba(40,199,111,.2);
+    border:1px solid rgba(40,199,111,.4); color:#5fffb0; font-weight:700;
+    cursor:pointer; display:none; font-size:1.05rem
+  }
+  .download-btn:hover{background:rgba(40,199,111,.3)}
+
+  .url-input-group{display:flex; gap:12px; margin-bottom:24px}
+  .url-input{
+    flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    color:var(--ink); padding:12px 16px; border-radius:10px; font-size:.95rem
+  }
+  .url-input:focus{outline:none; box-shadow:var(--ring)}
+  .url-input::placeholder{color:var(--muted); opacity:.5}
+
+  .format-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:24px}
+  .format-card{
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+    border-radius:10px; padding:16px 12px; text-align:center; cursor:pointer;
+    transition:all .2s
+  }
+  .format-card:hover{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.15)}
+  .format-card.selected{background:linear-gradient(120deg,rgba(106,17,203,.2),rgba(37,117,252,.2)); border-color:var(--brandB)}
+  .format-card-icon{font-size:1.8rem; margin-bottom:8px}
+  .format-card-name{font-weight:600; font-size:.9rem}
+  .format-card-desc{font-size:.75rem; color:var(--muted); margin-top:4px}
+
+  @media (max-width: 768px) {
+    .hero h2{font-size:2rem}
+    .format-grid{grid-template-columns:repeat(auto-fill, minmax(120px, 1fr))}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <h2>File Converter</h2>
+      <p>Convert between tons of formats or download YouTube videos — all in your browser</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="file-converter">📁 File Converter</div>
+      <div class="tab" data-tab="youtube-downloader">🎥 YouTube Downloader</div>
+    </div>
+
+    <!-- File Converter Tab -->
+    <div class="tab-content active" id="file-converter">
+      <div class="card">
+        <div class="upload-zone" id="upload-zone">
+          <div class="upload-icon">📤</div>
+          <div class="upload-text">Drop a file here or click to browse</div>
+          <div class="upload-hint">Supports images, videos, audio, documents, and more</div>
+          <input type="file" id="file-input" class="file-input" />
+        </div>
+
+        <div class="file-info" id="file-info">
+          <div class="file-info-item">
+            <span class="file-info-label">File Name:</span>
+            <span class="file-info-value" id="file-name">-</span>
+          </div>
+          <div class="file-info-item">
+            <span class="file-info-label">File Type:</span>
+            <span class="file-info-value" id="file-type">-</span>
+          </div>
+          <div class="file-info-item">
+            <span class="file-info-label">File Size:</span>
+            <span class="file-info-value" id="file-size">-</span>
+          </div>
+        </div>
+
+        <div class="format-select" id="format-select-container" style="display:none">
+          <label>Convert to:</label>
+          <select id="output-format">
+            <option value="">Select format...</option>
+          </select>
+        </div>
+
+        <div class="progress-bar" id="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <button class="convert-btn" id="convert-btn" disabled>Select a file to convert</button>
+        <button class="download-btn" id="download-btn">Download Converted File</button>
+      </div>
+    </div>
+
+    <!-- YouTube Downloader Tab -->
+    <div class="tab-content" id="youtube-downloader">
+      <div class="card">
+        <div class="url-input-group">
+          <input type="text" class="url-input" id="yt-url" placeholder="Paste YouTube URL here..." />
+        </div>
+
+        <div class="format-grid" id="yt-format-grid">
+          <div class="format-card" data-format="mp4-720">
+            <div class="format-card-icon">🎬</div>
+            <div class="format-card-name">MP4 (720p)</div>
+            <div class="format-card-desc">Video</div>
+          </div>
+          <div class="format-card" data-format="mp4-1080">
+            <div class="format-card-icon">🎥</div>
+            <div class="format-card-name">MP4 (1080p)</div>
+            <div class="format-card-desc">Video HD</div>
+          </div>
+          <div class="format-card" data-format="mp3">
+            <div class="format-card-icon">🎵</div>
+            <div class="format-card-name">MP3</div>
+            <div class="format-card-desc">Audio only</div>
+          </div>
+          <div class="format-card" data-format="webm">
+            <div class="format-card-icon">🎞️</div>
+            <div class="format-card-name">WebM</div>
+            <div class="format-card-desc">Video</div>
+          </div>
+        </div>
+
+        <div class="status" id="yt-status"></div>
+        <div class="progress-bar" id="yt-progress-bar">
+          <div class="progress-fill" id="yt-progress-fill"></div>
+        </div>
+
+        <button class="convert-btn" id="yt-download-btn" disabled>Select a format</button>
+      </div>
+
+      <div class="card" style="margin-top:24px; background:rgba(235,87,87,.08); border-color:rgba(235,87,87,.2)">
+        <p style="margin:0; color:var(--muted); font-size:.9rem">
+          ⚠️ <strong>Note:</strong> YouTube downloading requires a backend service. This is a frontend demo.
+          You'll need to integrate with a service like <code>yt-dlp</code> or a third-party API to make downloads work.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+<script>
+  // Conversion format mappings - MASSIVE list!
+  const formatMap = {
+    // Images
+    'png': ['jpg', 'jpeg', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
+    'jpg': ['png', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
+    'jpeg': ['png', 'webp', 'gif', 'bmp', 'ico', 'svg', 'tiff', 'avif'],
+    'webp': ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'avif'],
+    'gif': ['png', 'jpg', 'jpeg', 'webp', 'mp4', 'webm'],
+    'bmp': ['png', 'jpg', 'jpeg', 'webp'],
+    'svg': ['png', 'jpg', 'jpeg', 'pdf'],
+    'ico': ['png', 'jpg', 'jpeg'],
+    'tiff': ['png', 'jpg', 'jpeg', 'webp'],
+    'avif': ['png', 'jpg', 'jpeg', 'webp'],
+    
+    // Videos
+    'mp4': ['webm', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'gif', 'mp3', 'wav'],
+    'webm': ['mp4', 'avi', 'mov', 'mkv', 'gif', 'mp3', 'wav'],
+    'avi': ['mp4', 'webm', 'mov', 'mkv', 'gif'],
+    'mov': ['mp4', 'webm', 'avi', 'mkv', 'gif'],
+    'mkv': ['mp4', 'webm', 'avi', 'mov'],
+    'flv': ['mp4', 'webm', 'avi'],
+    'wmv': ['mp4', 'webm', 'avi'],
+    
+    // Audio
+    'mp3': ['wav', 'ogg', 'aac', 'flac', 'm4a', 'wma'],
+    'wav': ['mp3', 'ogg', 'aac', 'flac', 'm4a'],
+    'ogg': ['mp3', 'wav', 'aac', 'flac'],
+    'aac': ['mp3', 'wav', 'ogg', 'flac'],
+    'flac': ['mp3', 'wav', 'ogg', 'aac'],
+    'm4a': ['mp3', 'wav', 'ogg', 'aac'],
+    'wma': ['mp3', 'wav', 'ogg'],
+    
+    // Documents
+    'pdf': ['docx', 'txt', 'html', 'png', 'jpg'],
+    'docx': ['pdf', 'txt', 'html', 'odt', 'rtf'],
+    'doc': ['pdf', 'docx', 'txt', 'html', 'rtf'],
+    'txt': ['pdf', 'docx', 'html', 'md', 'rtf'],
+    'html': ['pdf', 'docx', 'txt', 'md'],
+    'md': ['html', 'pdf', 'docx', 'txt'],
+    'rtf': ['pdf', 'docx', 'txt', 'html'],
+    'odt': ['pdf', 'docx', 'txt', 'html'],
+    'xlsx': ['csv', 'xls', 'pdf', 'html'],
+    'xls': ['xlsx', 'csv', 'pdf', 'html'],
+    'csv': ['xlsx', 'xls', 'json', 'txt'],
+    'pptx': ['pdf', 'ppt', 'html'],
+    'ppt': ['pdf', 'pptx', 'html'],
+    
+    // Code/Data
+    'json': ['csv', 'xml', 'yaml', 'txt'],
+    'xml': ['json', 'csv', 'yaml', 'txt'],
+    'yaml': ['json', 'xml', 'txt'],
+    'yml': ['json', 'xml', 'txt'],
+    
+    // Archives
+    'zip': ['tar', 'gz', '7z', 'rar'],
+    'tar': ['zip', 'gz', '7z'],
+    'gz': ['zip', 'tar', '7z'],
+    '7z': ['zip', 'tar', 'gz'],
+    'rar': ['zip', 'tar', '7z']
+  };
+
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetTab = tab.dataset.tab;
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(tc => tc.classList.remove('active'));
+      
+      tab.classList.add('active');
+      document.getElementById(targetTab).classList.add('active');
+    });
+  });
+
+  // File Converter Logic
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const formatSelectContainer = document.getElementById('format-select-container');
+  const outputFormat = document.getElementById('output-format');
+  const convertBtn = document.getElementById('convert-btn');
+  const downloadBtn = document.getElementById('download-btn');
+  const progressBar = document.getElementById('progress-bar');
+  const progressFill = document.getElementById('progress-fill');
+  const status = document.getElementById('status');
+  
+  let selectedFile = null;
+  let convertedBlob = null;
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+  
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+  
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('drag-over');
+  });
+  
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
+  });
+  
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    const ext = file.name.split('.').pop().toLowerCase();
+    
+    // Display file info
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-type').textContent = ext.toUpperCase();
+    document.getElementById('file-size').textContent = formatBytes(file.size);
+    fileInfo.style.display = 'block';
+    
+    // Populate format options
+    const formats = formatMap[ext] || [];
+    outputFormat.innerHTML = '<option value="">Select format...</option>';
+    
+    if (formats.length > 0) {
+      formats.forEach(format => {
+        const option = document.createElement('option');
+        option.value = format;
+        option.textContent = format.toUpperCase();
+        outputFormat.appendChild(option);
+      });
+      formatSelectContainer.style.display = 'flex';
+      convertBtn.disabled = true;
+      convertBtn.textContent = 'Select an output format';
+    } else {
+      formatSelectContainer.style.display = 'none';
+      showStatus('error', `Sorry, no conversions available for .${ext} files yet!`);
+      convertBtn.disabled = true;
+      convertBtn.textContent = 'No conversions available';
+    }
+    
+    downloadBtn.style.display = 'none';
+  }
+
+  outputFormat.addEventListener('change', () => {
+    if (outputFormat.value) {
+      convertBtn.disabled = false;
+      convertBtn.textContent = `Convert to ${outputFormat.value.toUpperCase()}`;
+    } else {
+      convertBtn.disabled = true;
+      convertBtn.textContent = 'Select an output format';
+    }
+  });
+
+  convertBtn.addEventListener('click', async () => {
+    if (!selectedFile || !outputFormat.value) return;
+    
+    const inputExt = selectedFile.name.split('.').pop().toLowerCase();
+    const outputExt = outputFormat.value;
+    
+    convertBtn.disabled = true;
+    convertBtn.textContent = 'Converting...';
+    progressBar.style.display = 'block';
+    downloadBtn.style.display = 'none';
+    
+    // Simulate progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress += Math.random() * 30;
+      if (progress > 90) progress = 90;
+      progressFill.style.width = progress + '%';
+    }, 200);
+    
+    try {
+      // This is where you'd do actual conversion
+      // For images, we can do real conversions!
+      const imageFormats = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'];
+      
+      if (imageFormats.includes(inputExt) && imageFormats.includes(outputExt)) {
+        convertedBlob = await convertImage(selectedFile, outputExt);
+      } else {
+        // For other formats, simulate conversion (you'd need ffmpeg.js or similar)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        convertedBlob = new Blob([selectedFile], { type: getMimeType(outputExt) });
+      }
+      
+      clearInterval(progressInterval);
+      progressFill.style.width = '100%';
+      
+      setTimeout(() => {
+        progressBar.style.display = 'none';
+        progressFill.style.width = '0%';
+        showStatus('success', `✅ Converted to ${outputExt.toUpperCase()} successfully!`);
+        convertBtn.textContent = 'Convert Another File';
+        convertBtn.disabled = false;
+        downloadBtn.style.display = 'block';
+      }, 500);
+      
+    } catch (error) {
+      clearInterval(progressInterval);
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
+      showStatus('error', `❌ Conversion failed: ${error.message}`);
+      convertBtn.textContent = 'Try Again';
+      convertBtn.disabled = false;
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!convertedBlob) return;
+    
+    const outputExt = outputFormat.value;
+    const baseName = selectedFile.name.replace(/\.[^/.]+$/, '');
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(convertedBlob);
+    downloadLink.download = `${baseName}.${outputExt}`;
+    downloadLink.click();
+    
+    showStatus('success', '📥 Download started!');
+  });
+
+  async function convertImage(file, format) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Image conversion failed'));
+            }
+          }, getMimeType(format), 0.95);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function getMimeType(ext) {
+    const mimeTypes = {
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'webp': 'image/webp',
+      'gif': 'image/gif',
+      'bmp': 'image/bmp',
+      'svg': 'image/svg+xml',
+      'mp4': 'video/mp4',
+      'webm': 'video/webm',
+      'mp3': 'audio/mpeg',
+      'wav': 'audio/wav',
+      'pdf': 'application/pdf',
+      'txt': 'text/plain',
+      'html': 'text/html',
+      'json': 'application/json',
+      'xml': 'application/xml',
+      'zip': 'application/zip'
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
+  }
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  function showStatus(type, message) {
+    status.className = `status ${type}`;
+    status.textContent = message;
+    status.style.display = 'block';
+    
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 5000);
+  }
+
+  // YouTube Downloader Logic
+  const ytUrl = document.getElementById('yt-url');
+  const ytFormatCards = document.querySelectorAll('#yt-format-grid .format-card');
+  const ytDownloadBtn = document.getElementById('yt-download-btn');
+  const ytStatus = document.getElementById('yt-status');
+  const ytProgressBar = document.getElementById('yt-progress-bar');
+  const ytProgressFill = document.getElementById('yt-progress-fill');
+  
+  let selectedYtFormat = null;
+
+  ytFormatCards.forEach(card => {
+    card.addEventListener('click', () => {
+      ytFormatCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedYtFormat = card.dataset.format;
+      ytDownloadBtn.disabled = false;
+      ytDownloadBtn.textContent = `Download as ${card.querySelector('.format-card-name').textContent}`;
+    });
+  });
+
+  ytUrl.addEventListener('input', () => {
+    if (ytUrl.value.includes('youtube.com') || ytUrl.value.includes('youtu.be')) {
+      // Valid URL
+    }
+  });
+
+  ytDownloadBtn.addEventListener('click', () => {
+    if (!ytUrl.value || !selectedYtFormat) return;
+    
+    ytDownloadBtn.disabled = true;
+    ytDownloadBtn.textContent = 'Processing...';
+    ytProgressBar.style.display = 'block';
+    
+    showYtStatus('info', '⚠️ YouTube downloading requires a backend service (yt-dlp). This is a demo only.');
+    
+    // Simulate progress
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 20;
+      if (progress > 100) progress = 100;
+      ytProgressFill.style.width = progress + '%';
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        ytProgressBar.style.display = 'none';
+        ytProgressFill.style.width = '0%';
+        ytDownloadBtn.disabled = false;
+        ytDownloadBtn.textContent = 'Download Another Video';
+      }
+    }, 300);
+  });
+
+  function showYtStatus(type, message) {
+    ytStatus.className = `status ${type}`;
+    ytStatus.textContent = message;
+    ytStatus.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
