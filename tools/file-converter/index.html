@@ -608,29 +608,43 @@
     
     console.log('Selected format:', currentOutputFormat);
     console.log('Original image exists?', !!originalImage);
+    console.log('File type:', selectedFile.name.split('.').pop().toLowerCase());
     
-    // Show preview if image loaded
-    if (originalImage) {
-      console.log('Image ready, showing preview immediately');
-      showPreview();
+    const ext = selectedFile.name.split('.').pop().toLowerCase();
+    const imageFormats = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'ico', 'tiff', 'avif'];
+    const videoFormats = ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv'];
+    
+    // Check if it's an image format
+    if (imageFormats.includes(ext)) {
+      // Show preview if image loaded
+      if (originalImage) {
+        console.log('Image ready, showing preview immediately');
+        showPreview();
+      } else {
+        console.log('⏳ Waiting for image to load...');
+        // Retry multiple times
+        let attempts = 0;
+        const checkInterval = setInterval(() => {
+          attempts++;
+          console.log(`Attempt ${attempts}/10 - Image loaded?`, !!originalImage);
+          
+          if (originalImage) {
+            console.log('✅ Image finally loaded, showing preview');
+            clearInterval(checkInterval);
+            showPreview();
+          } else if (attempts >= 10) {
+            console.error('❌ Gave up waiting for image after 10 attempts');
+            clearInterval(checkInterval);
+            showStatus('error', 'Failed to load image. Try uploading again.');
+          }
+        }, 200);
+      }
+    } else if (videoFormats.includes(ext)) {
+      console.log('📹 Video file detected - no preview/editing available yet');
+      showStatus('info', 'Video conversion will happen without preview. Click Convert when ready.');
     } else {
-      console.log('⏳ Waiting for image to load...');
-      // Retry multiple times
-      let attempts = 0;
-      const checkInterval = setInterval(() => {
-        attempts++;
-        console.log(`Attempt ${attempts}/10 - Image loaded?`, !!originalImage);
-        
-        if (originalImage) {
-          console.log('✅ Image finally loaded, showing preview');
-          clearInterval(checkInterval);
-          showPreview();
-        } else if (attempts >= 10) {
-          console.error('❌ Gave up waiting for image after 10 attempts');
-          clearInterval(checkInterval);
-          showStatus('error', 'Failed to load image. Try uploading again.');
-        }
-      }, 200);
+      console.log('📄 Non-image/video file - no preview available');
+      showStatus('info', 'File conversion will happen without preview. Click Convert when ready.');
     }
   });
 
