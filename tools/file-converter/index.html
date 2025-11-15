@@ -6,7 +6,7 @@
 <title>File Converter — NGP Hub</title>
 
 <meta property="og:title" content="NGP Hub — File Converter" />
-<meta property="og:description" content="Convert between tons of file formats and download YouTube videos. All processing happens in your browser." />
+<meta property="og:description" content="Convert between tons of file formats. All processing happens in your browser." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com/converter" />
 <meta property="og:type" content="website" />
@@ -14,10 +14,10 @@
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="NGP Hub — File Converter" />
-<meta name="twitter:description" content="Convert between tons of file formats and download YouTube videos." />
+<meta name="twitter:description" content="Convert between tons of file formats." />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<meta name="description" content="Convert between tons of file formats and download YouTube videos. All processing happens in your browser." />
+<meta name="description" content="Convert between tons of file formats. All processing happens in your browser." />
 <meta name="keywords" content="file converter, YouTube downloader, format converter, NGP tools" />
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -101,11 +101,14 @@
   .format-select{display:flex; gap:12px; margin-bottom:24px; align-items:center; flex-wrap:wrap}
   .format-select label{color:var(--muted); font-weight:600}
   .format-select select{
-    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    background:var(--card); border:1px solid rgba(255,255,255,.15);
     color:var(--ink); padding:10px 16px; border-radius:10px; font-size:.95rem;
     cursor:pointer; flex:1; min-width:200px
   }
   .format-select select:focus{outline:none; box-shadow:var(--ring)}
+  .format-select select option{
+    background:var(--card); color:var(--ink); padding:8px
+  }
 
   .convert-btn{
     width:100%; padding:14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB));
@@ -148,29 +151,8 @@
   }
   .download-btn:hover{background:rgba(40,199,111,.3)}
 
-  .url-input-group{display:flex; gap:12px; margin-bottom:24px}
-  .url-input{
-    flex:1; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    color:var(--ink); padding:12px 16px; border-radius:10px; font-size:.95rem
-  }
-  .url-input:focus{outline:none; box-shadow:var(--ring)}
-  .url-input::placeholder{color:var(--muted); opacity:.5}
-
-  .format-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-bottom:24px}
-  .format-card{
-    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
-    border-radius:10px; padding:16px 12px; text-align:center; cursor:pointer;
-    transition:all .2s
-  }
-  .format-card:hover{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.15)}
-  .format-card.selected{background:linear-gradient(120deg,rgba(106,17,203,.2),rgba(37,117,252,.2)); border-color:var(--brandB)}
-  .format-card-icon{font-size:1.8rem; margin-bottom:8px}
-  .format-card-name{font-weight:600; font-size:.9rem}
-  .format-card-desc{font-size:.75rem; color:var(--muted); margin-top:4px}
-
   @media (max-width: 768px) {
     .hero h2{font-size:2rem}
-    .format-grid{grid-template-columns:repeat(auto-fill, minmax(120px, 1fr))}
   }
 
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
@@ -200,12 +182,11 @@
   <div class="wrap">
     <div class="hero">
       <h2>File Converter</h2>
-      <p>Convert between tons of formats or download YouTube videos — all in your browser</p>
+      <p>Convert between tons of formats — all in your browser</p>
     </div>
 
-    <div class="tabs">
+    <div class="tabs" style="display:none">
       <div class="tab active" data-tab="file-converter">📁 File Converter</div>
-      <div class="tab" data-tab="youtube-downloader">🎥 YouTube Downloader</div>
     </div>
 
     <!-- File Converter Tab -->
@@ -250,53 +231,6 @@
         <button class="download-btn" id="download-btn">Download Converted File</button>
       </div>
     </div>
-
-    <!-- YouTube Downloader Tab -->
-    <div class="tab-content" id="youtube-downloader">
-      <div class="card">
-        <div class="url-input-group">
-          <input type="text" class="url-input" id="yt-url" placeholder="Paste YouTube URL here..." />
-        </div>
-
-        <div class="format-grid" id="yt-format-grid">
-          <div class="format-card" data-format="mp4-720">
-            <div class="format-card-icon">🎬</div>
-            <div class="format-card-name">MP4 (720p)</div>
-            <div class="format-card-desc">Video</div>
-          </div>
-          <div class="format-card" data-format="mp4-1080">
-            <div class="format-card-icon">🎥</div>
-            <div class="format-card-name">MP4 (1080p)</div>
-            <div class="format-card-desc">Video HD</div>
-          </div>
-          <div class="format-card" data-format="mp3">
-            <div class="format-card-icon">🎵</div>
-            <div class="format-card-name">MP3</div>
-            <div class="format-card-desc">Audio only</div>
-          </div>
-          <div class="format-card" data-format="webm">
-            <div class="format-card-icon">🎞️</div>
-            <div class="format-card-name">WebM</div>
-            <div class="format-card-desc">Video</div>
-          </div>
-        </div>
-
-        <div class="status" id="yt-status"></div>
-        <div class="progress-bar" id="yt-progress-bar">
-          <div class="progress-fill" id="yt-progress-fill"></div>
-        </div>
-
-        <button class="convert-btn" id="yt-download-btn" disabled>Select a format</button>
-      </div>
-
-      <div class="card" style="margin-top:24px; background:rgba(235,87,87,.08); border-color:rgba(235,87,87,.2)">
-        <p style="margin:0; color:var(--muted); font-size:.9rem">
-          ⚠️ <strong>Note:</strong> YouTube downloading requires a backend service. This is a frontend demo.
-          You'll need to integrate with a service like <code>yt-dlp</code> or a third-party API to make downloads work.
-        </p>
-      </div>
-    </div>
-  </div>
 </main>
 
 <footer>
@@ -665,64 +599,6 @@
     setTimeout(() => {
       status.style.display = 'none';
     }, 5000);
-  }
-
-  // YouTube Downloader Logic
-  const ytUrl = document.getElementById('yt-url');
-  const ytFormatCards = document.querySelectorAll('#yt-format-grid .format-card');
-  const ytDownloadBtn = document.getElementById('yt-download-btn');
-  const ytStatus = document.getElementById('yt-status');
-  const ytProgressBar = document.getElementById('yt-progress-bar');
-  const ytProgressFill = document.getElementById('yt-progress-fill');
-  
-  let selectedYtFormat = null;
-
-  ytFormatCards.forEach(card => {
-    card.addEventListener('click', () => {
-      ytFormatCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedYtFormat = card.dataset.format;
-      ytDownloadBtn.disabled = false;
-      ytDownloadBtn.textContent = `Download as ${card.querySelector('.format-card-name').textContent}`;
-    });
-  });
-
-  ytUrl.addEventListener('input', () => {
-    if (ytUrl.value.includes('youtube.com') || ytUrl.value.includes('youtu.be')) {
-      // Valid URL
-    }
-  });
-
-  ytDownloadBtn.addEventListener('click', () => {
-    if (!ytUrl.value || !selectedYtFormat) return;
-    
-    ytDownloadBtn.disabled = true;
-    ytDownloadBtn.textContent = 'Processing...';
-    ytProgressBar.style.display = 'block';
-    
-    showYtStatus('info', '⚠️ YouTube downloading requires a backend service (yt-dlp). This is a demo only.');
-    
-    // Simulate progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 20;
-      if (progress > 100) progress = 100;
-      ytProgressFill.style.width = progress + '%';
-      
-      if (progress >= 100) {
-        clearInterval(interval);
-        ytProgressBar.style.display = 'none';
-        ytProgressFill.style.width = '0%';
-        ytDownloadBtn.disabled = false;
-        ytDownloadBtn.textContent = 'Download Another Video';
-      }
-    }, 300);
-  });
-
-  function showYtStatus(type, message) {
-    ytStatus.className = `status ${type}`;
-    ytStatus.textContent = message;
-    ytStatus.style.display = 'block';
   }
 </script>
 
