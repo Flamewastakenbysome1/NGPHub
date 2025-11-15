@@ -829,18 +829,54 @@
     }, 200);
     
     try {
+      const inputExt = selectedFile.name.split('.').pop().toLowerCase();
       const imageFormats = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'ico', 'tiff', 'avif'];
       
-      if (imageFormats.includes(selectedFile.name.split('.').pop().toLowerCase()) && 
-          imageFormats.includes(currentOutputFormat)) {
-        // Use the edited canvas
-        convertedBlob = await new Promise((resolve) => {
-          previewCanvas.toBlob(resolve, getMimeType(currentOutputFormat), 0.95);
-        });
+      // Check if we can actually convert (images only)
+      if (imageFormats.includes(inputExt) && imageFormats.includes(currentOutputFormat)) {
+        console.log('🎨 Converting image from', inputExt, 'to', currentOutputFormat);
+        
+        // Check if we're trying to convert TO GIF
+        if (currentOutputFormat === 'gif') {
+          throw new Error('Cannot convert TO GIF format. GIF encoding is not supported in browsers. Try converting to PNG, JPG, or WebP instead.');
+        }
+        
+        // Use the edited canvas to get the actual converted image
+        if (previewCanvas && previewCanvas.width > 0) {
+          console.log('✅ Using edited preview canvas for conversion');
+          convertedBlob = await new Promise((resolve, reject) => {
+            previewCanvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to create blob from canvas'));
+              }
+            }, getMimeType(currentOutputFormat), 0.95);
+          });
+        } else {
+          // Fallback: load image and convert without edits
+          console.log('⚠️ No preview canvas, converting without edits');
+          convertedBlob = await convertImageDirect(selectedFile, currentOutputFormat);
+        }
+        
+        console.log('✅ Conversion complete! Blob size:', convertedBlob.size, 'bytes');
+        
       } else {
-        // Fallback
+        // Can't actually convert - just simulate it
+        console.log('⚠️ Cannot actually convert', inputExt, 'to', currentOutputFormat, '- browser limitation');
+        console.log('ℹ️ For real conversion, you would need a backend service or specialized library');
+        
         await new Promise(resolve => setTimeout(resolve, 2000));
-        convertedBlob = new Blob([selectedFile], { type: getMimeType(currentOutputFormat) });
+        
+        // Just return the original file with warning
+        convertedBlob = selectedFile;
+        
+        clearInterval(interval);
+        progressBar.style.display = 'none';
+        showStatus('info', `⚠️ Browser cannot convert ${inputExt.toUpperCase()} to ${currentOutputFormat.toUpperCase()}. File unchanged.`);
+        convertBtn.textContent = 'Try Another Format';
+        convertBtn.disabled = false;
+        return;
       }
       
       clearInterval(interval);
@@ -849,7 +885,7 @@
       setTimeout(() => {
         progressBar.style.display = 'none';
         progressFill.style.width = '0%';
-        showStatus('success', `✅ Converted to ${currentOutputFormat.toUpperCase()}!`);
+        showStatus('success', `✅ Converted from ${inputExt.toUpperCase()} to ${currentOutputFormat.toUpperCase()}!`);
         convertBtn.textContent = 'Convert Another';
         convertBtn.disabled = false;
         downloadBtn.style.display = 'block';
@@ -858,11 +894,41 @@
     } catch (error) {
       clearInterval(interval);
       progressBar.style.display = 'none';
-      showStatus('error', `❌ Conversion failed: ${error.message}`);
+      showStatus('error', `❌ ${error.message}`);
       convertBtn.textContent = 'Try Again';
       convertBtn.disabled = false;
+      console.error('Conversion error:', error);
     }
   });
+
+  // Helper function to convert image without using the preview canvas
+  async function convertImageDirect(file, targetFormat) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to convert image'));
+            }
+          }, getMimeType(targetFormat), 0.95);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }
 
   downloadBtn.addEventListener('click', () => {
     if (!convertedBlob) return;
