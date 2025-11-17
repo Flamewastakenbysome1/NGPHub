@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Art Generator</title>
+    <title>Infinite Pixel Library</title>
     <style>
         * {
             margin: 0;
@@ -39,10 +39,10 @@
             gap: 15px;
             flex-wrap: wrap;
             align-items: center;
-            max-width: 800px;
+            max-width: 900px;
         }
 
-        input[type="number"], input[type="file"] {
+        input[type="number"], input[type="text"] {
             padding: 10px 15px;
             border: 2px solid #3a66ff;
             border-radius: 8px;
@@ -110,7 +110,7 @@
         </div>
         
         <div class="input-group" style="flex: 1; min-width: 300px;">
-            <label>Seed Number (Every image ever exists here):</label>
+            <label>Seed Number:</label>
             <input type="text" id="seedInput" value="0" style="width: 100%;">
         </div>
         
@@ -135,7 +135,6 @@
         const ctx = canvas.getContext('2d');
         let currentSeed = 0n;
 
-        // Seeded random number generator
         function seededRandom(seed) {
             let x = seed;
             return function() {
@@ -151,12 +150,12 @@
             canvas.width = width;
             canvas.height = height;
             
-            // Calculate total possible images
             const pixels = width * height;
-            const totalColors = BigInt(256 ** (pixels * 3)); // 256^(pixels*3) for RGB
-            document.getElementById('totalImages').textContent = totalColors.toLocaleString();
+            const bitsPerPixel = 24;
+            const totalBits = pixels * bitsPerPixel;
             
-            // Scale up for visibility
+            document.getElementById('totalImages').textContent = `2^${totalBits.toLocaleString()}`;
+            
             const scale = Math.min(600 / width, 600 / height, 30);
             canvas.style.width = (width * scale) + 'px';
             canvas.style.height = (height * scale) + 'px';
@@ -171,10 +170,10 @@
             const rng = seededRandom(BigInt(seed));
             
             for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.floor(rng() * 256);     // R
-                data[i + 1] = Math.floor(rng() * 256); // G
-                data[i + 2] = Math.floor(rng() * 256); // B
-                data[i + 3] = 255;                      // A
+                data[i] = Math.floor(rng() * 256);
+                data[i + 1] = Math.floor(rng() * 256);
+                data[i + 2] = Math.floor(rng() * 256);
+                data[i + 3] = 255;
             }
             
             ctx.putImageData(imageData, 0, 0);
@@ -197,14 +196,8 @@
         }
 
         function randomSeed() {
-            const width = parseInt(document.getElementById('width').value) || 16;
-            const height = parseInt(document.getElementById('height').value) || 16;
-            const pixels = width * height;
-            
-            // Generate random seed within reasonable range
-            const maxSeed = 2n ** BigInt(pixels * 8);
             const randomSeed = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-            generateFromSeed(randomSeed % maxSeed);
+            generateFromSeed(randomSeed);
         }
 
         function nextImage() {
@@ -224,7 +217,6 @@
             link.click();
         }
 
-        // Initialize
         updateCanvasSize();
         generateFromSeed(0n);
     </script>
