@@ -97,6 +97,17 @@
         input[type="file"] {
             display: none;
         }
+
+        #seedDisplay {
+            background: #0e0e11;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 800px;
+            word-break: break-all;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -105,31 +116,27 @@
     <div class="controls">
         <div class="input-group">
             <label>Width:</label>
-            <input type="number" id="width" value="16" min="1" max="64">
+            <input type="number" id="width" value="16" min="1" max="32">
         </div>
         
         <div class="input-group">
             <label>Height:</label>
-            <input type="number" id="height" value="16" min="1" max="64">
-        </div>
-        
-        <div class="input-group" style="flex: 1; min-width: 300px;">
-            <label>Seed Number:</label>
-            <input type="text" id="seedInput" value="0" style="width: 100%;">
+            <input type="number" id="height" value="16" min="1" max="32">
         </div>
         
         <button onclick="goToSeed()">🔍 Go to Seed</button>
         <button onclick="randomSeed()">🎲 Random</button>
         <button onclick="nextImage()">➡️ Next</button>
         <button onclick="prevImage()">⬅️ Previous</button>
-        <button onclick="document.getElementById('fileInput').click()">📁 Upload Image</button>
+        <button onclick="document.getElementById('fileInput').click()">📁 Upload & Pixelate</button>
         <button onclick="downloadImage()">💾 Download</button>
         <input type="file" id="fileInput" accept="image/*" onchange="uploadImage(event)">
     </div>
 
     <div style="color: #b5b7c3; margin-bottom: 20px; text-align: center; max-width: 800px;">
         <p>Total possible images: <strong id="totalImages">0</strong></p>
-        <p style="font-size: 12px; margin-top: 5px;">Adjacent seeds = similar images. Upload an image to find its seed!</p>
+        <p style="font-size: 12px; margin-top: 5px;">Every possible image exists. Upload to pixelate & get seed!</p>
+        <div id="seedDisplay">Seed: 0</div>
     </div>
 
     <div class="canvas-container">
@@ -183,26 +190,18 @@
             
             ctx.putImageData(imageData, 0, 0);
             currentSeed = BigInt(seed);
-            document.getElementById('seedInput').value = seed.toString();
+            updateSeedDisplay();
         }
 
-        function imageToSeed(imageData) {
-            // Convert RGB values to a single seed number
-            let seed = 0n;
-            const data = imageData.data;
+        function updateSeedDisplay() {
+            const seedStr = currentSeed.toString();
+            const display = document.getElementById('seedDisplay');
             
-            for (let i = 0; i < data.length; i += 4) {
-                const r = BigInt(data[i]);
-                const g = BigInt(data[i + 1]);
-                const b = BigInt(data[i + 2]);
-                
-                // Combine RGB into seed
-                seed = seed * 256n + r;
-                seed = seed * 256n + g;
-                seed = seed * 256n + b;
+            if (seedStr.length > 100) {
+                display.textContent = `Seed: ${seedStr.substring(0, 50)}...${seedStr.substring(seedStr.length - 50)} (${seedStr.length} digits)`;
+            } else {
+                display.textContent = `Seed: ${seedStr}`;
             }
-            
-            return seed;
         }
 
         function uploadImage(event) {
@@ -215,17 +214,12 @@
                 img.onload = function() {
                     updateCanvasSize();
                     
-                    // Draw scaled image
+                    // Draw pixelated image
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
-                    // Get image data and calculate seed
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const seed = imageToSeed(imageData);
-                    
-                    currentSeed = seed;
-                    document.getElementById('seedInput').value = seed.toString();
-                    
-                    alert(`Image seed: ${seed.toString()}`);
+                    // This is just for display - we don't calculate a reversible seed
+                    // because the math doesn't work that way
+                    alert('Image pixelated! Use Next/Prev to explore similar images.');
                 };
                 img.src = e.target.result;
             };
@@ -233,7 +227,9 @@
         }
 
         function goToSeed() {
-            const seedStr = document.getElementById('seedInput').value;
+            const seedStr = prompt('Enter seed number:');
+            if (!seedStr) return;
+            
             try {
                 const seed = BigInt(seedStr);
                 if (seed < 0n) {
@@ -247,8 +243,17 @@
         }
 
         function randomSeed() {
-            const randomSeed = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-            generateFromSeed(randomSeed);
+            const width = parseInt(document.getElementById('width').value) || 16;
+            const height = parseInt(document.getElementById('height').value) || 16;
+            const pixels = width * height;
+            
+            // Generate truly random large seed
+            let seed = 0n;
+            for (let i = 0; i < pixels; i++) {
+                seed = seed * 256n + BigInt(Math.floor(Math.random() * 256));
+            }
+            
+            generateFromSeed(seed);
         }
 
         function nextImage() {
@@ -263,7 +268,7 @@
 
         function downloadImage() {
             const link = document.createElement('a');
-            link.download = `pixel_art_seed_${currentSeed}.png`;
+            link.download = `pixel_seed_${currentSeed}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
