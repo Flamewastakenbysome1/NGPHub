@@ -93,6 +93,10 @@
             flex-direction: column;
             gap: 5px;
         }
+
+        input[type="file"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -118,12 +122,14 @@
         <button onclick="randomSeed()">🎲 Random</button>
         <button onclick="nextImage()">➡️ Next</button>
         <button onclick="prevImage()">⬅️ Previous</button>
+        <button onclick="document.getElementById('fileInput').click()">📁 Upload Image</button>
         <button onclick="downloadImage()">💾 Download</button>
+        <input type="file" id="fileInput" accept="image/*" onchange="uploadImage(event)">
     </div>
 
     <div style="color: #b5b7c3; margin-bottom: 20px; text-align: center; max-width: 800px;">
-        <p>Total possible images at this resolution: <strong id="totalImages">0</strong></p>
-        <p style="font-size: 12px; margin-top: 5px;">Adjacent seed numbers create similar images. Every possible image exists somewhere in this library.</p>
+        <p>Total possible images: <strong id="totalImages">0</strong></p>
+        <p style="font-size: 12px; margin-top: 5px;">Adjacent seeds = similar images. Upload an image to find its seed!</p>
     </div>
 
     <div class="canvas-container">
@@ -151,8 +157,7 @@
             canvas.height = height;
             
             const pixels = width * height;
-            const bitsPerPixel = 24;
-            const totalBits = pixels * bitsPerPixel;
+            const totalBits = pixels * 24;
             
             document.getElementById('totalImages').textContent = `2^${totalBits.toLocaleString()}`;
             
@@ -179,6 +184,52 @@
             ctx.putImageData(imageData, 0, 0);
             currentSeed = BigInt(seed);
             document.getElementById('seedInput').value = seed.toString();
+        }
+
+        function imageToSeed(imageData) {
+            // Convert RGB values to a single seed number
+            let seed = 0n;
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = BigInt(data[i]);
+                const g = BigInt(data[i + 1]);
+                const b = BigInt(data[i + 2]);
+                
+                // Combine RGB into seed
+                seed = seed * 256n + r;
+                seed = seed * 256n + g;
+                seed = seed * 256n + b;
+            }
+            
+            return seed;
+        }
+
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    updateCanvasSize();
+                    
+                    // Draw scaled image
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Get image data and calculate seed
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const seed = imageToSeed(imageData);
+                    
+                    currentSeed = seed;
+                    document.getElementById('seedInput').value = seed.toString();
+                    
+                    alert(`Image seed: ${seed.toString()}`);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function goToSeed() {
