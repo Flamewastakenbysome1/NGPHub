@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butterfly Effect Maker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0e0e11;
+            color: #ececf1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #15151b;
+            border-bottom: 1px solid #2a2a35;
+            padding: 12px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .toolbar button {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+        }
+
+        .toolbar button.secondary {
+            background: #2a2a35;
+        }
+
+        .toolbar button.secondary:hover {
+            background: #3a3a45;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .toolbar .title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: auto;
+        }
+
+        .toolbar .hint {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .canvas-container {
+            margin-top: 60px;
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow: auto;
+            position: relative;
+        }
+
+        #canvas {
+            position: relative;
+            width: 5000px;
+            height: 5000px;
+            background: 
+                radial-gradient(circle at 1px 1px, #1a1a22 1px, transparent 0);
+            background-size: 30px 30px;
+        }
+
+        svg.connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        svg.connections path {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        .node {
+            position: absolute;
+            background: #ffffff;
+            color: #0e0e11;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            padding: 12px 18px;
+            min-width: 120px;
+            max-width: 250px;
+            cursor: move;
+            user-select: none;
+            z-index: 10;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .node:hover {
+            box-shadow: 0 6px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .node.selected {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.5), 0 6px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .node.connecting {
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.5);
+        }
+
+        .node .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #ff4757;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .node:hover .delete-btn {
+            display: flex;
+        }
+
+        .node .connect-btn {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 22px;
+            height: 22px;
+            background: #2575fc;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            cursor: crosshair;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .node:hover .connect-btn {
+            display: flex;
+        }
+
+        .node-text {
+            outline: none;
+            min-width: 50px;
+        }
+
+        .node-text:empty:before {
+            content: 'Click to edit...';
+            color: #666;
+        }
+
+        .annotation {
+            position: absolute;
+            color: #888;
+            font-size: 12px;
+            font-style: italic;
+            cursor: move;
+            user-select: none;
+            z-index: 5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(21, 21, 27, 0.8);
+        }
+
+        .annotation.selected {
+            outline: 2px solid #6a11cb;
+        }
+
+        .annotation .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 18px;
+            height: 18px;
+            background: #ff4757;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .annotation:hover .delete-btn {
+            display: flex;
+        }
+
+        .context-menu {
+            position: fixed;
+            background: #15151b;
+            border: 1px solid #2a2a35;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 150px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu button {
+            width: 100%;
+            background: none;
+            border: none;
+            color: #ececf1;
+            padding: 10px 16px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .context-menu button:hover {
+            background: #2a2a35;
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #15151b;
+            border: 1px solid #2a2a35;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 12px;
+            color: #888;
+            max-width: 280px;
+            z-index: 50;
+        }
+
+        .instructions h4 {
+            color: #ececf1;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            margin: 6px 0;
+        }
+
+        .instructions kbd {
+            background: #2a2a35;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="title">🦋 Butterfly Effect Maker</span>
+        <button onclick="addNode()">+ Add Event</button>
+        <button onclick="addAnnotation()" class="secondary">+ Add Note</button>
+        <button onclick="clearAll()" class="secondary">Clear All</button>
+        <button onclick="exportAsImage()" class="secondary">Export PNG</button>
+        <span class="hint">Right-click canvas for more options</span>
+    </div>
+
+    <div class="canvas-container">
+        <div id="canvas">
+            <svg class="connections" id="connections"></svg>
+        </div>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <button onclick="addNodeAtCursor()">Add Event Here</button>
+        <button onclick="addAnnotationAtCursor()">Add Note Here</button>
+    </div>
+
+    <div class="instructions">
+        <h4>How to use:</h4>
+        <p>🖱️ <strong>Drag</strong> boxes to move them</p>
+        <p>✏️ <strong>Click text</strong> to edit</p>
+        <p>🔗 <strong>Blue dot</strong> connects to another box</p>
+        <p>❌ <strong>Red dot</strong> deletes the box</p>
+        <p>📍 <strong>Right-click</strong> canvas for quick add</p>
+        <p><kbd>Delete</kbd> removes selected item</p>
+    </div>
+
+    <script>
+        let nodes = [];
+        let connections = [];
+        let annotations = [];
+        let nodeIdCounter = 0;
+        let annotationIdCounter = 0;
+        let selectedNode = null;
+        let connectingFrom = null;
+        let contextMenuPos = { x: 0, y: 0 };
+
+        const canvas = document.getElementById('canvas');
+        const svg = document.getElementById('connections');
+        const contextMenu = document.getElementById('contextMenu');
+
+        // Initialize with example nodes
+        function init() {
+            addNode(200, 200, 'Starting Event');
+            addNode(450, 150, 'First Branch');
+            addNode(450, 280, 'Second Branch');
+            addNode(700, 100, 'Outcome A');
+            addNode(700, 200, 'Outcome B');
+            addNode(700, 300, 'Outcome C');
+            
+            // Create some example connections
+            setTimeout(() => {
+                createConnection(nodes[0], nodes[1]);
+                createConnection(nodes[0], nodes[2]);
+                createConnection(nodes[1], nodes[3]);
+                createConnection(nodes[1], nodes[4]);
+                createConnection(nodes[2], nodes[5]);
+                updateConnections();
+            }, 100);
+        }
+
+        function addNode(x = 300, y = 200, text = 'New Event') {
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.id = `node-${nodeIdCounter}`;
+            node.style.left = x + 'px';
+            node.style.top = y + 'px';
+            
+            node.innerHTML = `
+                <button class="delete-btn" onclick="deleteNode('${node.id}')">&times;</button>
+                <button class="connect-btn" onmousedown="startConnect(event, '${node.id}')">+</button>
+                <div class="node-text" contenteditable="true">${text}</div>
+            `;
+
+            const nodeData = {
+                id: node.id,
+                element: node,
+                x: x,
+                y: y
+            };
+            nodes.push(nodeData);
+            nodeIdCounter++;
+
+            makeDraggable(node, nodeData);
+            canvas.appendChild(node);
+
+            // Focus text for editing
+            const textEl = node.querySelector('.node-text');
+            textEl.addEventListener('focus', (e) => e.stopPropagation());
+            textEl.addEventListener('mousedown', (e) => e.stopPropagation());
+
+            return nodeData;
+        }
+
+        function addAnnotation(x = 350, y = 350, text = 'Note: a WHILE ago') {
+            const anno = document.createElement('div');
+            anno.className = 'annotation';
+            anno.id = `anno-${annotationIdCounter}`;
+            anno.style.left = x + 'px';
+            anno.style.top = y + 'px';
+            anno.contentEditable = true;
+            anno.textContent = text;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.onclick = () => deleteAnnotation(anno.id);
+            anno.appendChild(deleteBtn);
+
+            const annoData = {
+                id: anno.id,
+                element: anno,
+                x: x,
+                y: y
+            };
+            annotations.push(annoData);
+            annotationIdCounter++;
+
+            makeDraggable(anno, annoData, true);
+            canvas.appendChild(anno);
+
+            return annoData;
+        }
+
+        function makeDraggable(element, data, isAnnotation = false) {
+            let isDragging = false;
+            let startX, startY, origX, origY;
+
+            element.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('delete-btn') || 
+                    e.target.classList.contains('connect-btn') ||
+                    e.target.classList.contains('node-text') ||
+                    (e.target.contentEditable === 'true' && isAnnotation)) {
+                    return;
+                }
+
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                origX = data.x;
+                origY = data.y;
+
+                selectNode(data.id);
+                element.style.zIndex = 100;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                data.x = origX + dx;
+                data.y = origY + dy;
+
+                element.style.left = data.x + 'px';
+                element.style.top = data.y + 'px';
+
+                if (!isAnnotation) {
+                    updateConnections();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    element.style.zIndex = isAnnotation ? 5 : 10;
+                }
+            });
+        }
+
+        function selectNode(id) {
+            document.querySelectorAll('.node, .annotation').forEach(n => n.classList.remove('selected'));
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('selected');
+                selectedNode = id;
+            }
+        }
+
+        function startConnect(e, nodeId) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            connectingFrom = nodes.find(n => n.id === nodeId);
+            if (connectingFrom) {
+                connectingFrom.element.classList.add('connecting');
+                document.body.style.cursor = 'crosshair';
+            }
+        }
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (connectingFrom) {
+                const target = e.target.closest('.node');
+                if (target && target.id !== connectingFrom.id) {
+                    const targetNode = nodes.find(n => n.id === target.id);
+                    if (targetNode) {
+                        createConnection(connectingFrom, targetNode);
+                    }
+                }
+                connectingFrom.element.classList.remove('connecting');
+                connectingFrom = null;
+                document.body.style.cursor = 'default';
+            }
+        });
+
+        function createConnection(from, to) {
+            // Check if connection already exists
+            const exists = connections.some(c => 
+                (c.from.id === from.id && c.to.id === to.id) ||
+                (c.from.id === to.id && c.to.id === from.id)
+            );
+            if (exists) return;
+
+            connections.push({ from, to });
+            updateConnections();
+        }
+
+        function updateConnections() {
+            svg.innerHTML = '';
+            
+            connections.forEach(conn => {
+                const fromEl = conn.from.element;
+                const toEl = conn.to.element;
+
+                const fromRect = {
+                    x: conn.from.x + fromEl.offsetWidth / 2,
+                    y: conn.from.y + fromEl.offsetHeight / 2,
+                    width: fromEl.offsetWidth,
+                    height: fromEl.offsetHeight
+                };
+
+                const toRect = {
+                    x: conn.to.x + toEl.offsetWidth / 2,
+                    y: conn.to.y + toEl.offsetHeight / 2,
+                    width: toEl.offsetWidth,
+                    height: toEl.offsetHeight
+                };
+
+                // Calculate edge points
+                const fromEdge = getEdgePoint(conn.from.x, conn.from.y, fromEl.offsetWidth, fromEl.offsetHeight, toRect.x, toRect.y);
+                const toEdge = getEdgePoint(conn.to.x, conn.to.y, toEl.offsetWidth, toEl.offsetHeight, fromRect.x, fromRect.y);
+
+                // Create curved path
+                const midX = (fromEdge.x + toEdge.x) / 2;
+                const midY = (fromEdge.y + toEdge.y) / 2;
+                
+                const dx = toEdge.x - fromEdge.x;
+                const dy = toEdge.y - fromEdge.y;
+                
+                // Curve control point offset
+                const curveOffset = Math.min(Math.abs(dx), Math.abs(dy)) * 0.3;
+                const cx1 = fromEdge.x + dx * 0.25;
+                const cy1 = fromEdge.y;
+                const cx2 = toEdge.x - dx * 0.25;
+                const cy2 = toEdge.y;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${fromEdge.x} ${fromEdge.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${toEdge.x} ${toEdge.y}`);
+                path.setAttribute('data-from', conn.from.id);
+                path.setAttribute('data-to', conn.to.id);
+                svg.appendChild(path);
+            });
+        }
+
+        function getEdgePoint(boxX, boxY, width, height, targetX, targetY) {
+            const centerX = boxX + width / 2;
+            const centerY = boxY + height / 2;
+            
+            const dx = targetX - centerX;
+            const dy = targetY - centerY;
+            
+            const angle = Math.atan2(dy, dx);
+            
+            // Determine which edge to use
+            const halfW = width / 2;
+            const halfH = height / 2;
+            
+            let x, y;
+            
+            // Check if angle points more to sides or top/bottom
+            const tanAngle = Math.abs(Math.tan(angle));
+            const aspectRatio = halfH / halfW;
+            
+            if (tanAngle < aspectRatio) {
+                // Hits left or right edge
+                x = centerX + (dx > 0 ? halfW : -halfW);
+                y = centerY + (dx > 0 ? halfW : -halfW) * Math.tan(angle);
+            } else {
+                // Hits top or bottom edge
+                y = centerY + (dy > 0 ? halfH : -halfH);
+                x = centerX + (dy > 0 ? halfH : -halfH) / Math.tan(angle);
+            }
+            
+            return { x, y };
+        }
+
+        function deleteNode(id) {
+            const nodeIndex = nodes.findIndex(n => n.id === id);
+            if (nodeIndex !== -1) {
+                nodes[nodeIndex].element.remove();
+                nodes.splice(nodeIndex, 1);
+                
+                // Remove related connections
+                connections = connections.filter(c => c.from.id !== id && c.to.id !== id);
+                updateConnections();
+            }
+        }
+
+        function deleteAnnotation(id) {
+            const annoIndex = annotations.findIndex(a => a.id === id);
+            if (annoIndex !== -1) {
+                annotations[annoIndex].element.remove();
+                annotations.splice(annoIndex, 1);
+            }
+        }
+
+        function clearAll() {
+            if (confirm('Clear everything? This cannot be undone!')) {
+                nodes.forEach(n => n.element.remove());
+                annotations.forEach(a => a.element.remove());
+                nodes = [];
+                connections = [];
+                annotations = [];
+                svg.innerHTML = '';
+            }
+        }
+
+        // Context menu
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenuPos = { 
+                x: e.clientX + document.querySelector('.canvas-container').scrollLeft,
+                y: e.clientY + document.querySelector('.canvas-container').scrollTop - 60
+            };
+            contextMenu.style.left = e.clientX + 'px';
+            contextMenu.style.top = e.clientY + 'px';
+            contextMenu.classList.add('show');
+        });
+
+        document.addEventListener('click', () => {
+            contextMenu.classList.remove('show');
+        });
+
+        function addNodeAtCursor() {
+            addNode(contextMenuPos.x, contextMenuPos.y, 'New Event');
+        }
+
+        function addAnnotationAtCursor() {
+            addAnnotation(contextMenuPos.x, contextMenuPos.y, 'Note...');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' && selectedNode) {
+                if (selectedNode.startsWith('node-')) {
+                    deleteNode(selectedNode);
+                } else if (selectedNode.startsWith('anno-')) {
+                    deleteAnnotation(selectedNode);
+                }
+                selectedNode = null;
+            }
+        });
+
+        // Export as image
+        async function exportAsImage() {
+            // Get bounds of all elements
+            let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+            
+            nodes.forEach(n => {
+                minX = Math.min(minX, n.x);
+                minY = Math.min(minY, n.y);
+                maxX = Math.max(maxX, n.x + n.element.offsetWidth);
+                maxY = Math.max(maxY, n.y + n.element.offsetHeight);
+            });
+            
+            annotations.forEach(a => {
+                minX = Math.min(minX, a.x);
+                minY = Math.min(minY, a.y);
+                maxX = Math.max(maxX, a.x + a.element.offsetWidth);
+                maxY = Math.max(maxY, a.y + a.element.offsetHeight);
+            });
+
+            // Add padding
+            const padding = 50;
+            minX -= padding;
+            minY -= padding;
+            maxX += padding;
+            maxY += padding;
+
+            // Create canvas for export
+            const exportCanvas = document.createElement('canvas');
+            const width = maxX - minX;
+            const height = maxY - minY;
+            exportCanvas.width = width;
+            exportCanvas.height = height;
+            const ctx = exportCanvas.getContext('2d');
+
+            // Draw background
+            ctx.fillStyle = '#0e0e11';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw grid
+            ctx.strokeStyle = '#1a1a22';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < width; x += 30) {
+                ctx.beginPath();
+                ctx.arc(x, 0, 1, 0, Math.PI * 2);
+                for (let y = 0; y < height; y += 30) {
+                    ctx.moveTo(x + 1, y);
+                    ctx.arc(x, y, 1, 0, Math.PI * 2);
+                }
+                ctx.fill();
+            }
+
+            // Draw connections
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            connections.forEach(conn => {
+                const fromEl = conn.from.element;
+                const toEl = conn.to.element;
+                
+                const fromEdge = getEdgePoint(conn.from.x - minX, conn.from.y - minY, fromEl.offsetWidth, fromEl.offsetHeight, 
+                    conn.to.x - minX + toEl.offsetWidth/2, conn.to.y - minY + toEl.offsetHeight/2);
+                const toEdge = getEdgePoint(conn.to.x - minX, conn.to.y - minY, toEl.offsetWidth, toEl.offsetHeight,
+                    conn.from.x - minX + fromEl.offsetWidth/2, conn.from.y - minY + fromEl.offsetHeight/2);
+
+                const dx = toEdge.x - fromEdge.x;
+                const cx1 = fromEdge.x + dx * 0.25;
+                const cy1 = fromEdge.y;
+                const cx2 = toEdge.x - dx * 0.25;
+                const cy2 = toEdge.y;
+
+                ctx.beginPath();
+                ctx.moveTo(fromEdge.x, fromEdge.y);
+                ctx.bezierCurveTo(cx1, cy1, cx2, cy2, toEdge.x, toEdge.y);
+                ctx.stroke();
+            });
+
+            // Draw nodes
+            nodes.forEach(n => {
+                const x = n.x - minX;
+                const y = n.y - minY;
+                const w = n.element.offsetWidth;
+                const h = n.element.offsetHeight;
+                const text = n.element.querySelector('.node-text').textContent;
+
+                // Draw box
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                roundRect(ctx, x, y, w, h, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw text
+                ctx.fillStyle = '#0e0e11';
+                ctx.font = '500 14px Segoe UI, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Word wrap
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                    if (ctx.measureText(testLine).width > w - 20) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = testLine;
+                    }
+                });
+                lines.push(currentLine);
+                
+                const lineHeight = 18;
+                const startY = y + h/2 - (lines.length - 1) * lineHeight / 2;
+                lines.forEach((line, i) => {
+                    ctx.fillText(line, x + w/2, startY + i * lineHeight);
+                });
+            });
+
+            // Draw annotations
+            annotations.forEach(a => {
+                const x = a.x - minX;
+                const y = a.y - minY;
+                const text = a.element.textContent.replace('×', '').trim();
+
+                ctx.fillStyle = '#888';
+                ctx.font = 'italic 12px Segoe UI, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                ctx.fillText(text, x, y);
+            });
+
+            // Download
+            const link = document.createElement('a');
+            link.download = 'butterfly-effect.png';
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
