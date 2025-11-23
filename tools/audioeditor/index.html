@@ -202,9 +202,6 @@
           <div class="knob">
             <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
             <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
-            <div class="row" style="margin-top:4px;">
-              <small class="muted">Note: Pitch changes only apply to downloaded files, not live preview</small>
-            </div>
           </div>
 
           <div class="knob">
@@ -1212,45 +1209,49 @@ try {
 
     const channels = workBuffer.numberOfChannels;
     const sampleRate = workBuffer.sampleRate;
-    
-    // Calculate playback rate and pitch
-    const pitchMultiplier = Math.pow(2, params.pitch / 12);
-    
-    // When preservePitch is true, only apply speed change
-    // When false, apply both speed and pitch changes
-    let finalPlaybackRate, pitchAdjust;
-    if (params.preservePitch) {
-      finalPlaybackRate = params.speed;
-      pitchAdjust = pitchMultiplier;
-    } else {
-      finalPlaybackRate = params.speed * pitchMultiplier;
-      pitchAdjust = 1;
-    }
-    
-    const outputLength = Math.max(1, Math.floor(workBuffer.length / finalPlaybackRate));
 
-    // If we need pitch adjustment separately, we need to resample first
-    let workingBuffer = workBuffer;
-    let workingSampleRate = sampleRate;
+    // Reworked pitch system:
+    // - Speed: controls playback speed
+    // - Pitch: always applied independently
+    // - Preserve: determines if speed affects pitch
+
+    const pitchShift = Math.pow(2, params.pitch / 12);  // Independent pitch shift
+
+    let speedPlaybackRate, finalSampleRate;
+
+    if (params.preservePitch) {
+      // Preserve pitch mode: speed doesn't affect pitch
+      // Apply speed WITHOUT affecting pitch, then apply pitch shift separately
+      speedPlaybackRate = params.speed;
+      finalSampleRate = Math.round(sampleRate * pitchShift);  // Pitch via sample rate
+    } else {
+      // Non-preserve mode: speed affects pitch naturally, then apply extra pitch on top
+      speedPlaybackRate = params.speed * pitchShift;  // Both speed and pitch
+      finalSampleRate = sampleRate;  // No sample rate change needed
+    }
+
+    // Create a buffer with pitch shift applied (if needed)
+    let pitchShiftedBuffer = workBuffer;
+    let finalWorkingSampleRate = sampleRate;
 
     if (params.preservePitch && params.pitch !== 0) {
-      // Create a temporary context with adjusted sample rate for pitch shift
-      const tempSampleRate = Math.round(sampleRate * pitchAdjust);
-      const tempCtx = new OfflineAudioContext(channels, workBuffer.length, tempSampleRate);
+      // Apply pitch shift by changing sample rate
+      const tempCtx = new OfflineAudioContext(channels, workBuffer.length, finalSampleRate);
       const tempSource = tempCtx.createBufferSource();
       tempSource.buffer = workBuffer;
       tempSource.connect(tempCtx.destination);
       tempSource.start(0);
-      workingBuffer = await tempCtx.startRendering();
-      workingSampleRate = tempSampleRate;
+      pitchShiftedBuffer = await tempCtx.startRendering();
+      finalWorkingSampleRate = finalSampleRate;
     }
-    
-    const offlineCtx = new OfflineAudioContext(channels, outputLength, workingSampleRate);
-    
+
+    const outputLength = Math.max(1, Math.floor(pitchShiftedBuffer.length / speedPlaybackRate));
+    const offlineCtx = new OfflineAudioContext(channels, outputLength, finalWorkingSampleRate);
+
     // Create source
     const source = offlineCtx.createBufferSource();
-    source.buffer = workingBuffer;
-    source.playbackRate.value = params.speed;
+    source.buffer = pitchShiftedBuffer;
+    source.playbackRate.value = params.preservePitch ? params.speed : speedPlaybackRate;
     
     elements.renderProgressFill.style.width = '40%';
     
@@ -1263,8 +1264,16 @@ try {
     const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
     muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
 
-    // Reverb dry/wet mix
+    // Reverb dry/wet mix - MUST be initialized before use
     const conv = offlineCtx.createConvolver();
+    // Always create an impulse response (required for convolver to work)
+    if (params.reverb > 0) {
+      const reverbAmount = Math.max(0.001, params.reverb / 100);
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    } else {
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
+    }
+
     const reverbDry = offlineCtx.createGain();
     const reverbWet = offlineCtx.createGain();
     const reverbMix = offlineCtx.createGain();
@@ -1273,13 +1282,6 @@ try {
     const reverbMixAmount = Math.min(1, params.reverb / reverbMaxValue);
     reverbDry.gain.value = Math.cos(reverbMixAmount * Math.PI / 2);
     reverbWet.gain.value = Math.sin(reverbMixAmount * Math.PI / 2);
-
-    if (params.reverb > 0) {
-      const reverbAmount = Math.max(0.001, params.reverb / 100);
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-    } else {
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
-    }
 
     const bassEQ = offlineCtx.createBiquadFilter();
     bassEQ.type = 'lowshelf';
@@ -1447,8 +1449,16 @@ try {
     const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
     muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
 
-    // Reverb dry/wet mix
+    // Reverb dry/wet mix - MUST be initialized before use
     const conv = offlineCtx.createConvolver();
+    // Always create an impulse response (required for convolver to work)
+    if (params.reverb > 0) {
+      const reverbAmount = Math.max(0.001, params.reverb / 100);
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    } else {
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
+    }
+
     const reverbDry = offlineCtx.createGain();
     const reverbWet = offlineCtx.createGain();
     const reverbMix = offlineCtx.createGain();
@@ -1457,13 +1467,6 @@ try {
     const reverbMixAmount = Math.min(1, params.reverb / reverbMaxValue);
     reverbDry.gain.value = Math.cos(reverbMixAmount * Math.PI / 2);
     reverbWet.gain.value = Math.sin(reverbMixAmount * Math.PI / 2);
-
-    if (params.reverb > 0) {
-      const reverbAmount = Math.max(0.001, params.reverb / 100);
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
-    } else {
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
-    }
 
     const bassEQ = offlineCtx.createBiquadFilter();
     bassEQ.type = 'lowshelf';
