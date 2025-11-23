@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (1.6.2)</title>
+<title>NGP Hub — Audio Remix (1.6.3)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -379,7 +379,7 @@ try {
   nodes.dryGain.gain.value = 1;
   nodes.feedback.gain.value = 0;
   nodes.echoWet.gain.value = 0;
-  nodes.master.gain.value = 2.5;  // Boost output to compensate for signal chain losses
+  nodes.master.gain.value = 1;
 
   // Bitcrush setup - Start fully bypassed for clean audio
   nodes.bitcrushBypass.gain.value = 1;
@@ -967,7 +967,7 @@ try {
 
   function updateGain() {
     const gainValue = parseInt(elements.gainSlider.value);
-    nodes.master.gain.value = dbToLinear(gainValue) * 2.5;  // Match export boost
+    nodes.master.gain.value = dbToLinear(gainValue);
     elements.gainLbl.textContent = 'Gain ' + (gainValue >= 0 ? '+' : '') + gainValue + ' dB';
   }
   
@@ -1349,7 +1349,7 @@ try {
     const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain) * 2.5;  // Boost output
+    master.gain.value = dbToLinear(params.gain);
 
     elements.renderProgressFill.style.width = '60%';
 
@@ -1527,7 +1527,7 @@ try {
     const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain) * 2.5;  // Boost output
+    master.gain.value = dbToLinear(params.gain);
 
     elements.renderProgressFill.style.width = '70%';
 
