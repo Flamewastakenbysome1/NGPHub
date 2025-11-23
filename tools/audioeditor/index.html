@@ -347,6 +347,9 @@ try {
   const nodes = {
     muffle: audioContext.createBiquadFilter(),
     convolver: audioContext.createConvolver(),
+    reverbWet: audioContext.createGain(),
+    reverbDry: audioContext.createGain(),
+    reverbMix: audioContext.createGain(),
     bass: audioContext.createBiquadFilter(),
     dryGain: audioContext.createGain(),
     delay: audioContext.createDelay(2.0),
@@ -368,12 +371,15 @@ try {
   nodes.muffle.type = 'lowpass';
   nodes.muffle.frequency.value = 20000;
   nodes.muffle.Q.value = 0.7;
+  nodes.reverbDry.gain.value = 1;  // Start with dry signal only
+  nodes.reverbWet.gain.value = 0;  // No reverb
   nodes.bass.type = 'lowshelf';
   nodes.bass.frequency.value = 140;
+  nodes.bass.gain.value = 0;
   nodes.dryGain.gain.value = 1;
   nodes.feedback.gain.value = 0;
   nodes.echoWet.gain.value = 0;
-  nodes.master.gain.value = 1;
+  nodes.master.gain.value = 2.5;  // Boost output to compensate for signal chain losses
 
   // Bitcrush setup - Start fully bypassed for clean audio
   nodes.bitcrushBypass.gain.value = 1;
@@ -395,8 +401,15 @@ try {
   // Connect audio graph
   nodes.delay.connect(nodes.feedback);
   nodes.feedback.connect(nodes.delay);
+
+  // Reverb dry/wet mix
+  nodes.muffle.connect(nodes.reverbDry);
   nodes.muffle.connect(nodes.convolver);
-  nodes.convolver.connect(nodes.bass);
+  nodes.convolver.connect(nodes.reverbWet);
+  nodes.reverbDry.connect(nodes.reverbMix);
+  nodes.reverbWet.connect(nodes.reverbMix);
+
+  nodes.reverbMix.connect(nodes.bass);
   nodes.bass.connect(nodes.dryGain);
   nodes.bass.connect(nodes.delay);
   nodes.delay.connect(nodes.echoWet);
@@ -681,11 +694,16 @@ try {
           sourceNode.disconnect();
         } catch (e) {}
 
-        createAudioSource();
-        startOffset = seekTime;
-        sourceNode.start(0, startOffset);
-        lastPlayTime = audioContext.currentTime;
-        updateTimeDisplay();
+        // Small delay to prevent clicks/pops
+        setTimeout(function() {
+          if (isPlaying) {  // Check if still playing after timeout
+            createAudioSource();
+            startOffset = seekTime;
+            sourceNode.start(0, startOffset);
+            lastPlayTime = audioContext.currentTime;
+            updateTimeDisplay();
+          }
+        }, 10);
       } else {
         elements.curTime.textContent = formatTime(currentTime);
         updateProgressIndicator();
@@ -788,36 +806,38 @@ try {
 
   elements.seek.onchange = function() {
     if (!audioBuffer) return;
-    
+
     const wasPlaying = isPlaying;
     currentTime = parseFloat(elements.seek.value);
-    
+
     // Stop current playback if playing
     if (isPlaying) {
-      try { 
-        sourceNode.stop(); 
+      try {
+        sourceNode.stop();
         sourceNode.disconnect();
       } catch (e) {}
-      isPlaying = false;
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
       }
     }
-    
+
     // Update display
     elements.curTime.textContent = formatTime(currentTime);
     updateProgressIndicator();
-    
+
     // Restart if it was playing
     if (wasPlaying) {
-      createAudioSource();
-      startOffset = currentTime;
-      sourceNode.start(0, startOffset);
-      lastPlayTime = audioContext.currentTime;
-      isPlaying = true;
-      elements.playBtn.textContent = '⏸';
-      updateTimeDisplay();
+      // Small delay to prevent audio artifacts
+      setTimeout(function() {
+        createAudioSource();
+        startOffset = currentTime;
+        sourceNode.start(0, startOffset);
+        lastPlayTime = audioContext.currentTime;
+        isPlaying = true;
+        elements.playBtn.textContent = '⏸';
+        updateTimeDisplay();
+      }, 10);
     }
   };
 
@@ -912,10 +932,17 @@ try {
   elements.reverb.oninput = function() {
     const reverbValue = parseInt(elements.reverb.value);
     elements.reverbLbl.textContent = '(' + reverbValue + '%)';
-    if (reverbValue === 0) {
-      // Create a dry impulse (no reverb)
-      nodes.convolver.buffer = createImpulseResponse(0.001, 0.1);
-    } else {
+
+    const isUnlocked = elements.unlockBox && elements.unlockBox.checked;
+    const maxValue = isUnlocked ? 300 : 100;
+    const mix = Math.min(1, reverbValue / maxValue);
+
+    // Equal power crossfade for reverb
+    nodes.reverbDry.gain.value = Math.cos(mix * Math.PI / 2);
+    nodes.reverbWet.gain.value = Math.sin(mix * Math.PI / 2);
+
+    // Update impulse response for the wet signal
+    if (reverbValue > 0) {
       const reverbAmount = Math.max(0.001, reverbValue / 100);
       nodes.convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
     }
@@ -1235,21 +1262,30 @@ try {
     const minFreq = params.isUnlocked ? 60 : 300;
     const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
     muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-    
+
+    // Reverb dry/wet mix
     const conv = offlineCtx.createConvolver();
-    if (params.reverb === 0) {
-      // Create dry impulse for no reverb
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
-    } else {
+    const reverbDry = offlineCtx.createGain();
+    const reverbWet = offlineCtx.createGain();
+    const reverbMix = offlineCtx.createGain();
+
+    const reverbMaxValue = params.isUnlocked ? 300 : 100;
+    const reverbMixAmount = Math.min(1, params.reverb / reverbMaxValue);
+    reverbDry.gain.value = Math.cos(reverbMixAmount * Math.PI / 2);
+    reverbWet.gain.value = Math.sin(reverbMixAmount * Math.PI / 2);
+
+    if (params.reverb > 0) {
       const reverbAmount = Math.max(0.001, params.reverb / 100);
       conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    } else {
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
     }
-    
+
     const bassEQ = offlineCtx.createBiquadFilter();
     bassEQ.type = 'lowshelf';
     bassEQ.frequency.value = 140;
     bassEQ.gain.value = params.bass;
-    
+
     const dryGain = offlineCtx.createGain();
     dryGain.gain.value = 1;
     
@@ -1301,14 +1337,18 @@ try {
     const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
+    master.gain.value = dbToLinear(params.gain) * 2.5;  // Boost output
 
     elements.renderProgressFill.style.width = '60%';
 
     // Connect graph - SAME AS LIVE PLAYBACK
     source.connect(muffle);
+    muffle.connect(reverbDry);
     muffle.connect(conv);
-    conv.connect(bassEQ);
+    conv.connect(reverbWet);
+    reverbDry.connect(reverbMix);
+    reverbWet.connect(reverbMix);
+    reverbMix.connect(bassEQ);
     bassEQ.connect(dryGain);
     bassEQ.connect(delay);
     delay.connect(feedback);
@@ -1406,21 +1446,30 @@ try {
     const minFreq = params.isUnlocked ? 60 : 300;
     const muffleRange = Math.max(0, Math.min(params.isUnlocked ? 2 : 1, params.muffle / 100));
     muffle.frequency.value = Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, muffleRange));
-    
+
+    // Reverb dry/wet mix
     const conv = offlineCtx.createConvolver();
-    if (params.reverb === 0) {
-      // Create dry impulse for no reverb
-      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
-    } else {
+    const reverbDry = offlineCtx.createGain();
+    const reverbWet = offlineCtx.createGain();
+    const reverbMix = offlineCtx.createGain();
+
+    const reverbMaxValue = params.isUnlocked ? 300 : 100;
+    const reverbMixAmount = Math.min(1, params.reverb / reverbMaxValue);
+    reverbDry.gain.value = Math.cos(reverbMixAmount * Math.PI / 2);
+    reverbWet.gain.value = Math.sin(reverbMixAmount * Math.PI / 2);
+
+    if (params.reverb > 0) {
       const reverbAmount = Math.max(0.001, params.reverb / 100);
       conv.buffer = createOfflineImpulseResponse(offlineCtx, 1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
+    } else {
+      conv.buffer = createOfflineImpulseResponse(offlineCtx, 0.001, 0.1);
     }
-    
+
     const bassEQ = offlineCtx.createBiquadFilter();
     bassEQ.type = 'lowshelf';
     bassEQ.frequency.value = 140;
     bassEQ.gain.value = params.bass;
-    
+
     const dryGain = offlineCtx.createGain();
     const delay = offlineCtx.createDelay(2.0);
     const feedback = offlineCtx.createGain();
@@ -1465,14 +1514,18 @@ try {
     const bitcrushMixer = offlineCtx.createGain();
 
     const master = offlineCtx.createGain();
-    master.gain.value = dbToLinear(params.gain);
+    master.gain.value = dbToLinear(params.gain) * 2.5;  // Boost output
 
     elements.renderProgressFill.style.width = '70%';
 
     // Connect - SAME AS LIVE PLAYBACK
     source.connect(muffle);
+    muffle.connect(reverbDry);
     muffle.connect(conv);
-    conv.connect(bassEQ);
+    conv.connect(reverbWet);
+    reverbDry.connect(reverbMix);
+    reverbWet.connect(reverbMix);
+    reverbMix.connect(bassEQ);
     bassEQ.connect(dryGain);
     bassEQ.connect(delay);
     delay.connect(feedback);
