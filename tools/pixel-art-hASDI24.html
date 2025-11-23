@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PixelForge — NGP Hub</title>
+
+<meta property="og:title" content="PixelForge - Advanced Pixel Art Editor" />
+<meta property="og:description" content="Professional pixel art creation tool with layers, animation, and extensive toolset." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/pixelforge" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="PixelForge - Advanced Pixel Art Editor" />
+<meta name="twitter:description" content="Professional pixel art creation tool with layers, animation, and extensive toolset." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="Advanced pixel art editor with layers, animation support, and professional tools." />
+<meta name="keywords" content="pixel art, editor, drawing, animation, NGP, tools" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    overflow:hidden;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .editor-container{
+    display:grid;
+    grid-template-columns: 60px 1fr 250px;
+    grid-template-rows: auto 1fr auto;
+    gap:8px;
+    padding:8px;
+    height:calc(100vh - 80px);
+  }
+
+  .top-bar{
+    grid-column:1 / 4;
+    display:flex;
+    gap:8px;
+    background:var(--card);
+    padding:8px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  .top-bar-section{
+    display:flex;
+    gap:4px;
+    align-items:center;
+    padding-right:8px;
+    border-right:1px solid rgba(255,255,255,.08);
+  }
+
+  .top-bar-section:last-child{border-right:none}
+
+  .tool-options{
+    grid-column:2;
+    background:var(--card);
+    padding:8px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .tool-options-left{display:flex; gap:8px; align-items:center}
+  .tool-options-right{display:flex; gap:8px; align-items:center}
+
+  .preview-panel{
+    grid-column:3;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .preview-canvas{
+    width:100%;
+    height:200px;
+    background:repeating-conic-gradient(#2a2a30 0% 25%, #1a1a20 0% 50%) 50% / 20px 20px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.08);
+    image-rendering:pixelated;
+  }
+
+  .toolbox{
+    grid-column:1;
+    grid-row:2;
+    background:var(--card);
+    padding:8px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    overflow-y:auto;
+  }
+
+  .canvas-area{
+    grid-column:2;
+    grid-row:2;
+    background:var(--card);
+    padding:16px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:auto;
+  }
+
+  .canvas-wrapper{
+    position:relative;
+    display:inline-block;
+  }
+
+  .frame-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,.6);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:8px;
+    width:36px;
+    height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:white;
+    transition:all .2s;
+  }
+
+  .frame-nav:hover{background:rgba(0,0,0,.8)}
+  .frame-nav.left{left:-48px}
+  .frame-nav.right{right:-48px}
+
+  .frame-timer{
+    position:absolute;
+    top:-48px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,.6);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    color:white;
+    font-size:.85rem;
+  }
+
+  #mainCanvas{
+    image-rendering:pixelated;
+    background:repeating-conic-gradient(#2a2a30 0% 25%, #1a1a20 0% 50%) 50% / 20px 20px;
+    border:2px solid rgba(255,255,255,.1);
+    cursor:crosshair;
+  }
+
+  .layers-panel{
+    grid-column:3;
+    grid-row:2;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow-y:auto;
+  }
+
+  .layer-item{
+    background:rgba(255,255,255,.03);
+    padding:8px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.08);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:all .2s;
+  }
+
+  .layer-item:hover{background:rgba(255,255,255,.06)}
+  .layer-item.active{border-color:var(--brandB); background:rgba(37,117,252,.1)}
+
+  .layer-preview{
+    width:40px;
+    height:40px;
+    background:repeating-conic-gradient(#2a2a30 0% 25%, #1a1a20 0% 50%) 50% / 8px 8px;
+    border-radius:4px;
+    image-rendering:pixelated;
+  }
+
+  .color-panel{
+    grid-column:1;
+    grid-row:3;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  .palette-panel{
+    grid-column:2;
+    grid-row:3;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+  }
+
+  .palette-color{
+    width:32px;
+    height:32px;
+    border-radius:6px;
+    border:2px solid rgba(255,255,255,.1);
+    cursor:pointer;
+    flex-shrink:0;
+    transition:all .2s;
+  }
+
+  .palette-color:hover{transform:scale(1.1)}
+  .palette-color.active{border-color:white; box-shadow:0 0 10px rgba(255,255,255,.3)}
+
+  .layer-controls{
+    grid-column:3;
+    grid-row:3;
+    background:var(--card);
+    padding:12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.06);
+    display:flex;
+    gap:8px;
+  }
+
+  .btn{
+    padding:8px 12px;
+    border-radius:8px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:none;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    font-size:.85rem;
+    transition:all .2s;
+    font-family:'Rubik',sans-serif;
+  }
+
+  .btn:hover{transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,117,252,.4)}
+
+  .btn-icon{
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .2s;
+    font-size:.9rem;
+  }
+
+  .btn-icon:hover{background:rgba(255,255,255,.1)}
+  .btn-icon.active{background:linear-gradient(120deg,var(--brandA),var(--brandB)); color:white}
+
+  .modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.8);
+    backdrop-filter:blur(5px);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .modal.active{display:flex}
+
+  .modal-content{
+    background:var(--card);
+    border-radius:var(--radius);
+    max-width:600px;
+    width:90%;
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.1);
+    animation:modalSlideIn 0.3s ease-out;
+  }
+
+  @keyframes modalSlideIn{
+    from{transform:translateY(-50px); opacity:0}
+    to{transform:translateY(0); opacity:1}
+  }
+
+  .modal-header{
+    padding:20px 24px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+
+  .modal-header h3{
+    margin:0;
+    font-size:1.2rem;
+  }
+
+  .modal-body{
+    padding:24px;
+    line-height:1.6;
+  }
+
+  .modal-footer{
+    padding:16px 24px;
+    border-top:1px solid rgba(255,255,255,.06);
+    display:flex;
+    gap:12px;
+    justify-content:flex-end;
+  }
+
+  .input-group{
+    margin-bottom:16px;
+  }
+
+  .input-group label{
+    display:block;
+    margin-bottom:6px;
+    color:var(--muted);
+    font-size:.9rem;
+  }
+
+  .input-group input,
+  .input-group select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    color:var(--ink);
+    font-family:'Rubik',sans-serif;
+  }
+
+  .input-group input[type="range"]{
+    padding:0;
+  }
+
+  footer{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    border-top:1px solid rgba(255,255,255,.08);
+    color:var(--muted);
+    padding:12px;
+    text-align:center;
+    background:rgba(10,10,14,.9);
+    backdrop-filter:blur(10px);
+    z-index:40;
+  }
+
+  .color-picker-container{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  .current-color{
+    width:48px;
+    height:48px;
+    border-radius:8px;
+    border:2px solid rgba(255,255,255,.2);
+    cursor:pointer;
+  }
+
+  .oklab-sliders{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .slider-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .slider-row label{
+    width:20px;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+
+  .slider-row input{
+    flex:1;
+  }
+
+  .slider-row span{
+    width:40px;
+    text-align:right;
+    font-size:.85rem;
+    color:var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important}
+  }
+
+  .btn-ghost{
+    background:rgba(255,255,255,.05);
+    color:var(--ink);
+    border:1px solid rgba(255,255,255,.1);
+    padding:10px 20px;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+    font-size:.95rem;
+    font-family:'Rubik',sans-serif;
+  }
+
+  .checkbox-group{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+  }
+
+  .checkbox-group input[type="checkbox"]{
+    width:auto;
+  }
+
+  ::-webkit-scrollbar{width:8px; height:8px}
+  ::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1); border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main class="editor-container">
+  <div class="top-bar">
+    <div class="top-bar-section">
+      <button class="btn-icon" id="newBtn" title="New Image"><i class="fas fa-file"></i></button>
+      <button class="btn-icon" id="importBtn" title="Import"><i class="fas fa-file-import"></i></button>
+      <button class="btn-icon" id="exportBtn" title="Export"><i class="fas fa-file-export"></i></button>
+    </div>
+    <div class="top-bar-section">
+      <button class="btn-icon" id="settingsBtn" title="Settings"><i class="fas fa-cog"></i></button>
+      <button class="btn-icon" id="paletteBtn" title="Palette"><i class="fas fa-palette"></i></button>
+      <button class="btn-icon" id="tweakModeBtn" title="Tweak Mode"><i class="fas fa-adjust"></i></button>
+      <button class="btn-icon" id="blendModeBtn" title="Blend Mode"><i class="fas fa-layer-group"></i></button>
+      <button class="btn-icon" id="colorblindBtn" title="Colorblind Preview"><i class="fas fa-eye"></i></button>
+    </div>
+  </div>
+
+  <div class="tool-options">
+    <div class="tool-options-left">
+      <label style="font-size:.85rem; color:var(--muted)">Size: <input type="range" id="toolSize" min="1" max="50" value="1" style="width:100px"></label>
+      <span id="toolSizeValue" style="color:var(--muted); font-size:.85rem">1px</span>
+    </div>
+    <div class="tool-options-right">
+      <button class="btn-icon" id="undoBtn" title="Undo"><i class="fas fa-undo"></i></button>
+      <button class="btn-icon" id="redoBtn" title="Redo"><i class="fas fa-redo"></i></button>
+    </div>
+  </div>
+
+  <div class="preview-panel">
+    <h4 style="margin:0; font-size:.9rem">Preview</h4>
+    <canvas id="previewCanvas" class="preview-canvas"></canvas>
+  </div>
+
+  <div class="toolbox">
+    <button class="btn-icon active" data-tool="pencil" title="Pencil"><i class="fas fa-pencil-alt"></i></button>
+    <button class="btn-icon" data-tool="eraser" title="Eraser"><i class="fas fa-eraser"></i></button>
+    <button class="btn-icon" data-tool="brush" title="Paint Brush"><i class="fas fa-paint-brush"></i></button>
+    <button class="btn-icon" data-tool="line" title="Line"><i class="fas fa-minus"></i></button>
+    <button class="btn-icon" data-tool="square" title="Square"><i class="far fa-square"></i></button>
+    <button class="btn-icon" data-tool="circle" title="Circle"><i class="far fa-circle"></i></button>
+    <button class="btn-icon" data-tool="fill" title="Fill"><i class="fas fa-fill-drip"></i></button>
+    <button class="btn-icon" data-tool="picker" title="Pick Color"><i class="fas fa-eye-dropper"></i></button>
+    <button class="btn-icon" data-tool="move" title="Move Selection"><i class="fas fa-arrows-alt"></i></button>
+    <button class="btn-icon" data-tool="select" title="Select"><i class="far fa-object-group"></i></button>
+    <button class="btn-icon" data-tool="text" title="Text"><i class="fas fa-font"></i></button>
+    <button class="btn-icon" data-tool="lighten" title="Lighten/Darken"><i class="fas fa-sun"></i></button>
+    <button class="btn-icon" data-tool="stamp" title="Stamp"><i class="fas fa-stamp"></i></button>
+    <button class="btn-icon" data-tool="spray" title="Spray Paint"><i class="fas fa-spray-can"></i></button>
+    <button class="btn-icon" data-tool="gradient" title="Simple Gradient"><i class="fas fa-fill"></i></button>
+    <button class="btn-icon" data-tool="complexGradient" title="Complex Gradient"><i class="fas fa-palette"></i></button>
+    <button class="btn-icon" data-tool="filter" title="Filter"><i class="fas fa-magic"></i></button>
+    <button class="btn-icon" data-tool="resize" title="Resize Canvas"><i class="fas fa-expand"></i></button>
+    <button class="btn-icon" data-tool="contour" title="Contour Fill"><i class="fas fa-bezier-curve"></i></button>
+    <button class="btn-icon" data-tool="perspective" title="Perspective"><i class="fas fa-project-diagram"></i></button>
+    <button class="btn-icon" data-tool="dither" title="Quantize/Dither"><i class="fas fa-th"></i></button>
+    <button class="btn-icon" data-tool="blur" title="Blur"><i class="fas fa-water"></i></button>
+    <button class="btn-icon" data-tool="mask" title="Mask"><i class="fas fa-mask"></i></button>
+    <button class="btn-icon" data-tool="noise" title="Random Noise"><i class="fas fa-random"></i></button>
+  </div>
+
+  <div class="canvas-area">
+    <div class="canvas-wrapper">
+      <div class="frame-nav left" id="prevFrame"><i class="fas fa-chevron-left"></i></div>
+      <div class="frame-timer" id="frameTimer"><i class="fas fa-clock"></i> 100ms</div>
+      <canvas id="mainCanvas" width="64" height="64"></canvas>
+      <div class="frame-nav right" id="nextFrame"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+
+  <div class="layers-panel">
+    <h4 style="margin:0 0 8px 0; font-size:.9rem">Layers</h4>
+    <div id="layersList"></div>
+  </div>
+
+  <div class="color-panel">
+    <div class="color-picker-container">
+      <div class="current-color" id="currentColor" style="background:#ffffff"></div>
+      <div class="oklab-sliders">
+        <div class="slider-row">
+          <label>L</label>
+          <input type="range" id="oklabL" min="0" max="100" value="100">
+          <span id="oklabLVal">100</span>
+        </div>
+        <div class="slider-row">
+          <label>a</label>
+          <input type="range" id="oklabA" min="-100" max="100" value="0">
+          <span id="oklabAVal">0</span>
+        </div>
+        <div class="slider-row">
+          <label>b</label>
+          <input type="range" id="oklabB" min="-100" max="100" value="0">
+          <span id="oklabBVal">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="palette-panel" id="paletteList">
+    <div class="palette-color active" style="background:#ffffff"></div>
+    <div class="palette-color" style="background:#000000"></div>
+    <div class="palette-color" style="background:#ff0000"></div>
+    <div class="palette-color" style="background:#00ff00"></div>
+    <div class="palette-color" style="background:#0000ff"></div>
+    <div class="palette-color" style="background:#ffff00"></div>
+  </div>
+
+  <div class="layer-controls">
+    <button class="btn" id="addLayerBtn"><i class="fas fa-plus"></i> Layer</button>
+    <button class="btn" id="deleteLayerBtn"><i class="fas fa-trash"></i></button>
+    <button class="btn" id="duplicateLayerBtn"><i class="fas fa-copy"></i></button>
+  </div>
+</main>
+
+<!-- New Image Modal -->
+<div id="newModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>New Image</h3>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Width (px)</label>
+        <input type="number" id="newWidth" value="64" min="1" max="2048">
+      </div>
+      <div class="input-group">
+        <label>Height (px)</label>
+        <input type="number" id="newHeight" value="64" min="1" max="2048">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancelNewBtn">Cancel</button>
+      <button class="btn" id="confirmNewBtn">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div id="exportModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Image</h3>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Format</label>
+        <select id="exportFormat">
+          <option value="png">PNG</option>
+          <option value="apng">APNG (Animated PNG)</option>
+          <option value="jpg">JPG</option>
+          <option value="webp">WEBP</option>
+          <option value="gif">GIF</option>
+          <option value="svg">SVG</option>
+          <option value="bmp">BMP</option>
+          <option value="ico">ICO</option>
+          <option value="spritesheet">Sprite Sheet</option>
+          <option value="multipng">Multiple PNGs</option>
+          <option value="custom">Custom Format (with layers)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Filename</label>
+        <input type="text" id="exportFilename" value="pixel-art">
+      </div>
+      <div class="input-group">
+        <label>Scale</label>
+        <input type="range" id="exportScale" min="1" max="10" value="1">
+        <span id="exportScaleValue">1x</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancelExportBtn">Cancel</button>
+      <button class="btn" id="confirmExportBtn">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Settings</h3>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Theme</label>
+        <select id="themeSelect">
+          <option value="dark" selected>Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="highQualityDownscale">
+        <label>High Quality Downscaling</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="funExperiments">
+        <label>Fun Experiments (Rainbow Colors)</label>
+      </div>
+      <div class="input-group">
+        <label>Reference Image</label>
+        <input type="file" id="referenceImage" accept="image/*">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="closeSettingsBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Palette Modal -->
+<div id="paletteModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Load Palette</h3>
+    </div>
+    <div class="modal-body">
+      <button class="btn" style="width:100%; margin-bottom:12px" id="paletteFromImage">From Image</button>
+      <button class="btn" style="width:100%; margin-bottom:12px" id="paletteFromLospec">From Lospec</button>
+      <button class="btn" style="width:100%; margin-bottom:12px" id="paletteFromHex">From Hex List</button>
+      <button class="btn" style="width:100%" id="paletteCreate">Create New</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="closePaletteBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Frame Settings Modal -->
+<div id="frameModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Frame Settings</h3>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Frame Duration</label>
+        <input type="number" id="frameDuration" value="100" min="1" max="10000">
+        <select id="frameDurationUnit">
+          <option value="ms">milliseconds</option>
+          <option value="fps">FPS</option>
+        </select>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="onionSkin">
+        <label>Onion Skin</label>
+      </div>
+      <div class="input-group">
+        <label>Interpolation</label>
+        <select id="frameInterpolation">
+          <option value="none">None</option>
+          <option value="lerp">Linear (Lerp)</option>
+          <option value="slerp">Spherical (Slerp)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="closeFrameBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <small>© <span id="year"></span> NGP — Alpha. PixelForge™ is a trademark of NGP.</small>
+</footer>
+
+<input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+</script>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Core state
+  let canvas = document.getElementById('mainCanvas');
+  let ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let previewCanvas = document.getElementById('previewCanvas');
+  let previewCtx = previewCanvas.getContext('2d');
+  
+  let currentTool = 'pencil';
+  let currentColor = '#ffffff';
+  let toolSize = 1;
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+  
+  let layers = [{ 
+    name: 'Layer 1', 
+    canvas: document.createElement('canvas'),
+    visible: true,
+    opacity: 1
+  }];
+  let currentLayerIndex = 0;
+  let frames = [{ layers: JSON.parse(JSON.stringify(layers)) }];
+  let currentFrameIndex = 0;
+  
+  let history = [];
+  let historyIndex = -1;
+  let maxHistory = 50;
+  
+  let funExperimentsEnabled = false;
+  let rainbowHue = 0;
+
+  // Initialize layer canvas
+  layers[0].canvas.width = canvas.width;
+  layers[0].canvas.height = canvas.height;
+
+  // OKLab color conversion functions
+  function oklabToRgb(L, a, b) {
+    // Simplified OKLab to RGB conversion
+    L = L / 100;
+    a = a / 100;
+    b = b / 100;
+    
+    let l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    let m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    let s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+    
+    let l = l_ * l_ * l_;
+    let m = m_ * m_ * m_;
+    let s = s_ * s_ * s_;
+    
+    let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    let bl = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+    
+    r = Math.max(0, Math.min(1, r));
+    g = Math.max(0, Math.min(1, g));
+    bl = Math.max(0, Math.min(1, bl));
+    
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(bl * 255)
+    };
+  }
+
+  function rgbToOklab(r, g, b) {
+    r = r / 255;
+    g = g / 255;
+    b = b / 255;
+    
+    let l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+    let m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+    let s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+    
+    l = Math.cbrt(l);
+    m = Math.cbrt(m);
+    s = Math.cbrt(s);
+    
+    return {
+      L: (0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s) * 100,
+      a: (1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s) * 100,
+      b: (0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s) * 100
+    };
+  }
+
+  // OKLab color picker
+  const oklabL = document.getElementById('oklabL');
+  const oklabA = document.getElementById('oklabA');
+  const oklabB = document.getElementById('oklabB');
+  const oklabLVal = document.getElementById('oklabLVal');
+  const oklabAVal = document.getElementById('oklabAVal');
+  const oklabBVal = document.getElementById('oklabBVal');
+  const currentColorDiv = document.getElementById('currentColor');
+
+  function updateColorFromOklab() {
+    const L = parseFloat(oklabL.value);
+    const a = parseFloat(oklabA.value);
+    const b = parseFloat(oklabB.value);
+    
+    oklabLVal.textContent = L.toFixed(0);
+    oklabAVal.textContent = a.toFixed(0);
+    oklabBVal.textContent = b.toFixed(0);
+    
+    const rgb = oklabToRgb(L, a, b);
+    currentColor = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+    currentColorDiv.style.background = currentColor;
+  }
+
+  oklabL.addEventListener('input', updateColorFromOklab);
+  oklabA.addEventListener('input', updateColorFromOklab);
+  oklabB.addEventListener('input', updateColorFromOklab);
+
+  currentColorDiv.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = rgbToHex(currentColor);
+    input.click();
+    input.addEventListener('change', (e) => {
+      const hex = e.target.value;
+      const rgb = hexToRgb(hex);
+      const oklab = rgbToOklab(rgb.r, rgb.g, rgb.b);
+      oklabL.value = oklab.L;
+      oklabA.value = oklab.a;
+      oklabB.value = oklab.b;
+      updateColorFromOklab();
+    });
+  });
+
+  function rgbToHex(rgb) {
+    const match = rgb.match(/\d+/g);
+    if (!match) return '#ffffff';
+    const r = parseInt(match[0]).toString(16).padStart(2, '0');
+    const g = parseInt(match[1]).toString(16).padStart(2, '0');
+    const b = parseInt(match[2]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 255, g: 255, b: 255 };
+  }
+
+  // Tool selection
+  document.querySelectorAll('[data-tool]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTool = btn.dataset.tool;
+    });
+  });
+
+  // Tool size
+  const toolSizeSlider = document.getElementById('toolSize');
+  const toolSizeValue = document.getElementById('toolSizeValue');
+  toolSizeSlider.addEventListener('input', () => {
+    toolSize = parseInt(toolSizeSlider.value);
+    toolSizeValue.textContent = toolSize + 'px';
+  });
+
+  // Fun experiments - rainbow colors
+  document.getElementById('funExperiments').addEventListener('change', (e) => {
+    funExperimentsEnabled = e.target.checked;
+  });
+
+  function getDrawingColor() {
+    if (funExperimentsEnabled) {
+      rainbowHue = (rainbowHue + 0.5) % 360;
+      // Convert HSL to OKLab-like vibrant color
+      return `hsl(${rainbowHue}, 100%, 50%)`;
+    }
+    return currentColor;
+  }
+
+  // Canvas drawing
+  function getCanvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: Math.floor((e.clientX - rect.left) * scaleX),
+      y: Math.floor((e.clientY - rect.top) * scaleY)
+    };
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    const coords = getCanvasCoords(e);
+    lastX = coords.x;
+    lastY = coords.y;
+    draw(coords.x, coords.y);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing) return;
+    const coords = getCanvasCoords(e);
+    draw(coords.x, coords.y);
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    if (isDrawing) {
+      isDrawing = false;
+      saveHistory();
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    if (isDrawing) {
+      isDrawing = false;
+      saveHistory();
+    }
+  });
+
+  function draw(x, y) {
+    const layerCanvas = layers[currentLayerIndex].canvas;
+    const layerCtx = layerCanvas.getContext('2d');
+    
+    const color = getDrawingColor();
+    
+    switch(currentTool) {
+      case 'pencil':
+        layerCtx.fillStyle = color;
+        layerCtx.fillRect(x, y, 1, 1);
+        break;
+        
+      case 'eraser':
+        layerCtx.clearRect(x - Math.floor(toolSize/2), y - Math.floor(toolSize/2), toolSize, toolSize);
+        break;
+        
+      case 'brush':
+        layerCtx.fillStyle = color;
+        layerCtx.beginPath();
+        layerCtx.arc(x, y, toolSize / 2, 0, Math.PI * 2);
+        layerCtx.fill();
+        break;
+        
+      case 'line':
+        if (lastX !== x || lastY !== y) {
+          layerCtx.strokeStyle = color;
+          layerCtx.lineWidth = toolSize;
+          layerCtx.beginPath();
+          layerCtx.moveTo(lastX, lastY);
+          layerCtx.lineTo(x, y);
+          layerCtx.stroke();
+        }
+        break;
+        
+      case 'fill':
+        floodFill(layerCtx, x, y, color);
+        break;
+        
+      case 'picker':
+        const pixel = layerCtx.getImageData(x, y, 1, 1).data;
+        currentColor = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
+        currentColorDiv.style.background = currentColor;
+        const oklab = rgbToOklab(pixel[0], pixel[1], pixel[2]);
+        oklabL.value = oklab.L;
+        oklabA.value = oklab.a;
+        oklabB.value = oklab.b;
+        updateColorFromOklab();
+        break;
+        
+      case 'spray':
+        for (let i = 0; i < toolSize * 2; i++) {
+          const offsetX = Math.random() * toolSize * 2 - toolSize;
+          const offsetY = Math.random() * toolSize * 2 - toolSize;
+          layerCtx.fillStyle = color;
+          layerCtx.fillRect(x + offsetX, y + offsetY, 1, 1);
+        }
+        break;
+    }
+    
+    lastX = x;
+    lastY = y;
+    renderCanvas();
+  }
+
+  function floodFill(ctx, x, y, fillColor) {
+    const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const targetColor = getPixelColor(imageData, x, y);
+    const fillRgb = hexToRgb(rgbToHex(fillColor));
+    
+    if (colorsMatch(targetColor, fillRgb)) return;
+    
+    const stack = [[x, y]];
+    
+    while (stack.length) {
+      const [cx, cy] = stack.pop();
+      
+      if (cx < 0 || cx >= imageData.width || cy < 0 || cy >= imageData.height) continue;
+      
+      const currentColor = getPixelColor(imageData, cx, cy);
+      if (!colorsMatch(currentColor, targetColor)) continue;
+      
+      setPixelColor(imageData, cx, cy, fillRgb);
+      
+      stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  function getPixelColor(imageData, x, y) {
+    const index = (y * imageData.width + x) * 4;
+    return {
+      r: imageData.data[index],
+      g: imageData.data[index + 1],
+      b: imageData.data[index + 2],
+      a: imageData.data[index + 3]
+    };
+  }
+
+  function setPixelColor(imageData, x, y, color) {
+    const index = (y * imageData.width + x) * 4;
+    imageData.data[index] = color.r;
+    imageData.data[index + 1] = color.g;
+    imageData.data[index + 2] = color.b;
+    imageData.data[index + 3] = 255;
+  }
+
+  function colorsMatch(c1, c2) {
+    return c1.r === c2.r && c1.g === c2.g && c1.b === c2.b;
+  }
+
+  function renderCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    layers.forEach(layer => {
+      if (layer.visible) {
+        ctx.globalAlpha = layer.opacity;
+        ctx.drawImage(layer.canvas, 0, 0);
+        ctx.globalAlpha = 1;
+      }
+    });
+    
+    updatePreview();
+  }
+
+  function updatePreview() {
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+    previewCtx.drawImage(canvas, 0, 0);
+  }
+
+  // Layers
+  function renderLayers() {
+    const layersList = document.getElementById('layersList');
+    layersList.innerHTML = '';
+    
+    layers.forEach((layer, index) => {
+      const div = document.createElement('div');
+      div.className = 'layer-item' + (index === currentLayerIndex ? ' active' : '');
+      div.innerHTML = `
+        <canvas class="layer-preview" width="40" height="40"></canvas>
+        <div style="flex:1">
+          <div style="font-weight:600; font-size:.85rem">${layer.name}</div>
+          <div style="font-size:.75rem; color:var(--muted)">Opacity: ${Math.round(layer.opacity * 100)}%</div>
+        </div>
+      `;
+      
+      const preview = div.querySelector('canvas');
+      const previewCtx = preview.getContext('2d');
+      previewCtx.drawImage(layer.canvas, 0, 0, 40, 40);
+      
+      div.addEventListener('click', () => {
+        currentLayerIndex = index;
+        renderLayers();
+      });
+      
+      layersList.appendChild(div);
+    });
+  }
+
+  document.getElementById('addLayerBtn').addEventListener('click', () => {
+    const newLayer = {
+      name: `Layer ${layers.length + 1}`,
+      canvas: document.createElement('canvas'),
+      visible: true,
+      opacity: 1
+    };
+    newLayer.canvas.width = canvas.width;
+    newLayer.canvas.height = canvas.height;
+    layers.push(newLayer);
+    currentLayerIndex = layers.length - 1;
+    renderLayers();
+    saveHistory();
+  });
+
+  document.getElementById('deleteLayerBtn').addEventListener('click', () => {
+    if (layers.length > 1) {
+      layers.splice(currentLayerIndex, 1);
+      currentLayerIndex = Math.max(0, currentLayerIndex - 1);
+      renderLayers();
+      renderCanvas();
+      saveHistory();
+    }
+  });
+
+  document.getElementById('duplicateLayerBtn').addEventListener('click', () => {
+    const sourceLayer = layers[currentLayerIndex];
+    const newLayer = {
+      name: sourceLayer.name + ' Copy',
+      canvas: document.createElement('canvas'),
+      visible: true,
+      opacity: sourceLayer.opacity
+    };
+    newLayer.canvas.width = canvas.width;
+    newLayer.canvas.height = canvas.height;
+    const newCtx = newLayer.canvas.getContext('2d');
+    newCtx.drawImage(sourceLayer.canvas, 0, 0);
+    layers.push(newLayer);
+    currentLayerIndex = layers.length - 1;
+    renderLayers();
+    saveHistory();
+  });
+
+  // Palette
+  document.querySelectorAll('.palette-color').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.palette-color').forEach(e => e.classList.remove('active'));
+      el.classList.add('active');
+      currentColor = el.style.background;
+      currentColorDiv.style.background = currentColor;
+      const rgb = hexToRgb(rgbToHex(currentColor));
+      const oklab = rgbToOklab(rgb.r, rgb.g, rgb.b);
+      oklabL.value = oklab.L;
+      oklabA.value = oklab.a;
+      oklabB.value = oklab.b;
+      updateColorFromOklab();
+    });
+  });
+
+  // Modals
+  function openModal(id) {
+    document.getElementById(id).classList.add('active');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+
+  document.getElementById('newBtn').addEventListener('click', () => openModal('newModal'));
+  document.getElementById('cancelNewBtn').addEventListener('click', () => closeModal('newModal'));
+  document.getElementById('confirmNewBtn').addEventListener('click', () => {
+    const width = parseInt(document.getElementById('newWidth').value);
+    const height = parseInt(document.getElementById('newHeight').value);
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    layers = [{
+      name: 'Layer 1',
+      canvas: document.createElement('canvas'),
+      visible: true,
+      opacity: 1
+    }];
+    layers[0].canvas.width = width;
+    layers[0].canvas.height = height;
+    currentLayerIndex = 0;
+    
+    renderLayers();
+    renderCanvas();
+    closeModal('newModal');
+    saveHistory();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => openModal('exportModal'));
+  document.getElementById('cancelExportBtn').addEventListener('click', () => closeModal('exportModal'));
+  
+  const exportScaleSlider = document.getElementById('exportScale');
+  const exportScaleValue = document.getElementById('exportScaleValue');
+  exportScaleSlider.addEventListener('input', () => {
+    exportScaleValue.textContent = exportScaleSlider.value + 'x';
+  });
+
+  document.getElementById('confirmExportBtn').addEventListener('click', () => {
+    const format = document.getElementById('exportFormat').value;
+    const filename = document.getElementById('exportFilename').value;
+    const scale = parseInt(exportScaleSlider.value);
+    
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width * scale;
+    exportCanvas.height = canvas.height * scale;
+    const exportCtx = exportCanvas.getContext('2d');
+    exportCtx.imageSmoothingEnabled = false;
+    exportCtx.drawImage(canvas, 0, 0, exportCanvas.width, exportCanvas.height);
+    
+    let dataUrl;
+    switch(format) {
+      case 'png':
+        dataUrl = exportCanvas.toDataURL('image/png');
+        break;
+      case 'jpg':
+        dataUrl = exportCanvas.toDataURL('image/jpeg', 0.95);
+        break;
+      case 'webp':
+        dataUrl = exportCanvas.toDataURL('image/webp', 0.95);
+        break;
+      default:
+        dataUrl = exportCanvas.toDataURL('image/png');
+    }
+    
+    const link = document.createElement('a');
+    link.download = `${filename}.${format === 'jpg' ? 'jpg' : 'png'}`;
+    link.href = dataUrl;
+    link.click();
+    
+    closeModal('exportModal');
+  });
+
+  document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+  document.getElementById('closeSettingsBtn').addEventListener('click', () => closeModal('settingsModal'));
+
+  document.getElementById('paletteBtn').addEventListener('click', () => openModal('paletteModal'));
+  document.getElementById('closePaletteBtn').addEventListener('click', () => closeModal('paletteModal'));
+
+  document.getElementById('frameTimer').addEventListener('click', () => openModal('frameModal'));
+  document.getElementById('closeFrameBtn').addEventListener('click', () => closeModal('frameModal'));
+
+  // Import
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('hiddenFileInput').click();
+  });
+
+  document.getElementById('hiddenFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        layers[currentLayerIndex].canvas.width = img.width;
+        layers[currentLayerIndex].canvas.height = img.height;
+        
+        const layerCtx = layers[currentLayerIndex].canvas.getContext('2d');
+        layerCtx.drawImage(img, 0, 0);
+        
+        renderCanvas();
+        renderLayers();
+        saveHistory();
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // History (undo/redo)
+  function saveHistory() {
+    if (historyIndex < history.length - 1) {
+      history = history.slice(0, historyIndex + 1);
+    }
+    
+    const state = {
+      layers: layers.map(layer => {
+        const canvas = document.createElement('canvas');
+        canvas.width = layer.canvas.width;
+        canvas.height = layer.canvas.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(layer.canvas, 0, 0);
+        return {
+          name: layer.name,
+          canvas: canvas,
+          visible: layer.visible,
+          opacity: layer.opacity
+        };
+      }),
+      currentLayerIndex: currentLayerIndex
+    };
+    
+    history.push(state);
+    if (history.length > maxHistory) {
+      history.shift();
+    } else {
+      historyIndex++;
+    }
+  }
+
+  document.getElementById('undoBtn').addEventListener('click', () => {
+    if (historyIndex > 0) {
+      historyIndex--;
+      const state = history[historyIndex];
+      layers = state.layers.map(layer => {
+        const canvas = document.createElement('canvas');
+        canvas.width = layer.canvas.width;
+        canvas.height = layer.canvas.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(layer.canvas, 0, 0);
+        return {
+          name: layer.name,
+          canvas: canvas,
+          visible: layer.visible,
+          opacity: layer.opacity
+        };
+      });
+      currentLayerIndex = state.currentLayerIndex;
+      renderLayers();
+      renderCanvas();
+    }
+  });
+
+  document.getElementById('redoBtn').addEventListener('click', () => {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      const state = history[historyIndex];
+      layers = state.layers.map(layer => {
+        const canvas = document.createElement('canvas');
+        canvas.width = layer.canvas.width;
+        canvas.height = layer.canvas.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(layer.canvas, 0, 0);
+        return {
+          name: layer.name,
+          canvas: canvas,
+          visible: layer.visible,
+          opacity: layer.opacity
+        };
+      });
+      currentLayerIndex = state.currentLayerIndex;
+      renderLayers();
+      renderCanvas();
+    }
+  });
+
+  // Initialize
+  renderLayers();
+  renderCanvas();
+  saveHistory();
+</script>
+
+</body>
+</html>
