@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (1.6.3)</title>
+<title>NGP Hub — Audio Remix (1.6.4)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -203,7 +203,7 @@
             <label>Pitch <small id="pitchLbl">(0 semitones)</small></label>
             <input type="range" id="pitch" min="-12" max="12" step="0.1" value="0" />
             <div class="row" style="margin-top:4px;">
-              <small class="muted">Note: Pitch preview only works when "Keep original pitch" is OFF</small>
+              <small class="muted">Note: Pitch shift is applied during export only (not in live preview)</small>
             </div>
           </div>
 
@@ -493,17 +493,9 @@ try {
     sourceNode.buffer = audioBuffer;
     sourceNode.loop = isLooping;
 
+    // Only apply speed to playback rate (pitch is applied during export only)
     const speedMultiplier = parseFloat(elements.speed.value);
-    const pitchSemitones = parseFloat(elements.pitch.value);
-    const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-
-    if (elements.preserve.checked) {
-      // When preserving pitch, only apply speed change
-      sourceNode.playbackRate.value = speedMultiplier;
-    } else {
-      // When not preserving, apply both speed and pitch
-      sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-    }
+    sourceNode.playbackRate.value = speedMultiplier;
 
     sourceNode.connect(nodes.muffle);
 
@@ -890,14 +882,8 @@ try {
     const speedValue = parseFloat(elements.speed.value);
     elements.speedLbl.textContent = '(' + speedValue.toFixed(2) + '×)';
     if (sourceNode) {
-      const pitchSemitones = parseFloat(elements.pitch.value);
-      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-      
-      if (elements.preserve.checked) {
-        sourceNode.playbackRate.value = speedValue;
-      } else {
-        sourceNode.playbackRate.value = speedValue * pitchMultiplier;
-      }
+      // Only apply speed (pitch is applied during export only)
+      sourceNode.playbackRate.value = speedValue;
     }
   };
 
@@ -905,35 +891,12 @@ try {
     const pitchValue = parseFloat(elements.pitch.value);
     const roundedPitch = Math.round(pitchValue * 10) / 10;
     elements.pitchLbl.textContent = '(' + (roundedPitch >= 0 ? '+' : '') + roundedPitch + ' semitones)';
-
-    // Update live playback pitch
-    if (sourceNode) {
-      const speedMultiplier = parseFloat(elements.speed.value);
-      const pitchMultiplier = Math.pow(2, pitchValue / 12);
-
-      if (elements.preserve.checked) {
-        // Preserve pitch mode: can't do independent pitch in real-time
-        // Pitch will only apply to exports, not live preview
-        sourceNode.playbackRate.value = speedMultiplier;
-      } else {
-        // Non-preserve mode: pitch affects playback rate
-        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-      }
-    }
+    // Note: Pitch is applied during export only, not in live preview
   };
 
   elements.preserve.onchange = function() {
-    if (sourceNode) {
-      const speedMultiplier = parseFloat(elements.speed.value);
-      const pitchSemitones = parseFloat(elements.pitch.value);
-      const pitchMultiplier = Math.pow(2, pitchSemitones / 12);
-      
-      if (elements.preserve.checked) {
-        sourceNode.playbackRate.value = speedMultiplier;
-      } else {
-        sourceNode.playbackRate.value = speedMultiplier * pitchMultiplier;
-      }
-    }
+    // Preserve pitch only affects export rendering, not live preview
+    // Live preview always plays at the speed-adjusted rate without pitch shift
   };
 
   elements.reverb.oninput = function() {
