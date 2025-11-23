@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PixelForge — NGP Hub</title>
+<title>Pixel Art Editor — NGP Hub</title>
 
-<meta property="og:title" content="PixelForge - Advanced Pixel Art Editor" />
+<meta property="og:title" content="Pixel Art Editor - NGP Hub" />
 <meta property="og:description" content="Professional pixel art creation tool with layers, animation, and extensive toolset." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com/pixelforge" />
@@ -564,7 +564,7 @@
     <div class="canvas-wrapper">
       <div class="frame-nav left" id="prevFrame"><i class="fas fa-chevron-left"></i></div>
       <div class="frame-timer" id="frameTimer"><i class="fas fa-clock"></i> 100ms</div>
-      <canvas id="mainCanvas" width="64" height="64"></canvas>
+      <canvas id="mainCanvas" width="512" height="512"></canvas>
       <div class="frame-nav right" id="nextFrame"><i class="fas fa-chevron-right"></i></div>
     </div>
   </div>
@@ -622,11 +622,11 @@
     <div class="modal-body">
       <div class="input-group">
         <label>Width (px)</label>
-        <input type="number" id="newWidth" value="64" min="1" max="2048">
+        <input type="number" id="newWidth" value="512" min="1" max="2048">
       </div>
       <div class="input-group">
         <label>Height (px)</label>
-        <input type="number" id="newHeight" value="64" min="1" max="2048">
+        <input type="number" id="newHeight" value="512" min="1" max="2048">
       </div>
     </div>
     <div class="modal-footer">
@@ -762,7 +762,9 @@
 </div>
 
 <footer>
-  <small>© <span id="year"></span> NGP — Alpha. PixelForge™ is a trademark of NGP.</small>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
 </footer>
 
 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
