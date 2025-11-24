@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGP Asset Uploader</title>
+    <style>
+        :root {
+            --bg: #0e0e11;
+            --card: #15151b;
+            --ink: #ececf1;
+            --muted: #b5b7c3;
+            --brandA: #6a11cb;
+            --brandB: #2575fc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(180deg, #0b0b0e, #121219 60%, #0d0d14);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, var(--brandA), var(--brandB));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg);
+            border: 2px solid rgba(58, 102, 255, 0.3);
+            border-radius: 8px;
+            color: var(--ink);
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--brandB);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--brandA), var(--brandB));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brandA), var(--brandB));
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #4ade80;
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .file-info {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 NGP Uploader</h1>
+        
+        <!-- Password Screen -->
+        <div id="passwordScreen">
+            <input type="password" id="passwordInput" placeholder="Enter password..." />
+            <button onclick="checkPassword()">Unlock</button>
+            <div id="passwordError" class="message error"></div>
+        </div>
+        
+        <!-- Upload Screen -->
+        <div id="uploadScreen" class="hidden">
+            <input type="file" id="fileInput" />
+            <div class="file-info" id="fileInfo">Max size: 8.5GB</div>
+            <button onclick="uploadFile()" id="uploadBtn">Upload</button>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            
+            <div id="uploadMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const PASSWORD = 'ScrptEsEpicox86';
+        const MAX_SIZE = 8.5 * 1024 * 1024 * 1024;
+        
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const error = document.getElementById('passwordError');
+            
+            if (input === PASSWORD) {
+                document.getElementById('passwordScreen').classList.add('hidden');
+                document.getElementById('uploadScreen').classList.remove('hidden');
+            } else {
+                error.textContent = 'Wrong password!';
+                error.style.display = 'block';
+            }
+        }
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const sizeGB = (file.size / (1024 * 1024 * 1024)).toFixed(2);
+                
+                if (file.size > MAX_SIZE) {
+                    document.getElementById('fileInfo').textContent = `⚠️ Too large: ${sizeGB}GB (max 8.5GB)`;
+                    document.getElementById('fileInfo').style.color = '#f87171';
+                    document.getElementById('uploadBtn').disabled = true;
+                } else {
+                    document.getElementById('fileInfo').textContent = `📁 ${file.name} (${sizeGB}GB)`;
+                    document.getElementById('fileInfo').style.color = 'var(--muted)';
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            }
+        });
+        
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('Select a file first!', 'error');
+                return;
+            }
+            
+            if (file.size > MAX_SIZE) {
+                showMessage('File too large!', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('password', PASSWORD);
+            
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            progressContainer.style.display = 'block';
+            uploadBtn.disabled = true;
+            
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressFill.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                }
+            });
+            
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        showMessage(`Uploaded: ${response.filename}`, 'success');
+                        fileInput.value = '';
+                        document.getElementById('fileInfo').textContent = 'Max size: 8.5GB';
+                    } else {
+                        showMessage('Failed: ' + response.error, 'error');
+                    }
+                } else {
+                    showMessage('Upload failed!', 'error');
+                }
+                uploadBtn.disabled = false;
+            });
+            
+            xhr.addEventListener('error', () => {
+                showMessage('Network error!', 'error');
+                uploadBtn.disabled = false;
+            });
+            
+            xhr.open('POST', '/upload');
+            xhr.send(formData);
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById('uploadMessage');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+            
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+        
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+    </script>
+</body>
+</html>
