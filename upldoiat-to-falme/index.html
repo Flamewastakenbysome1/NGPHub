@@ -267,7 +267,8 @@
                 uploadBtn.disabled = false;
             });
             
-            xhr.open('POST', '/upload');
+            xhr.open('POST', 'https://downrightly-predefrayal-leah.ngrok-free.dev/upload');
+            xhr.setRequestHeader('ngrok-skip-browser-warning', 'true');
             xhr.send(formData);
         }
         
