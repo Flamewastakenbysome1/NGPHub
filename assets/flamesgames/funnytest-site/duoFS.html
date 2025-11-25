@@ -123,9 +123,13 @@
 
   .reference-card{background:rgba(255,255,255,.03); border-radius:12px; padding:20px; margin:24px 0; border:1px solid rgba(255,255,255,.08)}
   .reference-title{font-size:1.1rem; font-weight:700; margin:0 0 12px; color:var(--brandB)}
-  .reference-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; font-size:.85rem}
-  .ref-item{background:rgba(255,255,255,.05); padding:8px 12px; border-radius:8px}
-  .ref-item strong{color:var(--brandB)}
+  .reference-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:8px; font-size:.8rem; max-height:200px; overflow-y:auto}
+  .ref-item{background:rgba(255,255,255,.05); padding:6px 8px; border-radius:6px; text-align:center}
+  .ref-item strong{color:var(--brandB); display:block; font-size:.9rem}
+  .ref-item span{color:var(--muted); font-size:.75rem}
+
+  .toggle-reference{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); padding:8px 16px; border-radius:8px; cursor:pointer; font-size:.85rem; font-weight:600; margin:16px 0; display:inline-block; transition:all .2s}
+  .toggle-reference:hover{background:rgba(255,255,255,.12)}
 
   footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
 
@@ -320,42 +324,90 @@
   const lessons = [
     {
       id: 1,
-      title: "The Basics",
-      description: "Learn your first FlameScrpt letters",
+      title: "Alphabet Part 1 (a-e)",
+      description: "Learn the first 5 letters",
       questions: [
-        {type:'translate', from:'english', text:'hi', instruction:'Translate to FlameScrpt'},
-        {type:'translate', from:'flamescrpt', text:'tu', instruction:'Translate to English'},
-        {type:'multiple', question:'What does "m" mean in English?', options:['a','b','c','d'], correct:'a'},
-        {type:'pronounce', text:'tu', instruction:'How do you pronounce "tu" in FlameScrpt?'},
-        {type:'translate', from:'english', text:'bye', instruction:'Translate to FlameScrpt'}
+        {type:'multiple', question:'What is "a" in FlameScrpt?', options:['m','n','o','p'], correct:'m'},
+        {type:'multiple', question:'What is "b" in FlameScrpt?', options:['m','n','o','p'], correct:'n'},
+        {type:'multiple', question:'What is "c" in FlameScrpt?', options:['m','n','o','p'], correct:'o'},
+        {type:'translate', from:'english', text:'a', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:'q', instruction:'Translate to English'}
       ]
     },
     {
       id: 2,
-      title: "Simple Words",
-      description: "Practice common short words",
+      title: "Alphabet Part 2 (f-j)",
+      description: "Learn letters f through j",
       questions: [
-        {type:'translate', from:'english', text:'cat', instruction:'Translate to FlameScrpt'},
-        {type:'translate', from:'flamescrpt', text:'pѵs', instruction:'Translate to English'},
-        {type:'multiple', question:'What is "yes" in FlameScrpt?', options:[')q=','zm)','tu','nѵ['], correct:')q='},
-        {type:'translate', from:'english', text:'man', instruction:'Translate to FlameScrpt'},
-        {type:'pronounce', text:'om[', instruction:'How do you pronounce "om[" in FlameScrpt?'}
+        {type:'multiple', question:'What is "f" in FlameScrpt?', options:['r','s','t','u'], correct:'r'},
+        {type:'multiple', question:'What is "h" in FlameScrpt?', options:['r','s','t','u'], correct:'t'},
+        {type:'translate', from:'english', text:'hi', instruction:'Translate to FlameScrpt (h=t, i=u)'},
+        {type:'translate', from:'flamescrpt', text:'v', instruction:'Translate to English'},
+        {type:'translate', from:'english', text:'age', instruction:'Translate to FlameScrpt'}
       ]
     },
     {
       id: 3,
+      title: "Alphabet Part 3 (k-o)",
+      description: "Continue learning the alphabet",
+      questions: [
+        {type:'multiple', question:'What is "m" in FlameScrpt?', options:['w','x','y','z'], correct:'y'},
+        {type:'multiple', question:'What is "n" in FlameScrpt?', options:['w','x','y','z'], correct:'z'},
+        {type:'translate', from:'english', text:'no', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:'ymz', instruction:'Translate to English'},
+        {type:'translate', from:'english', text:'man', instruction:'Translate to FlameScrpt'}
+      ]
+    },
+    {
+      id: 4,
+      title: "Simple Words",
+      description: "Practice putting letters together",
+      questions: [
+        {type:'translate', from:'english', text:'hi', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'english', text:'cat', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:'pѵs', instruction:'Translate to English'},
+        {type:'translate', from:'english', text:'dog', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:'om[', instruction:'Translate to English'}
+      ]
+    },
+    {
+      id: 5,
+      title: "Common Words",
+      description: "Learn frequently used words",
+      questions: [
+        {type:'translate', from:'english', text:'yes', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'english', text:'bye', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:')q=', instruction:'Translate to English'},
+        {type:'multiple', question:'What is "no" in FlameScrpt?', options:['zѵ',')q=','nѵ[','tu'], correct:'zѵ'},
+        {type:'translate', from:'english', text:'lol', instruction:'Translate to FlameScrpt'}
+      ]
+    },
+    {
+      id: 6,
+      title: "Pronunciation Basics",
+      description: "Learn how to speak FlameScrpt",
+      questions: [
+        {type:'multiple', question:'What word do we say for "m" in FlameScrpt?', options:['arccos','barcode','castle','diamond'], correct:'arccos'},
+        {type:'multiple', question:'What word do we say for "t" in FlameScrpt?', options:['hollow','garden','fortress','temple'], correct:'hollow'},
+        {type:'pronounce', text:'tu', instruction:'How do you pronounce "tu" in FlameScrpt?'},
+        {type:'pronounce', text:'om[', instruction:'How do you pronounce "om[" in FlameScrpt?'},
+        {type:'multiple', question:'How do you say spaces when speaking?', options:['space','Space','SPACE','pause'], correct:'Space'}
+      ]
+    },
+    {
+      id: 7,
       title: "Spaces & Phrases",
       description: "Master multi-word expressions",
       questions: [
         {type:'translate', from:'english', text:'hi man', instruction:'Translate to FlameScrpt'},
         {type:'pronounce', text:'tu ymz', instruction:'How do you pronounce "tu ymz" in FlameScrpt?'},
         {type:'translate', from:'flamescrpt', text:'nmq zmz', instruction:'Translate to English'},
-        {type:'multiple', question:'How do you say "Space" when speaking?', options:['space','Space','SPACE','spase'], correct:'Space'},
-        {type:'translate', from:'english', text:'see you', instruction:'Translate to FlameScrpt'}
+        {type:'translate', from:'english', text:'see you', instruction:'Translate to FlameScrpt'},
+        {type:'translate', from:'flamescrpt', text:'sѵѵp zun', instruction:'Translate to English'}
       ]
     },
     {
-      id: 4,
+      id: 8,
       title: "Emoticons",
       description: "Learn how emoticons work in FlameScrpt",
       questions: [
@@ -367,7 +419,7 @@
       ]
     },
     {
-      id: 5,
+      id: 9,
       title: "Numbers & Symbols",
       description: "Understand special characters",
       questions: [
@@ -379,7 +431,7 @@
       ]
     },
     {
-      id: 6,
+      id: 10,
       title: "Longer Sentences",
       description: "Translate complete sentences",
       questions: [
@@ -391,7 +443,7 @@
       ]
     },
     {
-      id: 7,
+      id: 11,
       title: "Mixed Practice",
       description: "Combine all skills",
       questions: [
@@ -403,7 +455,7 @@
       ]
     },
     {
-      id: 8,
+      id: 12,
       title: "Advanced Vocabulary",
       description: "Learn technical terms",
       questions: [
@@ -415,7 +467,7 @@
       ]
     },
     {
-      id: 9,
+      id: 13,
       title: "Full Conversations",
       description: "Practice realistic dialogue",
       questions: [
@@ -427,7 +479,7 @@
       ]
     },
     {
-      id: 10,
+      id: 14,
       title: "Master Challenge",
       description: "Final mastery test",
       questions: [
@@ -437,7 +489,7 @@
         {type:'translate', from:'english', text:'game developer', instruction:'Translate to FlameScrpt'},
         {type:'translate', from:'flamescrpt', text:'nq=[ u yq ruz', instruction:'Translate to English'}
       ]
-    }
+    },
   ];
 
   window.lessons = lessons;
@@ -453,7 +505,23 @@
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        userProgress = docSnap.data();
+        const data = docSnap.data();
+        userProgress = {
+          completedLessons: data.completedLessons || [],
+          currentLesson: data.currentLesson || 0,
+          totalCorrect: data.totalCorrect || 0,
+          totalAnswered: data.totalAnswered || 0
+        };
+        console.log('Progress loaded successfully!', userProgress);
+      } else {
+        console.log('No saved progress found, starting fresh');
+        // Initialize with default values
+        userProgress = {
+          completedLessons: [],
+          currentLesson: 0,
+          totalCorrect: 0,
+          totalAnswered: 0
+        };
       }
     } catch (error) {
       console.error('Error loading progress:', error);
@@ -469,9 +537,17 @@
     
     try {
       const docRef = doc(db, 'flamescrpt-progress', currentUser.uid);
-      await setDoc(docRef, userProgress);
+      await setDoc(docRef, {
+        completedLessons: userProgress.completedLessons,
+        currentLesson: userProgress.currentLesson,
+        totalCorrect: userProgress.totalCorrect,
+        totalAnswered: userProgress.totalAnswered,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      console.log('Progress saved successfully!', userProgress);
     } catch (error) {
       console.error('Error saving progress:', error);
+      alert('Failed to save progress. Check console for details.');
     }
   }
 
@@ -544,6 +620,62 @@
 
     const contentArea = document.getElementById('question-content');
     contentArea.innerHTML = '';
+
+    // Add alphabet reference toggle for translation questions
+    if (question.type === 'translate') {
+      const refToggle = document.createElement('button');
+      refToggle.className = 'toggle-reference';
+      refToggle.textContent = '📖 Show Alphabet Reference';
+      refToggle.onclick = () => {
+        const refCard = document.getElementById('alphabet-reference');
+        if (refCard.style.display === 'none') {
+          refCard.style.display = 'block';
+          refToggle.textContent = '📖 Hide Alphabet Reference';
+        } else {
+          refCard.style.display = 'none';
+          refToggle.textContent = '📖 Show Alphabet Reference';
+        }
+      };
+      contentArea.appendChild(refToggle);
+
+      // Add the reference card (hidden by default)
+      const refCard = document.createElement('div');
+      refCard.id = 'alphabet-reference';
+      refCard.className = 'reference-card';
+      refCard.style.display = 'none';
+      refCard.innerHTML = `
+        <p class="reference-title">FlameScrpt Alphabet</p>
+        <div class="reference-grid">
+          <div class="ref-item"><strong>a</strong><span>m</span></div>
+          <div class="ref-item"><strong>b</strong><span>n</span></div>
+          <div class="ref-item"><strong>c</strong><span>o</span></div>
+          <div class="ref-item"><strong>d</strong><span>p</span></div>
+          <div class="ref-item"><strong>e</strong><span>q</span></div>
+          <div class="ref-item"><strong>f</strong><span>r</span></div>
+          <div class="ref-item"><strong>g</strong><span>s</span></div>
+          <div class="ref-item"><strong>h</strong><span>t</span></div>
+          <div class="ref-item"><strong>i</strong><span>u</span></div>
+          <div class="ref-item"><strong>j</strong><span>v</span></div>
+          <div class="ref-item"><strong>k</strong><span>w</span></div>
+          <div class="ref-item"><strong>l</strong><span>x</span></div>
+          <div class="ref-item"><strong>m</strong><span>y</span></div>
+          <div class="ref-item"><strong>n</strong><span>z</span></div>
+          <div class="ref-item"><strong>o</strong><span>ѵ</span></div>
+          <div class="ref-item"><strong>p</strong><span>_</span></div>
+          <div class="ref-item"><strong>q</strong><span>-</span></div>
+          <div class="ref-item"><strong>r</strong><span>+</span></div>
+          <div class="ref-item"><strong>s</strong><span>=</span></div>
+          <div class="ref-item"><strong>t</strong><span>[</span></div>
+          <div class="ref-item"><strong>u</strong><span>]</span></div>
+          <div class="ref-item"><strong>v</strong><span>{</span></div>
+          <div class="ref-item"><strong>w</strong><span>}</span></div>
+          <div class="ref-item"><strong>x</strong><span>(</span></div>
+          <div class="ref-item"><strong>y</strong><span>)</span></div>
+          <div class="ref-item"><strong>z</strong><span>*</span></div>
+        </div>
+      `;
+      contentArea.appendChild(refCard);
+    }
 
     if (question.type === 'translate') {
       const displayText = question.from === 'english' ? question.text : question.text;
