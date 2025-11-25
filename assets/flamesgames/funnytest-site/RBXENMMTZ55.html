@@ -195,7 +195,7 @@
 
         .world-map {
             width: 100%;
-            min-width: 800px;
+            min-width: 1200px;
             height: auto;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
@@ -331,18 +331,78 @@
                 <div class="input-group">
                     <label for="sourceTimezone">🌐 Your Timezone:</label>
                     <select id="sourceTimezone">
-                        <option value="America/Los_Angeles">Pacific (US & Canada)</option>
-                        <option value="America/Denver">Mountain (US & Canada)</option>
-                        <option value="America/Chicago">Central (US & Canada)</option>
-                        <option value="America/New_York">Eastern (US & Canada)</option>
-                        <option value="Europe/London">London (UK)</option>
-                        <option value="Europe/Paris">Paris/Berlin/Rome</option>
-                        <option value="Asia/Tokyo">Tokyo (Japan)</option>
-                        <option value="Australia/Sydney">Sydney (Australia)</option>
-                        <option value="Asia/Shanghai">Beijing (China)</option>
-                        <option value="Asia/Dubai">Dubai (UAE)</option>
-                        <option value="America/Sao_Paulo">São Paulo (Brazil)</option>
-                        <option value="Asia/Kolkata">India (IST)</option>
+                        <optgroup label="🇺🇸 United States">
+                            <option value="America/Anchorage">Alaska</option>
+                            <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                            <option value="America/Denver">Mountain (Denver)</option>
+                            <option value="America/Chicago">Central (Chicago)</option>
+                            <option value="America/New_York">Eastern (New York)</option>
+                            <option value="Pacific/Honolulu">Hawaii (Honolulu)</option>
+                        </optgroup>
+                        <optgroup label="🇨🇦 Canada">
+                            <option value="America/Vancouver">Pacific (Vancouver)</option>
+                            <option value="America/Edmonton">Mountain (Edmonton)</option>
+                            <option value="America/Toronto">Eastern (Toronto)</option>
+                            <option value="America/Halifax">Atlantic (Halifax)</option>
+                            <option value="America/St_Johns">Newfoundland</option>
+                        </optgroup>
+                        <optgroup label="🌎 Latin America">
+                            <option value="America/Mexico_City">Mexico City</option>
+                            <option value="America/Bogota">Bogotá</option>
+                            <option value="America/Lima">Lima</option>
+                            <option value="America/Santiago">Santiago</option>
+                            <option value="America/Sao_Paulo">São Paulo</option>
+                            <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+                        </optgroup>
+                        <optgroup label="🇬🇧 UK & Ireland">
+                            <option value="Europe/London">London</option>
+                            <option value="Europe/Dublin">Dublin</option>
+                        </optgroup>
+                        <optgroup label="🇪🇺 Europe">
+                            <option value="Atlantic/Reykjavik">Reykjavik</option>
+                            <option value="Europe/Paris">Paris/CET</option>
+                            <option value="Europe/Berlin">Berlin</option>
+                            <option value="Europe/Rome">Rome</option>
+                            <option value="Europe/Madrid">Madrid</option>
+                            <option value="Europe/Stockholm">Stockholm</option>
+                            <option value="Europe/Athens">Athens</option>
+                            <option value="Europe/Istanbul">Istanbul</option>
+                            <option value="Europe/Moscow">Moscow</option>
+                        </optgroup>
+                        <optgroup label="🌍 Africa">
+                            <option value="Africa/Cairo">Cairo</option>
+                            <option value="Africa/Lagos">Lagos</option>
+                            <option value="Africa/Nairobi">Nairobi</option>
+                            <option value="Africa/Johannesburg">Johannesburg</option>
+                        </optgroup>
+                        <optgroup label="🌏 Middle East & Asia">
+                            <option value="Asia/Dubai">Dubai</option>
+                            <option value="Asia/Tehran">Tehran</option>
+                            <option value="Asia/Karachi">Karachi</option>
+                            <option value="Asia/Kolkata">India (IST)</option>
+                            <option value="Asia/Kathmandu">Kathmandu</option>
+                            <option value="Asia/Dhaka">Dhaka</option>
+                            <option value="Asia/Bangkok">Bangkok</option>
+                            <option value="Asia/Singapore">Singapore</option>
+                            <option value="Asia/Shanghai">Beijing</option>
+                            <option value="Asia/Hong_Kong">Hong Kong</option>
+                            <option value="Asia/Taipei">Taipei</option>
+                            <option value="Asia/Manila">Manila</option>
+                            <option value="Asia/Tokyo">Tokyo</option>
+                            <option value="Asia/Seoul">Seoul</option>
+                        </optgroup>
+                        <optgroup label="🇦🇺 Australia & Oceania">
+                            <option value="Australia/Perth">Perth</option>
+                            <option value="Australia/Darwin">Darwin</option>
+                            <option value="Australia/Adelaide">Adelaide</option>
+                            <option value="Australia/Brisbane">Brisbane</option>
+                            <option value="Australia/Sydney">Sydney (AEST)</option>
+                            <option value="Australia/Melbourne">Melbourne</option>
+                            <option value="Australia/Hobart">Hobart</option>
+                            <option value="Pacific/Auckland">Auckland</option>
+                            <option value="Pacific/Fiji">Fiji</option>
+                            <option value="Pacific/Apia">Samoa</option>
+                        </optgroup>
                     </select>
                 </div>
                 <button onclick="convertTimezones()">🚀 Convert!</button>
@@ -355,32 +415,74 @@
             <h2 style="text-align: center; margin-bottom: 20px; font-size: 1.8em;">🗺️ World Time Map</h2>
             <div class="map-container">
                 <div class="map-wrapper" id="mapWrapper">
-                    <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="world-map" viewBox="0 0 2000 1000" xmlns="http://www.w3.org/2000/svg">
                         <!-- Ocean background -->
-                        <rect width="1000" height="500" fill="#2c5f7d"/>
+                        <rect width="2000" height="1000" fill="#1a4d6d"/>
                         
-                        <!-- Simplified world map continents -->
+                        <!-- More detailed world map -->
+                        <!-- Greenland -->
+                        <path d="M 580 80 L 650 90 L 680 120 L 670 160 L 640 180 L 590 170 L 560 140 L 570 100 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
                         <!-- North America -->
-                        <path d="M 150 80 Q 120 100 120 150 L 100 180 L 110 220 L 180 240 L 200 200 L 230 180 L 250 160 L 240 120 L 200 80 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <path d="M 150 150 L 180 130 L 220 120 L 260 130 L 300 140 L 340 150 L 380 170 L 420 180 L 450 200 L 470 230 L 480 260 L 490 290 L 480 320 L 460 340 L 430 350 L 400 360 L 370 370 L 340 380 L 310 390 L 280 400 L 250 390 L 220 370 L 200 340 L 180 310 L 160 280 L 150 250 L 140 220 L 140 190 L 145 170 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Central America -->
+                        <path d="M 310 390 L 340 410 L 360 430 L 350 450 L 330 440 L 310 430 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
                         <!-- South America -->
-                        <path d="M 180 260 L 200 320 L 220 380 L 210 420 L 190 400 L 170 380 L 160 320 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <path d="M 350 450 L 380 470 L 400 500 L 420 540 L 430 580 L 440 620 L 450 660 L 450 700 L 440 740 L 420 770 L 390 780 L 360 770 L 340 750 L 330 710 L 320 670 L 310 630 L 300 590 L 300 550 L 310 510 L 325 475 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Iceland -->
+                        <path d="M 820 180 L 850 185 L 860 200 L 845 210 L 820 205 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- UK & Ireland -->
+                        <path d="M 880 230 L 900 240 L 910 260 L 900 280 L 880 285 L 870 270 L 875 245 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Scandinavia -->
+                        <path d="M 940 150 L 980 160 L 1000 140 L 1020 160 L 1010 200 L 990 220 L 960 230 L 940 210 L 935 180 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
                         <!-- Europe -->
-                        <path d="M 450 100 L 480 110 L 500 130 L 490 150 L 470 160 L 440 150 L 430 120 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <path d="M 880 280 L 920 290 L 960 300 L 1000 310 L 1040 320 L 1060 300 L 1080 280 L 1100 290 L 1110 310 L 1100 330 L 1070 340 L 1040 350 L 1000 360 L 960 365 L 920 360 L 890 350 L 870 330 L 875 305 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
                         <!-- Africa -->
-                        <path d="M 460 180 L 490 200 L 510 250 L 500 320 L 470 350 L 440 340 L 430 280 L 440 220 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <path d="M 900 400 L 940 420 L 980 450 L 1010 490 L 1030 540 L 1040 590 L 1040 640 L 1030 690 L 1010 730 L 980 760 L 940 780 L 900 790 L 860 780 L 830 750 L 810 710 L 800 660 L 795 610 L 800 560 L 820 510 L 850 470 L 880 440 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
-                        <!-- Asia -->
-                        <path d="M 520 80 L 650 90 L 750 110 L 800 140 L 820 180 L 800 220 L 750 240 L 700 250 L 650 240 L 600 220 L 560 200 L 540 160 L 520 120 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <!-- Middle East -->
+                        <path d="M 1100 330 L 1140 340 L 1180 360 L 1210 390 L 1230 420 L 1220 450 L 1190 460 L 1150 455 L 1120 440 L 1100 410 L 1095 370 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Russia/Asia -->
+                        <path d="M 1040 150 L 1100 160 L 1180 170 L 1260 180 L 1340 190 L 1420 200 L 1500 210 L 1580 220 L 1650 230 L 1700 240 L 1750 250 L 1780 270 L 1800 300 L 1790 330 L 1760 350 L 1720 360 L 1680 365 L 1640 360 L 1600 350 L 1560 340 L 1520 330 L 1480 320 L 1440 310 L 1400 300 L 1360 290 L 1320 280 L 1280 270 L 1240 260 L 1200 250 L 1160 240 L 1120 230 L 1080 220 L 1050 200 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- India -->
+                        <path d="M 1300 430 L 1340 450 L 1370 480 L 1390 520 L 1395 560 L 1385 600 L 1360 620 L 1330 615 L 1300 600 L 1280 570 L 1270 530 L 1275 490 L 1290 455 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Southeast Asia -->
+                        <path d="M 1410 500 L 1450 520 L 1490 540 L 1520 560 L 1540 590 L 1530 620 L 1500 630 L 1470 625 L 1440 610 L 1420 580 L 1410 550 L 1408 525 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- China/East Asia -->
+                        <path d="M 1480 270 L 1540 285 L 1590 300 L 1630 320 L 1660 350 L 1680 390 L 1670 430 L 1640 460 L 1600 475 L 1560 480 L 1520 470 L 1490 450 L 1470 420 L 1460 380 L 1465 340 L 1475 305 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Japan -->
+                        <path d="M 1720 340 L 1740 360 L 1750 390 L 1745 420 L 1730 435 L 1710 430 L 1700 405 L 1705 375 L 1715 350 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Philippines -->
+                        <path d="M 1650 520 L 1670 540 L 1675 570 L 1665 590 L 1650 585 L 1645 560 L 1648 535 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Indonesia -->
+                        <path d="M 1500 630 L 1550 640 L 1600 650 L 1640 655 L 1670 650 L 1680 665 L 1650 675 L 1600 680 L 1550 675 L 1510 665 L 1490 650 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
                         <!-- Australia -->
-                        <path d="M 750 340 L 820 350 L 850 380 L 840 410 L 800 420 L 760 410 L 740 380 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        <path d="M 1580 720 L 1650 730 L 1710 745 L 1760 770 L 1790 810 L 1800 850 L 1790 890 L 1760 915 L 1710 925 L 1660 920 L 1610 905 L 1570 880 L 1545 850 L 1535 810 L 1545 770 L 1565 740 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
                         
-                        <!-- Grid lines for reference -->
-                        <line x1="0" y1="250" x2="1000" y2="250" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="5,5"/>
-                        <line x1="500" y1="0" x2="500" y2="500" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="5,5"/>
+                        <!-- New Zealand -->
+                        <path d="M 1880 860 L 1900 880 L 1905 910 L 1895 935 L 1875 940 L 1860 925 L 1858 895 L 1870 870 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Madagascar -->
+                        <path d="M 1100 700 L 1120 730 L 1125 770 L 1115 800 L 1095 810 L 1080 795 L 1078 760 L 1085 725 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="1.5"/>
+                        
+                        <!-- Grid lines -->
+                        <line x1="0" y1="500" x2="2000" y2="500" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="10,10"/>
+                        <line x1="1000" y1="0" x2="1000" y2="1000" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="10,10"/>
                     </svg>
                     
                     <!-- Timezone markers will be added here by JavaScript -->
@@ -403,24 +505,69 @@
     </div>
 
     <script>
-        // Popular timezones for gaming/events with map coordinates (percentage based on 1000x500 viewbox)
+        // Popular timezones for gaming/events with map coordinates (percentage based on 2000x1000 viewbox)
         const timezones = [
-            { name: "Pacific (US)", zone: "America/Los_Angeles", flag: "🇺🇸", x: 15, y: 35 },
-            { name: "Mountain (US)", zone: "America/Denver", flag: "🇺🇸", x: 18, y: 38 },
-            { name: "Central (US)", zone: "America/Chicago", flag: "🇺🇸", x: 21, y: 38 },
-            { name: "Eastern (US)", zone: "America/New_York", flag: "🇺🇸", x: 24, y: 36 },
-            { name: "London", zone: "Europe/London", flag: "🇬🇧", x: 46, y: 26 },
-            { name: "Paris/CET", zone: "Europe/Paris", flag: "🇫🇷", x: 48, y: 28 },
-            { name: "Moscow", zone: "Europe/Moscow", flag: "🇷🇺", x: 56, y: 24 },
-            { name: "Dubai", zone: "Asia/Dubai", flag: "🇦🇪", x: 62, y: 40 },
-            { name: "India", zone: "Asia/Kolkata", flag: "🇮🇳", x: 68, y: 42 },
-            { name: "Beijing", zone: "Asia/Shanghai", flag: "🇨🇳", x: 75, y: 32 },
-            { name: "Tokyo", zone: "Asia/Tokyo", flag: "🇯🇵", x: 82, y: 34 },
-            { name: "Sydney", zone: "Australia/Sydney", flag: "🇦🇺", x: 85, y: 76 },
-            { name: "Auckland", zone: "Pacific/Auckland", flag: "🇳🇿", x: 95, y: 80 },
-            { name: "São Paulo", zone: "America/Sao_Paulo", flag: "🇧🇷", x: 28, y: 72 },
-            { name: "Mexico City", zone: "America/Mexico_City", flag: "🇲🇽", x: 18, y: 44 },
-            { name: "Toronto", zone: "America/Toronto", flag: "🇨🇦", x: 24, y: 32 },
+            // Americas
+            { name: "Alaska (US)", zone: "America/Anchorage", flag: "🇺🇸", x: 10, y: 22 },
+            { name: "Pacific (US)", zone: "America/Los_Angeles", flag: "🇺🇸", x: 15, y: 30 },
+            { name: "Mountain (US)", zone: "America/Denver", flag: "🇺🇸", x: 19, y: 32 },
+            { name: "Central (US)", zone: "America/Chicago", flag: "🇺🇸", x: 23, y: 32 },
+            { name: "Eastern (US)", zone: "America/New_York", flag: "🇺🇸", x: 27, y: 31 },
+            { name: "Atlantic", zone: "America/Halifax", flag: "🇨🇦", x: 30, y: 27 },
+            { name: "Newfoundland", zone: "America/St_Johns", flag: "🇨🇦", x: 32, y: 25 },
+            { name: "Mexico City", zone: "America/Mexico_City", flag: "🇲🇽", x: 19, y: 38 },
+            { name: "Bogotá", zone: "America/Bogota", flag: "🇨🇴", x: 22, y: 48 },
+            { name: "Lima", zone: "America/Lima", flag: "🇵🇪", x: 21, y: 56 },
+            { name: "Santiago", zone: "America/Santiago", flag: "🇨🇱", x: 20, y: 68 },
+            { name: "São Paulo", zone: "America/Sao_Paulo", flag: "🇧🇷", x: 26, y: 72 },
+            { name: "Buenos Aires", zone: "America/Argentina/Buenos_Aires", flag: "🇦🇷", x: 23, y: 76 },
+            
+            // Europe & Africa
+            { name: "Reykjavik", zone: "Atlantic/Reykjavik", flag: "🇮🇸", x: 42, y: 19 },
+            { name: "London", zone: "Europe/London", flag: "🇬🇧", x: 44.5, y: 26 },
+            { name: "Dublin", zone: "Europe/Dublin", flag: "🇮🇪", x: 43.5, y: 27 },
+            { name: "Paris/CET", zone: "Europe/Paris", flag: "🇫🇷", x: 46, y: 29 },
+            { name: "Berlin", zone: "Europe/Berlin", flag: "🇩🇪", x: 48, y: 28 },
+            { name: "Rome", zone: "Europe/Rome", flag: "🇮🇹", x: 48, y: 31 },
+            { name: "Madrid", zone: "Europe/Madrid", flag: "🇪🇸", x: 44, y: 31 },
+            { name: "Stockholm", zone: "Europe/Stockholm", flag: "🇸🇪", x: 49, y: 23 },
+            { name: "Athens", zone: "Europe/Athens", flag: "🇬🇷", x: 52, y: 32 },
+            { name: "Istanbul", zone: "Europe/Istanbul", flag: "🇹🇷", x: 54, y: 31 },
+            { name: "Moscow", zone: "Europe/Moscow", flag: "🇷🇺", x: 57, y: 24 },
+            { name: "Cairo", zone: "Africa/Cairo", flag: "🇪🇬", x: 51, y: 43 },
+            { name: "Johannesburg", zone: "Africa/Johannesburg", flag: "🇿🇦", x: 53, y: 77 },
+            { name: "Lagos", zone: "Africa/Lagos", flag: "🇳🇬", x: 46, y: 48 },
+            { name: "Nairobi", zone: "Africa/Nairobi", flag: "🇰🇪", x: 57, y: 52 },
+            
+            // Middle East & Asia
+            { name: "Dubai", zone: "Asia/Dubai", flag: "🇦🇪", x: 61, y: 40 },
+            { name: "Tehran", zone: "Asia/Tehran", flag: "🇮🇷", x: 60, y: 37 },
+            { name: "Karachi", zone: "Asia/Karachi", flag: "🇵🇰", x: 63, y: 42 },
+            { name: "India (IST)", zone: "Asia/Kolkata", flag: "🇮🇳", x: 67, y: 48 },
+            { name: "Kathmandu", zone: "Asia/Kathmandu", flag: "🇳🇵", x: 68, y: 46 },
+            { name: "Dhaka", zone: "Asia/Dhaka", flag: "🇧🇩", x: 71, y: 47 },
+            { name: "Bangkok", zone: "Asia/Bangkok", flag: "🇹🇭", x: 74, y: 52 },
+            { name: "Singapore", zone: "Asia/Singapore", flag: "🇸🇬", x: 75, y: 55 },
+            { name: "Hong Kong", zone: "Asia/Hong_Kong", flag: "🇭🇰", x: 77, y: 44 },
+            { name: "Beijing", zone: "Asia/Shanghai", flag: "🇨🇳", x: 77, y: 36 },
+            { name: "Taipei", zone: "Asia/Taipei", flag: "🇹🇼", x: 79, y: 44 },
+            { name: "Manila", zone: "Asia/Manila", flag: "🇵🇭", x: 79, y: 52 },
+            { name: "Tokyo", zone: "Asia/Tokyo", flag: "🇯🇵", x: 85, y: 37 },
+            { name: "Seoul", zone: "Asia/Seoul", flag: "🇰🇷", x: 82, y: 35 },
+            
+            // Oceania & Pacific
+            { name: "Jakarta", zone: "Asia/Jakarta", flag: "🇮🇩", x: 76, y: 65 },
+            { name: "Perth", zone: "Australia/Perth", flag: "🇦🇺", x: 78, y: 78 },
+            { name: "Adelaide", zone: "Australia/Adelaide", flag: "🇦🇺", x: 85, y: 82 },
+            { name: "Darwin", zone: "Australia/Darwin", flag: "🇦🇺", x: 83, y: 71 },
+            { name: "Brisbane", zone: "Australia/Brisbane", flag: "🇦🇺", x: 88, y: 77 },
+            { name: "AEST (Sydney)", zone: "Australia/Sydney", flag: "🇦🇺", x: 88, y: 83 },
+            { name: "Melbourne", zone: "Australia/Melbourne", flag: "🇦🇺", x: 87, y: 86 },
+            { name: "Hobart", zone: "Australia/Hobart", flag: "🇦🇺", x: 88, y: 90 },
+            { name: "Auckland", zone: "Pacific/Auckland", flag: "🇳🇿", x: 94, y: 88 },
+            { name: "Fiji", zone: "Pacific/Fiji", flag: "🇫🇯", x: 96, y: 68 },
+            { name: "Honolulu", zone: "Pacific/Honolulu", flag: "🇺🇸", x: 8, y: 44 },
+            { name: "Samoa", zone: "Pacific/Apia", flag: "🇼🇸", x: 5, y: 64 },
         ];
 
         // Set default to current time
