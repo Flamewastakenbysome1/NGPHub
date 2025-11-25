@@ -171,6 +171,26 @@
 <main>
   <div class="wrap">
     
+    <!-- Access Control Screen -->
+    <div id="access-control" class="hidden">
+      <div class="hero">
+        <h2>🔒 FlameScrpt Access</h2>
+        <p>Enter the access code and password</p>
+      </div>
+      <div class="quiz-container" style="max-width:450px">
+        <div style="margin-bottom:20px">
+          <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--muted)">Access Code (10 digits)</label>
+          <input type="text" id="access-code" class="answer-input" placeholder="Enter 10-digit code" maxlength="10" style="margin:0">
+        </div>
+        <div style="margin-bottom:24px">
+          <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--muted)">Password</label>
+          <input type="password" id="access-password" class="answer-input" placeholder="Enter password" style="margin:0">
+        </div>
+        <button class="btn" onclick="checkAccess()" style="width:100%">Unlock FlameScrpt</button>
+        <div id="access-error" style="color:var(--error); text-align:center; margin-top:16px; font-weight:600; display:none"></div>
+      </div>
+    </div>
+
     <div id="login-prompt" class="hidden">
       <div class="hero">
         <h2>Learn FlameScrpt</h2>
@@ -294,6 +314,60 @@
     totalCorrect: 0,
     totalAnswered: 0
   };
+  let accessGranted = false;
+
+  // Check if user has already unlocked access (stored in localStorage)
+  function checkStoredAccess() {
+    const stored = localStorage.getItem('flamescrpt_access');
+    if (stored === 'granted') {
+      accessGranted = true;
+      return true;
+    }
+    return false;
+  }
+
+  // Show access control or main content based on access status
+  function initializeApp() {
+    if (checkStoredAccess()) {
+      document.getElementById('access-control').classList.add('hidden');
+      showContentBasedOnAuth();
+    } else {
+      document.getElementById('access-control').classList.remove('hidden');
+      document.getElementById('login-prompt').classList.add('hidden');
+      document.getElementById('main-content').classList.add('hidden');
+    }
+  }
+
+  // Check access code and password
+  window.checkAccess = function() {
+    const code = document.getElementById('access-code').value;
+    const password = document.getElementById('access-password').value;
+    const errorDiv = document.getElementById('access-error');
+
+    if (code === '5882677401' && password === 'ScrptEsEpicox86') {
+      localStorage.setItem('flamescrpt_access', 'granted');
+      accessGranted = true;
+      document.getElementById('access-control').classList.add('hidden');
+      errorDiv.style.display = 'none';
+      showContentBasedOnAuth();
+    } else {
+      errorDiv.textContent = '❌ Invalid access code or password';
+      errorDiv.style.display = 'block';
+      document.getElementById('access-code').value = '';
+      document.getElementById('access-password').value = '';
+    }
+  };
+
+  function showContentBasedOnAuth() {
+    if (currentUser) {
+      document.getElementById('login-prompt').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('hidden');
+      loadProgress();
+    } else {
+      document.getElementById('login-prompt').classList.remove('hidden');
+      document.getElementById('main-content').classList.add('hidden');
+    }
+  }
 
   // FlameScrpt Translation Maps
   const toFlameScrpt = {
@@ -496,12 +570,14 @@
   window.userProgress = userProgress;
   window.currentUser = currentUser;
 
-  // Load user progress
+  // Load user progress - using user subcollection to avoid permission issues
   async function loadProgress() {
     if (!currentUser) return;
     
     try {
-      const docRef = doc(db, 'flamescrpt-progress', currentUser.uid);
+      // Store in users/{uid}/data/flamescrpt instead of flamescrpt-progress/{uid}
+      // This way it uses the user's own space which they have write access to
+      const docRef = doc(db, 'users', currentUser.uid, 'data', 'flamescrpt');
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
@@ -512,9 +588,9 @@
           totalCorrect: data.totalCorrect || 0,
           totalAnswered: data.totalAnswered || 0
         };
-        console.log('Progress loaded successfully!', userProgress);
+        console.log('✅ Progress loaded successfully!', userProgress);
       } else {
-        console.log('No saved progress found, starting fresh');
+        console.log('📝 No saved progress found, starting fresh');
         // Initialize with default values
         userProgress = {
           completedLessons: [],
@@ -524,19 +600,26 @@
         };
       }
     } catch (error) {
-      console.error('Error loading progress:', error);
+      console.error('❌ Error loading progress:', error);
+      // Continue with default values even if load fails
+      userProgress = {
+        completedLessons: [],
+        currentLesson: 0,
+        totalCorrect: 0,
+        totalAnswered: 0
+      };
     }
     
     updateProgressDisplay();
     renderLessons();
   }
 
-  // Save user progress
+  // Save user progress - using user subcollection
   async function saveProgress() {
     if (!currentUser) return;
     
     try {
-      const docRef = doc(db, 'flamescrpt-progress', currentUser.uid);
+      const docRef = doc(db, 'users', currentUser.uid, 'data', 'flamescrpt');
       await setDoc(docRef, {
         completedLessons: userProgress.completedLessons,
         currentLesson: userProgress.currentLesson,
@@ -544,10 +627,14 @@
         totalAnswered: userProgress.totalAnswered,
         lastUpdated: new Date().toISOString()
       }, { merge: true });
-      console.log('Progress saved successfully!', userProgress);
+      console.log('✅ Progress saved successfully!', userProgress);
     } catch (error) {
-      console.error('Error saving progress:', error);
-      alert('Failed to save progress. Check console for details.');
+      console.error('❌ Error saving progress:', error.message);
+      // Show user-friendly error
+      const errorMsg = error.message.includes('permission') 
+        ? 'Permission denied. Make sure you are logged in.'
+        : 'Failed to save progress. Please try again.';
+      alert('⚠️ ' + errorMsg + '\n\nCheck browser console for details.');
     }
   }
 
@@ -861,20 +948,26 @@
         logoutModal.classList.add('active');
       });
       
-      document.getElementById('login-prompt').classList.add('hidden');
-      document.getElementById('main-content').classList.remove('hidden');
-      
-      loadProgress();
+      if (accessGranted) {
+        document.getElementById('login-prompt').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        loadProgress();
+      }
     } else {
       currentUser = null;
       window.currentUser = null;
       authLink.textContent = 'Login';
       authLink.href = '/login';
       
-      document.getElementById('login-prompt').classList.remove('hidden');
-      document.getElementById('main-content').classList.add('hidden');
+      if (accessGranted) {
+        document.getElementById('login-prompt').classList.remove('hidden');
+        document.getElementById('main-content').classList.add('hidden');
+      }
     }
   });
+
+  // Initialize app on load
+  initializeApp();
 
   cancelLogoutBtn.addEventListener('click', () => {
     logoutModal.classList.remove('active');
