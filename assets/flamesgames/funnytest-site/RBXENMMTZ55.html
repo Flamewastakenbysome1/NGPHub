@@ -171,6 +171,137 @@
             font-size: 1.1em;
         }
 
+        .map-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .world-map {
+            width: 100%;
+            min-width: 800px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        .map-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .timezone-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .timezone-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 20;
+        }
+
+        .marker-dot {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(240, 147, 251, 0.8), 0 0 30px rgba(245, 87, 108, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .marker-dot.your-marker {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 237, 78, 0.6);
+            border-width: 4px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(240, 147, 251, 0.8), 0 0 30px rgba(245, 87, 108, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(240, 147, 251, 1), 0 0 50px rgba(245, 87, 108, 0.8);
+            }
+        }
+
+        .marker-label {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .timezone-marker:hover .marker-label {
+            opacity: 1;
+        }
+
+        .marker-time {
+            display: block;
+            font-size: 1.1em;
+            color: #ffd700;
+            margin-top: 3px;
+        }
+
+        .map-legend {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 15px;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .legend-dot.normal {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .legend-dot.yours {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -220,28 +351,76 @@
 
         <div class="current-time-display" id="currentTimeDisplay"></div>
 
+        <div class="map-section">
+            <h2 style="text-align: center; margin-bottom: 20px; font-size: 1.8em;">🗺️ World Time Map</h2>
+            <div class="map-container">
+                <div class="map-wrapper" id="mapWrapper">
+                    <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Ocean background -->
+                        <rect width="1000" height="500" fill="#2c5f7d"/>
+                        
+                        <!-- Simplified world map continents -->
+                        <!-- North America -->
+                        <path d="M 150 80 Q 120 100 120 150 L 100 180 L 110 220 L 180 240 L 200 200 L 230 180 L 250 160 L 240 120 L 200 80 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- South America -->
+                        <path d="M 180 260 L 200 320 L 220 380 L 210 420 L 190 400 L 170 380 L 160 320 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- Europe -->
+                        <path d="M 450 100 L 480 110 L 500 130 L 490 150 L 470 160 L 440 150 L 430 120 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- Africa -->
+                        <path d="M 460 180 L 490 200 L 510 250 L 500 320 L 470 350 L 440 340 L 430 280 L 440 220 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- Asia -->
+                        <path d="M 520 80 L 650 90 L 750 110 L 800 140 L 820 180 L 800 220 L 750 240 L 700 250 L 650 240 L 600 220 L 560 200 L 540 160 L 520 120 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- Australia -->
+                        <path d="M 750 340 L 820 350 L 850 380 L 840 410 L 800 420 L 760 410 L 740 380 Z" fill="#4a9d5f" stroke="#2d6e3f" stroke-width="2"/>
+                        
+                        <!-- Grid lines for reference -->
+                        <line x1="0" y1="250" x2="1000" y2="250" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="5,5"/>
+                        <line x1="500" y1="0" x2="500" y2="500" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="5,5"/>
+                    </svg>
+                    
+                    <!-- Timezone markers will be added here by JavaScript -->
+                    <div id="timezoneMarkers"></div>
+                </div>
+            </div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <div class="legend-dot normal"></div>
+                    <span>Other Timezones</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot yours"></div>
+                    <span>Your Timezone</span>
+                </div>
+            </div>
+        </div>
+
         <div class="timezones-grid" id="timezonesGrid"></div>
     </div>
 
     <script>
-        // Popular timezones for gaming/events
+        // Popular timezones for gaming/events with map coordinates (percentage based on 1000x500 viewbox)
         const timezones = [
-            { name: "Pacific (US)", zone: "America/Los_Angeles", flag: "🇺🇸" },
-            { name: "Mountain (US)", zone: "America/Denver", flag: "🇺🇸" },
-            { name: "Central (US)", zone: "America/Chicago", flag: "🇺🇸" },
-            { name: "Eastern (US)", zone: "America/New_York", flag: "🇺🇸" },
-            { name: "London", zone: "Europe/London", flag: "🇬🇧" },
-            { name: "Paris/CET", zone: "Europe/Paris", flag: "🇫🇷" },
-            { name: "Moscow", zone: "Europe/Moscow", flag: "🇷🇺" },
-            { name: "Dubai", zone: "Asia/Dubai", flag: "🇦🇪" },
-            { name: "India", zone: "Asia/Kolkata", flag: "🇮🇳" },
-            { name: "Beijing", zone: "Asia/Shanghai", flag: "🇨🇳" },
-            { name: "Tokyo", zone: "Asia/Tokyo", flag: "🇯🇵" },
-            { name: "Sydney", zone: "Australia/Sydney", flag: "🇦🇺" },
-            { name: "Auckland", zone: "Pacific/Auckland", flag: "🇳🇿" },
-            { name: "São Paulo", zone: "America/Sao_Paulo", flag: "🇧🇷" },
-            { name: "Mexico City", zone: "America/Mexico_City", flag: "🇲🇽" },
-            { name: "Toronto", zone: "America/Toronto", flag: "🇨🇦" },
+            { name: "Pacific (US)", zone: "America/Los_Angeles", flag: "🇺🇸", x: 15, y: 35 },
+            { name: "Mountain (US)", zone: "America/Denver", flag: "🇺🇸", x: 18, y: 38 },
+            { name: "Central (US)", zone: "America/Chicago", flag: "🇺🇸", x: 21, y: 38 },
+            { name: "Eastern (US)", zone: "America/New_York", flag: "🇺🇸", x: 24, y: 36 },
+            { name: "London", zone: "Europe/London", flag: "🇬🇧", x: 46, y: 26 },
+            { name: "Paris/CET", zone: "Europe/Paris", flag: "🇫🇷", x: 48, y: 28 },
+            { name: "Moscow", zone: "Europe/Moscow", flag: "🇷🇺", x: 56, y: 24 },
+            { name: "Dubai", zone: "Asia/Dubai", flag: "🇦🇪", x: 62, y: 40 },
+            { name: "India", zone: "Asia/Kolkata", flag: "🇮🇳", x: 68, y: 42 },
+            { name: "Beijing", zone: "Asia/Shanghai", flag: "🇨🇳", x: 75, y: 32 },
+            { name: "Tokyo", zone: "Asia/Tokyo", flag: "🇯🇵", x: 82, y: 34 },
+            { name: "Sydney", zone: "Australia/Sydney", flag: "🇦🇺", x: 85, y: 76 },
+            { name: "Auckland", zone: "Pacific/Auckland", flag: "🇳🇿", x: 95, y: 80 },
+            { name: "São Paulo", zone: "America/Sao_Paulo", flag: "🇧🇷", x: 28, y: 72 },
+            { name: "Mexico City", zone: "America/Mexico_City", flag: "🇲🇽", x: 18, y: 44 },
+            { name: "Toronto", zone: "America/Toronto", flag: "🇨🇦", x: 24, y: 32 },
         ];
 
         // Set default to current time
@@ -279,6 +458,42 @@
             return tzName ? tzName.value : '';
         }
 
+        function renderMapMarkers(eventDate, sourceTimezone) {
+            const markersContainer = document.getElementById('timezoneMarkers');
+            if (!markersContainer) return;
+            
+            markersContainer.innerHTML = '';
+            const mapWrapper = document.getElementById('mapWrapper');
+            const mapRect = mapWrapper.getBoundingClientRect();
+
+            timezones.forEach(tz => {
+                const marker = document.createElement('div');
+                marker.className = 'timezone-marker';
+                marker.style.left = `${tz.x}%`;
+                marker.style.top = `${tz.y}%`;
+
+                const timeFormatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: tz.zone,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+
+                const time = eventDate ? timeFormatter.format(eventDate) : '';
+                const isYourTimezone = tz.zone === sourceTimezone;
+
+                marker.innerHTML = `
+                    <div class="marker-dot ${isYourTimezone ? 'your-marker' : ''}"></div>
+                    <div class="marker-label">
+                        ${tz.flag} ${tz.name}
+                        ${time ? `<span class="marker-time">${time}</span>` : ''}
+                    </div>
+                `;
+
+                markersContainer.appendChild(marker);
+            });
+        }
+
         function convertTimezones() {
             const dateTimeInput = document.getElementById('eventDateTime').value;
             const sourceTimezone = document.getElementById('sourceTimezone').value;
@@ -290,6 +505,9 @@
 
             // Create date object in the source timezone
             const eventDate = new Date(dateTimeInput);
+
+            // Update map markers
+            renderMapMarkers(eventDate, sourceTimezone);
 
             const grid = document.getElementById('timezonesGrid');
             grid.innerHTML = '';
@@ -347,6 +565,9 @@
         // Initialize
         setDefaultDateTime();
         setInterval(updateCurrentTime, 1000);
+
+        // Render initial map markers
+        renderMapMarkers(null, 'America/Los_Angeles');
 
         // Auto-convert on page load if datetime is set
         if (document.getElementById('eventDateTime').value) {
