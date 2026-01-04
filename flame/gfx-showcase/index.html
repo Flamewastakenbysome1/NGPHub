@@ -116,25 +116,23 @@
   }
 
   /* Pricing Cards */
+  .pricing-wrapper{
+    overflow:hidden;
+    position:relative;
+    margin-bottom:60px;
+  }
   .pricing-grid{
     display:flex;
     gap:28px;
-    overflow-x:auto;
-    scroll-behavior:smooth;
-    padding-bottom:20px;
-    scrollbar-width:thin;
-    scrollbar-color:var(--brandB) var(--card);
+    animation:slide 30s linear infinite;
+    width:max-content;
   }
-  .pricing-grid::-webkit-scrollbar{
-    height:8px;
+  .pricing-grid:hover{
+    animation-play-state:paused;
   }
-  .pricing-grid::-webkit-scrollbar-track{
-    background:var(--card);
-    border-radius:10px;
-  }
-  .pricing-grid::-webkit-scrollbar-thumb{
-    background:linear-gradient(120deg,var(--brandA),var(--brandB));
-    border-radius:10px;
+  @keyframes slide{
+    0%{transform:translateX(0)}
+    100%{transform:translateX(-50%)}
   }
   .price-card{
     background:var(--card); border-radius:var(--radius);
@@ -294,106 +292,135 @@
       <h2 class="section-title">Services & Pricing</h2>
       <p class="section-subtitle">Choose the perfect GFX package for your needs</p>
 
-      <div class="pricing-grid">
-        <!-- Profile Picture -->
-        <div class="price-card">
-          <div class="example-img">[Profile Picture Example]</div>
-          <h3>Profile Picture</h3>
-          <div class="price">650 Robux</div>
-          <div class="alt-price">or $8 USD</div>
-          <ul class="specs">
-            <li>1024x1024 resolution</li>
-            <li>3-24 hour completion</li>
-            <li>Custom character poses</li>
-            <li>Background of choice</li>
-            <li>Roblox character renders</li>
-            <li>Specific requests accepted</li>
-          </ul>
-        </div>
-
-        <!-- Action Profile Picture -->
-        <div class="price-card">
-          <div class="example-img" style="height:320px">
-            <img src="/assets/flamesgfx/FlamesSwordGFX.png" alt="Action Profile Picture Example" style="width:100%; height:100%; object-fit:cover; border-radius:12px">
+      <div class="pricing-wrapper">
+        <div class="pricing-grid">
+          <!-- Original set -->
+          <div class="price-card">
+            <div class="example-img">[Profile Picture Example]</div>
+            <h3>Profile Picture</h3>
+            <div class="price">650 Robux</div>
+            <div class="alt-price">or $8 USD</div>
+            <ul class="specs">
+              <li>1024x1024 resolution</li>
+              <li>3-24 hour completion</li>
+              <li>Custom character poses</li>
+              <li>Background of choice</li>
+              <li>Roblox character renders</li>
+              <li>Specific requests accepted</li>
+            </ul>
           </div>
-          <h3>Action Profile Picture</h3>
-          <div class="price">4250 Robux</div>
-          <div class="alt-price">or $50 USD</div>
-          <ul class="specs">
-            <li>4096x4096 resolution</li>
-            <li>1-3 day completion</li>
-            <li>Rush option: 6,000 Robux / $70 USD (3-4 hours)</li>
-            <li>Up to 20 characters</li>
-            <li>+100 Robux / $0.80 per extra character (first 2 free)</li>
-            <li>Full background of choice</li>
-            <li>Special requests: +10 Robux / $0.05 each</li>
-          </ul>
-        </div>
 
-        <!-- Game Thumbnail -->
-        <div class="price-card">
-          <div class="example-img">[Thumbnail Example]</div>
-          <h3>Game Thumbnail</h3>
-          <div class="price">1200 Robux</div>
-          <div class="alt-price">or $15 USD</div>
-          <ul class="specs">
-            <li>1920x1080 resolution</li>
-            <li>6-48 hour completion</li>
-            <li>Multiple characters</li>
-            <li>Text/logo included</li>
-            <li>Scene composition</li>
-            <li>Revisions included</li>
-          </ul>
-        </div>
-
-        <!-- Banner/Header -->
-        <div class="price-card">
-          <div class="example-img">[Banner Example]</div>
-          <h3>Banner / Header</h3>
-          <div class="price">800 Robux</div>
-          <div class="alt-price">or $10 USD</div>
-          <ul class="specs">
-            <li>Custom dimensions</li>
-            <li>4-36 hour completion</li>
-            <li>Social media ready</li>
-            <li>Text overlay options</li>
-            <li>Brand colors supported</li>
-            <li>YouTube/Twitter/Discord</li>
-          </ul>
-        </div>
-
-        <!-- Duplicate cards for seamless loop -->
-        <div class="price-card">
-          <div class="example-img">[Profile Picture Example]</div>
-          <h3>Profile Picture</h3>
-          <div class="price">650 Robux</div>
-          <div class="alt-price">or $8 USD</div>
-          <ul class="specs">
-            <li>1024x1024 resolution</li>
-            <li>3-24 hour completion</li>
-            <li>Custom character poses</li>
-            <li>Background of choice</li>
-            <li>Roblox character renders</li>
-            <li>Specific requests accepted</li>
-          </ul>
-        </div>
-
-        <div class="price-card">
-          <div class="example-img" style="height:320px">
-            <img src="/assets/flamesgfx/FlamesSwordGFX.png" alt="Action Profile Picture Example" style="width:100%; height:100%; object-fit:cover; border-radius:12px">
+          <div class="price-card">
+            <div class="example-img" style="height:320px">
+              <img src="/assets/flamesgfx/FlamesSwordGFX.png" alt="Action Profile Picture Example" style="width:100%; height:100%; object-fit:cover; border-radius:12px">
+            </div>
+            <h3>Action Profile Picture</h3>
+            <div class="price">4250 Robux</div>
+            <div class="alt-price">or $50 USD</div>
+            <ul class="specs">
+              <li>4096x4096 resolution</li>
+              <li>1-3 day completion</li>
+              <li>Rush option: 6,000 Robux / $70 USD (3-4 hours)</li>
+              <li>Up to 20 characters</li>
+              <li>+100 Robux / $0.80 per extra character (first 2 free)</li>
+              <li>Full background of choice</li>
+              <li>Special requests: +10 Robux / $0.05 each</li>
+            </ul>
           </div>
-          <h3>Action Profile Picture</h3>
-          <div class="price">4250 Robux</div>
-          <div class="alt-price">or $50 USD</div>
-          <ul class="specs">
-            <li>4096x4096 resolution</li>
-            <li>1-3 day completion</li>
-            <li>Rush option: 6,000 Robux / $70 USD (3-4 hours)</li>
-            <li>Up to 20 characters</li>
-            <li>+100 Robux / $0.80 per extra character (first 2 free)</li>
-            <li>Full background of choice</li>
-            <li>Special requests: +10 Robux / $0.05 each</li>
-          </ul>
+
+          <div class="price-card">
+            <div class="example-img">[Thumbnail Example]</div>
+            <h3>Game Thumbnail</h3>
+            <div class="price">1200 Robux</div>
+            <div class="alt-price">or $15 USD</div>
+            <ul class="specs">
+              <li>1920x1080 resolution</li>
+              <li>6-48 hour completion</li>
+              <li>Multiple characters</li>
+              <li>Text/logo included</li>
+              <li>Scene composition</li>
+              <li>Revisions included</li>
+            </ul>
+          </div>
+
+          <div class="price-card">
+            <div class="example-img">[Banner Example]</div>
+            <h3>Banner / Header</h3>
+            <div class="price">800 Robux</div>
+            <div class="alt-price">or $10 USD</div>
+            <ul class="specs">
+              <li>Custom dimensions</li>
+              <li>4-36 hour completion</li>
+              <li>Social media ready</li>
+              <li>Text overlay options</li>
+              <li>Brand colors supported</li>
+              <li>YouTube/Twitter/Discord</li>
+            </ul>
+          </div>
+
+          <!-- Duplicate set for seamless loop -->
+          <div class="price-card">
+            <div class="example-img">[Profile Picture Example]</div>
+            <h3>Profile Picture</h3>
+            <div class="price">650 Robux</div>
+            <div class="alt-price">or $8 USD</div>
+            <ul class="specs">
+              <li>1024x1024 resolution</li>
+              <li>3-24 hour completion</li>
+              <li>Custom character poses</li>
+              <li>Background of choice</li>
+              <li>Roblox character renders</li>
+              <li>Specific requests accepted</li>
+            </ul>
+          </div>
+
+          <div class="price-card">
+            <div class="example-img" style="height:320px">
+              <img src="/assets/flamesgfx/FlamesSwordGFX.png" alt="Action Profile Picture Example" style="width:100%; height:100%; object-fit:cover; border-radius:12px">
+            </div>
+            <h3>Action Profile Picture</h3>
+            <div class="price">4250 Robux</div>
+            <div class="alt-price">or $50 USD</div>
+            <ul class="specs">
+              <li>4096x4096 resolution</li>
+              <li>1-3 day completion</li>
+              <li>Rush option: 6,000 Robux / $70 USD (3-4 hours)</li>
+              <li>Up to 20 characters</li>
+              <li>+100 Robux / $0.80 per extra character (first 2 free)</li>
+              <li>Full background of choice</li>
+              <li>Special requests: +10 Robux / $0.05 each</li>
+            </ul>
+          </div>
+
+          <div class="price-card">
+            <div class="example-img">[Thumbnail Example]</div>
+            <h3>Game Thumbnail</h3>
+            <div class="price">1200 Robux</div>
+            <div class="alt-price">or $15 USD</div>
+            <ul class="specs">
+              <li>1920x1080 resolution</li>
+              <li>6-48 hour completion</li>
+              <li>Multiple characters</li>
+              <li>Text/logo included</li>
+              <li>Scene composition</li>
+              <li>Revisions included</li>
+            </ul>
+          </div>
+
+          <div class="price-card">
+            <div class="example-img">[Banner Example]</div>
+            <h3>Banner / Header</h3>
+            <div class="price">800 Robux</div>
+            <div class="alt-price">or $10 USD</div>
+            <ul class="specs">
+              <li>Custom dimensions</li>
+              <li>4-36 hour completion</li>
+              <li>Social media ready</li>
+              <li>Text overlay options</li>
+              <li>Brand colors supported</li>
+              <li>YouTube/Twitter/Discord</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -497,36 +524,6 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
-
-  // Auto-scroll pricing carousel
-  const pricingGrid = document.querySelector('.pricing-grid');
-  let scrollAmount = 0;
-  let isPaused = false;
-
-  function autoScroll() {
-    if (!isPaused && pricingGrid) {
-      scrollAmount += 1;
-      pricingGrid.scrollLeft = scrollAmount;
-      
-      // Reset to beginning when reaching the end for infinite loop
-      if (scrollAmount >= pricingGrid.scrollWidth - pricingGrid.clientWidth) {
-        scrollAmount = 0;
-      }
-    }
-    requestAnimationFrame(autoScroll);
-  }
-
-  // Pause on hover
-  pricingGrid.addEventListener('mouseenter', () => {
-    isPaused = true;
-  });
-
-  pricingGrid.addEventListener('mouseleave', () => {
-    isPaused = false;
-  });
-
-  // Start auto-scroll
-  autoScroll();
 </script>
 
 <script type="module">
