@@ -1,1 +1,465 @@
-Working on it...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Flame's GFX — NGP Hub</title>
+
+<meta property="og:title" content="Flame's GFX — Professional Roblox Graphics" />
+<meta property="og:description" content="High-quality Roblox GFX commissions by Flame. Profile pictures, banners, thumbnails, and more. Fast turnaround, affordable prices." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/gfx" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Flame's GFX — Professional Roblox Graphics" />
+<meta name="twitter:description" content="High-quality Roblox GFX commissions by Flame. Profile pictures, banners, thumbnails, and more." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="High-quality Roblox GFX commissions by Flame. Profile pictures, banners, thumbnails, and more. Fast turnaround, affordable prices." />
+<meta name="keywords" content="Roblox GFX, Roblox commissions, profile picture, banner, thumbnail, graphics design, Flame GFX" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  /* Hero Section */
+  .hero{
+    text-align:center; padding:80px 0 60px;
+  }
+  .hero h1{
+    font-size:3rem; margin:0 0 16px; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB),#fff);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .hero p{
+    font-size:1.15rem; color:var(--muted); max-width:600px; margin:0 auto 32px; line-height:1.6;
+  }
+  .hero .btn{padding:14px 32px; font-size:1rem}
+
+  /* Gallery Section */
+  .section{padding:60px 0}
+  .section-title{
+    font-size:2rem; margin:0 0 12px; text-align:center;
+  }
+  .section-subtitle{
+    text-align:center; color:var(--muted); font-size:1.05rem; margin:0 0 48px;
+  }
+
+  .gallery{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:24px; margin-bottom:48px;
+  }
+  .gallery-item{
+    background:var(--card); border-radius:var(--radius);
+    overflow:hidden; border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s, box-shadow .3s;
+  }
+  .gallery-item:hover{
+    transform:translateY(-4px); box-shadow:var(--shadow);
+  }
+  .gallery-img{
+    width:100%; height:240px; object-fit:cover;
+    background:rgba(255,255,255,.03);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:.9rem;
+  }
+
+  /* Pricing Cards */
+  .pricing-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+    gap:28px; margin-bottom:60px;
+  }
+  .price-card{
+    background:var(--card); border-radius:var(--radius);
+    padding:32px; border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s, box-shadow .3s;
+  }
+  .price-card:hover{
+    transform:translateY(-4px); box-shadow:var(--shadow);
+    border-color:var(--brandB);
+  }
+  .price-card h3{
+    font-size:1.5rem; margin:0 0 8px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .price-card .price{
+    font-size:2rem; font-weight:700; margin:0 0 16px;
+  }
+  .price-card .alt-price{
+    color:var(--muted); font-size:.95rem; margin:-12px 0 16px;
+  }
+  .price-card .specs{
+    list-style:none; padding:0; margin:0 0 24px;
+  }
+  .price-card .specs li{
+    padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04);
+    font-size:.95rem; display:flex; align-items:center; gap:8px;
+  }
+  .price-card .specs li:last-child{border-bottom:none}
+  .price-card .specs li::before{
+    content:"✓"; color:var(--brandB); font-weight:700; font-size:1.1rem;
+  }
+  .price-card .example-img{
+    width:100%; height:200px; border-radius:12px;
+    background:rgba(255,255,255,.03); margin-bottom:20px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:.9rem; border:1px solid rgba(255,255,255,.04);
+  }
+
+  /* About Section */
+  .about-section{
+    background:var(--card); border-radius:var(--radius);
+    padding:48px; margin:60px 0; border:1px solid rgba(255,255,255,.06);
+  }
+  .about-section h2{
+    font-size:2rem; margin:0 0 24px;
+  }
+  .about-section p{
+    line-height:1.8; color:var(--muted); margin:0 0 20px;
+  }
+  .about-section ul{
+    line-height:1.8; color:var(--muted); padding-left:24px;
+  }
+  .about-section ul li{margin-bottom:12px}
+
+  /* Contact Section */
+  .contact-section{
+    text-align:center; padding:60px 0;
+  }
+  .contact-section h2{
+    font-size:2rem; margin:0 0 16px;
+  }
+  .contact-section p{
+    color:var(--muted); font-size:1.05rem; margin:0 0 32px;
+  }
+  .contact-buttons{
+    display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+  }
+  .contact-btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:14px 28px; border-radius:12px;
+    text-decoration:none; font-weight:600; font-size:1rem;
+    transition:transform .2s;
+  }
+  .contact-btn:hover{transform:scale(1.05)}
+  .contact-btn.discord{
+    background:#5865F2; color:white;
+  }
+  .contact-btn.roblox{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB)); color:white;
+  }
+
+  @media (max-width: 768px){
+    .hero h1{font-size:2rem}
+    .pricing-grid{grid-template-columns:1fr}
+    .about-section{padding:32px 24px}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>Flame's GFX</h1>
+      <p>Professional Roblox graphics for your profile, games, and projects. High-quality renders with fast turnaround times and affordable pricing.</p>
+      <a href="#pricing" class="btn">View Pricing</a>
+    </div>
+  </section>
+
+  <!-- Portfolio Gallery -->
+  <section class="section">
+    <div class="wrap">
+      <h2 class="section-title">Portfolio Showcase</h2>
+      <p class="section-subtitle">Check out some of my recent work!</p>
+      
+      <div class="gallery">
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 1]</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 2]</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 3]</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 4]</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 5]</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Example GFX 6]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <h2 class="section-title">Services & Pricing</h2>
+      <p class="section-subtitle">Choose the perfect GFX package for your needs</p>
+
+      <div class="pricing-grid">
+        <!-- Profile Picture -->
+        <div class="price-card">
+          <div class="example-img">[Profile Picture Example]</div>
+          <h3>Profile Picture</h3>
+          <div class="price">650 Robux</div>
+          <div class="alt-price">or $8 USD</div>
+          <ul class="specs">
+            <li>1024x1024 resolution</li>
+            <li>3-24 hour completion</li>
+            <li>Custom character poses</li>
+            <li>Background of choice</li>
+            <li>No 3D models (Roblox only)</li>
+            <li>Specific requests accepted</li>
+          </ul>
+        </div>
+
+        <!-- Game Thumbnail -->
+        <div class="price-card">
+          <div class="example-img">[Thumbnail Example]</div>
+          <h3>Game Thumbnail</h3>
+          <div class="price">1200 Robux</div>
+          <div class="alt-price">or $15 USD</div>
+          <ul class="specs">
+            <li>1920x1080 resolution</li>
+            <li>6-48 hour completion</li>
+            <li>Multiple characters</li>
+            <li>Text/logo included</li>
+            <li>Scene composition</li>
+            <li>Revisions included</li>
+          </ul>
+        </div>
+
+        <!-- Banner/Header -->
+        <div class="price-card">
+          <div class="example-img">[Banner Example]</div>
+          <h3>Banner / Header</h3>
+          <div class="price">800 Robux</div>
+          <div class="alt-price">or $10 USD</div>
+          <ul class="specs">
+            <li>Custom dimensions</li>
+            <li>4-36 hour completion</li>
+            <li>Social media ready</li>
+            <li>Text overlay options</li>
+            <li>Brand colors supported</li>
+            <li>YouTube/Twitter/Discord</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div style="text-align:center; margin-top:32px">
+        <h3 style="margin:0 0 16px">Payment Methods Accepted</h3>
+        <p style="color:var(--muted); max-width:600px; margin:0 auto">
+          <strong>CashApp</strong> • <strong>Roblox Gamepass</strong> (tax included) • <strong>Group Payouts</strong>
+        </p>
+        <p style="color:var(--muted); font-size:.9rem; margin-top:12px">
+          All payments are processed securely. For gamepass payments, you'll need to cover the Roblox tax (30%).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section>
+    <div class="wrap">
+      <div class="about-section">
+        <h2>About My GFX Work</h2>
+        <p>
+          Hey! I'm Flame, a Roblox GFX artist with years of experience creating high-quality graphics for profiles, games, and content creators. I specialize in character renders using Roblox Studio and professional editing software to deliver clean, professional results.
+        </p>
+        <h3 style="margin-top:32px; margin-bottom:16px">How I Work</h3>
+        <ul>
+          <li><strong>Order Process:</strong> Contact me with your requirements, provide your Roblox username, and describe what you want</li>
+          <li><strong>Customization:</strong> Tell me about poses, backgrounds, colors, and any specific details you need</li>
+          <li><strong>Timeline:</strong> Most projects are completed within 3-48 hours depending on complexity</li>
+          <li><strong>Revisions:</strong> I offer reasonable revisions to make sure you're happy with the final result</li>
+          <li><strong>Delivery:</strong> Final files delivered in high quality PNG format via Discord or Roblox messages</li>
+        </ul>
+        <h3 style="margin-top:32px; margin-bottom:16px">What I Can Do</h3>
+        <ul>
+          <li>Roblox character renders in any pose or style</li>
+          <li>Custom backgrounds and scenes</li>
+          <li>Text overlays and logo placement</li>
+          <li>Multiple characters in one scene</li>
+          <li>Special effects and lighting</li>
+          <li>Social media optimized formats</li>
+        </ul>
+        <h3 style="margin-top:32px; margin-bottom:16px">Limitations</h3>
+        <ul>
+          <li>No 3D models outside of Roblox characters (due to copyright and complexity)</li>
+          <li>Turnaround time may vary during high-demand periods</li>
+          <li>NSFW, offensive, or inappropriate content will not be accepted</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="wrap">
+      <h2>Ready to Order?</h2>
+      <p>Get in touch with me on Discord or Roblox to discuss your GFX project!</p>
+      <div class="contact-buttons">
+        <a href="https://discord.gg/VqXsafQAMd" class="contact-btn discord" target="_blank">
+          <span>💬</span> NGP Discord Server
+        </a>
+        <a href="https://www.roblox.com/users/1849797283/profile" class="contact-btn roblox" target="_blank">
+          <span>🎮</span> Roblox Profile
+        </a>
+      </div>
+      <p style="margin-top:24px; color:var(--muted); font-size:.95rem">
+        DM me with your requirements and I'll get back to you ASAP!
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+</body>
+</html>
