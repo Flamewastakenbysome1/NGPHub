@@ -122,7 +122,6 @@
     overflow-x:auto;
     scroll-behavior:smooth;
     padding-bottom:20px;
-    animation:autoScroll 20s linear infinite;
     scrollbar-width:thin;
     scrollbar-color:var(--brandB) var(--card);
   }
@@ -136,13 +135,6 @@
   .pricing-grid::-webkit-scrollbar-thumb{
     background:linear-gradient(120deg,var(--brandA),var(--brandB));
     border-radius:10px;
-  }
-  .pricing-grid:hover{
-    animation-play-state:paused;
-  }
-  @keyframes autoScroll{
-    0%{scroll-behavior:auto; transform:translateX(0)}
-    100%{scroll-behavior:auto; transform:translateX(-50%)}
   }
   .price-card{
     background:var(--card); border-radius:var(--radius);
@@ -505,6 +497,36 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Auto-scroll pricing carousel
+  const pricingGrid = document.querySelector('.pricing-grid');
+  let scrollAmount = 0;
+  let isPaused = false;
+
+  function autoScroll() {
+    if (!isPaused && pricingGrid) {
+      scrollAmount += 1;
+      pricingGrid.scrollLeft = scrollAmount;
+      
+      // Reset to beginning when reaching the end for infinite loop
+      if (scrollAmount >= pricingGrid.scrollWidth - pricingGrid.clientWidth) {
+        scrollAmount = 0;
+      }
+    }
+    requestAnimationFrame(autoScroll);
+  }
+
+  // Pause on hover
+  pricingGrid.addEventListener('mouseenter', () => {
+    isPaused = true;
+  });
+
+  pricingGrid.addEventListener('mouseleave', () => {
+    isPaused = false;
+  });
+
+  // Start auto-scroll
+  autoScroll();
 </script>
 
 <script type="module">
