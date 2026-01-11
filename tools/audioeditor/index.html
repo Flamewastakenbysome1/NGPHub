@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Remix (1.6.4.1)</title>
+<title>NGP Hub — Audio Editor (1.6.4.2)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -134,7 +134,7 @@
   <div class="wrap">
     <!-- Disclaimer -->
     <div class="disclaimer">
-      <strong>⚠️ Disclaimer:</strong> NGP is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio remix tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
+      <strong>⚠️ Disclaimer:</strong> NGP is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio editor tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
     </div>
 
     <div class="row" style="margin-bottom:6px; justify-content:space-between;">
@@ -1041,7 +1041,7 @@ try {
 
       const url = URL.createObjectURL(blob);
 
-      const filename = (elements.currentName.textContent || 'audio').replace(/\.[^.]+$/, '') + '_ngp-remix.' + extension;
+      const filename = (elements.currentName.textContent || 'audio').replace(/\.[^.]+$/, '') + '_NGP-remix.' + extension;
       
       const a = document.createElement('a');
       a.href = url;
@@ -1880,7 +1880,7 @@ try {
   // Load presets on init
   loadPresetsFromStorage();
 
-  console.log('Audio Remix Tool initialized successfully!');
+  console.log('Audio Editor initialized successfully!');
 
 } catch (error) {
   console.error('Error initializing audio tool:', error);
