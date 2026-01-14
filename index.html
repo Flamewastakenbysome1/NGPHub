@@ -53,9 +53,12 @@
   nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
   nav a{
     color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
-    padding:8px 10px; border-radius:10px; opacity:.9
+    padding:8px 10px; border-radius:10px; opacity:.9; transition:all .2s ease;
   }
-  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+  nav a:hover, nav a:focus-visible{
+    background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring);
+    transform:translateY(-1px);
+  }
 
   .hero{
     position:relative; overflow:hidden; text-align:center; padding:70px 16px 40px;
@@ -66,16 +69,42 @@
   .hero h2{font-size:clamp(28px,4.5vw,42px); margin:0 0 12px}
   .hero p{margin:0 auto 16px; max-width:780px; color:var(--muted); font-size:1.02rem}
   .cta{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px}
-  .btn{display:inline-block; text-decoration:none; color:white; font-weight:600; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
-  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.18)}
-  .tag{display:inline-block; margin:14px 0 0; font-size:.9rem; color:#e8e8ff; background:linear-gradient(120deg,var(--brandA),var(--brandB)); padding:6px 12px; border-radius:999px; box-shadow:var(--shadow)}
+  .btn{
+    display:inline-block; text-decoration:none; color:white; font-weight:600; 
+    letter-spacing:.2px; padding:10px 14px; border-radius:12px; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB)); 
+    box-shadow:var(--shadow); transition:all .3s ease;
+  }
+  .btn:hover{
+    transform:translateY(-2px); 
+    box-shadow:0 12px 28px rgba(106,17,203,.5);
+  }
+  .btn.ghost{
+    background:transparent; border:1px solid rgba(255,255,255,.18);
+  }
+  .btn.ghost:hover{
+    background:rgba(255,255,255,.05);
+  }
+  .tag{
+    display:inline-block; margin:14px 0 0; font-size:.9rem; color:#e8e8ff; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB)); 
+    padding:6px 12px; border-radius:999px; box-shadow:var(--shadow);
+  }
 
   section .section-title{margin:24px 0 6px; font-size:1.2rem}
   section .muted{color:var(--muted); margin:0 0 12px}
 
   .grid{display:grid; gap:16px; padding:18px 0 6px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-  .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); transition:transform .2s ease, border-color .2s ease}
-  .card:hover{transform:translateY(-3px); border-color:rgba(37,117,252,.35)}
+  .card{
+    background:var(--card); border:1px solid rgba(255,255,255,.06); 
+    border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); 
+    transition:all .3s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px); 
+    border-color:rgba(37,117,252,.35);
+    box-shadow:0 15px 40px rgba(0,0,0,.4);
+  }
   .card h3{margin:2px 0 6px; font-size:1.02rem}
   .card p{margin:0 0 10px; color:var(--muted)}
   .link{color:#6aafff; text-decoration:none}
@@ -83,44 +112,159 @@
   ul.simple li{margin-bottom:8px}
 
   .strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
-  .pill{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:14px; background:linear-gradient(120deg,rgba(106,17,203,.24),rgba(37,117,252,.18)); border:1px solid rgba(255,255,255,.08)}
+  .pill{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; 
+    padding:12px 14px; border-radius:14px; 
+    background:linear-gradient(120deg,rgba(106,17,203,.24),rgba(37,117,252,.18)); 
+    border:1px solid rgba(255,255,255,.08); transition:all .3s ease;
+  }
+  .pill:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.3);
+  }
   .pill span{font-weight:600}
 
   .road{display:grid; gap:12px; padding:8px 0}
-  .mile{display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px}
-  .dot{flex:0 0 10px; height:10px; border-radius:50%; background:linear-gradient(120deg,var(--brandA),var(--brandB)); margin-top:6px}
+  .mile{
+    display:flex; gap:12px; align-items:flex-start; background:var(--card); 
+    border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px;
+  }
+  .dot{
+    flex:0 0 10px; height:10px; border-radius:50%; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB)); margin-top:6px;
+  }
   .mile h4{margin:0 0 4px; font-size:1.02rem}
   .mile p{margin:0; color:var(--muted)}
 
   .timeline{position:relative; margin:30px 0 60px}
-  .timeline::before{content:""; position:absolute; left:50%; top:0; bottom:0; width:3px; background:linear-gradient(var(--brandA),var(--brandB)); transform:translateX(-50%); border-radius:2px; opacity:.9}
+  .timeline::before{
+    content:""; position:absolute; left:50%; top:0; bottom:0; width:3px; 
+    background:linear-gradient(var(--brandA),var(--brandB)); 
+    transform:translateX(-50%); border-radius:2px; opacity:.9;
+  }
   .t-item{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:22px 0}
-  .t-card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px; box-shadow:var(--shadow)}
+  .t-card{
+    background:var(--card); border:1px solid rgba(255,255,255,.06); 
+    border-radius:14px; padding:16px; box-shadow:var(--shadow);
+    transition:all .3s ease;
+  }
+  .t-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 35px rgba(0,0,0,.4);
+    border-color:rgba(37,117,252,.25);
+  }
   .t-item .left{grid-column:1}
   .t-item .right{grid-column:2}
-  .t-dot{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:#0b0b0f; border:4px solid var(--line); box-shadow:0 0 0 3px rgba(37,117,252,.15)}
+  .t-dot{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); 
+    width:18px; height:18px; border-radius:50%; background:#0b0b0f; 
+    border:4px solid var(--line); box-shadow:0 0 0 3px rgba(37,117,252,.15);
+    transition:all .3s ease;
+  }
+  .t-item:hover .t-dot{
+    width:22px; height:22px;
+    box-shadow:0 0 0 5px rgba(37,117,252,.25);
+  }
   .t-card h4{margin:0 0 6px; font-size:1.05rem}
   .t-card p{margin:0; color:var(--muted)}
+  
+  .easter-egg-container{position:relative}
+  .easter-egg{
+    position:absolute; right:100%; top:50%; margin-right:10px;
+    transform:translateY(-50%) scale(0);
+    transform-origin:right center;
+    opacity:0; pointer-events:none; 
+    transition:all 0.9s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    min-width:240px; z-index:10; text-align:right;
+  }
+  .easter-egg-container:hover .easter-egg{
+    opacity:1; margin-right:15px;
+    transform:translateY(-50%) scale(1);
+  }
+  .easter-egg p{
+    margin:0 0 12px; font-size:.9rem; 
+    color:var(--muted); font-style:italic;
+    text-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+  .easter-egg ul{list-style:none; padding:0; margin:0}
+  .easter-egg li{
+    margin:6px 0; font-size:1rem; font-weight:500;
+    text-shadow:0 2px 10px rgba(0,0,0,.6);
+  }
+  .gold-text{
+    background:linear-gradient(135deg,#ffd700 0%,#ffed4e 25%,#fff9c4 50%,#ffed4e 75%,#ffd700 100%);
+    background-size:200% auto;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; font-weight:700;
+    animation:goldShine 3s linear infinite;
+    filter:drop-shadow(0 0 8px rgba(255,215,0,.6));
+  }
+  @keyframes goldShine{
+    0%{background-position:0% center}
+    100%{background-position:200% center}
+  }
+  .sparkly-text{
+    background:linear-gradient(135deg,#00d4ff 0%,#4fc3f7 25%,#b3e5fc 50%,#4fc3f7 75%,#00d4ff 100%);
+    background-size:200% auto;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; font-weight:700;
+    animation:blueSparkle 2.5s linear infinite;
+    filter:drop-shadow(0 0 10px rgba(79,195,247,.8)) drop-shadow(0 0 20px rgba(79,195,247,.4));
+  }
+  @keyframes blueSparkle{
+    0%{background-position:0% center; filter:drop-shadow(0 0 10px rgba(79,195,247,.8)) drop-shadow(0 0 20px rgba(79,195,247,.4)) brightness(1)}
+    50%{background-position:100% center; filter:drop-shadow(0 0 15px rgba(79,195,247,1)) drop-shadow(0 0 30px rgba(79,195,247,.6)) brightness(1.3)}
+    100%{background-position:200% center; filter:drop-shadow(0 0 10px rgba(79,195,247,.8)) drop-shadow(0 0 20px rgba(79,195,247,.4)) brightness(1)}
+  }
+  
   @media (max-width: 800px){
     .timeline::before{left:20px; transform:none}
     .t-item{grid-template-columns:1fr; padding-left:46px}
     .t-item .left,.t-item .right{grid-column:auto}
     .t-dot{left:20px; transform:translate(-50%,-50%)}
+    .easter-egg{
+      left:50%; transform:translate(-50%,-120%); 
+      top:auto; bottom:100%; margin-bottom:10px; text-align:center;
+    }
+    .easter-egg-container:hover .easter-egg{left:50%}
   }
 
-  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal{
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; 
+    align-items:center; justify-content:center;
+  }
   .modal.active{display:flex}
-  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  .modal-content{
+    background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; 
+    box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); 
+    animation:modalSlideIn 0.3s ease-out;
+  }
   @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
   .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
   .modal-header h3{margin:0; font-size:1.2rem}
   .modal-body{padding:24px; line-height:1.6}
   .modal-body p{margin:0}
-  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
-  .btn-ghost2{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
-  .btn-prim2{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .modal-footer{
+    padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); 
+    display:flex; gap:12px; justify-content:flex-end;
+  }
+  .btn-ghost2{
+    background:rgba(255,255,255,.05); color:var(--ink); 
+    border:1px solid rgba(255,255,255,.1); padding:10px 20px; 
+    border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem;
+  }
+  .btn-prim2{
+    display:inline-block; text-decoration:none; color:white; font-weight:700; 
+    letter-spacing:.2px; padding:10px 14px; border-radius:12px; 
+    background:linear-gradient(120deg,var(--brandA),var(--brandB)); 
+    border:none; cursor:pointer; font-size:.95rem;
+  }
 
-  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+  footer{
+    border-top:1px solid rgba(255,255,255,.08); color:var(--muted); 
+    padding:24px 0 36px; text-align:center;
+  }
 
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
@@ -160,16 +304,6 @@
     </div>
   </section>
 
-  <section class="wrap" id="mission" aria-labelledby="mission-title">
-    <h3 class="section-title" id="mission-title">Mission</h3>
-    <p class="muted">What drives us.</p>
-    <div class="grid">
-      <article class="card"><h3>Originality</h3><p>No copy+paste. We build our own ideas from the ground up.</p></article>
-      <article class="card"><h3>Utility</h3><p>Small features that remove big pain (bots, tools, QoL).</p></article>
-      <article class="card"><h3>Community</h3><p>Feedback loops and early builds for rapid iteration.</p></article>
-    </div>
-  </section>
-
   <section class="wrap" id="projects" aria-labelledby="projects-title">
     <h3 class="section-title" id="projects-title">Projects</h3>
     <p class="muted">Live or in‑progress.</p>
@@ -191,6 +325,16 @@
       <div class="pill" role="listitem"><span>YouTube — CraftingScrpt</span><a class="btn" href="https://www.youtube.com/@CraftingScrpt" target="_blank" rel="noopener">Watch</a></div>
       <div class="pill" role="listitem"><span>YouTube — Hashtagg</span><a class="btn" href="https://www.youtube.com/@hashtagg-k3m" target="_blank" rel="noopener">Watch</a></div>
       <div class="pill" role="listitem"><span>YouTube — NGP</span><a class="btn" href="https://www.youtube.com/@NGPOfficialYoutube" target="_blank" rel="noopener">Watch</a></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="mission" aria-labelledby="mission-title">
+    <h3 class="section-title" id="mission-title">Mission</h3>
+    <p class="muted">What drives us.</p>
+    <div class="grid">
+      <article class="card"><h3>Originality</h3><p>No copy+paste. We build our own ideas from the ground up.</p></article>
+      <article class="card"><h3>Utility</h3><p>Small features that remove big pain (bots, tools, QoL).</p></article>
+      <article class="card"><h3>Community</h3><p>Feedback loops and early builds for rapid iteration.</p></article>
     </div>
   </section>
 
@@ -248,12 +392,45 @@
         </div><div></div>
       </div>
 
-      <div class="t-item" role="listitem" aria-label="2025 — Today">
+      <div class="t-item" role="listitem" aria-label="2025 Late — A Collab">
         <span class="t-dot" aria-hidden="true"></span>
         <div></div>
         <div class="t-card right">
-          <h4>2025 — Today</h4>
-          <p>A real website, event work, positive community changes, and more utility-focused features… thanks to you.</p>
+          <h4>Late 2025 — A Collab</h4>
+          <p>NGP collaborated with Froggy Nation, and we gained hundreds of new people, like you! NCC came out with a great idea, from Sen... will he become a co-founder?<br><small style="opacity:.7">prolly not... but who knows</small></p>
+        </div>
+      </div>
+
+      <div class="t-item" role="listitem" aria-label="2026 — Today">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div class="t-card left easter-egg-container">
+          <h4>2026 — Today</h4>
+          <p>Nearly a thousand members, a Patreon, and more... all thanks to you :)</p>
+          <div class="easter-egg">
+            <p>and also uhh</p>
+            <ul>
+              <li><span class="gold-text">• Yoad</span></li>
+              <li>• Scrpt</li>
+              <li>• Hashtagg</li>
+              <li><span class="gold-text">• Ham</span></li>
+              <li><span class="gold-text">• Blue</span></li>
+              <li>• Sen</li>
+              <li>• Static</li>
+              <li>• White</li>
+              <li>• Techno (not Technoblade... although he's cool :O)</li>
+              <li><span class="sparkly-text">• Bananann</span></li>
+            </ul>
+          </div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="t-item" role="listitem" aria-label="Old 2025 — Today">
+        <span class="t-dot" aria-hidden="true"></span>
+        <div></div>
+        <div class="t-card right" style="opacity:.6; font-size:.9em">
+          <h4>Old Entry — 2025</h4>
+          <p><em>A real website, event work, positive community changes, and more utility-focused features… thanks to you.</em></p>
         </div>
       </div>
     </div>
