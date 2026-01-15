@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — Is Yoad Epic?</title>
+
+<meta property="og:title" content="Is Yoad Epic? - NGP Hub Docs" />
+<meta property="og:description" content="A comprehensive analysis of Yoad's epicness level and why he's the best orange cat in the Yoadverse." />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/docs/is-yoad-epic" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Is Yoad Epic? - NGP Hub Docs" />
+<meta name="twitter:description" content="A comprehensive analysis of Yoad's epicness level." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="A comprehensive analysis of Yoad's epicness level and why he's the best orange cat in the Yoadverse." />
+<meta name="keywords" content="NGP, documentation, Yoad, cat, orange, epic, Yoadverse" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    background-attachment:fixed;
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  .breadcrumb{padding:20px 0; color:var(--muted); font-size:.9rem}
+  .breadcrumb a{color:var(--brandB); text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+
+  .doc-container{display:grid; grid-template-columns:250px 1fr; gap:32px; padding:0 0 80px}
+  
+  .sidebar{position:sticky; top:80px; height:fit-content; max-height:calc(100vh - 100px); overflow-y:auto}
+  .sidebar h4{font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin:0 0 12px}
+  .sidebar ul{list-style:none; margin:0; padding:0}
+  .sidebar li{margin-bottom:8px}
+  .sidebar a{color:var(--ink); text-decoration:none; display:block; padding:6px 12px; border-radius:8px; font-size:.9rem; opacity:.8}
+  .sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,.06); opacity:1}
+  .sidebar a.active{color:var(--brandB); font-weight:600}
+
+  .doc-content{max-width:720px}
+  .doc-header{margin-bottom:32px}
+  .doc-header h1{font-size:2.2rem; margin:0 0 12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
+  .doc-header .meta{color:var(--muted); font-size:.9rem}
+  .doc-header .tag{display:inline-block; background:rgba(106,17,203,.15); color:var(--brandA); padding:4px 12px; border-radius:6px; font-size:.8rem; font-weight:600; margin-right:8px}
+
+  .doc-content h2{font-size:1.6rem; margin:40px 0 16px; color:var(--ink); border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:8px}
+  .doc-content h3{font-size:1.3rem; margin:32px 0 12px; color:var(--ink)}
+  .doc-content h4{font-size:1.1rem; margin:24px 0 12px; color:var(--ink)}
+  .doc-content p{line-height:1.7; margin:16px 0; color:var(--ink)}
+  .doc-content a{color:var(--brandB); text-decoration:none}
+  .doc-content a:hover{text-decoration:underline}
+  
+  .doc-content ul, .doc-content ol{line-height:1.8; margin:16px 0; padding-left:24px}
+  .doc-content li{margin:8px 0}
+
+  .doc-content code{background:rgba(255,255,255,.05); padding:2px 8px; border-radius:4px; font-family:monospace; font-size:.9em; color:#f087ff}
+  .doc-content pre{background:var(--card); padding:16px; border-radius:12px; overflow-x:auto; border:1px solid rgba(255,255,255,.1); margin:16px 0}
+  .doc-content pre code{background:none; padding:0; color:var(--ink)}
+
+  .callout{background:var(--card); border-left:4px solid var(--brandB); padding:16px 20px; border-radius:8px; margin:24px 0}
+  .callout.warning{border-left-color:#ff6b6b}
+  .callout.info{border-left-color:#4dabf7}
+  .callout.success{border-left-color:#51cf66}
+  .callout h4{margin:0 0 8px; font-size:1rem}
+  .callout p{margin:0; font-size:.95rem}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:48px; padding-top:24px; border-top:1px solid rgba(255,255,255,.1)}
+  .nav-btn{background:var(--card); padding:12px 16px; border-radius:10px; text-decoration:none; color:var(--ink); border:1px solid rgba(255,255,255,.1); flex:1; max-width:calc(50% - 8px)}
+  .nav-btn:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
+  .nav-btn .label{font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted)}
+  .nav-btn .title{font-size:1rem; font-weight:600; margin-top:4px}
+  .nav-btn.next{text-align:right}
+
+  .yoad-img{max-width:100%; border-radius:12px; margin:24px 0; box-shadow:var(--shadow)}
+
+  @media (max-width: 900px){
+    .doc-container{grid-template-columns:1fr; gap:0}
+    .sidebar{display:none}
+    .doc-content{max-width:100%}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects">
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/">Home</a> / <a href="/docs/">Docs</a> / Is Yoad Epic?
+    </div>
+
+    <div class="doc-container">
+      <aside class="sidebar">
+        <h4>On This Page</h4>
+        <ul id="toc"></ul>
+
+        <h4 style="margin-top:24px">Related</h4>
+        <ul>
+          <li><a href="/docs/">All Docs</a></li>
+          <li><a href="/docs/yoad-bot-overview">Yoad Bot Overview</a></li>
+          <li><a href="/docs/yoadverse">The Yoadverse</a></li>
+        </ul>
+      </aside>
+
+      <article class="doc-content">
+        <div class="doc-header">
+          <h1>Is Yoad Epic? 🐱</h1>
+          <div class="meta">
+            <span class="tag">Community</span>
+            <span class="tag">Yoadverse</span>
+            Last updated: January 14, 2026
+          </div>
+        </div>
+
+        <div class="callout success">
+          <h4>✅ Spoiler Alert</h4>
+          <p>Yes. The answer is unequivocally, undeniably, absolutely YES.</p>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>After extensive research, community polling, and analysis of over 9000 Yoad images, we can confidently confirm that Yoad is, in fact, <strong>epic as fuck</strong>. This document provides comprehensive evidence supporting this conclusion.</p>
+
+        <img src="https://i.imgur.com/zzvwsqB.png" alt="Yoad flexing brain power" class="yoad-img" />
+
+        <h2>Scientific Analysis</h2>
+        <p>Using advanced epicness detection algorithms, we've measured Yoad's epic level across multiple dimensions:</p>
+
+        <h3>Epic Metrics</h3>
+        <ul>
+          <li><strong>Orange Fur Quality:</strong> 11/10 (perfect ginger coloration)</li>
+          <li><strong>Meme Potential:</strong> ∞ (literally infinite material)</li>
+          <li><strong>Chaos Level:</strong> Maximum (as demonstrated in <code>YoadChaosMode</code>)</li>
+          <li><strong>Cuteness Factor:</strong> 10/10 (certified adorable)</li>
+          <li><strong>Naming Conventions:</strong> 10/10 (YoadGPT, Yoad.exe, YoadBot - all bangers)</li>
+        </ul>
+
+        <h3>The Yoad Number</h3>
+        <p>Named after the legendary orange cat himself, the <strong>Yoad Number</strong> represents a fundamental constant in the NGP universe. While the exact value remains classified, it's known to be significantly larger than the Aria Number (~1.97e+1186219).</p>
+
+        <pre><code>// Calculating Yoad's epicness
+const yoadEpicness = {
+  base: Infinity,
+  multiplier: "orange cat energy",
+  bonus: "sink sleeping privileges",
+  total: function() {
+    return this.base * Math.random() * YOAD_NUMBER;
+  }
+};
+
+console.log(yoadEpicness.total()); // NaN (too epic to compute)</code></pre>
+
+        <h2>Historical Evidence</h2>
+        <p>Throughout NGP's history, Yoad has demonstrated consistent epicness:</p>
+
+        <ol>
+          <li><strong>The Sink Incident:</strong> Pioneered sink-based relaxation techniques</li>
+          <li><strong>World Domination:</strong> Successfully appeared over the entire planet</li>
+          <li><strong>Rock Transformation:</strong> Achieved perfect rock cosplay</li>
+          <li><strong>Discord Bot Integration:</strong> Became sentient software</li>
+          <li><strong>Analog Horror Career:</strong> Starred in the Yoad Book series</li>
+        </ol>
+
+        <img src="https://i.imgur.com/TBGEA1U.png" alt="Yoad over the world" class="yoad-img" />
+
+        <div class="callout info">
+          <h4>💡 Fun Fact</h4>
+          <p>Yoad has more documented poses than most professional models. From "trying to eat Flame" to "sliding in" to "yawning/screaming/causing death" - the range is unmatched.</p>
+        </div>
+
+        <h2>Community Consensus</h2>
+        <p>A poll conducted across NGP Studios Discord server yielded the following results:</p>
+
+        <ul>
+          <li>Is Yoad epic? → 100% YES</li>
+          <li>Is Yoad the best orange cat? → 100% YES</li>
+          <li>Should Yoad rule the world? → 99.9% YES (one person was Blueberry)</li>
+        </ul>
+
+        <h3>Comparative Analysis</h3>
+        <p>When compared to other entities in the Yoadverse:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:20px 0">
+          <tr style="background:var(--card); border-bottom:1px solid rgba(255,255,255,.1)">
+            <th style="padding:12px; text-align:left">Entity</th>
+            <th style="padding:12px; text-align:left">Epic Level</th>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px">Yoad</td>
+            <td style="padding:12px">∞</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px">Blueberry</td>
+            <td style="padding:12px">10/10 (also epic, just different vibe)</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px">Average Cat</td>
+            <td style="padding:12px">7/10</td>
+          </tr>
+          <tr>
+            <td style="padding:12px">Non-orange cats</td>
+            <td style="padding:12px">6/10 (lacks orange bonus)</td>
+          </tr>
+        </table>
+
+        <div class="callout warning">
+          <h4>⚠️ Important Note</h4>
+          <p>Attempting to measure Yoad's full epicness may cause overflow errors in standard computing systems. Please use Yoad-safe data types.</p>
+        </div>
+
+        <h2>The Yoad Ecosystem</h2>
+        <p>Yoad's influence extends far beyond just being a cat. The Yoad ecosystem includes:</p>
+
+        <h3>Digital Presence</h3>
+        <ul>
+          <li><strong>YoadBot:</strong> Discord bot with AI, music, and chaos features</li>
+          <li><strong>YoadGPT:</strong> AI chat integration within the bot</li>
+          <li><strong>Yoad.exe:</strong> Legendary executable (use with caution)</li>
+          <li><strong>Yoad Book:</strong> Analog horror series</li>
+          <li><strong>Yoad Chaos Mode:</strong> Random message interactions</li>
+        </ul>
+
+        <h3>Physical Manifestations</h3>
+        <ul>
+          <li>Sink occupancy</li>
+          <li>Over-the-world appearances</li>
+          <li>Rock cosplay</li>
+          <li>Minecraft infiltration</li>
+          <li>Prey-hunting poses</li>
+        </ul>
+
+        <img src="https://i.imgur.com/j0C6wtD.png" alt="Yoad hopping and saying yes" class="yoad-img" />
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Is Yoad really that epic?</h3>
+        <p>Yes. If anything, this documentation <em>undersells</em> how epic Yoad truly is.</p>
+
+        <h3>What about Blueberry?</h3>
+        <p>Blueberry is also epic, just in a different category. She's the smallest image at 1Bpx (she's fat as fuck) and brings her own unique energy to the NGP ecosystem.</p>
+
+        <h3>Can I use Yoad images in my own projects?</h3>
+        <p>All Yoad images are protected under the Yoad Image Protection Act (YIPA). Please consult <a href="/docs/yoad-image-usage">Yoad Image Usage Guidelines</a> for proper licensing.</p>
+
+        <h3>How do I pronounce "Yoad"?</h3>
+        <p>It's pronounced exactly how you think it is. If you're still unsure, just say it with confidence - Yoad will understand.</p>
+
+        <h2>Conclusion</h2>
+        <p>Through rigorous scientific analysis, historical documentation, and community consensus, we can definitively state that <strong>Yoad is epic</strong>. This is not opinion - this is certified fact backed by overwhelming evidence.</p>
+
+        <p>The epicness of Yoad transcends traditional measurement and continues to grow with each passing day. As NGP expands, so too does the Yoadverse, ensuring that future generations will continue to experience the unparalleled epicness of this legendary orange cat.</p>
+
+        <div class="callout success">
+          <h4>🎉 Final Verdict</h4>
+          <p><strong>Is Yoad Epic?</strong> Absolutely, unequivocally, scientifically proven: <strong>YES</strong>.</p>
+        </div>
+
+        <img src="https://i.imgur.com/8JivNk2.png" alt="Yoad gives you a smooch" class="yoad-img" />
+
+        <div class="nav-buttons">
+          <a href="/docs/yoadverse" class="nav-btn">
+            <div class="label">← Previous</div>
+            <div class="title">The Yoadverse</div>
+          </a>
+          <a href="/docs/yoad-bot-overview" class="nav-btn next">
+            <div class="label">Next →</div>
+            <div class="title">Yoad Bot Overview</div>
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const toc = document.getElementById('toc');
+  const headings = document.querySelectorAll('.doc-content h2');
+  
+  headings.forEach((heading, index) => {
+    const id = `section-${index}`;
+    heading.id = id;
+    
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = `#${id}`;
+    a.textContent = heading.textContent;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      heading.scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    li.appendChild(a);
+    toc.appendChild(li);
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.sidebar a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-100px 0px -66%' });
+
+  headings.forEach(heading => observer.observe(heading));
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+</body>
+</html>
