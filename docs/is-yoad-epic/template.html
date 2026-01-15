@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — [PAGE TITLE]</title>
+
+<meta property="og:title" content="[PAGE TITLE] - NGP Hub Docs" />
+<meta property="og:description" content="[PAGE DESCRIPTION]" />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/docs/[PAGE-URL]" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="[PAGE TITLE] - NGP Hub Docs" />
+<meta name="twitter:description" content="[PAGE DESCRIPTION]" />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="[PAGE DESCRIPTION]" />
+<meta name="keywords" content="NGP, documentation, [KEYWORDS]" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    background-attachment:fixed;
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  /* Doc page styles */
+  .breadcrumb{padding:20px 0; color:var(--muted); font-size:.9rem}
+  .breadcrumb a{color:var(--brandB); text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+
+  .doc-container{display:grid; grid-template-columns:250px 1fr; gap:32px; padding:0 0 80px}
+  
+  .sidebar{position:sticky; top:80px; height:fit-content; max-height:calc(100vh - 100px); overflow-y:auto}
+  .sidebar h4{font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin:0 0 12px}
+  .sidebar ul{list-style:none; margin:0; padding:0}
+  .sidebar li{margin-bottom:8px}
+  .sidebar a{color:var(--ink); text-decoration:none; display:block; padding:6px 12px; border-radius:8px; font-size:.9rem; opacity:.8}
+  .sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,.06); opacity:1}
+  .sidebar a.active{color:var(--brandB); font-weight:600}
+
+  .doc-content{max-width:720px}
+  .doc-header{margin-bottom:32px}
+  .doc-header h1{font-size:2.2rem; margin:0 0 12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
+  .doc-header .meta{color:var(--muted); font-size:.9rem}
+  .doc-header .tag{display:inline-block; background:rgba(106,17,203,.15); color:var(--brandA); padding:4px 12px; border-radius:6px; font-size:.8rem; font-weight:600; margin-right:8px}
+
+  .doc-content h2{font-size:1.6rem; margin:40px 0 16px; color:var(--ink); border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:8px}
+  .doc-content h3{font-size:1.3rem; margin:32px 0 12px; color:var(--ink)}
+  .doc-content h4{font-size:1.1rem; margin:24px 0 12px; color:var(--ink)}
+  .doc-content p{line-height:1.7; margin:16px 0; color:var(--ink)}
+  .doc-content a{color:var(--brandB); text-decoration:none}
+  .doc-content a:hover{text-decoration:underline}
+  
+  .doc-content ul, .doc-content ol{line-height:1.8; margin:16px 0; padding-left:24px}
+  .doc-content li{margin:8px 0}
+
+  .doc-content code{background:rgba(255,255,255,.05); padding:2px 8px; border-radius:4px; font-family:monospace; font-size:.9em; color:#f087ff}
+  .doc-content pre{background:var(--card); padding:16px; border-radius:12px; overflow-x:auto; border:1px solid rgba(255,255,255,.1); margin:16px 0}
+  .doc-content pre code{background:none; padding:0; color:var(--ink)}
+
+  .callout{background:var(--card); border-left:4px solid var(--brandB); padding:16px 20px; border-radius:8px; margin:24px 0}
+  .callout.warning{border-left-color:#ff6b6b}
+  .callout.info{border-left-color:#4dabf7}
+  .callout.success{border-left-color:#51cf66}
+  .callout h4{margin:0 0 8px; font-size:1rem}
+  .callout p{margin:0; font-size:.95rem}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:48px; padding-top:24px; border-top:1px solid rgba(255,255,255,.1)}
+  .nav-btn{background:var(--card); padding:12px 16px; border-radius:10px; text-decoration:none; color:var(--ink); border:1px solid rgba(255,255,255,.1); flex:1; max-width:calc(50% - 8px)}
+  .nav-btn:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
+  .nav-btn .label{font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted)}
+  .nav-btn .title{font-size:1rem; font-weight:600; margin-top:4px}
+  .nav-btn.next{text-align:right}
+
+  .ai-banner{background:linear-gradient(120deg,rgba(106,17,203,.15),rgba(37,117,252,.15)); border:1px solid var(--brandB); border-radius:12px; padding:16px 20px; margin:0 0 32px; display:flex; align-items:center; gap:12px}
+  .ai-banner .icon{font-size:1.5rem}
+  .ai-banner .text{flex:1}
+  .ai-banner .text strong{color:var(--brandB)}
+
+  @media (max-width: 900px){
+    .doc-container{grid-template-columns:1fr; gap:0}
+    .sidebar{display:none}
+    .doc-content{max-width:100%}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/">Home</a> / <a href="/docs/">Docs</a> / [PAGE TITLE]
+    </div>
+
+    <div class="doc-container">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <h4>On This Page</h4>
+        <ul id="toc">
+          <!-- Auto-generated from h2 tags -->
+        </ul>
+
+        <h4 style="margin-top:24px">Related</h4>
+        <ul>
+          <li><a href="/docs/">All Docs</a></li>
+          <!-- More links will be populated dynamically from GitHub -->
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <article class="doc-content">
+        <div class="doc-header">
+          <h1>[PAGE TITLE]</h1>
+          <div class="meta">
+            <span class="tag">[CATEGORY]</span>
+            Last updated: [DATE]
+          </div>
+        </div>
+
+        <!-- AI-GENERATED BANNER (Set AI_GENERATED to true to show this) -->
+        <div id="ai-banner" style="display:none">
+          <div class="ai-banner">
+            <div class="icon">🤖</div>
+            <div class="text">
+              <strong>AI-Generated Content:</strong> This page contains AI-generated content and/or was generated with AI assistance.
+            </div>
+          </div>
+        </div>
+
+        <!-- START YOUR CONTENT HERE -->
+
+        <p>This is the NGP documentation template! Use this as a starting point for creating new doc pages. Below you'll find examples of all the different elements and formatting options available.</p>
+
+        <h2>Overview</h2>
+        <p>Start with a brief overview of what this documentation covers. This should be a high-level summary that gives readers a quick understanding of the topic. Keep it concise but informative - aim for 2-3 paragraphs max.</p>
+
+        <p>You can include <strong>bold text</strong>, <em>italic text</em>, and <a href="#">links to other pages</a>. You can also use <code>inline code snippets</code> for commands, variables, or short code references.</p>
+
+        <div class="callout info">
+          <h4>💡 Pro Tip</h4>
+          <p>Use callout boxes to highlight important information! There are four types: <code>info</code> (blue), <code>warning</code> (red), <code>success</code> (green), and the default (purple). Just change the class name!</p>
+        </div>
+
+        <h2>Getting Started</h2>
+        <p>This section typically covers prerequisites, installation steps, or initial setup. Break down complex processes into clear steps.</p>
+
+        <h3>Prerequisites</h3>
+        <p>Before you begin, make sure you have:</p>
+        <ul>
+          <li>Node.js 16+ or Python 3.8+ installed</li>
+          <li>An NGP Hub account (sign up at <a href="/login">ngphub.com/login</a>)</li>
+          <li>Basic knowledge of JavaScript or your preferred language</li>
+          <li>A text editor like VS Code or Sublime Text</li>
+        </ul>
+
+        <h3>Installation</h3>
+        <p>Here's how to install and set up the project:</p>
+        <ol>
+          <li>Clone the repository: <code>git clone https://github.com/your-repo.git</code></li>
+          <li>Navigate to the project directory: <code>cd your-project</code></li>
+          <li>Install dependencies: <code>npm install</code> or <code>pip install -r requirements.txt</code></li>
+          <li>Configure your environment variables (see below)</li>
+          <li>Run the application: <code>npm start</code> or <code>python main.py</code></li>
+        </ol>
+
+        <div class="callout warning">
+          <h4>⚠️ Important</h4>
+          <p>Make sure to never commit your API keys or secrets to version control! Always use environment variables or a <code>.env</code> file (and add it to <code>.gitignore</code>).</p>
+        </div>
+
+        <h2>Code Examples</h2>
+        <p>Show practical examples of how to use your API, tool, or feature. Include both basic and advanced examples.</p>
+
+        <h3>Basic Example</h3>
+        <p>Here's a simple example to get you started:</p>
+
+        <pre><code>// Import the NGP SDK
+const NGP = require('@ngp/sdk');
+
+// Initialize with your API key
+const ngp = new NGP({
+  apiKey: process.env.NGP_API_KEY
+});
+
+// Make your first request
+async function example() {
+  try {
+    const response = await ngp.nirvana.chat({
+      message: "Hello, Nirvana!",
+      model: "nirvana-1.5-thinking"
+    });
+    
+    console.log(response.message);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+example();</code></pre>
+
+        <h3>Advanced Example</h3>
+        <p>For more complex use cases, here's an advanced example with error handling and options:</p>
+
+        <pre><code>// Python example with advanced features
+import os
+from ngp import NirvanaClient
+
+# Initialize client with custom options
+client = NirvanaClient(
+    api_key=os.getenv('NGP_API_KEY'),
+    timeout=30,
+    max_retries=3
+)
+
+# Stream responses for real-time output
+async def chat_with_streaming(prompt):
+    try:
+        async for chunk in client.nirvana.stream(
+            message=prompt,
+            model="nirvana-1.5-thinking",
+            temperature=0.7,
+            max_tokens=1000
+        ):
+            print(chunk.content, end='', flush=True)
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Using context and conversation history
+async def contextual_chat():
+    conversation = []
+    
+    # First message
+    response1 = await client.nirvana.chat(
+        message="What's the Aria Number?",
+        conversation_history=conversation
+    )
+    conversation.append({"role": "user", "content": "What's the Aria Number?"})
+    conversation.append({"role": "assistant", "content": response1.message})
+    
+    # Follow-up with context
+    response2 = await client.nirvana.chat(
+        message="How does it compare to the Yoad Number?",
+        conversation_history=conversation
+    )
+    
+    print(response2.message)</code></pre>
+
+        <div class="callout success">
+          <h4>✅ Best Practice</h4>
+          <p>Always handle errors gracefully and provide meaningful error messages to your users. Use try-catch blocks and validate input before making API calls.</p>
+        </div>
+
+        <h2>Configuration Options</h2>
+        <p>Here's a comprehensive list of all available configuration options:</p>
+
+        <h3>API Parameters</h3>
+        <table style="width:100%; border-collapse:collapse; margin:20px 0">
+          <tr style="background:var(--card); border-bottom:1px solid rgba(255,255,255,.1)">
+            <th style="padding:12px; text-align:left">Parameter</th>
+            <th style="padding:12px; text-align:left">Type</th>
+            <th style="padding:12px; text-align:left">Default</th>
+            <th style="padding:12px; text-align:left">Description</th>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px"><code>apiKey</code></td>
+            <td style="padding:12px">string</td>
+            <td style="padding:12px">-</td>
+            <td style="padding:12px">Your NGP API key (required)</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px"><code>model</code></td>
+            <td style="padding:12px">string</td>
+            <td style="padding:12px">"nirvana-1.5"</td>
+            <td style="padding:12px">Model to use for requests</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px"><code>temperature</code></td>
+            <td style="padding:12px">float</td>
+            <td style="padding:12px">0.7</td>
+            <td style="padding:12px">Controls randomness (0.0-1.0)</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+            <td style="padding:12px"><code>maxTokens</code></td>
+            <td style="padding:12px">integer</td>
+            <td style="padding:12px">1000</td>
+            <td style="padding:12px">Maximum response length</td>
+          </tr>
+          <tr>
+            <td style="padding:12px"><code>timeout</code></td>
+            <td style="padding:12px">integer</td>
+            <td style="padding:12px">30</td>
+            <td style="padding:12px">Request timeout in seconds</td>
+          </tr>
+        </table>
+
+        <h3>Environment Variables</h3>
+        <p>Set these in your <code>.env</code> file or environment:</p>
+
+        <pre><code># Required
+NGP_API_KEY=your_api_key_here
+
+# Optional
+NGP_API_URL=https://api.ngphub.com/v1
+NGP_TIMEOUT=30
+NGP_MAX_RETRIES=3
+NGP_DEBUG=false</code></pre>
+
+        <h2>Common Use Cases</h2>
+        <p>Here are some common scenarios and how to implement them:</p>
+
+        <h3>1. Building a Chatbot</h3>
+        <p>Use Nirvana AI to create an intelligent chatbot for your Discord server or website:</p>
+
+        <pre><code>// Discord bot example
+const { Client, GatewayIntentBits } = require('discord.js');
+const NGP = require('@ngp/sdk');
+
+const client = new Client({ 
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] 
+});
+
+const ngp = new NGP({ apiKey: process.env.NGP_API_KEY });
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith('!ask')) return;
+  
+  const prompt = message.content.slice(5);
+  const response = await ngp.nirvana.chat({ message: prompt });
+  
+  message.reply(response.message);
+});
+
+client.login(process.env.DISCORD_TOKEN);</code></pre>
+
+        <h3>2. Data Processing Pipeline</h3>
+        <p>Process large amounts of data efficiently:</p>
+
+        <pre><code>async function processDataBatch(items) {
+  const results = [];
+  
+  // Process in batches to respect rate limits
+  for (let i = 0; i < items.length; i += 10) {
+    const batch = items.slice(i, i + 10);
+    const promises = batch.map(item => 
+      ngp.analyze({ data: item })
+    );
+    
+    const batchResults = await Promise.all(promises);
+    results.push(...batchResults);
+    
+    // Wait between batches
+    if (i + 10 < items.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  
+  return results;
+}</code></pre>
+
+        <h3>3. Real-time Streaming</h3>
+        <p>Stream responses for a better user experience:</p>
+
+        <pre><code>// Streaming example for web apps
+async function streamToUI(prompt, elementId) {
+  const element = document.getElementById(elementId);
+  element.textContent = '';
+  
+  const stream = await ngp.nirvana.stream({ message: prompt });
+  
+  for await (const chunk of stream) {
+    element.textContent += chunk.content;
+  }
+}</code></pre>
+
+        <h2>Error Handling</h2>
+        <p>Proper error handling is crucial for production applications. Here's how to handle common errors:</p>
+
+        <h3>Error Types</h3>
+        <ul>
+          <li><strong>Authentication Error (401):</strong> Invalid or missing API key</li>
+          <li><strong>Rate Limit Error (429):</strong> Too many requests, implement exponential backoff</li>
+          <li><strong>Server Error (500):</strong> NGP server issue, retry with backoff</li>
+          <li><strong>Timeout Error:</strong> Request took too long, increase timeout or retry</li>
+          <li><strong>Network Error:</strong> Connection issue, check internet and retry</li>
+        </ul>
+
+        <h3>Retry Logic</h3>
+        <pre><code>async function withRetry(fn, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      
+      // Exponential backoff
+      const delay = Math.pow(2, i) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms`);
+    }
+  }
+}
+
+// Usage
+const result = await withRetry(() => ngp.nirvana.chat({ 
+  message: "Hello!" 
+}));</code></pre>
+
+        <div class="callout warning">
+          <h4>⚠️ Rate Limits</h4>
+          <p>Be aware of rate limits based on your subscription tier:</p>
+          <ul style="margin:8px 0; padding-left:20px">
+            <li>Base Tier: 100 requests/hour</li>
+            <li>NGP Tier: 500 requests/hour</li>
+            <li>Elite Support: 2000 requests/hour</li>
+          </ul>
+          <p style="margin:8px 0 0">Implement rate limiting and backoff strategies to avoid hitting these limits.</p>
+        </div>
+
+        <h2>Performance Optimization</h2>
+        <p>Tips for getting the best performance from NGP services:</p>
+
+        <h3>Caching Strategies</h3>
+        <p>Cache frequently requested data to reduce API calls:</p>
+
+        <pre><code>const cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedData(key, fetchFn) {
+  const cached = cache.get(key);
+  
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  
+  const data = await fetchFn();
+  cache.set(key, { data, timestamp: Date.now() });
+  
+  return data;
+}</code></pre>
+
+        <h3>Batch Requests</h3>
+        <p>Combine multiple requests when possible:</p>
+
+        <pre><code>// Instead of multiple single requests
+const results = await Promise.all([
+  ngp.analyze({ text: text1 }),
+  ngp.analyze({ text: text2 }),
+  ngp.analyze({ text: text3 })
+]);
+
+// Use batch endpoint if available
+const results = await ngp.analyzeBatch({
+  items: [text1, text2, text3]
+});</code></pre>
+
+        <h2>Security Best Practices</h2>
+        <p>Keep your application secure when using NGP services:</p>
+
+        <h3>API Key Management</h3>
+        <ul>
+          <li>Never hardcode API keys in your source code</li>
+          <li>Use environment variables or secure secret management</li>
+          <li>Rotate API keys regularly (every 90 days recommended)</li>
+          <li>Use different keys for development, staging, and production</li>
+          <li>Implement key rotation without downtime using multiple active keys</li>
+        </ul>
+
+        <h3>Input Validation</h3>
+        <pre><code>function validateInput(input) {
+  // Check length
+  if (input.length > 10000) {
+    throw new Error('Input too long');
+  }
+  
+  // Sanitize HTML
+  const sanitized = input.replace(/<[^>]*>/g, '');
+  
+  // Check for malicious patterns
+  const dangerous = /(\$\{|eval\(|exec\(|<script)/i;
+  if (dangerous.test(input)) {
+    throw new Error('Invalid input detected');
+  }
+  
+  return sanitized;
+}
+
+// Use before API calls
+const safeInput = validateInput(userInput);
+const response = await ngp.nirvana.chat({ message: safeInput });</code></pre>
+
+        <h2>Testing</h2>
+        <p>Write tests to ensure your integration works correctly:</p>
+
+        <h3>Unit Tests</h3>
+        <pre><code>// Jest example
+describe('NGP Integration', () => {
+  let ngp;
+  
+  beforeAll(() => {
+    ngp = new NGP({ apiKey: process.env.TEST_API_KEY });
+  });
+  
+  test('should make successful request', async () => {
+    const response = await ngp.nirvana.chat({
+      message: 'Test message'
+    });
+    
+    expect(response).toBeDefined();
+    expect(response.message).toBeTruthy();
+  });
+  
+  test('should handle errors', async () => {
+    await expect(
+      ngp.nirvana.chat({ message: '' })
+    ).rejects.toThrow('Message cannot be empty');
+  });
+});</code></pre>
+
+        <h3>Integration Tests</h3>
+        <pre><code>// Test full workflow
+test('end-to-end conversation', async () => {
+  const conversation = [];
+  
+  // First message
+  const response1 = await ngp.nirvana.chat({
+    message: "Hello!",
+    conversation_history: conversation
+  });
+  
+  expect(response1.message).toContain('hello');
+  
+  // Follow-up
+  conversation.push(
+    { role: 'user', content: 'Hello!' },
+    { role: 'assistant', content: response1.message }
+  );
+  
+  const response2 = await ngp.nirvana.chat({
+    message: "What did I just say?",
+    conversation_history: conversation
+  });
+  
+  expect(response2.message).toContain('hello');
+});</code></pre>
+
+        <h2>Troubleshooting</h2>
+        <p>Common issues and how to solve them:</p>
+
+        <h3>Problem: Authentication Failed</h3>
+        <p><strong>Solution:</strong> Check that your API key is correct and hasn't expired. Make sure it's being passed correctly:</p>
+        <pre><code>// Check if API key is loaded
+console.log('API Key:', process.env.NGP_API_KEY ? '✓ Loaded' : '✗ Missing');
+
+// Verify it's being sent
+const ngp = new NGP({ 
+  apiKey: process.env.NGP_API_KEY,
+  debug: true  // Enable debug mode
+});</code></pre>
+
+        <h3>Problem: Rate Limit Exceeded</h3>
+        <p><strong>Solution:</strong> Implement exponential backoff and request queuing:</p>
+        <pre><code>class RequestQueue {
+  constructor(maxPerMinute) {
+    this.queue = [];
+    this.maxPerMinute = maxPerMinute;
+    this.processing = false;
+  }
+  
+  async add(fn) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ fn, resolve, reject });
+      this.process();
+    });
+  }
+  
+  async process() {
+    if (this.processing || this.queue.length === 0) return;
+    this.processing = true;
+    
+    const { fn, resolve, reject } = this.queue.shift();
+    
+    try {
+      const result = await fn();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+    
+    setTimeout(() => {
+      this.processing = false;
+      this.process();
+    }, 60000 / this.maxPerMinute);
+  }
+}
+
+const queue = new RequestQueue(100); // 100 requests per minute
+const result = await queue.add(() => ngp.nirvana.chat({ message: "Hi!" }));</code></pre>
+
+        <h3>Problem: Slow Response Times</h3>
+        <p><strong>Solutions:</strong></p>
+        <ul>
+          <li>Use streaming for real-time feedback</li>
+          <li>Reduce <code>maxTokens</code> for shorter responses</li>
+          <li>Implement caching for repeated queries</li>
+          <li>Use batch requests instead of sequential calls</li>
+          <li>Consider using a lower tier model for faster responses</li>
+        </ul>
+
+        <div class="callout info">
+          <h4>💡 Debug Mode</h4>
+          <p>Enable debug mode to see detailed logs of all API requests and responses. This is super helpful when troubleshooting!</p>
+          <pre style="margin-top:8px"><code>const ngp = new NGP({ 
+  apiKey: process.env.NGP_API_KEY,
+  debug: true 
+});</code></pre>
+        </div>
+
+        <h2>Additional Resources</h2>
+        <p>Here are some helpful links and resources:</p>
+
+        <ul>
+          <li><a href="/docs/">Complete Documentation</a> - All NGP documentation</li>
+          <li><a href="/docs/api-overview">API Reference</a> - Full API documentation</li>
+          <li><a href="https://github.com/Flamewastakenbysome1/NGPHub">GitHub Repository</a> - Source code and examples</li>
+          <li><a href="/contact">Contact Support</a> - Get help from the team</li>
+          <li><a href="https://discord.gg/VqXsafQAMd">Discord Community</a> - Join the NGP Discord</li>
+        </ul>
+
+        <h2>Changelog</h2>
+        <p>Keep track of updates and changes:</p>
+
+        <h3>Version 1.5.0 - January 2026</h3>
+        <ul>
+          <li>Added streaming support for real-time responses</li>
+          <li>Improved error handling with detailed error codes</li>
+          <li>New batch processing endpoints</li>
+          <li>Performance optimizations (30% faster)</li>
+        </ul>
+
+        <h3>Version 1.0.0 - December 2025</h3>
+        <ul>
+          <li>Initial release</li>
+          <li>Basic chat functionality</li>
+          <li>API key authentication</li>
+          <li>Rate limiting implementation</li>
+        </ul>
+
+        <h2>Feedback</h2>
+        <p>We'd love to hear from you! If you have any questions, suggestions, or issues:</p>
+
+        <ul>
+          <li>Open an issue on <a href="https://github.com/Flamewastakenbysome1/NGPHub/issues">GitHub</a></li>
+          <li>Join our <a href="https://discord.gg/VqXsafQAMd">Discord server</a> for community support</li>
+          <li>Email us at <a href="/contact">support through our contact page</a></li>
+          <li>Use the thumbs up/down buttons to rate this documentation</li>
+        </ul>
+
+        <div class="callout success">
+          <h4>🎉 You're Ready!</h4>
+          <p>You now have everything you need to get started with [YOUR FEATURE/TOOL]. If you run into any issues, don't hesitate to reach out to the community or support team. Happy coding! 🔥</p>
+        </div>
+
+        <!-- END YOUR CONTENT HERE -->
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+          <!-- Navigation will be populated dynamically from GitHub -->
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // AI-GENERATED FLAG - Set this to true if this page has AI-generated content
+  const AI_GENERATED = false; // Change to true for AI-generated pages
+
+  // Show AI banner if flag is true
+  if (AI_GENERATED) {
+    document.getElementById('ai-banner').style.display = 'block';
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Auto-generate table of contents from h2 tags
+  const toc = document.getElementById('toc');
+  const headings = document.querySelectorAll('.doc-content h2');
+  
+  headings.forEach((heading, index) => {
+    const id = `section-${index}`;
+    heading.id = id;
+    
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = `#${id}`;
+    a.textContent = heading.textContent;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      heading.scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    li.appendChild(a);
+    toc.appendChild(li);
+  });
+
+  // Highlight active section in TOC on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.sidebar a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-100px 0px -66%' });
+
+  headings.forEach(heading => observer.observe(heading));
+
+  // DYNAMIC NAVIGATION - Fetch other doc pages from GitHub
+  const GITHUB_API = 'https://api.github.com/repos/Flamewastakenbysome1/NGPHub/contents/docs';
+  const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+
+  async function loadRelatedDocs() {
+    try {
+      const response = await fetch(GITHUB_API);
+      if (!response.ok) return;
+      
+      const files = await response.json();
+      const htmlFiles = files
+        .filter(file => file.type === 'file' && file.name.endsWith('.html') && file.name !== 'index.html')
+        .map(file => file.name.replace('.html', ''));
+      
+      // Find current page index
+      const currentIndex = htmlFiles.indexOf(currentPage);
+      
+      if (currentIndex !== -1) {
+        const prevPage = currentIndex > 0 ? htmlFiles[currentIndex - 1] : null;
+        const nextPage = currentIndex < htmlFiles.length - 1 ? htmlFiles[currentIndex + 1] : null;
+        
+        // Update navigation buttons
+        const navButtons = document.querySelector('.nav-buttons');
+        if (navButtons) {
+          let navHtml = '';
+          
+          if (prevPage) {
+            const prevTitle = prevPage.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            navHtml += `
+              <a href="/docs/${prevPage}" class="nav-btn">
+                <div class="label">← Previous</div>
+                <div class="title">${prevTitle}</div>
+              </a>
+            `;
+          } else {
+            navHtml += '<div></div>'; // Spacer
+          }
+          
+          if (nextPage) {
+            const nextTitle = nextPage.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            navHtml += `
+              <a href="/docs/${nextPage}" class="nav-btn next">
+                <div class="label">Next →</div>
+                <div class="title">${nextTitle}</div>
+              </a>
+            `;
+          }
+          
+          navButtons.innerHTML = navHtml;
+        }
+      }
+      
+      // Update related links in sidebar
+      const relatedList = document.querySelector('.sidebar ul:last-of-type');
+      if (relatedList && htmlFiles.length > 0) {
+        // Get 3 random related docs (excluding current page)
+        const otherDocs = htmlFiles.filter(f => f !== currentPage);
+        const shuffled = otherDocs.sort(() => 0.5 - Math.random());
+        const related = shuffled.slice(0, 3);
+        
+        let relatedHtml = '<li><a href="/docs/">All Docs</a></li>';
+        related.forEach(doc => {
+          const title = doc.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          relatedHtml += `<li><a href="/docs/${doc}">${title}</a></li>`;
+        });
+        
+        relatedList.innerHTML = relatedHtml;
+      }
+      
+    } catch (error) {
+      console.error('Error loading related docs:', error);
+    }
+  }
+
+  // Load related docs on page load
+  loadRelatedDocs();
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+</body>
+</html>
