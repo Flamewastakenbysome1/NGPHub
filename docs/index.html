@@ -151,169 +151,20 @@
       </ul>
     </div>
 
-    <div class="doc-sections">
-      <!-- Nirvana AI Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">🤖</span> Nirvana AI</h3>
-        <div class="doc-grid">
-          <a href="/docs/nirvana-overview" class="doc-card">
-            <h4>Nirvana Overview</h4>
-            <p>Learn about Nirvana AI, our flagship chatbot combining Claude and ChatGPT capabilities.</p>
-            <span class="tag">Getting Started</span>
-          </a>
-          <a href="/docs/nirvana-api" class="doc-card">
-            <h4>Nirvana API Reference</h4>
-            <p>Complete API documentation for integrating Nirvana into your applications.</p>
-            <span class="tag">API</span>
-          </a>
-          <a href="/docs/nirvana-examples" class="doc-card">
-            <h4>Code Examples</h4>
-            <p>Example implementations in Python, JavaScript, and more.</p>
-            <span class="tag">Examples</span>
-          </a>
-          <a href="/docs/nirvana-pricing" class="doc-card">
-            <h4>Pricing & Limits</h4>
-            <p>Understand rate limits, pricing tiers, and subscription options.</p>
-            <span class="tag">Reference</span>
-          </a>
-        </div>
-      </div>
+    <div id="loading-state" style="text-align:center; padding:60px 0; color:var(--muted)">
+      <div style="font-size:2rem; margin-bottom:16px">🔄</div>
+      <p>Loading documentation from GitHub...</p>
+    </div>
 
-      <!-- Discord Bots Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">🎮</span> Discord Bots</h3>
-        <div class="doc-grid">
-          <a href="/docs/yoad-bot-overview" class="doc-card">
-            <h4>Yoad Bot Overview</h4>
-            <p>Everything about Yoad - our feature-packed Discord bot with AI, music, and chaos.</p>
-            <span class="tag">Guide</span>
-          </a>
-          <a href="/docs/yoad-commands" class="doc-card">
-            <h4>Yoad Commands</h4>
-            <p>Complete list of Yoad's commands, features, and usage examples.</p>
-            <span class="tag">Reference</span>
-          </a>
-          <a href="/docs/yoad-setup" class="doc-card">
-            <h4>Server Setup Guide</h4>
-            <p>Step-by-step guide to adding and configuring Yoad in your Discord server.</p>
-            <span class="tag">Tutorial</span>
-          </a>
-          <a href="/docs/yoadgpt" class="doc-card">
-            <h4>YoadGPT Integration</h4>
-            <p>How to use Yoad's AI chat features powered by OpenAI.</p>
-            <span class="tag">Guide</span>
-          </a>
-        </div>
-      </div>
+    <div class="doc-sections" id="doc-sections" style="display:none">
+      <!-- Sections will be dynamically populated -->
+    </div>
 
-      <!-- Tools & Utilities Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">🛠️</span> Tools & Utilities</h3>
-        <div class="doc-grid">
-          <a href="/docs/tools-overview" class="doc-card">
-            <h4>Tools Overview</h4>
-            <p>Browse all NGP tools, utilities, and web applications.</p>
-            <span class="tag">Overview</span>
-          </a>
-          <a href="/docs/prismcapture" class="doc-card">
-            <h4>PrismCapture</h4>
-            <p>High-quality screenshot tool documentation and download guide.</p>
-            <span class="tag">Tool</span>
-          </a>
-          <a href="/docs/scientific-notation-converter" class="doc-card">
-            <h4>Scientific Notation Tools</h4>
-            <p>Using our scientific notation converter and "Guess the Sci!" game.</p>
-            <span class="tag">Tool</span>
-          </a>
-          <a href="/docs/file-converters" class="doc-card">
-            <h4>File Converters</h4>
-            <p>Documentation for our suite of file conversion utilities.</p>
-            <span class="tag">Tool</span>
-          </a>
-        </div>
+    <div id="error-state" style="display:none; text-align:center; padding:60px 0">
+      <div class="callout warning" style="max-width:500px; margin:0 auto">
+        <h4>⚠️ Unable to Load Docs</h4>
+        <p>Couldn't fetch documentation from GitHub. Please try refreshing the page or check back later.</p>
       </div>
-
-      <!-- Roblox Games Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">🎲</span> Roblox Games</h3>
-        <div class="doc-grid">
-          <a href="/docs/roblox-games" class="doc-card">
-            <h4>NGP Roblox Games</h4>
-            <p>Complete list of our Roblox experiences and game development.</p>
-            <span class="tag">Overview</span>
-          </a>
-          <a href="/docs/flood-survival-waves" class="doc-card">
-            <h4>Flood Survival Waves</h4>
-            <p>Game mechanics, systems, and development notes.</p>
-            <span class="tag">Game</span>
-          </a>
-          <a href="/docs/doomball" class="doc-card">
-            <h4>DoomBall</h4>
-            <p>Physics-based ball game with AI pathfinding documentation.</p>
-            <span class="tag">Game</span>
-          </a>
-          <a href="/docs/roblox-dev-resources" class="doc-card">
-            <h4>Developer Resources</h4>
-            <p>Scripts, systems, and open-source Roblox components from NGP.</p>
-            <span class="tag">Resources</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Developer Resources Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">💻</span> Developer Resources</h3>
-        <div class="doc-grid">
-          <a href="/docs/api-overview" class="doc-card">
-            <h4>NGP API Overview</h4>
-            <p>Introduction to NGP's APIs and integration options.</p>
-            <span class="tag">API</span>
-          </a>
-          <a href="/docs/authentication" class="doc-card">
-            <h4>Authentication</h4>
-            <p>How to authenticate with NGP services using Firebase and API keys.</p>
-            <span class="tag">Security</span>
-          </a>
-          <a href="/docs/rate-limits" class="doc-card">
-            <h4>Rate Limits</h4>
-            <p>Understanding rate limits across NGP services.</p>
-            <span class="tag">Reference</span>
-          </a>
-          <a href="/docs/webhooks" class="doc-card">
-            <h4>Webhooks</h4>
-            <p>Set up webhooks to receive real-time updates from NGP services.</p>
-            <span class="tag">Integration</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Community & Support Section -->
-      <div class="doc-section">
-        <h3><span class="section-icon">💬</span> Community & Support</h3>
-        <div class="doc-grid">
-          <a href="/docs/community-guidelines" class="doc-card">
-            <h4>Community Guidelines</h4>
-            <p>How to be a valued member of the NGP community.</p>
-            <span class="tag">Community</span>
-          </a>
-          <a href="/docs/contributing" class="doc-card">
-            <h4>Contributing to NGP</h4>
-            <p>How to contribute code, report bugs, and suggest features.</p>
-            <span class="tag">Guide</span>
-          </a>
-          <a href="/docs/faq" class="doc-card">
-            <h4>FAQ</h4>
-            <p>Frequently asked questions about NGP services and products.</p>
-            <span class="tag">Help</span>
-          </a>
-          <a href="/docs/support" class="doc-card">
-            <h4>Get Support</h4>
-            <p>Contact NGP support and get help with issues.</p>
-            <span class="tag">Support</span>
-          </a>
-        </div>
-      </div>
-
     </div>
   </div>
 </main>
@@ -342,30 +193,183 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Simple search functionality
-  const searchInput = document.getElementById('doc-search');
-  const docCards = document.querySelectorAll('.doc-card');
+  // GitHub API configuration
+  const GITHUB_API = 'https://api.github.com/repos/Flamewastakenbysome1/NGPHub/contents/docs';
+  const GITHUB_RAW = 'https://raw.githubusercontent.com/Flamewastakenbysome1/NGPHub/main/docs';
 
-  searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    
-    docCards.forEach(card => {
-      const title = card.querySelector('h4').textContent.toLowerCase();
-      const desc = card.querySelector('p').textContent.toLowerCase();
+  // Category mapping with icons
+  const categories = {
+    'nirvana': { name: 'Nirvana AI', icon: '🤖' },
+    'yoad': { name: 'Discord Bots', icon: '🎮' },
+    'tools': { name: 'Tools & Utilities', icon: '🛠️' },
+    'roblox': { name: 'Roblox Games', icon: '🎲' },
+    'api': { name: 'Developer Resources', icon: '💻' },
+    'community': { name: 'Community & Support', icon: '💬' },
+    'other': { name: 'Other Documentation', icon: '📚' }
+  };
+
+  // Extract metadata from HTML file
+  async function fetchDocMetadata(filename) {
+    try {
+      const response = await fetch(`${GITHUB_RAW}/${filename}`);
+      const html = await response.text();
       
-      if (title.includes(searchTerm) || desc.includes(searchTerm)) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
-    });
+      // Extract title from h1 or title tag
+      const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
+      const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+      const title = h1Match ? h1Match[1].replace(/[🔥🎮🤖💻🛠️📚💬🎲⚡]/g, '').trim() 
+                            : titleMatch ? titleMatch[1].replace('NGP Hub — ', '').trim() 
+                            : filename.replace('.html', '').replace(/-/g, ' ');
+      
+      // Extract description from meta tag or first paragraph
+      const metaMatch = html.match(/<meta name="description" content="(.*?)"/i);
+      const pMatch = html.match(/<p[^>]*>(.*?)<\/p>/i);
+      const description = metaMatch ? metaMatch[1] 
+                                    : pMatch ? pMatch[1].replace(/<[^>]*>/g, '').substring(0, 150) + '...' 
+                                    : 'NGP documentation page';
+      
+      // Extract tags/category from meta or content
+      const tagMatch = html.match(/<span class="tag"[^>]*>(.*?)<\/span>/i);
+      const tag = tagMatch ? tagMatch[1] : 'Guide';
+      
+      // Determine category from filename or content
+      let category = 'other';
+      const lower = filename.toLowerCase();
+      if (lower.includes('nirvana')) category = 'nirvana';
+      else if (lower.includes('yoad')) category = 'yoad';
+      else if (lower.includes('tool') || lower.includes('prism') || lower.includes('converter')) category = 'tools';
+      else if (lower.includes('roblox') || lower.includes('doom') || lower.includes('flood')) category = 'roblox';
+      else if (lower.includes('api') || lower.includes('auth') || lower.includes('webhook')) category = 'api';
+      else if (lower.includes('community') || lower.includes('faq') || lower.includes('support')) category = 'community';
+      
+      return { title, description, tag, category, filename };
+    } catch (error) {
+      console.error(`Error fetching metadata for ${filename}:`, error);
+      return null;
+    }
+  }
 
-    // Hide empty sections
-    document.querySelectorAll('.doc-section').forEach(section => {
-      const visibleCards = section.querySelectorAll('.doc-card[style="display: block;"], .doc-card:not([style])');
-      section.style.display = visibleCards.length > 0 ? 'block' : 'none';
+  // Render doc sections
+  function renderDocSections(docs) {
+    const sectionsContainer = document.getElementById('doc-sections');
+    const grouped = {};
+    
+    // Group docs by category
+    docs.forEach(doc => {
+      if (!grouped[doc.category]) grouped[doc.category] = [];
+      grouped[doc.category].push(doc);
     });
-  });
+    
+    // Render each category
+    let html = '';
+    Object.keys(categories).forEach(catKey => {
+      if (!grouped[catKey] || grouped[catKey].length === 0) return;
+      
+      const cat = categories[catKey];
+      html += `
+        <div class="doc-section">
+          <h3><span class="section-icon">${cat.icon}</span> ${cat.name}</h3>
+          <div class="doc-grid">
+      `;
+      
+      grouped[catKey].forEach(doc => {
+        const url = `/docs/${doc.filename.replace('.html', '')}`;
+        html += `
+          <a href="${url}" class="doc-card">
+            <h4>${doc.title}</h4>
+            <p>${doc.description}</p>
+            <span class="tag">${doc.tag}</span>
+          </a>
+        `;
+      });
+      
+      html += `
+          </div>
+        </div>
+      `;
+    });
+    
+    sectionsContainer.innerHTML = html;
+    sectionsContainer.style.display = 'block';
+  }
+
+  // Fetch docs from GitHub
+  async function loadDocs() {
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const sectionsContainer = document.getElementById('doc-sections');
+    
+    try {
+      const response = await fetch(GITHUB_API);
+      
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+      
+      const files = await response.json();
+      
+      // Filter HTML files only
+      const htmlFiles = files.filter(file => 
+        file.type === 'file' && 
+        file.name.endsWith('.html') && 
+        file.name !== 'index.html'
+      );
+      
+      if (htmlFiles.length === 0) {
+        throw new Error('No documentation files found');
+      }
+      
+      // Fetch metadata for each doc
+      const docsPromises = htmlFiles.map(file => fetchDocMetadata(file.name));
+      const docs = (await Promise.all(docsPromises)).filter(doc => doc !== null);
+      
+      if (docs.length === 0) {
+        throw new Error('Could not load documentation metadata');
+      }
+      
+      // Render the docs
+      loadingState.style.display = 'none';
+      renderDocSections(docs);
+      
+      // Update search functionality for dynamic cards
+      updateSearch();
+      
+    } catch (error) {
+      console.error('Error loading docs:', error);
+      loadingState.style.display = 'none';
+      errorState.style.display = 'block';
+    }
+  }
+
+  // Update search to work with dynamic content
+  function updateSearch() {
+    const searchInput = document.getElementById('doc-search');
+    
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const docCards = document.querySelectorAll('.doc-card');
+      
+      docCards.forEach(card => {
+        const title = card.querySelector('h4').textContent.toLowerCase();
+        const desc = card.querySelector('p').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Hide empty sections
+      document.querySelectorAll('.doc-section').forEach(section => {
+        const visibleCards = section.querySelectorAll('.doc-card[style="display: block;"], .doc-card:not([style])');
+        section.style.display = visibleCards.length > 0 ? 'block' : 'none';
+      });
+    });
+  }
+
+  // Load docs when page loads
+  loadDocs();
 </script>
 
 <script type="module">
