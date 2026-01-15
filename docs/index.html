@@ -228,9 +228,19 @@
                                     : pMatch ? pMatch[1].replace(/<[^>]*>/g, '').substring(0, 150) + '...' 
                                     : 'NGP documentation page';
       
-      // Extract tags/category from meta or content
-      const tagMatch = html.match(/<span class="tag"[^>]*>(.*?)<\/span>/i);
-      const tag = tagMatch ? tagMatch[1] : 'Guide';
+      // Extract ALL tags from the page (get the first one that's NOT in the meta section)
+      const docHeaderMatch = html.match(/<div class="doc-header">([\s\S]*?)<\/div>/i);
+      let tag = 'Guide';
+      
+      if (docHeaderMatch) {
+        const headerContent = docHeaderMatch[1];
+        const tagMatches = headerContent.match(/<span class="tag"[^>]*>(.*?)<\/span>/gi);
+        if (tagMatches && tagMatches.length > 0) {
+          // Get the first tag (primary category)
+          const firstTag = tagMatches[0].match(/>(.*?)</i);
+          tag = firstTag ? firstTag[1] : 'Guide';
+        }
+      }
       
       // Determine category from filename or content
       let category = 'other';
