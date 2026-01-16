@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Editor (1.6.4.2)</title>
+<title>NGP Hub — Audio Editor (1.6.4.3)</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -86,12 +86,18 @@
   }
   .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
 
-  /* Disclaimer */
+  /* Disclaimer and Note to self */
   .disclaimer{
     background:rgba(255,69,0,.1); border:1px solid rgba(255,69,0,.3); border-radius:12px; padding:12px;
-    margin:16px 0; color:#ffb3b3; font-size:.85rem; line-height:1.4;
+    margin:16px 0; color:#ffe4e4; font-size:.85rem; line-height:1.4;
   }
-  .disclaimer strong{color:#ff6b6b}
+  .disclaimer strong{color:#ff6b8c}
+
+  .notetoself{
+    background:rgba(0, 255, 136, 0.1); border:1px solid rgba(0, 255, 157, 0.3); border-radius:12px; padding:12px;
+    margin:16px 0; color:#ebffde; font-size:.85rem; line-height:1.4;
+  }
+  .notetoself strong{color:#a5ffa1}
 
   /* Preset manager */
   .presetManager{margin:16px 0; padding:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px}
@@ -135,6 +141,11 @@
     <!-- Disclaimer -->
     <div class="disclaimer">
       <strong>⚠️ Disclaimer:</strong> NGP is not responsible for any injuries, hearing damage, or other harm that may occur from using this audio editor tool. Please use reasonable volume levels and take breaks when using audio equipment. Use at your own risk.
+    </div>
+
+    <!-- Note -->
+    <div class="notetoself">
+      <strong>To the nerds who want more power:</strong> Inspect element on the page to make the sliders limits to your liking :O
     </div>
 
     <div class="row" style="margin-bottom:6px; justify-content:space-between;">
