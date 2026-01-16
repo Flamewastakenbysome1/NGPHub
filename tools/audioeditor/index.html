@@ -118,6 +118,35 @@
     transition:width .1s ease; width:0%;
   }
 
+  /* Keyframe styling */
+  .keyframe-toggle{
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+    border-radius:6px; padding:4px 8px; font-size:.75rem; cursor:pointer; color:var(--muted);
+    font-weight:600; transition:all .2s ease;
+  }
+  .keyframe-toggle.active{
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    border-color:var(--brandB); color:#fff;
+  }
+  .keyframe-toggle:hover{opacity:.8}
+
+  .keyframe-marker{
+    position:absolute; width:10px; height:10px; border-radius:50%;
+    background:var(--brandB); border:2px solid #fff;
+    box-shadow:0 0 8px rgba(37,117,252,.8); cursor:move; z-index:15;
+    transform:translate(-50%, -50%); top:50%;
+  }
+  .keyframe-marker:hover{transform:translate(-50%, -50%) scale(1.2); transition:transform .15s ease}
+  .keyframe-marker.selected{background:#ff6b6b; border-color:#fff; box-shadow:0 0 12px rgba(255,107,107,.9)}
+
+  .keyframe-controls{
+    display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap;
+  }
+  .keyframe-interpolation{
+    font-size:.75rem; padding:4px 8px; background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12); border-radius:6px; color:var(--ink);
+  }
+
   @media (max-width:920px){ .grid{grid-template-columns:1fr} .gainFloat{display:none} }
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
@@ -203,11 +232,22 @@
           </div>
 
           <div class="knob">
-            <label>Speed <small id="speedLbl">(1.00×)</small></label>
+            <label>
+              Speed <small id="speedLbl">(1.00×)</small>
+              <button class="keyframe-toggle" id="speedKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="speed" min="0.5" max="1.5" step="0.01" value="1.0" />
             <div class="row" style="margin-top:6px;">
               <input type="checkbox" id="preserve" />
               <label for="preserve" class="muted">Keep original pitch when changing speed</label>
+            </div>
+            <div class="keyframe-controls" id="speedKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="speedInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+              <small class="muted">Ctrl+Click waveform to add keyframes</small>
             </div>
           </div>
 
@@ -220,28 +260,78 @@
           </div>
 
           <div class="knob">
-            <label>Reverb <small id="reverbLbl">(0%)</small></label>
+            <label>
+              Reverb <small id="reverbLbl">(0%)</small>
+              <button class="keyframe-toggle" id="reverbKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="reverb" min="0" max="100" step="1" value="0" />
+            <div class="keyframe-controls" id="reverbKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="reverbInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+            </div>
           </div>
 
           <div class="knob">
-            <label>Bass boost <small id="bassLbl">(0 dB)</small></label>
+            <label>
+              Bass boost <small id="bassLbl">(0 dB)</small>
+              <button class="keyframe-toggle" id="bassKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="bass" min="0" max="18" step="1" value="0" />
+            <div class="keyframe-controls" id="bassKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="bassInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+            </div>
           </div>
 
           <div class="knob">
-            <label>Muffle <small id="muffleLbl">(0%)</small></label>
+            <label>
+              Muffle <small id="muffleLbl">(0%)</small>
+              <button class="keyframe-toggle" id="muffleKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="muffle" min="0" max="100" step="1" value="0" />
+            <div class="keyframe-controls" id="muffleKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="muffleInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+            </div>
           </div>
 
           <div class="knob">
-            <label>Echo <small id="echoLbl">(0%)</small></label>
+            <label>
+              Echo <small id="echoLbl">(0%)</small>
+              <button class="keyframe-toggle" id="echoKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="echo" min="0" max="100" step="1" value="0" />
+            <div class="keyframe-controls" id="echoKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="echoInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+            </div>
           </div>
 
           <div class="knob">
-            <label>Bitcrush <small id="bitcrushLbl">(0%)</small></label>
+            <label>
+              Bitcrush <small id="bitcrushLbl">(0%)</small>
+              <button class="keyframe-toggle" id="bitcrushKeyframeToggle" title="Enable keyframes">K</button>
+            </label>
             <input type="range" id="bitcrush" min="0" max="100" step="1" value="0" />
+            <div class="keyframe-controls" id="bitcrushKeyframeControls" style="display:none">
+              <select class="keyframe-interpolation" id="bitcrushInterpolation">
+                <option value="linear">Linear</option>
+                <option value="step">Step</option>
+                <option value="ease">Ease</option>
+              </select>
+            </div>
           </div>
 
           <div class="row" style="margin-top:10px">
@@ -269,6 +359,12 @@
   <input type="range" id="gainSlider" min="-24" max="24" step="1" value="0" aria-label="Gain (dB)" />
   <span class="cap">-24</span>
   <span class="gainBadge" id="gainLbl">Gain 0 dB</span>
+  <button class="keyframe-toggle" id="gainKeyframeToggle" title="Enable keyframes" style="margin-top:6px">K</button>
+  <select class="keyframe-interpolation" id="gainInterpolation" style="display:none; margin-top:4px">
+    <option value="linear">Linear</option>
+    <option value="step">Step</option>
+    <option value="ease">Ease</option>
+  </select>
 </aside>
 
 <div class="playerBar">
@@ -294,7 +390,7 @@ try {
   document.getElementById('year').textContent = new Date().getFullYear();
   
   // Get elements
-  const     elements = {
+  const elements = {
     addBtn: document.getElementById('addBtn'),
     clearBtn: document.getElementById('clearBtn'),
     fileInput: document.getElementById('fileInput'),
@@ -339,7 +435,28 @@ try {
     exportPresetsBtn: document.getElementById('exportPresetsBtn'),
     importPresetsBtn: document.getElementById('importPresetsBtn'),
     customPresetList: document.getElementById('customPresetList'),
-    presetImportInput: document.getElementById('presetImportInput')
+    presetImportInput: document.getElementById('presetImportInput'),
+    // Keyframe elements
+    speedKeyframeToggle: document.getElementById('speedKeyframeToggle'),
+    speedKeyframeControls: document.getElementById('speedKeyframeControls'),
+    speedInterpolation: document.getElementById('speedInterpolation'),
+    reverbKeyframeToggle: document.getElementById('reverbKeyframeToggle'),
+    reverbKeyframeControls: document.getElementById('reverbKeyframeControls'),
+    reverbInterpolation: document.getElementById('reverbInterpolation'),
+    bassKeyframeToggle: document.getElementById('bassKeyframeToggle'),
+    bassKeyframeControls: document.getElementById('bassKeyframeControls'),
+    bassInterpolation: document.getElementById('bassInterpolation'),
+    muffleKeyframeToggle: document.getElementById('muffleKeyframeToggle'),
+    muffleKeyframeControls: document.getElementById('muffleKeyframeControls'),
+    muffleInterpolation: document.getElementById('muffleInterpolation'),
+    echoKeyframeToggle: document.getElementById('echoKeyframeToggle'),
+    echoKeyframeControls: document.getElementById('echoKeyframeControls'),
+    echoInterpolation: document.getElementById('echoInterpolation'),
+    bitcrushKeyframeToggle: document.getElementById('bitcrushKeyframeToggle'),
+    bitcrushKeyframeControls: document.getElementById('bitcrushKeyframeControls'),
+    bitcrushInterpolation: document.getElementById('bitcrushInterpolation'),
+    gainKeyframeToggle: document.getElementById('gainKeyframeToggle'),
+    gainInterpolation: document.getElementById('gainInterpolation')
   };
 
   // Audio setup
@@ -354,6 +471,19 @@ try {
   let animationFrame = null;
   let selectionStart = null;
   let selectionEnd = null;
+
+  // Keyframes system
+  const keyframes = {
+    speed: { enabled: false, interpolation: 'linear', points: [] },
+    reverb: { enabled: false, interpolation: 'linear', points: [] },
+    bass: { enabled: false, interpolation: 'linear', points: [] },
+    muffle: { enabled: false, interpolation: 'linear', points: [] },
+    echo: { enabled: false, interpolation: 'linear', points: [] },
+    bitcrush: { enabled: false, interpolation: 'linear', points: [] },
+    gain: { enabled: false, interpolation: 'linear', points: [] }
+  };
+  let selectedKeyframe = null; // {effect: 'reverb', index: 0}
+  let draggingKeyframe = null;
 
   // Audio nodes
   const nodes = {
@@ -463,6 +593,101 @@ try {
     if (!audioBuffer) return;
     const progress = currentTime / audioBuffer.duration;
     elements.progressIndicator.style.left = Math.min(100, Math.max(0, progress * 100)) + '%';
+  }
+
+  // Keyframe management functions
+  function toggleKeyframes(effect) {
+    keyframes[effect].enabled = !keyframes[effect].enabled;
+    const toggle = elements[effect + 'KeyframeToggle'];
+    const controls = elements[effect + 'KeyframeControls'];
+
+    if (keyframes[effect].enabled) {
+      toggle.classList.add('active');
+      if (controls) controls.style.display = 'flex';
+      if (effect === 'gain') elements.gainInterpolation.style.display = 'block';
+
+      // Add initial keyframe if none exist
+      if (keyframes[effect].points.length === 0 && audioBuffer) {
+        const currentValue = getCurrentEffectValue(effect);
+        keyframes[effect].points.push({ time: 0, value: currentValue });
+      }
+    } else {
+      toggle.classList.remove('active');
+      if (controls) controls.style.display = 'none';
+      if (effect === 'gain') elements.gainInterpolation.style.display = 'none';
+    }
+
+    drawWaveform(audioBuffer);
+  }
+
+  function getCurrentEffectValue(effect) {
+    switch (effect) {
+      case 'speed': return parseFloat(elements.speed.value);
+      case 'reverb': return parseInt(elements.reverb.value);
+      case 'bass': return parseInt(elements.bass.value);
+      case 'muffle': return parseInt(elements.muffle.value);
+      case 'echo': return parseInt(elements.echo.value);
+      case 'bitcrush': return parseInt(elements.bitcrush.value);
+      case 'gain': return parseInt(elements.gainSlider.value);
+      default: return 0;
+    }
+  }
+
+  function addKeyframe(effect, time, value) {
+    if (!keyframes[effect].enabled) return;
+
+    // Check if keyframe already exists at this time
+    const existingIndex = keyframes[effect].points.findIndex(p => Math.abs(p.time - time) < 0.1);
+    if (existingIndex >= 0) {
+      // Update existing keyframe
+      keyframes[effect].points[existingIndex].value = value;
+    } else {
+      // Add new keyframe
+      keyframes[effect].points.push({ time, value });
+      // Keep sorted by time
+      keyframes[effect].points.sort((a, b) => a.time - b.time);
+    }
+
+    drawWaveform(audioBuffer);
+  }
+
+  function removeKeyframe(effect, index) {
+    keyframes[effect].points.splice(index, 1);
+    selectedKeyframe = null;
+    drawWaveform(audioBuffer);
+  }
+
+  function interpolateValue(effect, time) {
+    const kf = keyframes[effect];
+    if (!kf.enabled || kf.points.length === 0) {
+      return null; // Use current slider value
+    }
+
+    // Find surrounding keyframes
+    let before = null, after = null;
+    for (let i = 0; i < kf.points.length; i++) {
+      if (kf.points[i].time <= time) before = kf.points[i];
+      if (kf.points[i].time >= time && !after) after = kf.points[i];
+    }
+
+    if (!before) return after.value; // Before first keyframe
+    if (!after) return before.value; // After last keyframe
+    if (before.time === after.time) return before.value; // Exact match
+
+    // Interpolate based on type
+    const t = (time - before.time) / (after.time - before.time);
+
+    switch (kf.interpolation) {
+      case 'step':
+        return before.value;
+      case 'ease':
+        // Ease in-out
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        return before.value + (after.value - before.value) * eased;
+      case 'linear':
+      default:
+        return before.value + (after.value - before.value) * t;
+    }
   }
 
   function createImpulseResponse(seconds, decay) {
@@ -666,6 +891,22 @@ try {
       const percent = x / rect.width;
       const seekTime = percent * audioBuffer.duration;
 
+      // Ctrl+Click to add keyframes for enabled effects
+      if (e.ctrlKey || e.metaKey) {
+        let added = false;
+        for (const effect in keyframes) {
+          if (keyframes[effect].enabled) {
+            const value = getCurrentEffectValue(effect);
+            addKeyframe(effect, seekTime, value);
+            added = true;
+          }
+        }
+        if (added) {
+          setStatus('Added keyframe at ' + formatTime(seekTime));
+        }
+        return;
+      }
+
       // Shift+click for selection
       if (e.shiftKey) {
         if (selectionStart === null) {
@@ -716,12 +957,125 @@ try {
       drawWaveform(audioBuffer); // Redraw without selection
     };
 
+    // Right-click context menu for deleting keyframes
+    canvas.oncontextmenu = function(e) {
+      if (!audioBuffer) return;
+      e.preventDefault();
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percent = x / rect.width;
+      const clickTime = percent * audioBuffer.duration;
+
+      // Find keyframe near click (within 0.2 seconds)
+      for (const effect in keyframes) {
+        if (!keyframes[effect].enabled) continue;
+        const points = keyframes[effect].points;
+        for (let i = 0; i < points.length; i++) {
+          if (Math.abs(points[i].time - clickTime) < 0.2) {
+            removeKeyframe(effect, i);
+            setStatus('Deleted ' + effect + ' keyframe');
+            return;
+          }
+        }
+      }
+    };
+
     // Draw selection overlay
     if (buffer && selectionStart !== null && selectionEnd !== null) {
       const startX = (selectionStart / buffer.duration) * canvas.width;
       const endX = (selectionEnd / buffer.duration) * canvas.width;
       ctx2d.fillStyle = 'rgba(37, 117, 252, 0.3)';
       ctx2d.fillRect(startX, 0, endX - startX, canvas.height);
+    }
+
+    // Drag keyframes handlers
+    canvas.onmousedown = function(e) {
+      if (!audioBuffer || e.button !== 0) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const clickTime = (x / rect.width) * audioBuffer.duration;
+
+      // Check if clicking on a keyframe
+      let yOffset = 0;
+      for (const effect in keyframes) {
+        if (!keyframes[effect].enabled) continue;
+        const y = 10 + yOffset;
+        keyframes[effect].points.forEach((point, index) => {
+          const kfX = (point.time / audioBuffer.duration) * canvas.width;
+          const distance = Math.sqrt(Math.pow(x - kfX, 2) + Math.pow((e.clientY - rect.top) - y, 2));
+          if (distance < 8) {
+            draggingKeyframe = { effect, index };
+            e.preventDefault();
+          }
+        });
+        yOffset += 15;
+      }
+    };
+
+    canvas.onmousemove = function(e) {
+      if (!draggingKeyframe || !audioBuffer) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const newTime = Math.max(0, Math.min(audioBuffer.duration, (x / rect.width) * audioBuffer.duration));
+
+      // Update keyframe time
+      keyframes[draggingKeyframe.effect].points[draggingKeyframe.index].time = newTime;
+      // Re-sort keyframes
+      keyframes[draggingKeyframe.effect].points.sort((a, b) => a.time - b.time);
+      // Find new index after sorting
+      draggingKeyframe.index = keyframes[draggingKeyframe.effect].points.findIndex(p => p.time === newTime);
+
+      drawWaveform(audioBuffer);
+      e.preventDefault();
+    };
+
+    canvas.onmouseup = function(e) {
+      if (draggingKeyframe) {
+        draggingKeyframe = null;
+        e.preventDefault();
+      }
+    };
+
+    canvas.onmouseleave = function(e) {
+      if (draggingKeyframe) {
+        draggingKeyframe = null;
+      }
+    };
+
+    // Draw keyframe markers
+    if (buffer) {
+      const colors = {
+        speed: '#ff6b6b', reverb: '#4ecdc4', bass: '#f9ca24',
+        muffle: '#9b59b6', echo: '#3498db', bitcrush: '#e67e22', gain: '#2ecc71'
+      };
+      let yOffset = 0;
+      for (const effect in keyframes) {
+        if (!keyframes[effect].enabled) continue;
+        keyframes[effect].points.forEach((point, index) => {
+          const x = (point.time / buffer.duration) * canvas.width;
+          const y = 10 + yOffset;
+
+          // Draw keyframe marker
+          ctx2d.fillStyle = colors[effect] || '#2575fc';
+          ctx2d.beginPath();
+          ctx2d.arc(x, y, 5, 0, Math.PI * 2);
+          ctx2d.fill();
+          ctx2d.strokeStyle = '#fff';
+          ctx2d.lineWidth = 2;
+          ctx2d.stroke();
+
+          // Draw effect name label on first keyframe
+          if (index === 0) {
+            ctx2d.fillStyle = '#fff';
+            ctx2d.font = '10px Rubik';
+            ctx2d.fillText(effect[0].toUpperCase(), x + 8, y + 4);
+          }
+        });
+        yOffset += 15; // Stack markers vertically
+      }
     }
   }
 
@@ -945,8 +1299,26 @@ try {
     nodes.master.gain.value = dbToLinear(gainValue);
     elements.gainLbl.textContent = 'Gain ' + (gainValue >= 0 ? '+' : '') + gainValue + ' dB';
   }
-  
+
   elements.gainSlider.oninput = updateGain;
+
+  // Keyframe toggle event listeners
+  elements.speedKeyframeToggle.onclick = function() { toggleKeyframes('speed'); };
+  elements.reverbKeyframeToggle.onclick = function() { toggleKeyframes('reverb'); };
+  elements.bassKeyframeToggle.onclick = function() { toggleKeyframes('bass'); };
+  elements.muffleKeyframeToggle.onclick = function() { toggleKeyframes('muffle'); };
+  elements.echoKeyframeToggle.onclick = function() { toggleKeyframes('echo'); };
+  elements.bitcrushKeyframeToggle.onclick = function() { toggleKeyframes('bitcrush'); };
+  elements.gainKeyframeToggle.onclick = function() { toggleKeyframes('gain'); };
+
+  // Interpolation type change listeners
+  elements.speedInterpolation.onchange = function() { keyframes.speed.interpolation = this.value; };
+  elements.reverbInterpolation.onchange = function() { keyframes.reverb.interpolation = this.value; };
+  elements.bassInterpolation.onchange = function() { keyframes.bass.interpolation = this.value; };
+  elements.muffleInterpolation.onchange = function() { keyframes.muffle.interpolation = this.value; };
+  elements.echoInterpolation.onchange = function() { keyframes.echo.interpolation = this.value; };
+  elements.bitcrushInterpolation.onchange = function() { keyframes.bitcrush.interpolation = this.value; };
+  elements.gainInterpolation.onchange = function() { keyframes.gain.interpolation = this.value; };
 
   // Initialize effects
   updateMuffleFilter();
@@ -1163,6 +1535,97 @@ try {
     }
   };
 
+  // Helper functions for keyframe automation
+  function convertEffectValueToParamValue(effect, value, params) {
+    const isUnlocked = params.isUnlocked;
+
+    switch (effect) {
+      case 'reverb':
+        // Convert percentage to wet/dry mix (0-1)
+        const maxValue = isUnlocked ? 300 : 100;
+        return Math.min(1, value / maxValue);
+      case 'bass':
+        // Bass is direct dB value
+        return value;
+      case 'muffle':
+        // Convert percentage to frequency
+        const maxFreq = 20000;
+        const minFreq = isUnlocked ? 60 : 300;
+        const range = Math.max(0, Math.min(isUnlocked ? 2 : 1, value / 100));
+        return Math.max(60, maxFreq * Math.pow(minFreq / maxFreq, range));
+      case 'echo':
+        // Convert percentage to wet level
+        const echoRange = Math.max(0, Math.min(isUnlocked ? 2 : 1, value / 100));
+        return Math.min(1.2, (isUnlocked ? 1.2 : 0.8) * echoRange);
+      case 'bitcrush':
+        // Convert percentage to wet/dry mix
+        const bitcrushMax = isUnlocked ? 200 : 100;
+        const mix = Math.min(1, value / bitcrushMax);
+        return Math.sin(mix * Math.PI / 2); // Wet gain
+      case 'gain':
+        // Convert dB to linear
+        return dbToLinear(value);
+      case 'speed':
+        // Speed is direct multiplier
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  function applyKeyframeAutomation(audioParam, effect, offlineCtx, duration, params, isReverbDry) {
+    const kf = keyframes[effect];
+    if (!kf.enabled || kf.points.length === 0) return false;
+
+    // Clear any existing automation
+    audioParam.cancelScheduledValues(0);
+
+    // Convert effect values to parameter values
+    const convertedPoints = kf.points.map(p => ({
+      time: p.time,
+      value: effect === 'reverb' && isReverbDry
+        ? Math.cos(convertEffectValueToParamValue(effect, p.value, params) * Math.PI / 2)
+        : convertEffectValueToParamValue(effect, p.value, params)
+    }));
+
+    // Set initial value
+    audioParam.setValueAtTime(convertedPoints[0].value, 0);
+
+    // Apply keyframes
+    for (let i = 1; i < convertedPoints.length; i++) {
+      const prev = convertedPoints[i - 1];
+      const curr = convertedPoints[i];
+
+      if (kf.interpolation === 'step') {
+        audioParam.setValueAtTime(prev.value, prev.time);
+        audioParam.setValueAtTime(curr.value, curr.time);
+      } else if (kf.interpolation === 'ease') {
+        const numPoints = 20;
+        const values = new Float32Array(numPoints);
+        for (let j = 0; j < numPoints; j++) {
+          const t = j / (numPoints - 1);
+          const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          values[j] = prev.value + (curr.value - prev.value) * eased;
+        }
+        audioParam.setValueAtTime(prev.value, prev.time);
+        audioParam.setValueCurveAtTime(values, prev.time, curr.time - prev.time);
+      } else {
+        audioParam.setValueAtTime(prev.value, prev.time);
+        audioParam.linearRampToValueAtTime(curr.value, curr.time);
+      }
+    }
+
+    // Hold last value
+    if (convertedPoints.length > 0) {
+      const last = convertedPoints[convertedPoints.length - 1];
+      if (last.time < duration) {
+        audioParam.setValueAtTime(last.value, last.time);
+      }
+    }
+
+    return true;
+  }
+
   // Rendering functions
   async function renderWithResampling(buffer, params) {
     setStatus('Rendering (resampling)...');
@@ -1327,6 +1790,16 @@ try {
     master.gain.value = dbToLinear(params.gain);
 
     elements.renderProgressFill.style.width = '60%';
+
+    // Apply keyframe automation if enabled
+    const duration = outputLength / finalWorkingSampleRate;
+    applyKeyframeAutomation(muffle.frequency, 'muffle', offlineCtx, duration, params);
+    applyKeyframeAutomation(reverbWet.gain, 'reverb', offlineCtx, duration, params, false);
+    applyKeyframeAutomation(reverbDry.gain, 'reverb', offlineCtx, duration, params, true);
+    applyKeyframeAutomation(bassEQ.gain, 'bass', offlineCtx, duration, params);
+    applyKeyframeAutomation(echoWet.gain, 'echo', offlineCtx, duration, params);
+    applyKeyframeAutomation(bitcrushWet.gain, 'bitcrush', offlineCtx, duration, params);
+    applyKeyframeAutomation(master.gain, 'gain', offlineCtx, duration, params);
 
     // Connect graph - SAME AS LIVE PLAYBACK
     source.connect(muffle);
@@ -1505,6 +1978,16 @@ try {
     master.gain.value = dbToLinear(params.gain);
 
     elements.renderProgressFill.style.width = '70%';
+
+    // Apply keyframe automation if enabled
+    const duration = finalLength / sampleRate;
+    applyKeyframeAutomation(muffle.frequency, 'muffle', offlineCtx, duration, params);
+    applyKeyframeAutomation(reverbWet.gain, 'reverb', offlineCtx, duration, params, false);
+    applyKeyframeAutomation(reverbDry.gain, 'reverb', offlineCtx, duration, params, true);
+    applyKeyframeAutomation(bassEQ.gain, 'bass', offlineCtx, duration, params);
+    applyKeyframeAutomation(echoWet.gain, 'echo', offlineCtx, duration, params);
+    applyKeyframeAutomation(bitcrushWet.gain, 'bitcrush', offlineCtx, duration, params);
+    applyKeyframeAutomation(master.gain, 'gain', offlineCtx, duration, params);
 
     // Connect - SAME AS LIVE PLAYBACK
     source.connect(muffle);
