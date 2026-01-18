@@ -214,12 +214,22 @@
       const response = await fetch(`${GITHUB_RAW}/${filename}`);
       const html = await response.text();
       
-      // Extract title from h1 or title tag
-      const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/i);
-      const titleMatch = html.match(/<title>(.*?)<\/title>/i);
-      const title = h1Match ? h1Match[1].replace(/[🔥🎮🤖💻🛠️📚💬🎲⚡]/g, '').trim() 
-                            : titleMatch ? titleMatch[1].replace('NGP Hub — ', '').trim() 
-                            : filename.replace('.html', '').replace(/-/g, ' ');
+      // Extract title - prioritize h1 in doc-content, then title tag
+      const docContentMatch = html.match(/<article class="doc-content">([\s\S]*?)<\/article>/i);
+      let title = filename.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      
+      if (docContentMatch) {
+        const h1Match = docContentMatch[1].match(/<h1[^>]*>(.*?)<\/h1>/i);
+        if (h1Match) {
+          title = h1Match[1].replace(/[🔥🎮🤖💻🛠️📚💬🎲⚡]/g, '').trim();
+        }
+      } else {
+        // Fallback to title tag if no doc-content found
+        const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+        if (titleMatch) {
+          title = titleMatch[1].replace('NGP Hub — ', '').replace('NGP Hub - ', '').trim();
+        }
+      }
       
       // Extract description from meta tag or first paragraph
       const metaMatch = html.match(/<meta name="description" content="(.*?)"/i);
