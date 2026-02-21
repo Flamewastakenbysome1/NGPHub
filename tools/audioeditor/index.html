@@ -118,6 +118,21 @@
     transition:width .1s ease; width:0%;
   }
 
+  /* Queue inside Files panel */
+  .queueList{overflow:auto}
+  .queueRow{display:flex; align-items:center; gap:8px; padding:10px 14px; cursor:pointer; transition:background .15s}
+  .queueRow:hover{background:rgba(255,255,255,.04)}
+  .queueRow.active{background:rgba(37,117,252,.15); border-left:3px solid var(--brandB)}
+  .queueRow.active .queueName{color:#fff}
+  .queueIdx{min-width:22px; color:var(--muted); font-size:.8rem; text-align:center}
+  .queueName{flex:1; font-weight:600; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .queueDur{color:var(--muted); font-size:.82rem; min-width:42px; text-align:right}
+  .queueDel{background:transparent; border:none; color:var(--muted); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:.85rem}
+  .queueDel:hover{color:#ff6b6b; background:rgba(255,107,107,.1)}
+  .queueEmpty{padding:16px; color:var(--muted); font-size:.875rem; text-align:center}
+  /* Prev/Next in player bar */
+  .play.small{width:34px; height:34px; font-size:.8rem}
+
   @media (max-width:920px){ .grid{grid-template-columns:1fr} .gainFloat{display:none} }
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
@@ -164,11 +179,23 @@
     </div>
 
     <div class="grid">
-      <!-- Files -->
+      <!-- Files + Queue -->
       <section class="panel" aria-label="Files">
         <h2>Files</h2>
-        <div class="list" id="fileList">
-          <div class="fileRow muted">No file yet. Click "Add file".</div>
+        <div class="albumControls" style="padding:10px 14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; border-bottom:1px solid rgba(255,255,255,.05)">
+          <button class="btnGhost" id="shuffleBtn" style="font-size:.8rem;padding:5px 10px">🔀 Shuffle</button>
+          <button class="btnGhost" id="clearQueueBtn" style="font-size:.8rem;padding:5px 10px">✕ Clear</button>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="autoplayToggle" checked />
+            Auto-advance
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="repeatQueueToggle" />
+            Repeat
+          </label>
+        </div>
+        <div class="queueList" id="queueList" style="max-height:340px; overflow:auto">
+          <div class="queueEmpty" id="queueEmpty">No songs yet. Click "+ Add file"!</div>
         </div>
       </section>
 
@@ -260,6 +287,8 @@
         </div>
       </section>
     </div>
+
+
   </div>
 </main>
 
@@ -273,7 +302,9 @@
 
 <div class="playerBar">
   <div class="playerInner">
+    <button class="play small" id="prevBtn" aria-label="Previous" title="Previous song" style="opacity:0.6">⏮</button>
     <button class="play" id="playBtn" aria-label="Play/Pause">▶</button>
+    <button class="play small" id="nextBtn" aria-label="Next" title="Next song" style="opacity:0.6">⏭</button>
     <button class="play" id="loopBtn" aria-label="Loop" title="Loop" style="font-size:0.8rem">🔁</button>
     <div class="time" id="curTime">0:00</div>
     <input class="grow" type="range" id="seek" min="0" max="1" step="0.0001" value="0" />
@@ -286,6 +317,7 @@
 </footer>
 
 <input type="file" id="fileInput" accept="audio/*" hidden />
+<input type="file" id="queueFileInput" accept="audio/*" multiple hidden />
 <input type="file" id="presetImportInput" accept=".json" hidden />
 
 <script>
@@ -298,7 +330,6 @@ try {
     addBtn: document.getElementById('addBtn'),
     clearBtn: document.getElementById('clearBtn'),
     fileInput: document.getElementById('fileInput'),
-    fileList: document.getElementById('fileList'),
     playBtn: document.getElementById('playBtn'),
     loopBtn: document.getElementById('loopBtn'),
     seek: document.getElementById('seek'),
@@ -339,7 +370,17 @@ try {
     exportPresetsBtn: document.getElementById('exportPresetsBtn'),
     importPresetsBtn: document.getElementById('importPresetsBtn'),
     customPresetList: document.getElementById('customPresetList'),
-    presetImportInput: document.getElementById('presetImportInput')
+    presetImportInput: document.getElementById('presetImportInput'),
+    // Album/Queue
+    queueFileInput: document.getElementById('queueFileInput'),
+    queueList: document.getElementById('queueList'),
+    queueEmpty: document.getElementById('queueEmpty'),
+    clearQueueBtn: document.getElementById('clearQueueBtn'),
+    shuffleBtn: document.getElementById('shuffleBtn'),
+    autoplayToggle: document.getElementById('autoplayToggle'),
+    repeatQueueToggle: document.getElementById('repeatQueueToggle'),
+    prevBtn: document.getElementById('prevBtn'),
+    nextBtn: document.getElementById('nextBtn')
   };
 
   // Audio setup
@@ -493,39 +534,10 @@ try {
   // Initialize reverb with proper dry signal
   nodes.convolver.buffer = createImpulseResponse(0.001, 0.1);
 
-  function createAudioSource() {
-    if (!audioBuffer) return;
-
-    if (sourceNode) {
-      try { sourceNode.stop(); } catch (e) {}
-      sourceNode.disconnect();
-    }
-
-    sourceNode = audioContext.createBufferSource();
-    sourceNode.buffer = audioBuffer;
-    sourceNode.loop = isLooping;
-
-    // Only apply speed to playback rate (pitch is applied during export only)
-    const speedMultiplier = parseFloat(elements.speed.value);
-    sourceNode.playbackRate.value = speedMultiplier;
-
-    sourceNode.connect(nodes.muffle);
-
-    sourceNode.onended = function() {
-      if (isPlaying && !isLooping) {
-        isPlaying = false;
-        elements.playBtn.textContent = '▶';
-        if (animationFrame) {
-          cancelAnimationFrame(animationFrame);
-          animationFrame = null;
-        }
-      }
-    };
-  }
-
   // File handling
+  // Note: createAudioSource is defined in the Album/Queue section below (queue-aware version)
   elements.addBtn.onclick = function() {
-    elements.fileInput.click();
+    elements.queueFileInput.click();
   };
 
   elements.fileInput.onchange = async function(e) {
@@ -557,13 +569,6 @@ try {
       currentTime = 0;
       updateProgressIndicator();
       
-      const fileInfo = elements.speed.value + '× speed, ' + elements.pitch.value + ' semitones, ' +
-                      elements.reverb.value + '% reverb, ' + elements.bass.value + ' dB bass, ' +
-                      elements.muffle.value + '% muffle, ' + elements.echo.value + '% echo, ' +
-                      elements.bitcrush.value + '% bitcrush';
-      elements.fileList.innerHTML = '<div class="fileRow"><div><div class="fileTitle">' + file.name +
-                                   '</div><div class="fileMeta">' + fileInfo + '</div></div><div>♪</div></div>';
-      
       elements.downloadBtn.disabled = false;
       elements.trimBtn.disabled = false;
       elements.exportFormat.disabled = false;
@@ -586,7 +591,6 @@ try {
     isPlaying = false;
     currentTime = 0;
     
-    elements.fileList.innerHTML = '<div class="fileRow muted">No file yet. Click "Add file".</div>';
     elements.currentName.textContent = '—';
     
     const canvas = elements.wave.querySelector('canvas');
@@ -788,6 +792,14 @@ try {
     }
   };
 
+  // Space bar to play/pause
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+      e.preventDefault();
+      elements.playBtn.click();
+    }
+  });
+
   // Loop button
   elements.loopBtn.onclick = function() {
     isLooping = !isLooping;
@@ -890,25 +902,39 @@ try {
     nodes.bitcrushWet.gain.value = wetGain;
   }
 
+  function syncActiveTrackSettings() {
+    if (queueIndex >= 0 && queueIndex < queue.length) {
+      queue[queueIndex].settings = {
+        speed: parseFloat(elements.speed.value),
+        pitch: parseFloat(elements.pitch.value),
+        reverb: parseFloat(elements.reverb.value),
+        bass: parseFloat(elements.bass.value),
+        muffle: parseFloat(elements.muffle.value),
+        echo: parseFloat(elements.echo.value),
+        bitcrush: parseFloat(elements.bitcrush.value),
+        preserve: elements.preserve.checked
+      };
+    }
+  }
+
   elements.speed.oninput = function() {
     const speedValue = parseFloat(elements.speed.value);
     elements.speedLbl.textContent = '(' + speedValue.toFixed(2) + '×)';
     if (sourceNode) {
-      // Only apply speed (pitch is applied during export only)
       sourceNode.playbackRate.value = speedValue;
     }
+    syncActiveTrackSettings();
   };
 
   elements.pitch.oninput = function() {
     const pitchValue = parseFloat(elements.pitch.value);
     const roundedPitch = Math.round(pitchValue * 10) / 10;
     elements.pitchLbl.textContent = '(' + (roundedPitch >= 0 ? '+' : '') + roundedPitch + ' semitones)';
-    // Note: Pitch is applied during export only, not in live preview
+    syncActiveTrackSettings();
   };
 
   elements.preserve.onchange = function() {
-    // Preserve pitch only affects export rendering, not live preview
-    // Live preview always plays at the speed-adjusted rate without pitch shift
+    syncActiveTrackSettings();
   };
 
   elements.reverb.oninput = function() {
@@ -928,17 +954,19 @@ try {
       const reverbAmount = Math.max(0.001, reverbValue / 100);
       nodes.convolver.buffer = createImpulseResponse(1.8 * reverbAmount + 0.05, 3 * reverbAmount + 0.5);
     }
+    syncActiveTrackSettings();
   };
 
   elements.bass.oninput = function() {
     const bassValue = parseInt(elements.bass.value);
     elements.bassLbl.textContent = '(' + bassValue + ' dB)';
     nodes.bass.gain.value = bassValue;
+    syncActiveTrackSettings();
   };
 
-  elements.muffle.oninput = updateMuffleFilter;
-  elements.echo.oninput = updateEchoEffect;
-  elements.bitcrush.oninput = updateBitcrushEffect;
+  elements.muffle.oninput = function() { updateMuffleFilter(); syncActiveTrackSettings(); };
+  elements.echo.oninput = function() { updateEchoEffect(); syncActiveTrackSettings(); };
+  elements.bitcrush.oninput = function() { updateBitcrushEffect(); syncActiveTrackSettings(); };
 
   function updateGain() {
     const gainValue = parseInt(elements.gainSlider.value);
@@ -1887,6 +1915,286 @@ try {
 
     e.target.value = '';
   };
+
+  // ─────────────────────────────────────────────
+  // ALBUM / QUEUE SYSTEM
+  // ─────────────────────────────────────────────
+  let queue = [];          // [{name, arrayBuffer, duration, settings:{speed,pitch,reverb,bass,muffle,echo,bitcrush,preserve}}]
+  let queueIndex = -1;     // currently active index (-1 = none)
+
+  function defaultSettings() {
+    return {
+      speed: parseFloat(elements.speed.value),
+      pitch: parseFloat(elements.pitch.value),
+      reverb: parseFloat(elements.reverb.value),
+      bass: parseFloat(elements.bass.value),
+      muffle: parseFloat(elements.muffle.value),
+      echo: parseFloat(elements.echo.value),
+      bitcrush: parseFloat(elements.bitcrush.value),
+      preserve: elements.preserve.checked
+    };
+  }
+
+  function applyTrackSettings(s) {
+    elements.speed.value = s.speed;
+    elements.pitch.value = s.pitch;
+    elements.reverb.value = s.reverb;
+    elements.bass.value = s.bass;
+    elements.muffle.value = s.muffle;
+    elements.echo.value = s.echo;
+    elements.bitcrush.value = s.bitcrush;
+    elements.preserve.checked = s.preserve;
+    // Fire all input events to update labels + audio
+    ['speed','pitch','reverb','bass','muffle','echo','bitcrush'].forEach(function(id) {
+      document.getElementById(id).dispatchEvent(new Event('input'));
+    });
+  }
+
+  function renderQueue() {
+    if (queue.length === 0) {
+      elements.queueList.innerHTML = '<div class="queueEmpty" id="queueEmpty">No songs yet. Click "+ Add file"!</div>';
+      elements.prevBtn.style.opacity = '0.3';
+      elements.nextBtn.style.opacity = '0.3';
+      return;
+    }
+
+    elements.queueList.innerHTML = '';
+    queue.forEach(function(track, i) {
+      const row = document.createElement('div');
+      row.className = 'queueRow' + (i === queueIndex ? ' active' : '');
+      row.innerHTML =
+        '<span class="queueIdx">' + (i === queueIndex ? '▶' : (i + 1)) + '</span>' +
+        '<span class="queueName" title="' + track.name + '">' + track.name + '</span>' +
+        '<span class="queueDur">' + formatTime(track.duration) + '</span>' +
+        '<button class="queueDel" onclick="removeFromQueue(' + i + ')" title="Remove">✕</button>';
+      row.addEventListener('click', function(e) {
+        if (e.target.classList.contains('queueDel')) return;
+        loadQueueTrack(i);
+      });
+      elements.queueList.appendChild(row);
+    });
+
+    // Scroll active item into view
+    const activeRow = elements.queueList.querySelector('.active');
+    if (activeRow) activeRow.scrollIntoView({ block: 'nearest' });
+
+    elements.prevBtn.style.opacity = queueIndex > 0 ? '1' : '0.3';
+    elements.nextBtn.style.opacity = (queueIndex < queue.length - 1 || elements.repeatQueueToggle.checked) ? '1' : '0.3';
+  }
+
+  async function loadQueueTrack(index) {
+    if (index < 0 || index >= queue.length) return;
+
+    // Stop current playback
+    if (sourceNode) {
+      try { sourceNode.stop(); } catch (e) {}
+      sourceNode.disconnect();
+    }
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    isPlaying = false;
+    elements.playBtn.textContent = '▶';
+    currentTime = 0;
+
+    const track = queue[index];
+    queueIndex = index;
+
+    setStatus('Loading: ' + track.name);
+
+    try {
+      // Clone the buffer so it can be decoded again
+      const bufferCopy = track.arrayBuffer.slice(0);
+      audioBuffer = await audioContext.decodeAudioData(bufferCopy);
+
+      // Apply this track's per-file settings
+      applyTrackSettings(track.settings);
+
+      updateMuffleFilter();
+      updateEchoEffect();
+      updateBitcrushEffect();
+      updateGain();
+
+      createAudioSource();
+      elements.currentName.textContent = track.name;
+      drawWaveform(audioBuffer);
+
+      elements.tStart.textContent = '0:00';
+      elements.tEnd.textContent = formatTime(audioBuffer.duration);
+      elements.durTime.textContent = formatTime(audioBuffer.duration);
+
+      elements.seek.value = 0;
+      elements.seek.max = audioBuffer.duration;
+      updateProgressIndicator();
+
+      elements.downloadBtn.disabled = false;
+      elements.trimBtn.disabled = false;
+      elements.exportFormat.disabled = false;
+
+      setStatus('Ready — ' + track.name);
+      renderQueue();
+
+      // Auto-play
+      if (audioContext.state === 'suspended') audioContext.resume();
+      createAudioSource();
+      startOffset = 0;
+      sourceNode.start(0, 0);
+      lastPlayTime = audioContext.currentTime;
+      isPlaying = true;
+      elements.playBtn.textContent = '⏸';
+      updateTimeDisplay();
+
+    } catch (err) {
+      console.error('Queue load error:', err);
+      setStatus('Failed to load: ' + track.name);
+    }
+  }
+
+  // Hook into existing onended to auto-advance
+  function createAudioSource() {
+    if (!audioBuffer) return;
+
+    if (sourceNode) {
+      try { sourceNode.stop(); } catch (e) {}
+      sourceNode.disconnect();
+    }
+
+    sourceNode = audioContext.createBufferSource();
+    sourceNode.buffer = audioBuffer;
+    sourceNode.loop = isLooping;
+
+    const speedMultiplier = parseFloat(elements.speed.value);
+    sourceNode.playbackRate.value = speedMultiplier;
+
+    sourceNode.connect(nodes.muffle);
+
+    sourceNode.onended = function() {
+      if (!isLooping) {
+        if (isPlaying && elements.autoplayToggle.checked && queue.length > 0 && queueIndex >= 0) {
+          // Auto-advance
+          let nextIdx = queueIndex + 1;
+          if (nextIdx >= queue.length) {
+            if (elements.repeatQueueToggle.checked) {
+              nextIdx = 0;
+            } else {
+              isPlaying = false;
+              elements.playBtn.textContent = '▶';
+              if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+              setStatus('Queue finished');
+              return;
+            }
+          }
+          loadQueueTrack(nextIdx);
+        } else if (isPlaying) {
+          isPlaying = false;
+          elements.playBtn.textContent = '▶';
+          if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+        }
+      }
+    };
+  }
+
+  window.removeFromQueue = function(i) {
+    queue.splice(i, 1);
+    if (queueIndex === i) {
+      queueIndex = -1;
+    } else if (queueIndex > i) {
+      queueIndex--;
+    }
+    renderQueue();
+    setStatus('Removed from queue');
+  };
+
+  elements.queueFileInput.onchange = async function(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    setStatus('Adding ' + files.length + ' song(s) to queue...');
+
+    for (const file of files) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        // Decode just to get duration, then store raw buffer
+        const tempCtx = new OfflineAudioContext(1, 1, 44100);
+        const tempBuf = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+        queue.push({ name: file.name, arrayBuffer: arrayBuffer, duration: tempBuf.duration, settings: defaultSettings() });
+      } catch (err) {
+        console.warn('Could not read:', file.name, err);
+      }
+    }
+
+    renderQueue();
+    setStatus(files.length + ' song(s) added to queue');
+
+    // If nothing is currently loaded, auto-load the first track
+    if (!audioBuffer && queue.length > 0 && queueIndex === -1) {
+      loadQueueTrack(0);
+    }
+
+    e.target.value = '';
+  };
+
+  elements.clearQueueBtn.onclick = function() {
+    if (queue.length === 0) return;
+    if (!confirm('Clear the entire queue?')) return;
+    queue = [];
+    queueIndex = -1;
+    renderQueue();
+    setStatus('Queue cleared');
+  };
+
+  elements.shuffleBtn.onclick = function() {
+    if (queue.length < 2) return;
+    // Fisher-Yates shuffle
+    for (let i = queue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+    // Reset index to currently playing song (find it by name match if active)
+    queueIndex = -1;
+    renderQueue();
+    setStatus('Queue shuffled!');
+  };
+
+
+  elements.prevBtn.onclick = function() {
+    if (queue.length === 0) return;
+    const prevIdx = queueIndex > 0 ? queueIndex - 1 : (elements.repeatQueueToggle.checked ? queue.length - 1 : 0);
+    loadQueueTrack(prevIdx);
+  };
+
+  elements.nextBtn.onclick = function() {
+    if (queue.length === 0) return;
+    let nextIdx = queueIndex + 1;
+    if (nextIdx >= queue.length) {
+      if (elements.repeatQueueToggle.checked) nextIdx = 0;
+      else return;
+    }
+    loadQueueTrack(nextIdx);
+  };
+
+  // When user loads a file via the normal "Add file" button, add to queue too
+  const _origFileChange = elements.fileInput.onchange;
+  elements.fileInput.onchange = async function(e) {
+    await _origFileChange.call(this, e);
+    // Also push to queue so next/prev works
+    const file = e.target.files[0];
+    if (file && audioBuffer) {
+      // Re-read to get a fresh arraybuffer for the queue
+      const ab = await file.arrayBuffer();
+      queue.push({ name: file.name, arrayBuffer: ab, duration: audioBuffer.duration, settings: defaultSettings() });
+      queueIndex = queue.length - 1;
+      renderQueue();
+    }
+  };
+
+  // Initial render
+  renderQueue();
+
+  // ─────────────────────────────────────────────
+  // END ALBUM / QUEUE SYSTEM
+  // ─────────────────────────────────────────────
 
   // Load presets on init
   loadPresetsFromStorage();
