@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NGP Hub — NGP-SMP Complete Server Rules</title>
+
+<meta property="og:title" content="NGP-SMP Complete Server Rules - NGP Hub Docs" />
+<meta property="og:description" content="Complete comprehensive rules and guidelines for the NGP-SMP Minecraft server" />
+<meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
+<meta property="og:url" content="https://ngphub.com/docs/ngp-smp-rules" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP-SMP Complete Server Rules - NGP Hub Docs" />
+<meta name="twitter:description" content="Complete comprehensive rules and guidelines for the NGP-SMP Minecraft server" />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="Complete comprehensive rules and guidelines for the NGP-SMP Minecraft server" />
+<meta name="keywords" content="NGP, NGP-SMP, Minecraft, server rules, SMP rules, economy, lore" />
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
+<style>
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    background-attachment:fixed;
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  .breadcrumb{padding:20px 0; color:var(--muted); font-size:.9rem}
+  .breadcrumb a{color:var(--brandB); text-decoration:none}
+  .breadcrumb a:hover{text-decoration:underline}
+
+  .doc-container{display:grid; grid-template-columns:250px 1fr; gap:32px; padding:0 0 80px}
+  
+  .sidebar{position:sticky; top:80px; height:fit-content; max-height:calc(100vh - 100px); overflow-y:auto}
+  .sidebar h4{font-size:.85rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin:0 0 12px}
+  .sidebar ul{list-style:none; margin:0; padding:0}
+  .sidebar li{margin-bottom:8px}
+  .sidebar a{color:var(--ink); text-decoration:none; display:block; padding:6px 12px; border-radius:8px; font-size:.9rem; opacity:.8}
+  .sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,.06); opacity:1}
+  .sidebar a.active{color:var(--brandB); font-weight:600}
+
+  .doc-content{max-width:720px}
+  .doc-header{margin-bottom:32px}
+  .doc-header h1{font-size:2.2rem; margin:0 0 12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text}
+  .doc-header .meta{color:var(--muted); font-size:.9rem}
+  .doc-header .tag{display:inline-block; background:rgba(106,17,203,.15); color:var(--brandA); padding:4px 12px; border-radius:6px; font-size:.8rem; font-weight:600; margin-right:8px}
+
+  .doc-content h2{font-size:1.6rem; margin:40px 0 16px; color:var(--ink); border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:8px}
+  .doc-content h3{font-size:1.3rem; margin:32px 0 12px; color:var(--ink)}
+  .doc-content h4{font-size:1.1rem; margin:24px 0 12px; color:var(--ink)}
+  .doc-content p{line-height:1.7; margin:16px 0; color:var(--ink)}
+  .doc-content a{color:var(--brandB); text-decoration:none}
+  .doc-content a:hover{text-decoration:underline}
+  
+  .doc-content ul, .doc-content ol{line-height:1.8; margin:16px 0; padding-left:24px}
+  .doc-content li{margin:8px 0}
+
+  .doc-content code{background:rgba(255,255,255,.05); padding:2px 8px; border-radius:4px; font-family:monospace; font-size:.9em; color:#f087ff}
+  .doc-content pre{background:var(--card); padding:16px; border-radius:12px; overflow-x:auto; border:1px solid rgba(255,255,255,.1); margin:16px 0}
+  .doc-content pre code{background:none; padding:0; color:var(--ink)}
+
+  .callout{background:var(--card); border-left:4px solid var(--brandB); padding:16px 20px; border-radius:8px; margin:24px 0}
+  .callout.warning{border-left-color:#ff6b6b}
+  .callout.info{border-left-color:#4dabf7}
+  .callout.success{border-left-color:#51cf66}
+  .callout h4{margin:0 0 8px; font-size:1rem}
+  .callout p{margin:0; font-size:.95rem}
+
+  .server-info{background:var(--card); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:20px; margin:24px 0}
+  .server-info h3{margin:0 0 16px; font-size:1.2rem}
+  .server-info .info-grid{display:grid; gap:12px}
+  .server-info .info-item{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.06)}
+  .server-info .info-item:last-child{border-bottom:none}
+  .server-info .label{color:var(--muted); font-size:.9rem}
+  .server-info .value{font-weight:600; color:var(--brandB); font-family:monospace}
+
+  .nav-buttons{display:flex; justify-content:space-between; margin-top:48px; padding-top:24px; border-top:1px solid rgba(255,255,255,.1)}
+  .nav-btn{background:var(--card); padding:12px 16px; border-radius:10px; text-decoration:none; color:var(--ink); border:1px solid rgba(255,255,255,.1); flex:1; max-width:calc(50% - 8px)}
+  .nav-btn:hover{border-color:var(--brandB); background:rgba(37,117,252,.05)}
+  .nav-btn .label{font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:var(--muted)}
+  .nav-btn .title{font-size:1rem; font-weight:600; margin-top:4px}
+  .nav-btn.next{text-align:right}
+
+  @media (max-width: 900px){
+    .doc-container{grid-template-columns:1fr; gap:0}
+    .sidebar{display:none}
+    .doc-content{max-width:100%}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/projects">Projects</a>
+      <a href="/docs/">Docs</a>
+      <a href="/roblox">Roblox</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href="/">Home</a> / <a href="/docs/">Docs</a> / NGP-SMP Complete Rules
+    </div>
+
+    <div class="doc-container">
+      <aside class="sidebar">
+        <h4>On This Page</h4>
+        <ul id="toc"></ul>
+
+        <h4 style="margin-top:24px">Related</h4>
+        <ul>
+          <li><a href="/docs/">All Docs</a></li>
+          <li><a href="https://discord.gg/VqXsafQAMd">Discord Server</a></li>
+        </ul>
+      </aside>
+
+      <article class="doc-content">
+        <div class="doc-header">
+          <h1>NGP-SMP Complete Server Rules</h1>
+          <div class="meta">
+            <span class="tag">NGP-SMP</span>
+            <span class="tag">Complete Rules</span>
+            Last updated: March 30, 2026
+          </div>
+        </div>
+
+        <div class="server-info">
+          <h3>Server Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Server IP</span>
+              <span class="value">ngp-smp.playit.plus</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Recommended Version</span>
+              <span class="value">1.21.x (any version works except April Fools updates)</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Voice Chat</span>
+              <span class="value">Simple Voice Chat (Recommended but not required)</span>
+            </div>
+          </div>
+        </div>
+
+        <p>Welcome to NGP-SMP! This is a survival multiplayer server with lore elements, a player-driven economy, and strict rules to ensure fair gameplay for everyone. Please read ALL rules carefully before joining the server.</p>
+
+        <div class="callout warning">
+          <h4>IMPORTANT</h4>
+          <p>Violating these rules will result in warnings, temporary bans, or permanent removal from the server. Staff decisions are final. Don't try to be clever - we will catch you.</p>
+        </div>
+
+        <h2>Server Rules</h2>
+
+        <h3>1. Respect & Conduct</h3>
+        <ul>
+          <li>No disrespect, harassment, or abusive behavior toward other players</li>
+          <li>No offensive language, hate speech, racism, or discrimination</li>
+          <li>No sharing personal information about others</li>
+          <li>No spamming or rioting</li>
+          <li>Discord server rules still apply and may be enforced here</li>
+          <li>No discussion of politics, religion, or NSFW topics</li>
+        </ul>
+
+        <h3>2. Griefing & Property</h3>
+        <ul>
+          <li><strong>No griefing other players' builds</strong> - modifying, destroying, or altering someone's build without permission is classified as griefing</li>
+          <li><strong>No chest tampering</strong> - this includes taking items out and putting them back in the chest, or messing with chest orders and reorganizing someone's storage</li>
+          <li><strong>No stealing</strong> from other players</li>
+          <li><strong>No breaking blocks</strong> on another player's land without permission</li>
+          <li><strong>No killing mobs</strong> on another player's land without permission</li>
+          <li><strong>Trespassing</strong> - if asked to leave someone's land, you must leave immediately</li>
+          <li><strong>Terrain modifications</strong> - minor changes to natural terrain (like placing a grass block on grass) are fine unless it's directly in or around someone's base</li>
+          <li><strong>No prank wars</strong> of any kind</li>
+          <li><strong>No redstone lag machines</strong> - intentional or accidental</li>
+        </ul>
+
+        <h3>3. PvP & Combat</h3>
+        <ul>
+          <li><strong>No random PvP</strong> - both players must consent to fight</li>
+          <li><strong>Accidental kills</strong> are allowed if the victim forgives you</li>
+          <li><strong>Wars</strong> are permitted if:
+            <ul>
+              <li>Both teams consent to the war</li>
+              <li>Teams are roughly equal in player count</li>
+              <li>Teams are roughly equal in gear and resources - both teams must have the capability to fight fairly</li>
+            </ul>
+          </li>
+          <li><strong>World Wars (WW)</strong> can ONLY be declared by top-tier admins
+            <ul>
+              <li>WW will be announced in the announcements channel with a proper ping</li>
+              <li>During WW, <strong>no base is safe</strong> unless hidden - everyone will fight to the death throughout every team</li>
+              <li>Keep Inventory MAY be disabled during WW (will be specified in the announcement)</li>
+              <li>All players fight across all teams - total warfare</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>4. Accounts & Bans</h3>
+        <ul>
+          <li><strong>No alternate accounts</strong> under any circumstances - this also goes under NGP Standards</li>
+          <li><strong>No ban evasion</strong> using alternate accounts</li>
+          <li><strong>Ban Appeals:</strong> Do NOT appeal bans in General chat - create a ticket if you feel you've been unbanned unfairly</li>
+        </ul>
+
+        <h3>5. Prohibited Content</h3>
+        <ul>
+          <li>No inappropriate builds or symbols - this isn't too strict unless it's anything racist</li>
+          <li>No inappropriate account names and skins</li>
+          <li>No advertising other servers or IPs</li>
+          <li>No trading in-game items for real money and vice versa - advertising and trading in-game items for real money is strictly prohibited</li>
+        </ul>
+
+        <h3>6. Cheating & Exploits</h3>
+
+        <h4>Prohibited Clients & Mods</h4>
+        <ul>
+          <li><strong>No X-Ray</strong> texture packs, mods, or resource packs</li>
+          <li><strong>No hacked clients</strong> - Wurst, LiquidBounce, Aristois, Impact, etc.</li>
+          <li><strong>No cheat clients</strong> of any kind - this includes "utility" clients</li>
+          <li><strong>No Baritone</strong> or any pathfinding/automation bots</li>
+          <li><strong>No killaura, reach, or combat hacks</strong></li>
+          <li><strong>No fly hacks or speed hacks</strong></li>
+          <li><strong>No freecam mods</strong> that allow you to see through walls</li>
+          <li><strong>No ESP/Tracers</strong> - player/mob/chest tracking through walls</li>
+          <li><strong>No auto-miners, auto-fishers, or AFK bots</strong></li>
+          <li><strong>No inventory/chest sorters that auto-steal</strong></li>
+          <li><strong>No scaffold/tower hacks</strong></li>
+          <li><strong>No nuker/breaker mods</strong></li>
+        </ul>
+
+        <h4>Allowed Mods</h4>
+        <ul>
+          <li><strong>Full Bright / Gamma mods</strong> - ONLY visual brightness enhancement is allowed</li>
+          <li><strong>Optifine / Sodium / Performance mods</strong> - FPS boosting only</li>
+          <li><strong>Minimap mods</strong> (JourneyMap, Xaero's) - as long as they don't show caves/players through walls</li>
+          <li><strong>Inventory management</strong> (Mouse Tweaks, Inventory Tweaks) - organizing only, NO auto-actions</li>
+          <li><strong>Shaders</strong> - visual enhancement only</li>
+          <li><strong>Cosmetic mods</strong> - capes, emotes, etc.</li>
+          <li><strong>Voice chat mods</strong> - Simple Voice Chat is built into the server!</li>
+          <li><strong>Replay Mod</strong> - recording only</li>
+        </ul>
+
+        <div class="callout info">
+          <h4>IF YOU'RE UNSURE IF A MOD IS ALLOWED</h4>
+          <p>Ask staff BEFORE using it! Better safe than banned.</p>
+        </div>
+
+        <h4>Exploits & Glitches</h4>
+        <ul>
+          <li><strong>No duplication glitches</strong> of any kind</li>
+          <li><strong>No chunk loaders that bypass server limits</strong></li>
+          <li><strong>No exploiting game mechanics</strong> for unfair advantages - bedrock breaking, etc.</li>
+          <li><strong>No lag machines or intentional server crashes</strong></li>
+        </ul>
+
+        <h4>Illegal Enchantments</h4>
+        <ul>
+          <li>Items with enchantments <strong>above their vanilla max level</strong> are <strong>LEGAL</strong> if purchased from the server economy</li>
+          <li>Example: Knockback V (max is II) can cost $500,000+ but is allowed if bought legitimately through the server economy</li>
+          <li>Obtaining overpowered enchants through glitches/cheats is <strong>NOT allowed</strong></li>
+        </ul>
+
+        <h3>7. Economy & Farming Rules</h3>
+
+        <h4>Automated Farming Restrictions</h4>
+        <ul>
+          <li><strong>You MAY NOT farm any item worth $100 or more</strong> according to the <code>/worth</code> command</li>
+          <li>This includes enderman farms (enderpearls worth $100+), wither skeleton farms, or any other high-value mob/item farms</li>
+          <li><strong>This rule applies even if you don't sell the items</strong> - just having the farm is illegal</li>
+          <li>If an item has no <code>/worth</code> value listed, <strong>DO NOT risk it</strong> - ask staff first before building a farm</li>
+        </ul>
+
+        <h4>Selling & Trading Rules</h4>
+        <ul>
+          <li><strong>Price splitting to bypass farming rules is ILLEGAL</strong>
+            <ul>
+              <li>Example ILLEGAL scheme: You cannot farm enderpearls ($100 each), sell them to a friend for $100, then have them resell for $150 and split the profits</li>
+              <li>Both the farmer AND the reseller will be permanently banned for this</li>
+            </ul>
+          </li>
+          <li><strong>Reselling items you legitimately obtained is allowed</strong>
+            <ul>
+              <li>You can buy low and sell high IF you didn't farm the items yourself</li>
+              <li>Price markup is allowed as long as the original source wasn't an illegal farm</li>
+            </ul>
+          </li>
+          <li>If you're caught coordinating with someone to bypass the $100 farming rule through reselling schemes, <strong>both players will be permanently banned with no appeals</strong></li>
+        </ul>
+
+        <h4>What Counts as Farming?</h4>
+        <ul>
+          <li>Any automated system - mob farms, crop farms, mining setups, etc.</li>
+          <li>AFK grinding/killing for items</li>
+          <li>Using game mechanics to mass-produce high-value items</li>
+          <li>Manual grinding is allowed for items under $100 worth - actively playing and killing mobs yourself is fine</li>
+        </ul>
+
+        <h4>Exceptions</h4>
+        <ul>
+          <li>Mining/gathering items worth less than $100 is always allowed</li>
+          <li>Manual trading and normal gameplay item collection is fine</li>
+          <li>Shops and player trading are encouraged, as long as items weren't illegally farmed</li>
+        </ul>
+
+        <h2>Punishment Guidelines</h2>
+        <p>Punishments are issued based on severity and repeat offenses. Staff have discretion to adjust based on context.</p>
+
+        <h3>1. Respect & Conduct</h3>
+        <ul>
+          <li><strong>First Offense:</strong> Warning or 1-7 day ban</li>
+          <li><strong>Repeat Offense:</strong> 14-30 day ban</li>
+          <li><strong>Severe/Repeated:</strong> Permanent ban</li>
+        </ul>
+
+        <h3>2. Griefing & Property</h3>
+        <ul>
+          <li><strong>Minor (accidental/first-time):</strong> Warning + rollback of the griefed area</li>
+          <li><strong>Intentional:</strong> 7-30 day ban + rollback</li>
+          <li><strong>Major/Repeated:</strong> Permanent ban</li>
+        </ul>
+
+        <h3>3. PvP & Combat</h3>
+        <ul>
+          <li><strong>Accidental (unforgiven):</strong> Warning or 1-3 day ban</li>
+          <li><strong>Intentional without consent:</strong> 7-14 day ban</li>
+          <li><strong>Repeat offenses:</strong> 30 day to permanent ban</li>
+        </ul>
+
+        <h3>4. Accounts & Bans</h3>
+        <ul>
+          <li><strong>Alternate accounts:</strong> Permanent ban on all accounts</li>
+          <li><strong>Ban evasion:</strong> Permanent ban, no appeals</li>
+        </ul>
+
+        <h3>5. Prohibited Content</h3>
+        <ul>
+          <li><strong>Minor violations:</strong> Warning or 1-7 day ban + content removal</li>
+          <li><strong>Severe (racist/NSFW):</strong> Permanent ban</li>
+        </ul>
+
+        <h3>6. Cheating & Exploits</h3>
+        <ul>
+          <li><strong>First Offense:</strong> 7-30 day ban</li>
+          <li><strong>Repeat/Severe:</strong> Permanent ban</li>
+        </ul>
+
+        <h3>7. Economy & Farming</h3>
+        <ul>
+          <li><strong>First Offense:</strong> 14-30 day ban + removal of farm/items + money reset</li>
+          <li><strong>Bypassing via reselling schemes:</strong> Permanent ban for all involved players, no appeals</li>
+          <li><strong>Repeat offenses:</strong> Permanent ban</li>
+        </ul>
+
+        <h2>Additional Rules & Policies</h2>
+
+        <h3>Server Owner Rights</h3>
+        <p>Server owners reserve the right to clear your inventory and items at <strong>any</strong> time for <strong>any</strong> reason. This can happen:</p>
+        <ul>
+          <li>Upon request - if you want a fresh start</li>
+          <li>If staff determine you need to be reset due to duplication glitches, unfair advantages, etc.</li>
+        </ul>
+
+        <p><strong>Server owners also have the right to:</strong></p>
+        <ul>
+          <li>Use <code>/weather</code> at any time if they have OP permissions</li>
+          <li>Use <code>/give</code> command on others if someone were to lose their stuff due to grief, if they have proof required</li>
+          <li>Reorganize your inventory <strong>only</strong> if given permission from the user, and/or if they have to due to server rules/law</li>
+          <li>Use <strong>Spectator mode</strong> to fly around and observe the map
+            <ul>
+              <li>Server owners are <strong>NOT allowed</strong> to fly around the map to find hidden players</li>
+              <li>If they find hidden bases, they may <strong>NOT</strong> enter or go near it</li>
+              <li>OPs are <strong>NOT allowed</strong> to use Spectator mode to look for structures or hidden loot</li>
+            </ul>
+          </li>
+          <li>Use <strong>Creative mode</strong> to fly around the map
+            <ul>
+              <li><strong>The creative inventory is BANNED</strong> unless giving items to players under legal circumstances - if giving a player an item, use <code>/give</code> instead</li>
+              <li>May also be used to just not be in PvP, or just to watch stuff</li>
+              <li><strong>May NOT trespass or grief</strong> while in Creative mode</li>
+            </ul>
+          </li>
+          <li>Use <strong>WorldEdit</strong> if building something or messing around
+            <ul>
+              <li><strong>May NOT grief bases</strong> with WorldEdit</li>
+              <li><strong>Must ALWAYS do <code>//undo</code></strong> if needed - they must always undo unless building an official lore structure</li>
+              <li>May <strong>NOT</strong> use WorldEdit to give themselves free stuff or anything</li>
+              <li>May also use WorldEdit + WorldGuard to make sure some monuments/buildings may never be griefed</li>
+              <li><strong>May NOT</strong> use WorldEdit/WorldGuard to protect player bases - players must defend their own land</li>
+            </ul>
+          </li>
+          <li>Give players random/joke items that don't significantly affect gameplay
+            <ul>
+              <li>Examples: dirt, anvils, barrels (but NOT chests), sticks, stone (but specifically NOT cobblestone), dead bushes, poisonous potatoes, signs, water bottles, and others that go along in those categories</li>
+              <li>This is for fun and does not break server balance</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>Rollback Policy</h3>
+        <p>When griefing occurs, staff will restore the affected area to its original state before the damage happened.</p>
+
+        <div class="callout warning">
+          <h4>ENFORCEMENT NOTICE</h4>
+          <p>We will be <strong>stricter on rule enforcement</strong> for any violations that create unfair gameplay advantages. If a rule is being exploited to ruin the server balance or other players' experience, punishments will be more severe. Play fair, have fun, and don't be a dick.</p>
+        </div>
+
+        <div class="callout info">
+          <h4>NOTE</h4>
+          <p>Extremely severe violations (doxxing, serious harassment, illegal content) result in <strong>instant permanent ban</strong> with no appeal. Staff decisions are final, but you can appeal most bans via ticket.</p>
+        </div>
+
+        <h2>Lore & Exploration</h2>
+
+        <h3>Hidden Structures & Loot</h3>
+        <p>As you explore the map, you may discover ancient buildings marked by:</p>
+        <ul>
+          <li>Heavy cobweb coverage</li>
+          <li>Spawners</li>
+          <li>Bedrock blocks</li>
+          <li>Hidden chests with loot</li>
+        </ul>
+
+        <h3>Rules for Lore Structures</h3>
+        <ul>
+          <li><strong>DO NOT claim or terraform these buildings</strong> - they are part of the server lore and must remain intact</li>
+          <li><strong>DO NOT break spawners</strong> - leave them intact for others to discover</li>
+          <li><strong>DO NOT break cobwebs</strong> unless they're directly blocking your path</li>
+          <li><strong>You MAY take loot from chests</strong> - finders keepers! This is intentional</li>
+          <li><strong>If you find books, READ them but PUT THEM BACK</strong> - do not take lore books with you. They're part of the story</li>
+          <li>These structures are intentionally placed content, not cheating or unfair advantages</li>
+          <li>Loot quality scales with world border expansion as players progress - the more the world border expands, the better the loot becomes because players get better</li>
+          <li>The lore: Most of the loot was placed from thousands of years ago from old travelers</li>
+        </ul>
+
+        <div class="callout info">
+          <h4>CAN'T TELL IF IT'S A PLAYER BASE OR LORE STRUCTURE?</h4>
+          <p>You will be able to tell the difference between a player's base and a lore structure. If you cannot tell whether something is a base or loot, either create a ticket or <code>/w</code> one of the mods to ask them for help!</p>
+        </div>
+
+        <h3>Rules for OPs Who Placed Loot</h3>
+        <ul>
+          <li><strong>You CANNOT take your own loot</strong> unless:
+            <ul>
+              <li>Another player finds it while you were <strong>following them</strong> AND</li>
+              <li>They allow you to have a share, or all of it</li>
+              <li><strong>Make sure that's REALLY noted</strong> - this is a strict rule</li>
+            </ul>
+          </li>
+          <li>This rule is <strong>strictly enforced</strong> - no exceptions whatsoever</li>
+        </ul>
+
+        <h2>Questions?</h2>
+        <p>If you have questions about the rules or need clarification, create a ticket or ask in General!</p>
+
+        <div class="callout success">
+          <h4>WELCOME TO NGP-SMP</h4>
+          <p>These rules exist to keep the server fair and fun for everyone. Follow them, respect other players, and have a great time exploring, building, and playing together!</p>
+        </div>
+
+        <h2>Additional Resources</h2>
+        <ul>
+          <li><a href="/docs/">All Documentation</a></li>
+          <li><a href="https://discord.gg/VqXsafQAMd">Discord Community</a></li>
+          <li><a href="/contact">Contact Support</a></li>
+        </ul>
+
+        <div class="nav-buttons">
+          <!-- Navigation will be populated dynamically -->
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small>
+  </div>
+</footer>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Auto-generate table of contents from h2 tags
+  const toc = document.getElementById('toc');
+  const headings = document.querySelectorAll('.doc-content h2');
+  
+  headings.forEach((heading, index) => {
+    const id = `section-${index}`;
+    heading.id = id;
+    
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = `#${id}`;
+    a.textContent = heading.textContent;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      heading.scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    li.appendChild(a);
+    toc.appendChild(li);
+  });
+
+  // Highlight active section in TOC on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.sidebar a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-100px 0px -66%' });
+
+  headings.forEach(heading => observer.observe(heading));
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+</body>
+</html>
