@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Editor (1.7.2)</title>
+<title>NGP Hub — Audio Editor (1.7.4)</title>
 
 <meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
 <meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
@@ -628,6 +628,23 @@ try {
     return mins + ':' + secs.toString().padStart(2, '0');
   }
 
+  function getSpeed() {
+    return parseFloat(elements.speed.value) || 1;
+  }
+
+  // Show real-world duration/time adjusted for current speed
+  function updateDurationDisplay() {
+    if (!audioBuffer) return;
+    var speed = getSpeed();
+    var realDuration = audioBuffer.duration / speed;
+    elements.tEnd.textContent = formatTime(realDuration);
+    elements.durTime.textContent = formatTime(realDuration);
+  }
+
+  function formatCurrentTime() {
+    return formatTime(currentTime / getSpeed());
+  }
+
   function dbToLinear(db) {
     return Math.pow(10, db / 20);
   }
@@ -697,8 +714,7 @@ try {
       drawWaveform(audioBuffer);
       
       elements.tStart.textContent = '0:00';
-      elements.tEnd.textContent = formatTime(audioBuffer.duration);
-      elements.durTime.textContent = formatTime(audioBuffer.duration);
+      updateDurationDisplay();
       
       elements.seek.value = 0;
       elements.seek.max = audioBuffer.duration;
@@ -888,7 +904,7 @@ try {
     if (!audioBuffer) return;
 
     currentTime = getCurrentPlaybackTime();
-    elements.curTime.textContent = formatTime(currentTime);
+    elements.curTime.textContent = formatCurrentTime();
     elements.seek.value = currentTime;
     updateProgressIndicator();
     if (typeof updateSliderFill === 'function') updateSliderFill(elements.seek);
@@ -954,7 +970,7 @@ try {
   elements.seek.oninput = function() {
     if (!audioBuffer) return;
     currentTime = parseFloat(elements.seek.value);
-    elements.curTime.textContent = formatTime(currentTime);
+    elements.curTime.textContent = formatCurrentTime();
     updateProgressIndicator();
   };
 
@@ -1061,6 +1077,9 @@ try {
     if (sourceNode) {
       sourceNode.playbackRate.value = speedValue;
     }
+    updateDurationDisplay();
+    // Also update current time display since it's speed-relative
+    elements.curTime.textContent = formatCurrentTime();
     syncActiveTrackSettings();
   };
 
@@ -2225,8 +2244,7 @@ try {
       drawWaveform(audioBuffer);
 
       elements.tStart.textContent = '0:00';
-      elements.tEnd.textContent = formatTime(audioBuffer.duration);
-      elements.durTime.textContent = formatTime(audioBuffer.duration);
+      updateDurationDisplay();
 
       elements.seek.value = 0;
       elements.seek.max = audioBuffer.duration;
