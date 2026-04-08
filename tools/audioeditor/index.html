@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Editor (1.7)</title>
+<title>NGP Hub — Audio Editor (1.7.2)</title>
 
 <meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
 <meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
@@ -106,8 +106,26 @@
   }
   .gainFloat .cap{font-size:.7rem; color:var(--muted)}
   .gainFloat input[type="range"]{
-    writing-mode: bt-lr; -webkit-appearance: slider-vertical; appearance: slider-vertical;
+    writing-mode: vertical-lr; direction: rtl;
     width: 44px; height: 260px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; cursor: pointer;
+  }
+  .gainFloat input[type="range"]::-webkit-slider-runnable-track{
+    width: 6px; height: 100%; background: rgba(255,255,255,.15); border-radius: 3px;
+  }
+  .gainFloat input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg,var(--brandA),var(--brandB)); border: 2px solid rgba(255,255,255,.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,.4); margin-left: -6px;
+  }
+  .gainFloat input[type="range"]::-moz-range-track{
+    width: 6px; height: 100%; background: rgba(255,255,255,.15); border-radius: 3px; border: none;
+  }
+  .gainFloat input[type="range"]::-moz-range-thumb{
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg,var(--brandA),var(--brandB)); border: 2px solid rgba(255,255,255,.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
   }
   .gainBadge{font-size:.75rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06)}
 
