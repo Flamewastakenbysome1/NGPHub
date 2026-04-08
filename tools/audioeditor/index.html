@@ -77,6 +77,71 @@
   .knob label{display:flex; align-items:center; justify-content:space-between; font-weight:600; margin-bottom:8px}
   .knob small{color:var(--muted); margin-left:8px; font-weight:400}
   input[type="range"]{width:100%}
+
+  /* ── New-style sliders (default) ── */
+  body:not(.classic-sliders) .knob input[type="range"],
+  body:not(.classic-sliders) .playerInner input[type="range"]{
+    -webkit-appearance:none; appearance:none;
+    height:6px; border-radius:3px; outline:none; cursor:pointer;
+    background:rgba(255,255,255,.15);
+  }
+  body:not(.classic-sliders) .knob input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    border:2px solid rgba(255,255,255,.3);
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+    margin-top:0; position:relative; z-index:2;
+  }
+  body:not(.classic-sliders) .knob input[type="range"]::-moz-range-track{
+    height:6px; border-radius:3px; border:none;
+    background:rgba(255,255,255,.15);
+  }
+  body:not(.classic-sliders) .knob input[type="range"]::-moz-range-progress{
+    height:6px; border-radius:3px;
+    background:linear-gradient(90deg,var(--brandA),var(--brandB));
+  }
+  body:not(.classic-sliders) .knob input[type="range"]::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    border:2px solid rgba(255,255,255,.3);
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+  }
+  /* Seek bar new style */
+  body:not(.classic-sliders) .playerInner input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    border:2px solid rgba(255,255,255,.3);
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+    margin-top:0; position:relative; z-index:2;
+  }
+  body:not(.classic-sliders) .playerInner input[type="range"]::-moz-range-track{
+    height:6px; border-radius:3px; border:none;
+    background:rgba(255,255,255,.15);
+  }
+  body:not(.classic-sliders) .playerInner input[type="range"]::-moz-range-progress{
+    height:6px; border-radius:3px;
+    background:linear-gradient(90deg,var(--brandA),var(--brandB));
+  }
+  body:not(.classic-sliders) .playerInner input[type="range"]::-moz-range-thumb{
+    width:14px; height:14px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    border:2px solid rgba(255,255,255,.3);
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+  }
+
+  /* Slider style toggle button */
+  .sliderToggle{
+    display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); cursor:pointer;
+    padding:4px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.04); user-select:none; transition:background .15s;
+  }
+  .sliderToggle:hover{background:rgba(255,255,255,.08)}
+  .sliderToggle .dot{
+    width:8px; height:8px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brandA),var(--brandB));
+    transition:opacity .15s;
+  }
+  .classic-sliders .sliderToggle .dot{opacity:.3}
   .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
   .btn{background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
   .btn:disabled{opacity:.5; cursor:not-allowed}
@@ -218,7 +283,10 @@
           <input type="checkbox" id="unlockBox" />
           <label for="unlockBox">Extra range</label>
         </div>
-        <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
+        <div style="display:flex; gap:8px; align-items:center">
+          <button class="sliderToggle" id="sliderStyleBtn" title="Switch slider style"><span class="dot"></span> New sliders</button>
+          <span class="tag" id="freeTag">No need to pay, straight from the browser!</span>
+        </div>
       </div>
     </div>
 
@@ -441,7 +509,8 @@ try {
     autoplayToggle: document.getElementById('autoplayToggle'),
     repeatQueueToggle: document.getElementById('repeatQueueToggle'),
     prevBtn: document.getElementById('prevBtn'),
-    nextBtn: document.getElementById('nextBtn')
+    nextBtn: document.getElementById('nextBtn'),
+    sliderStyleBtn: document.getElementById('sliderStyleBtn')
   };
 
   // Audio setup
@@ -629,6 +698,7 @@ try {
       elements.seek.max = audioBuffer.duration;
       currentTime = 0;
       updateProgressIndicator();
+      if (typeof refreshAllSliderFills === 'function') refreshAllSliderFills();
       
       elements.downloadBtn.disabled = false;
       elements.trimBtn.disabled = false;
@@ -815,6 +885,7 @@ try {
     elements.curTime.textContent = formatTime(currentTime);
     elements.seek.value = currentTime;
     updateProgressIndicator();
+    if (typeof updateSliderFill === 'function') updateSliderFill(elements.seek);
 
     if (isPlaying && (currentTime < audioBuffer.duration || isLooping)) {
       animationFrame = requestAnimationFrame(updateTimeDisplay);
@@ -1043,6 +1114,69 @@ try {
   updateBitcrushEffect();
   updateGain();
 
+  // ─────────────────────────────────────────────
+  // SLIDER STYLE TOGGLE (Classic vs New)
+  // ─────────────────────────────────────────────
+
+  // Update the gradient fill behind the slider thumb (WebKit only — Firefox uses ::-moz-range-progress in CSS)
+  function updateSliderFill(slider) {
+    if (document.body.classList.contains('classic-sliders')) return;
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const val = parseFloat(slider.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    slider.style.background = 'linear-gradient(90deg, var(--brandA) 0%, var(--brandB) ' + pct + '%, rgba(255,255,255,.15) ' + pct + '%)';
+  }
+
+  function clearSliderFill(slider) {
+    slider.style.background = '';
+  }
+
+  // All horizontal sliders that get the new style
+  const styledSliders = [elements.speed, elements.pitch, elements.reverb, elements.bass, elements.muffle, elements.echo, elements.bitcrush, elements.seek];
+
+  function refreshAllSliderFills() {
+    if (document.body.classList.contains('classic-sliders')) {
+      styledSliders.forEach(clearSliderFill);
+    } else {
+      styledSliders.forEach(updateSliderFill);
+    }
+  }
+
+  // Hook into every slider's input event to keep fill updated
+  styledSliders.forEach(function(slider) {
+    var origOninput = slider.oninput;
+    slider.oninput = function(e) {
+      if (origOninput) origOninput.call(this, e);
+      updateSliderFill(slider);
+    };
+    // Also listen for programmatic .value changes via MutationObserver won't work,
+    // so we patch it by refreshing fills after preset loads, etc.
+  });
+
+  // Toggle button
+  var sliderStyle = localStorage.getItem('ngp-slider-style') || 'new';
+  if (sliderStyle === 'classic') {
+    document.body.classList.add('classic-sliders');
+    elements.sliderStyleBtn.innerHTML = '<span class="dot"></span> Classic sliders';
+  }
+  refreshAllSliderFills();
+
+  elements.sliderStyleBtn.onclick = function() {
+    var isClassic = document.body.classList.toggle('classic-sliders');
+    localStorage.setItem('ngp-slider-style', isClassic ? 'classic' : 'new');
+    elements.sliderStyleBtn.innerHTML = '<span class="dot"></span> ' + (isClassic ? 'Classic sliders' : 'New sliders');
+    refreshAllSliderFills();
+  };
+
+  // Helper to refresh fills after programmatic value changes (presets, queue load, etc.)
+  var _origRefreshFills = refreshAllSliderFills;
+  window._ngpRefreshSliderFills = refreshAllSliderFills;
+
+  // ─────────────────────────────────────────────
+  // END SLIDER STYLE TOGGLE
+  // ─────────────────────────────────────────────
+
   // Presets
   document.querySelectorAll('[data-preset]').forEach(function(button) {
     button.onclick = function() {
@@ -1096,6 +1230,7 @@ try {
       updateEchoEffect();
       updateBitcrushEffect();
       updateGain();
+      if (typeof refreshAllSliderFills === 'function') refreshAllSliderFills();
     };
   });
 
@@ -1874,6 +2009,7 @@ try {
     updateEchoEffect();
     updateBitcrushEffect();
     updateGain();
+    if (typeof refreshAllSliderFills === 'function') refreshAllSliderFills();
   }
 
   function renderPresetList() {
@@ -2009,6 +2145,7 @@ try {
     ['speed','pitch','reverb','bass','muffle','echo','bitcrush'].forEach(function(id) {
       document.getElementById(id).dispatchEvent(new Event('input'));
     });
+    if (typeof window._ngpRefreshSliderFills === 'function') window._ngpRefreshSliderFills();
   }
 
   function renderQueue() {
