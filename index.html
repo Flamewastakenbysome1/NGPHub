@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>NGP Hub — Alpha</title>
 
-<meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
-<meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
+<meta property="og:title" content="NGP Hub — Our community is the most we'll ever ask for." />
+<meta property="og:description" content="&quot;shit idk&quot; - Yoad :)" />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="NGP Hub" />
 
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="NGP Hub, Convenience. Community. Creation." />
-<meta name="twitter:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community." />
+<meta name="twitter:title" content="NGP Hub — Our community is the most we'll ever ask for." />
+<meta name="twitter:description" content="&quot;shit idk&quot; - Yoad :)" />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
-<meta name="keywords" content="NGP, games, tools, Roblox, Discord, community, development, Yoadverse" />
+<meta name="description" content="&quot;shit idk&quot; - Yoad :)" />
+<meta name="keywords" content="NGP, games, tools, Discord, community, development, Yoadverse" />
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -32,6 +32,10 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
+
+  /* Force dark color scheme for all native UI (dropdowns, selects, inputs, etc.) */
+  html{color-scheme:dark}
+
   body{
     margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
     color:var(--ink);
@@ -41,6 +45,30 @@
     scroll-behavior:smooth;
   }
   .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  /* Dark mode dropdowns, selects, inputs, textareas */
+  select, input, textarea, button{
+    color-scheme:dark;
+    background-color:var(--card); color:var(--ink);
+    border:1px solid rgba(255,255,255,.1); border-radius:8px;
+  }
+  select option{background:var(--card); color:var(--ink)}
+  input::placeholder, textarea::placeholder{color:var(--muted)}
+  select:focus, input:focus, textarea:focus{outline:none; box-shadow:var(--ring); border-color:rgba(37,117,252,.4)}
+
+  /* Custom scrollbar — subtle NGP gradient */
+  ::-webkit-scrollbar{width:8px; height:8px}
+  ::-webkit-scrollbar-track{background:rgba(14,14,17,.6)}
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(106,17,203,.35), rgba(37,117,252,.35));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(106,17,203,.55), rgba(37,117,252,.55));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  /* Firefox scrollbar */
+  *{scrollbar-width:thin; scrollbar-color:rgba(80,40,180,.3) rgba(14,14,17,.6)}
 
   header{
     position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
@@ -295,9 +323,7 @@
     <nav aria-label="Primary">
       <a href="/tools">Tools</a>
       <a href="/discordservers/">Servers</a>
-      <a href="/projects">Projects</a>
       <a href="/docs/">Docs</a>
-      <a href="/roblox">Roblox</a>
       <a href="/contact">Contact</a>
       <a href="/login" id="auth-link">Login</a>
     </nav>
@@ -308,8 +334,8 @@
   <section class="hero" id="about">
     <div class="wrap">
       <span class="tag">NGP Hub — Alpha</span>
-      <h2>Convenience. Community. Creation.</h2>
-      <p>NGP builds useful, original stuff — games, tools, and videos — shaped by the community.</p>
+      <h2>Our community is the most we'll ever ask for.</h2>
+      <p>"shit idk" - Yoad :)</p>
       <div class="cta">
         <a class="btn ghost" href="/discordservers/">Discord Servers</a>
         <a class="btn ghost" href="/tools">Explore Tools</a>
@@ -323,23 +349,8 @@
     <h3 class="section-title" id="projects-title">Projects</h3>
     <p class="muted">Live or in‑progress.</p>
     <div class="grid">
-      <article class="card"><h3>NGP Intelligence</h3><p>NGP's AIs.</p><a class="btn ghost" href="/ai">Learn more</a></article>
       <article class="card"><h3>NGP Bots</h3><p>Discord utilities: logging, media, events, QoL.</p><a class="btn ghost" href="/projects#bots">Docs</a></article>
       <article class="card"><h3>RNG / Events</h3><p>Luck systems & community challenges.</p><a class="btn ghost" href="/projects#events">Schedule</a></article>
-    </div>
-  </section>
-
-  <section class="wrap" id="platforms" aria-labelledby="plat-title">
-    <h3 class="section-title" id="plat-title">Platforms</h3>
-    <p class="muted">Where we hang out and ship.</p>
-    <div class="strip" role="list">
-      <div class="pill" role="listitem"><span>Discord — NGP Studios (Main Server)</span><a class="btn" href="https://discord.gg/VqXsafQAMd" target="_blank" rel="noopener">Join</a></div>
-      <div class="pill" role="listitem"><span>Roblox — Robux Games</span><a class="btn" href="https://www.roblox.com/games/117978336574960/Robux-Games" target="_blank" rel="noopener">Play</a></div>
-      <div class="pill" role="listitem"><span>Roblox — The Pulling Wind (BETA)</span><a class="btn" href="https://www.roblox.com/games/122019407615443/The-Pulling-Wind-BETA" target="_blank" rel="noopener">Open</a></div>
-      <div class="pill" role="listitem"><span>YouTube — NamedFlame</span><a class="btn" href="https://www.youtube.com/@NamedFlame" target="_blank" rel="noopener">Watch</a></div>
-      <div class="pill" role="listitem"><span>YouTube — CraftingScrpt</span><a class="btn" href="https://www.youtube.com/@CraftingScrpt" target="_blank" rel="noopener">Watch</a></div>
-      <div class="pill" role="listitem"><span>YouTube — Hashtagg</span><a class="btn" href="https://www.youtube.com/@hashtagg-k3m" target="_blank" rel="noopener">Watch</a></div>
-      <div class="pill" role="listitem"><span>YouTube — NGP</span><a class="btn" href="https://www.youtube.com/@NGPOfficialYoutube" target="_blank" rel="noopener">Watch</a></div>
     </div>
   </section>
 
