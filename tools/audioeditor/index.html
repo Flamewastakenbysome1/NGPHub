@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NGP Hub — Audio Editor (1.7.5)</title>
+<title>NGP Hub — Audio Editor (1.7.7)</title>
 
 <meta property="og:title" content="NGP Hub, Convenience. Community. Creation." />
-<meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
+<meta property="og:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord and explore our tools." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
 <meta property="og:url" content="https://ngphub.com" />
 <meta property="og:type" content="website" />
@@ -17,8 +17,8 @@
 <meta name="twitter:description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community." />
 <meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
 
-<meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord, play our Roblox games, and explore our tools." />
-<meta name="keywords" content="NGP, games, tools, Roblox, Discord, community, development, Yoadverse" />
+<meta name="description" content="NGP builds useful, original stuff, games, tools, and videos, shaped by the community. Join our Discord and explore our tools." />
+<meta name="keywords" content="NGP, games, tools, Discord, community, development, Yoadverse" />
 
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
@@ -44,11 +44,13 @@
     background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06)}
   .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
-  .logo-mark{width:28px; height:28px; border-radius:10px; background:linear-gradient(135deg,var(--brandA),var(--brandB)); box-shadow:var(--shadow)}
   .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
   .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
   nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  nav a{color:var(--ink); text-decoration:none; font-weight:500; padding:8px 10px; border-radius:10px; opacity:.9}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
   nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
 
   .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
@@ -248,6 +250,32 @@
   .play.small{width:34px; height:34px; font-size:.8rem}
 
   @media (max-width:920px){ .grid{grid-template-columns:1fr} .gainFloat{display:none} }
+
+  /* Force dark color scheme for all native UI (dropdowns, selects, inputs, etc.) */
+  html{color-scheme:dark}
+
+  /* Dark mode dropdowns, selects, inputs, textareas */
+  select, input, textarea, button{
+    color-scheme:dark;
+  }
+  select option{background:var(--card); color:var(--ink)}
+  input::placeholder, textarea::placeholder{color:var(--muted)}
+  select:focus, input:focus, textarea:focus{outline:none; box-shadow:var(--ring); border-color:rgba(37,117,252,.4)}
+
+  /* Custom scrollbar — subtle NGP gradient */
+  ::-webkit-scrollbar{width:8px; height:8px}
+  ::-webkit-scrollbar-track{background:rgba(14,14,17,.6)}
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(106,17,203,.35), rgba(37,117,252,.35));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(106,17,203,.55), rgba(37,117,252,.55));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  /* Firefox scrollbar */
+  *{scrollbar-width:thin; scrollbar-color:rgba(80,40,180,.3) rgba(14,14,17,.6)}
+
   @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
 </head>
@@ -259,8 +287,10 @@
       <h1>NGP</h1>
     </a>
     <nav aria-label="Primary">
-      <a href="/tools">Tools</a><a href="/discordservers/">Servers</a><a href="/projects">Projects</a>
-      <a href="/docs/">Docs</a><a href="/roblox">Roblox</a><a href="/contact">Contact</a>
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/docs/">Docs</a>
+      <a href="/contact">Contact</a>
       <a href="/login" id="auth-link">Login</a>
     </nav>
   </div>
