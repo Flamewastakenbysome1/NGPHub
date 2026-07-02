@@ -3,250 +3,784 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HTML Visual Editor — NGP Hub</title>
-<meta property="og:title" content="HTML Visual Editor — NGP Hub" />
-<meta property="og:description" content="Build and design HTML pages visually with live preview and instant code export." />
+<title>NGP Hub — HTML Visual Editor</title>
+
+<meta property="og:title" content="NGP Hub — HTML Visual Editor" />
+<meta property="og:description" content="Build HTML pages visually with live preview and instant code export." />
 <meta property="og:image" content="https://ngphub.com/assets/ngp-logo.png" />
-<meta name="description" content="Visual HTML editor with drag-and-drop elements, live preview, and instant code export. Built by NGP Studios." />
+<meta property="og:url" content="https://ngphub.com" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="NGP Hub" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="NGP Hub — HTML Visual Editor" />
+<meta name="twitter:description" content="Build HTML pages visually with live preview and instant code export." />
+<meta name="twitter:image" content="https://ngphub.com/assets/ngp-logo.png" />
+
+<meta name="description" content="Visual HTML editor with drag and drop elements, live preview, and instant code export." />
+<meta name="keywords" content="NGP, games, tools, Discord, community, development, Yoadverse" />
+
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
 <link rel="icon" href="/assets/ngp-logo.png" type="image/png">
+
 <style>
-:root{--bg:#0e0e11;--card:#15151b;--ink:#ececf1;--muted:#b5b7c3;--brandA:#6a11cb;--brandB:#2575fc;--ring:0 0 0 .2rem rgba(37,117,252,.35);--radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35)}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);color:var(--ink);font-family:'Rubik',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);background:rgba(10,10,14,.6);border-bottom:1px solid rgba(255,255,255,.06)}
-.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;max-width:100%}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
-.logo-img{width:28px;height:28px;border-radius:10px}
-.logo h1{font-size:1.05rem;letter-spacing:.3px}
-nav{display:flex;align-items:center;gap:6px}
-nav a{color:var(--ink);text-decoration:none;font-weight:500;padding:8px 10px;border-radius:10px;opacity:.9}
-nav a:hover{background:rgba(255,255,255,.06)}
-.editor-container{display:flex;height:calc(100vh - 70px)}
-.sidebar{width:280px;background:var(--card);border-right:1px solid rgba(255,255,255,.06);padding:16px;overflow-y:auto}
-.sidebar h2{font-size:1rem;margin-bottom:16px;font-weight:700}
-.element-library{display:flex;flex-direction:column;gap:8px}
-.element-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:12px 16px;border-radius:10px;color:var(--ink);cursor:grab;font-weight:500;font-size:.9rem;transition:all .2s;display:flex;align-items:center;gap:8px}
-.element-btn:hover{background:rgba(255,255,255,.08);border-color:var(--brandB);transform:translateY(-1px)}
-.element-btn:active{cursor:grabbing}
-.element-icon{width:20px;height:20px;background:linear-gradient(120deg,var(--brandA),var(--brandB));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
-.canvas-wrapper{flex:1;display:flex;flex-direction:column}
-.toolbar{background:var(--card);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;display:flex;gap:8px}
-.toolbar-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;color:var(--ink);cursor:pointer;font-weight:500;font-size:.85rem;transition:all .2s}
-.toolbar-btn:hover{background:rgba(255,255,255,.08);border-color:var(--brandB)}
-.canvas{flex:1;background:var(--bg);overflow:auto;padding:20px}
-.canvas-inner{min-height:100%;outline:2px dashed rgba(255,255,255,.1);outline-offset:-1px;padding:20px}
-.properties-panel{width:320px;background:var(--card);border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column}
-.panel-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2)}
-.panel-tab{flex:1;padding:12px;background:transparent;border:none;color:var(--muted);font-weight:600;font-size:.85rem;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-.panel-tab:hover{background:rgba(255,255,255,.05);color:var(--ink)}
-.panel-tab.active{color:var(--ink);border-bottom-color:var(--brandB);background:rgba(37,117,252,.1)}
-.panel-content{flex:1;overflow-y:auto;padding:16px}
-.panel-content h3{font-size:.95rem;margin-bottom:12px;font-weight:600}
-.prop-group{margin-bottom:16px}
-.prop-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:500}
-.prop-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:8px 12px;border-radius:8px;color:var(--ink);font-size:.85rem}
-.prop-input:focus{outline:none;border-color:var(--brandB);box-shadow:var(--ring)}
-textarea.prop-input{resize:vertical;min-height:80px;font-family:'Courier New',monospace}
-.color-picker-wrapper{display:flex;gap:8px;align-items:center}
-.color-picker-wrapper input[type="color"]{width:50px;height:50px;border:none;border-radius:8px;cursor:pointer;background:transparent}
-.canvas-element{position:relative;margin:10px 0;padding:10px;border:2px dashed transparent;transition:all .2s;cursor:pointer}
-.canvas-element:hover{border-color:var(--brandB);background:rgba(37,117,252,.05)}
-.canvas-element.selected{border-color:var(--brandA);background:rgba(106,17,203,.05)}
-.element-controls{position:absolute;top:-30px;right:0;display:none;gap:4px}
-.canvas-element.selected .element-controls{display:flex}
-.control-btn{background:linear-gradient(120deg,var(--brandA),var(--brandB));border:none;color:white;width:24px;height:24px;border-radius:6px;cursor:pointer;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center}
-.control-btn:hover{transform:scale(1.1)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center}
-.modal.active{display:flex}
-.modal-content{background:var(--card);border-radius:var(--radius);max-width:800px;width:90%;max-height:90vh;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column}
-.modal-header{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
-.modal-header h3{font-size:1.2rem}
-.modal-body{padding:24px;overflow-y:auto;flex:1}
-.modal-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:12px;justify-content:flex-end}
-.btn{color:white;font-weight:700;padding:10px 14px;border-radius:12px;background:linear-gradient(120deg,var(--brandA),var(--brandB));border:none;cursor:pointer;font-size:.95rem}
-.btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid rgba(255,255,255,.1);padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:.95rem}
-.code-output{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px;font-family:'Courier New',monospace;font-size:.85rem;color:var(--ink);overflow-x:auto;white-space:pre;max-height:500px}
-.gradient-inputs{display:flex;gap:8px;margin-top:8px}
-.gradient-inputs input{flex:1}
+  :root{
+    --bg:#0e0e11; --card:#15151b; --ink:#ececf1; --muted:#b5b7c3;
+    --brandA:#6a11cb; --brandB:#2575fc; --line:#3a66ff;
+    --ring:0 0 0 .2rem rgba(37,117,252,.35);
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b0b0e,#121219 60%,#0d0d14);
+    color:var(--ink);
+    background-attachment:fixed;
+    font-family:'Rubik',system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    scroll-behavior:smooth;
+  }
+  .wrap{max-width:1024px; margin:0 auto; padding:0 16px}
+
+  header{
+    position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px);
+    background:rgba(10,10,14,.6); border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0}
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink)}
+  .logo-img{width:28px; height:28px; border-radius:10px; object-fit:contain; box-shadow:var(--shadow)}
+  .logo h1{font-size:1.05rem; margin:0; letter-spacing:.3px}
+  nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  nav a{
+    color:var(--ink); text-decoration:none; font-weight:500; margin-left:0;
+    padding:8px 10px; border-radius:10px; opacity:.9
+  }
+  nav a:hover, nav a:focus-visible{background:rgba(255,255,255,.06); outline:none; box-shadow:var(--ring)}
+
+  .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center}
+  .modal.active{display:flex}
+  .modal-content{background:var(--card); border-radius:var(--radius); max-width:450px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.1); animation:modalSlideIn 0.3s ease-out}
+  @keyframes modalSlideIn{from{transform:translateY(-50px); opacity:0} to{transform:translateY(0); opacity:1}}
+  .modal-header{padding:20px 24px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .modal-header h3{margin:0; font-size:1.2rem}
+  .modal-body{padding:24px; line-height:1.6}
+  .modal-body p{margin:0}
+  .modal-footer{padding:16px 24px; border-top:1px solid rgba(255,255,255,.06); display:flex; gap:12px; justify-content:flex-end}
+  .btn{display:inline-block; text-decoration:none; color:white; font-weight:700; letter-spacing:.2px; padding:10px 14px; border-radius:12px; background:linear-gradient(120deg,var(--brandA),var(--brandB)); border:none; cursor:pointer; font-size:.95rem}
+  .btn-ghost{background:rgba(255,255,255,.05); color:var(--ink); border:1px solid rgba(255,255,255,.1); padding:10px 20px; border-radius:10px; font-weight:600; cursor:pointer; font-size:.95rem}
+
+  footer{border-top:1px solid rgba(255,255,255,.08); color:var(--muted); padding:24px 0 36px; text-align:center}
+
+  /* Force dark color scheme for all native UI (dropdowns, selects, inputs, etc.) */
+  html{color-scheme:dark}
+
+  /* Dark mode dropdowns, selects, inputs, textareas */
+  select, input, textarea, button{
+    color-scheme:dark;
+    background-color:var(--card); color:var(--ink);
+    border:1px solid rgba(255,255,255,.1); border-radius:8px;
+  }
+  select option{background:var(--card); color:var(--ink)}
+  input::placeholder, textarea::placeholder{color:var(--muted)}
+  select:focus, input:focus, textarea:focus{outline:none; box-shadow:var(--ring); border-color:rgba(37,117,252,.4)}
+
+  /* Custom scrollbar — subtle NGP gradient */
+  ::-webkit-scrollbar{width:8px; height:8px}
+  ::-webkit-scrollbar-track{background:rgba(14,14,17,.6)}
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, rgba(106,17,203,.35), rgba(37,117,252,.35));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover{
+    background:linear-gradient(180deg, rgba(106,17,203,.55), rgba(37,117,252,.55));
+    border-radius:8px; border:2px solid transparent; background-clip:padding-box;
+  }
+  /* Firefox scrollbar */
+  *{scrollbar-width:thin; scrollbar-color:rgba(80,40,180,.3) rgba(14,14,17,.6)}
+
+  /* ---------- Editor ---------- */
+  .page-title{margin:28px 0 6px; font-size:1.5rem}
+  .page-sub{margin:0 0 20px; color:var(--muted); font-size:.92rem}
+
+  .editor-grid{display:grid; grid-template-columns:230px 1fr; gap:16px; align-items:start; margin-bottom:32px}
+  .card{background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .card-head{padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:700; font-size:.9rem; letter-spacing:.3px}
+  .card-body{padding:14px 16px}
+
+  .element-list{display:flex; flex-direction:column; gap:8px}
+  .element-btn{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    padding:10px 12px; border-radius:10px; color:var(--ink);
+    font-family:inherit; font-weight:500; font-size:.88rem; cursor:grab;
+    transition:background .15s, border-color .15s; text-align:left; user-select:none;
+  }
+  .element-btn:hover{background:rgba(255,255,255,.08); border-color:var(--line)}
+  .element-btn:active{cursor:grabbing}
+  .element-icon{
+    width:22px; height:22px; flex-shrink:0; border-radius:6px;
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    color:#fff; font-size:.68rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .side-hint{margin:12px 0 0; color:var(--muted); font-size:.76rem; line-height:1.5}
+
+  .toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.06)}
+  .tool-btn{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    padding:8px 14px; border-radius:8px; color:var(--ink); cursor:pointer;
+    font-family:inherit; font-weight:500; font-size:.84rem;
+    transition:background .15s, border-color .15s;
+  }
+  .tool-btn:hover{background:rgba(255,255,255,.08); border-color:var(--line)}
+  .tool-btn.active{border-color:var(--line); background:rgba(37,117,252,.15)}
+  .tool-count{margin-left:auto; color:var(--muted); font-size:.78rem}
+
+  .canvas{
+    min-height:380px; margin:14px; padding:16px; border-radius:12px;
+    outline:2px dashed rgba(255,255,255,.12); outline-offset:-1px;
+    transition:outline-color .15s, background .15s;
+  }
+  .canvas.dragover{outline-color:var(--line); background:rgba(37,117,252,.05)}
+  body.previewing .canvas{outline:none}
+  .canvas-empty{color:#666; text-align:center; padding:48px 12px; font-size:.92rem; margin:0}
+
+  .piece{
+    position:relative; margin:10px 0; padding:8px;
+    border:2px dashed transparent; border-radius:8px; cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .piece:hover{border-color:var(--line); background:rgba(37,117,252,.05)}
+  .piece.selected{border-color:var(--brandA); background:rgba(106,17,203,.06)}
+  body.previewing .piece{border-color:transparent !important; background:transparent !important; cursor:default}
+  .piece-ctl{position:absolute; top:-30px; right:0; display:none; gap:4px; z-index:5}
+  .piece.selected .piece-ctl{display:flex}
+  body.previewing .piece-ctl{display:none !important}
+  .ctl-btn{
+    background:linear-gradient(120deg,var(--brandA),var(--brandB));
+    border:none; color:#fff; min-width:25px; height:25px; padding:0 7px;
+    border-radius:6px; cursor:pointer; font-size:.7rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-family:inherit;
+  }
+  .ctl-btn:hover{filter:brightness(1.15)}
+
+  .inspector .tabs{display:flex; border-bottom:1px solid rgba(255,255,255,.06)}
+  .tab{
+    flex:1; padding:11px; background:transparent; border:none; border-radius:0;
+    color:var(--muted); font-family:inherit; font-weight:600; font-size:.82rem;
+    cursor:pointer; border-bottom:2px solid transparent;
+    transition:color .15s, background .15s;
+  }
+  .tab:hover{background:rgba(255,255,255,.05); color:var(--ink)}
+  .tab.active{color:var(--ink); border-bottom-color:var(--line); background:rgba(37,117,252,.1)}
+  .inspector-body{padding:14px 16px; max-height:420px; overflow-y:auto}
+  .inspector-body h3{margin:0 0 12px; font-size:.92rem}
+  .note{margin:0 0 12px; color:var(--muted); font-size:.8rem; line-height:1.5}
+
+  .field{margin-bottom:14px}
+  .field label{display:block; margin-bottom:6px; color:var(--muted); font-size:.76rem; font-weight:500}
+  .field-input{
+    width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    padding:8px 11px; border-radius:8px; color:var(--ink); font-size:.84rem; font-family:inherit;
+  }
+  textarea.field-input{resize:vertical; min-height:76px}
+  textarea.field-input.mono{font-family:'Consolas','Courier New',monospace}
+  .color-row{display:flex; gap:8px; align-items:center}
+  .color-row input[type="color"]{width:42px; height:36px; padding:2px; flex-shrink:0; cursor:pointer}
+  .duo{display:flex; gap:8px}
+  .duo .field-input{flex:1}
+  .stack{display:flex; flex-direction:column; gap:6px}
+  .stack .tool-btn{width:100%}
+  .full-btn{width:100%}
+
+  .code-output{
+    background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:10px;
+    padding:14px; font-family:'Consolas','Courier New',monospace; font-size:.8rem;
+    overflow:auto; white-space:pre; max-height:420px; line-height:1.5;
+  }
+  .modal-content.wide{max-width:780px; max-height:90vh; display:flex; flex-direction:column}
+  .modal-content.wide .modal-body{overflow-y:auto}
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translate(-50%, 16px);
+    background:var(--card); border:1px solid rgba(255,255,255,.12); color:var(--ink);
+    padding:11px 18px; border-radius:12px; box-shadow:var(--shadow);
+    font-size:.88rem; z-index:2000; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1; transform:translate(-50%, 0)}
+
+  @media (max-width: 760px){
+    .editor-grid{grid-template-columns:1fr}
+    .element-list{flex-direction:row; flex-wrap:wrap}
+    .element-btn{width:auto}
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important}}
 </style>
 </head>
 <body>
+
 <header>
-<div class="bar">
-<a class="logo" href="/">
-<img src="/assets/ngp-logo.png" alt="NGP" class="logo-img"/>
-<h1>NGP</h1>
-</a>
-<nav>
-<a href="/tools">Tools</a>
-<a href="/projects">Projects</a>
-<a href="/roblox">Roblox</a>
-<a href="/login" id="auth-link">Login</a>
-</nav>
-</div>
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/assets/ngp-logo.png" alt="NGP Logo" class="logo-img" />
+      <h1>NGP</h1>
+    </a>
+    <nav aria-label="Primary">
+      <a href="/tools">Tools</a>
+      <a href="/discordservers/">Servers</a>
+      <a href="/docs/">Docs</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" id="auth-link">Login</a>
+    </nav>
+  </div>
 </header>
-<div class="editor-container">
-<div class="sidebar">
-<h2>📦 Elements</h2>
-<div class="element-library">
-<div class="element-btn" draggable="true" data-type="heading"><div class="element-icon">H</div>Heading</div>
-<div class="element-btn" draggable="true" data-type="paragraph"><div class="element-icon">P</div>Paragraph</div>
-<div class="element-btn" draggable="true" data-type="button"><div class="element-icon">B</div>Button</div>
-<div class="element-btn" draggable="true" data-type="image"><div class="element-icon">I</div>Image</div>
-<div class="element-btn" draggable="true" data-type="input"><div class="element-icon">T</div>Input</div>
-<div class="element-btn" draggable="true" data-type="container"><div class="element-icon">C</div>Container</div>
-<div class="element-btn" draggable="true" data-type="link"><div class="element-icon">L</div>Link</div>
-<div class="element-btn" draggable="true" data-type="list"><div class="element-icon">•</div>List</div>
-</div>
-</div>
-<div class="canvas-wrapper">
-<div class="toolbar">
-<button class="toolbar-btn" id="preview-mode">👁️ Preview</button>
-<button class="toolbar-btn" id="export-code">💾 Export</button>
-<button class="toolbar-btn" id="clear-canvas">🗑️ Clear</button>
-</div>
-<div class="canvas" id="canvas">
-<div class="canvas-inner" id="canvas-inner">
-<p style="color:#666;text-align:center;padding:40px">Drag elements here! 🚀</p>
-</div>
-</div>
-</div>
-<div class="properties-panel">
-<div class="panel-tabs">
-<button class="panel-tab active" data-tab="properties">⚙️ Properties</button>
-<button class="panel-tab" data-tab="styles">🎨 Styles</button>
-</div>
-<div class="panel-content" id="panel-content">
-<p style="color:var(--muted);font-size:.85rem">Select an element to edit</p>
-</div>
-</div>
-</div>
+
+<main>
+  <div class="wrap">
+    <h2 class="page-title">HTML Visual Editor</h2>
+    <p class="page-sub">Build a page piece by piece, then export it as a standalone HTML file.</p>
+
+    <div class="editor-grid">
+
+      <div>
+        <div class="card">
+          <div class="card-head">Elements</div>
+          <div class="card-body">
+            <div class="element-list" id="element-list">
+              <button class="element-btn" draggable="true" data-type="heading"><span class="element-icon">H</span>Heading</button>
+              <button class="element-btn" draggable="true" data-type="paragraph"><span class="element-icon">P</span>Paragraph</button>
+              <button class="element-btn" draggable="true" data-type="button"><span class="element-icon">B</span>Button</button>
+              <button class="element-btn" draggable="true" data-type="image"><span class="element-icon">I</span>Image</button>
+              <button class="element-btn" draggable="true" data-type="input"><span class="element-icon">T</span>Input</button>
+              <button class="element-btn" draggable="true" data-type="container"><span class="element-icon">C</span>Container</button>
+              <button class="element-btn" draggable="true" data-type="link"><span class="element-icon">L</span>Link</button>
+              <button class="element-btn" draggable="true" data-type="list"><span class="element-icon">&bull;</span>List</button>
+              <button class="element-btn" draggable="true" data-type="divider"><span class="element-icon">D</span>Divider</button>
+              <button class="element-btn" draggable="true" data-type="spacer"><span class="element-icon">S</span>Spacer</button>
+            </div>
+            <p class="side-hint">Click to add at the bottom of the page, or drag straight onto the canvas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="toolbar">
+            <button class="tool-btn" id="preview-btn">Preview</button>
+            <button class="tool-btn" id="export-btn">Export</button>
+            <button class="tool-btn" id="clear-btn">Clear</button>
+            <span class="tool-count" id="piece-count">0 elements</span>
+          </div>
+          <div class="canvas" id="canvas">
+            <p class="canvas-empty" id="canvas-empty">Nothing here yet. Add an element from the left to get started.</p>
+          </div>
+        </div>
+
+        <div class="card inspector" style="margin-top:16px">
+          <div class="tabs">
+            <button class="tab active" data-tab="properties">Properties</button>
+            <button class="tab" data-tab="styles">Styles</button>
+          </div>
+          <div class="inspector-body" id="inspector-body">
+            <p class="note">Select an element on the canvas to edit it. The Styles tab holds page-wide custom CSS when nothing is selected.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <small>© <span id="year"></span> NGP — Alpha.</small> <!-- DO NOT CHANGE THIS! -->
+  </div>
+</footer>
+
 <div id="export-modal" class="modal">
-<div class="modal-content">
-<div class="modal-header"><h3>📄 Export HTML</h3></div>
-<div class="modal-body"><div class="code-output" id="code-output"></div></div>
-<div class="modal-footer">
-<button class="btn-ghost" id="close-export">Close</button>
-<button class="btn" id="copy-code">Copy Code</button>
+  <div class="modal-content wide">
+    <div class="modal-header">
+      <h3>Export HTML</h3>
+    </div>
+    <div class="modal-body">
+      <div class="code-output" id="code-output"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="close-export-btn">Close</button>
+      <button class="btn-ghost" id="download-btn">Download .html</button>
+      <button class="btn" id="copy-btn">Copy Code</button>
+    </div>
+  </div>
 </div>
+
+<div id="clear-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Clear the canvas?</h3>
+    </div>
+    <div class="modal-body">
+      <p>This removes every element on the page. Export first if you want to keep your work.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-clear-btn">Cancel</button>
+      <button class="btn" id="confirm-clear-btn">Clear Everything</button>
+    </div>
+  </div>
 </div>
+
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Logout from NGP Hub?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancel-logout-btn">Cancel</button>
+      <button class="btn" id="confirm-logout-btn">Logout</button>
+    </div>
+  </div>
 </div>
-<script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-const app=initializeApp({apiKey:"AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",authDomain:"ngp-hub.firebaseapp.com",projectId:"ngp-hub",storageBucket:"ngp-hub.firebasestorage.app",messagingSenderId:"157947384705",appId:"1:157947384705:web:c89e95d6d9f7436bb5ce80"});
-const auth=getAuth(app);
-onAuthStateChanged(auth,u=>document.getElementById('auth-link').textContent=u?u.email.split('@')[0]:'Login');
-</script>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-let sel=null,ctr=0,tab='properties';
-const canvas=document.getElementById('canvas-inner'),panel=document.getElementById('panel-content'),modal=document.getElementById('export-modal');
-
-const temps={
-heading:()=>{const e=document.createElement('h1');e.textContent='Your Heading';e.style.cssText='font-size:2rem;font-weight:700;margin:10px 0;color:#fff';return e},
-paragraph:()=>{const e=document.createElement('p');e.textContent='Your paragraph text here';e.style.cssText='font-size:1rem;line-height:1.6;margin:10px 0;color:#ddd';return e},
-button:()=>{const e=document.createElement('button');e.textContent='Click Me';e.style.cssText='padding:12px 24px;background:linear-gradient(120deg,#6a11cb,#2575fc);color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem';return e},
-image:()=>{const e=document.createElement('img');e.src='https://via.placeholder.com/400x200';e.alt='Image';e.style.cssText='max-width:100%;height:auto;border-radius:10px';return e},
-input:()=>{const e=document.createElement('input');e.placeholder='Enter text...';e.style.cssText='padding:10px 14px;border:1px solid #444;border-radius:8px;font-size:1rem;width:100%;max-width:400px;background:#1a1a1f;color:#fff';return e},
-container:()=>{const e=document.createElement('div');e.innerHTML='<p style="color:#666;text-align:center">Container</p>';e.style.cssText='padding:20px;border:2px dashed #444;border-radius:10px;min-height:100px';return e},
-link:()=>{const e=document.createElement('a');e.href='#';e.textContent='Link Text';e.style.cssText='color:#2575fc;text-decoration:underline;font-size:1rem';return e},
-list:()=>{const e=document.createElement('ul');e.innerHTML='<li>Item 1</li><li>Item 2</li><li>Item 3</li>';e.style.cssText='margin:10px 0;padding-left:20px;color:#ddd';return e}
-};
-
-document.querySelectorAll('.element-btn').forEach(b=>b.addEventListener('dragstart',e=>e.dataTransfer.setData('type',b.dataset.type)));
-canvas.addEventListener('dragover',e=>e.preventDefault());
-canvas.addEventListener('drop',e=>{e.preventDefault();const t=e.dataTransfer.getData('type');if(temps[t])add(t)});
-
-function add(type){
-const el=temps[type](),w=document.createElement('div');
-w.className='canvas-element';w.dataset.id=`el-${++ctr}`;w.dataset.type=type;
-w.innerHTML=`<div class="element-controls"><button class="control-btn" onclick="up(this)">↑</button><button class="control-btn" onclick="down(this)">↓</button><button class="control-btn" onclick="del(this)">×</button></div>`;
-w.appendChild(el);
-w.onclick=e=>{e.stopPropagation();select(w)};
-const ph=canvas.querySelector('p[style*="color:#666"]');
-if(ph)ph.remove();
-canvas.appendChild(w);
-select(w);
-}
-
-function select(w){
-document.querySelectorAll('.canvas-element').forEach(e=>e.classList.remove('selected'));
-w.classList.add('selected');
-sel=w;
-tab==='properties'?showProps():showStyles();
-}
-
-function getEl(w){return Array.from(w.children).find(c=>!c.classList.contains('element-controls'))}
-
-function showProps(){
-const el=getEl(sel),type=sel.dataset.type;
-let h=`<h3>⚙️ ${type.charAt(0).toUpperCase()+type.slice(1)}</h3>`;
-if(el.textContent!==undefined&&type!=='image'&&type!=='input'&&type!=='container'){
-const txt=type==='list'?el.innerHTML:el.textContent;
-h+=`<div class="prop-group"><label class="prop-label">Text</label><textarea class="prop-input" onchange="setProp('${type==='list'?'innerHTML':'textContent'}',this.value)">${txt}</textarea></div>`;
-}
-if(['heading','paragraph','button','link'].includes(type))h+=`<div class="prop-group"><label class="prop-label">Font Size</label><input class="prop-input" value="${el.style.fontSize||'1rem'}" onchange="setStyle('fontSize',this.value)" placeholder="1.5rem"></div>`;
-if(type==='image')h+=`<div class="prop-group"><label class="prop-label">Image URL</label><input class="prop-input" value="${el.src}" onchange="setProp('src',this.value)"></div><div class="prop-group"><label class="prop-label">Alt Text</label><input class="prop-input" value="${el.alt}" onchange="setProp('alt',this.value)"></div>`;
-if(type==='link')h+=`<div class="prop-group"><label class="prop-label">URL</label><input class="prop-input" value="${el.href}" onchange="setProp('href',this.value)"></div>`;
-if(type==='input')h+=`<div class="prop-group"><label class="prop-label">Placeholder</label><input class="prop-input" value="${el.placeholder}" onchange="setProp('placeholder',this.value)"></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Margin</label><input class="prop-input" value="${el.style.margin||'10px 0'}" onchange="setStyle('margin',this.value)"></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Padding</label><input class="prop-input" value="${el.style.padding||''}" onchange="setStyle('padding',this.value)"></div>`;
-panel.innerHTML=h;
-}
-
-function showStyles(){
-if(!sel){showGlobal();return}
-const el=getEl(sel);
-let h=`<h3>🎨 Element Styles</h3>`;
-h+=`<div class="prop-group"><label class="prop-label">Text Color</label><div class="color-picker-wrapper"><input type="color" value="${rgbToHex(el.style.color)||'#ffffff'}" onchange="setStyle('color',this.value)"><input class="prop-input" value="${el.style.color||'#ffffff'}" onchange="setStyle('color',this.value)"></div></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Background Color</label><div class="color-picker-wrapper"><input type="color" value="${rgbToHex(el.style.backgroundColor)||'#000000'}" onchange="setStyle('backgroundColor',this.value)"><input class="prop-input" value="${el.style.backgroundColor||'transparent'}" onchange="setStyle('backgroundColor',this.value)"></div></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Background Gradient</label><div class="gradient-inputs"><input class="prop-input" id="grad1" placeholder="#6a11cb"><input class="prop-input" id="grad2" placeholder="#2575fc"></div><button class="toolbar-btn" style="width:100%;margin-top:8px" onclick="applyGrad()">Apply Gradient</button></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Custom CSS</label><textarea class="prop-input" style="min-height:150px;font-family:'Courier New',monospace" onchange="setCSS(this.value)">${el.style.cssText}</textarea></div>`;
-h+=`<div class="prop-group"><label class="prop-label">Quick Presets</label><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('shadow')">Add Shadow</button><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('rounded')">Rounded</button><button class="toolbar-btn" style="width:100%;margin:4px 0" onclick="preset('center')">Center Text</button></div>`;
-panel.innerHTML=h;
-}
-
-function showGlobal(){
-const st=document.getElementById('global-styles');
-panel.innerHTML=`<h3>🎨 Global Styles</h3><p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Add custom CSS</p><div class="prop-group"><label class="prop-label">Custom CSS</label><textarea class="prop-input" id="global-input" style="min-height:250px;font-family:'Courier New',monospace">${st?st.textContent:''}</textarea></div><button class="btn" style="width:100%;margin-top:16px" onclick="applyGlobal()">Apply</button>`;
-}
-
-window.setProp=(p,v)=>{if(!sel)return;const el=getEl(sel);el[p]=v};
-window.setStyle=(p,v)=>{if(!sel)return;getEl(sel).style[p]=v};
-window.setCSS=v=>{if(!sel)return;getEl(sel).style.cssText=v};
-window.applyGrad=()=>{if(!sel)return;const c1=document.getElementById('grad1').value||'#6a11cb',c2=document.getElementById('grad2').value||'#2575fc';getEl(sel).style.background=`linear-gradient(120deg,${c1},${c2})`;showStyles()};
-window.preset=p=>{if(!sel)return;const el=getEl(sel);if(p==='shadow')el.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';else if(p==='rounded')el.style.borderRadius='16px';else if(p==='center')el.style.textAlign='center';showStyles()};
-window.applyGlobal=()=>{const inp=document.getElementById('global-input');if(!inp)return;let st=document.getElementById('global-styles');if(!st){st=document.createElement('style');st.id='global-styles';document.head.appendChild(st)}st.textContent=inp.value;alert('Styles applied! 🎨')};
-window.del=b=>{b.closest('.canvas-element').remove();sel=null;panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'};
-window.up=b=>{const w=b.closest('.canvas-element'),p=w.previousElementSibling;if(p)canvas.insertBefore(w,p)};
-window.down=b=>{const w=b.closest('.canvas-element'),n=w.nextElementSibling;if(n)canvas.insertBefore(n,w)};
-
-function rgbToHex(rgb){if(!rgb||rgb.startsWith('#'))return rgb;const m=rgb.match(/\d+/g);if(!m)return'#000000';return'#'+m.map(x=>{const h=parseInt(x).toString(16);return h.length===1?'0'+h:h}).join('')}
-
-document.querySelectorAll('.panel-tab').forEach(t=>t.onclick=()=>{tab=t.dataset.tab;document.querySelectorAll('.panel-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');sel?(tab==='properties'?showProps():showStyles()):tab==='styles'?showGlobal():panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'});
-
-document.getElementById('preview-mode').onclick=()=>{document.querySelectorAll('.canvas-element').forEach(e=>{e.style.border='none';e.style.cursor='default';e.querySelector('.element-controls').style.display='none'});alert('Preview mode! 👁️')};
-
-document.getElementById('clear-canvas').onclick=()=>{if(confirm('Clear everything?')){canvas.innerHTML='<p style="color:#666;text-align:center;padding:40px">Drag elements here! 🚀</p>';sel=null;panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'}};
-
-document.getElementById('export-code').onclick=()=>{
-const els=Array.from(canvas.querySelectorAll('.canvas-element'));
-const gstyle=document.getElementById('global-styles');
-let h='<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>My Page</title>\n<style>\nbody{font-family:Arial,sans-serif;padding:20px;background:#0e0e11;color:#fff}\n';
-if(gstyle)h+=gstyle.textContent+'\n';
-h+='</style>\n</head>\n<body>\n\n';
-els.forEach(w=>{const e=getEl(w);h+='  '+e.outerHTML+'\n'});
-h+='\n</body>\n</html>';
-document.getElementById('code-output').textContent=h;
-modal.classList.add('active');
-};
-
-document.getElementById('close-export').onclick=()=>modal.classList.remove('active');
-document.getElementById('copy-code').onclick=()=>navigator.clipboard.writeText(document.getElementById('code-output').textContent).then(()=>alert('Copied! 🎉'));
-
-canvas.onclick=e=>{if(e.target===canvas||e.target.parentElement===canvas){document.querySelectorAll('.canvas-element').forEach(el=>el.classList.remove('selected'));sel=null;tab==='styles'?showGlobal():panel.innerHTML='<p style="color:var(--muted);font-size:.85rem">Select an element</p>'}};
+  document.getElementById('year').textContent = new Date().getFullYear();
 </script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyASMd5kEAscaERvWAT6rYmZSahP2NFW0E0",
+    authDomain: "ngp-hub.firebaseapp.com",
+    projectId: "ngp-hub",
+    storageBucket: "ngp-hub.firebasestorage.app",
+    messagingSenderId: "157947384705",
+    appId: "1:157947384705:web:c89e95d6d9f7436bb5ce80"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const authLink = document.getElementById('auth-link');
+  const logoutModal = document.getElementById('logout-modal');
+  const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+  const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authLink.textContent = user.email.split('@')[0];
+      authLink.href = '#';
+      authLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        logoutModal.classList.add('active');
+      });
+    } else {
+      authLink.textContent = 'Login';
+      authLink.href = '/login';
+    }
+  });
+
+  cancelLogoutBtn.addEventListener('click', () => {
+    logoutModal.classList.remove('active');
+  });
+
+  confirmLogoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.reload();
+  });
+</script>
+
+<script>
+(() => {
+  'use strict';
+
+  let selected = null;
+  let counter = 0;
+  let activeTab = 'properties';
+  let previewing = false;
+
+  const canvas = document.getElementById('canvas');
+  const emptyMsg = document.getElementById('canvas-empty');
+  const inspector = document.getElementById('inspector-body');
+  const countLabel = document.getElementById('piece-count');
+  const exportModal = document.getElementById('export-modal');
+  const clearModal = document.getElementById('clear-modal');
+  const toast = document.getElementById('toast');
+  let toastTimer = null;
+
+  function notify(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  const makers = {
+    heading(){ const e = document.createElement('h1'); e.textContent = 'Your Heading'; e.style.cssText = 'font-size:2rem;font-weight:700;margin:10px 0;color:#ffffff'; return e; },
+    paragraph(){ const e = document.createElement('p'); e.textContent = 'Your paragraph text goes here.'; e.style.cssText = 'font-size:1rem;line-height:1.6;margin:10px 0;color:#dddddd'; return e; },
+    button(){ const e = document.createElement('button'); e.type = 'button'; e.textContent = 'Click Me'; e.style.cssText = 'padding:12px 24px;background:linear-gradient(120deg,#6a11cb,#2575fc);color:#ffffff;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem'; return e; },
+    image(){ const e = document.createElement('img'); e.src = 'https://placehold.co/400x200'; e.alt = 'Image'; e.style.cssText = 'max-width:100%;height:auto;border-radius:10px;display:block'; return e; },
+    input(){ const e = document.createElement('input'); e.type = 'text'; e.placeholder = 'Enter text...'; e.style.cssText = 'padding:10px 14px;border:1px solid #444444;border-radius:8px;font-size:1rem;width:100%;max-width:400px;background:#1a1a1f;color:#ffffff'; return e; },
+    container(){ const e = document.createElement('div'); e.innerHTML = '<p style="color:#666666;text-align:center;margin:0">Container</p>'; e.style.cssText = 'padding:20px;border:2px dashed #444444;border-radius:10px;min-height:100px'; return e; },
+    link(){ const e = document.createElement('a'); e.href = '#'; e.textContent = 'Link Text'; e.style.cssText = 'color:#2575fc;text-decoration:underline;font-size:1rem'; return e; },
+    list(){ const e = document.createElement('ul'); e.innerHTML = '<li>Item 1</li><li>Item 2</li><li>Item 3</li>'; e.style.cssText = 'margin:10px 0;padding-left:20px;color:#dddddd'; return e; },
+    divider(){ const e = document.createElement('hr'); e.style.cssText = 'border:none;border-top:1px solid #333333;margin:16px 0'; return e; },
+    spacer(){ const e = document.createElement('div'); e.style.cssText = 'height:40px'; return e; }
+  };
+
+  const labels = {
+    heading:'Heading', paragraph:'Paragraph', button:'Button', image:'Image',
+    input:'Input', container:'Container', link:'Link', list:'List',
+    divider:'Divider', spacer:'Spacer'
+  };
+
+  function pieces(){ return canvas.querySelectorAll(':scope > .piece'); }
+
+  function refreshCount(){
+    const n = pieces().length;
+    countLabel.textContent = n === 1 ? '1 element' : n + ' elements';
+    emptyMsg.style.display = n === 0 ? '' : 'none';
+  }
+
+  function inner(piece){
+    return Array.from(piece.children).find(c => !c.classList.contains('piece-ctl'));
+  }
+
+  function addPiece(type){
+    if (!makers[type]) return;
+    const piece = document.createElement('div');
+    piece.className = 'piece';
+    piece.dataset.id = 'p' + (++counter);
+    piece.dataset.type = type;
+
+    const ctl = document.createElement('div');
+    ctl.className = 'piece-ctl';
+    ctl.innerHTML =
+      '<button class="ctl-btn" data-act="up" title="Move up">&uarr;</button>' +
+      '<button class="ctl-btn" data-act="down" title="Move down">&darr;</button>' +
+      '<button class="ctl-btn" data-act="dupe" title="Duplicate">2x</button>' +
+      '<button class="ctl-btn" data-act="del" title="Delete">&times;</button>';
+
+    piece.appendChild(ctl);
+    piece.appendChild(makers[type]());
+    canvas.appendChild(piece);
+    select(piece);
+    refreshCount();
+  }
+
+  function select(piece){
+    if (previewing) return;
+    pieces().forEach(p => p.classList.remove('selected'));
+    selected = piece || null;
+    if (selected) selected.classList.add('selected');
+    renderInspector();
+  }
+
+  /* --- Inspector --- */
+  function field(label, html){
+    return '<div class="field"><label>' + label + '</label>' + html + '</div>';
+  }
+
+  function renderInspector(){
+    if (activeTab === 'properties'){
+      selected ? renderProps() : renderIdle();
+    } else {
+      selected ? renderStyles() : renderGlobal();
+    }
+  }
+
+  function renderIdle(){
+    inspector.innerHTML = '<p class="note">Select an element on the canvas to edit it. The Styles tab holds page-wide custom CSS when nothing is selected.</p>';
+  }
+
+  function renderProps(){
+    const el = inner(selected);
+    const type = selected.dataset.type;
+    let h = '<h3>' + (labels[type] || type) + '</h3>';
+
+    if (!['image','input','container','divider','spacer'].includes(type)){
+      const isList = type === 'list';
+      const txt = isList ? el.innerHTML : el.textContent;
+      h += field(isList ? 'List HTML (use &lt;li&gt; items)' : 'Text',
+        '<textarea class="field-input" data-prop="' + (isList ? 'innerHTML' : 'textContent') + '">' + esc(txt) + '</textarea>');
+    }
+    if (['heading','paragraph','button','link','list'].includes(type)){
+      h += field('Font Size', '<input class="field-input" data-style="fontSize" value="' + esc(el.style.fontSize || '') + '" placeholder="e.g. 1.5rem">');
+    }
+    if (type === 'image'){
+      h += field('Image URL', '<input class="field-input" data-prop="src" value="' + esc(el.getAttribute('src') || '') + '">');
+      h += field('Alt Text', '<input class="field-input" data-prop="alt" value="' + esc(el.getAttribute('alt') || '') + '">');
+      h += field('Max Width', '<input class="field-input" data-style="maxWidth" value="' + esc(el.style.maxWidth || '') + '" placeholder="e.g. 400px or 100%">');
+    }
+    if (type === 'link'){
+      h += field('URL', '<input class="field-input" data-prop="href" value="' + esc(el.getAttribute('href') || '') + '">');
+    }
+    if (type === 'input'){
+      h += field('Placeholder', '<input class="field-input" data-prop="placeholder" value="' + esc(el.getAttribute('placeholder') || '') + '">');
+    }
+    if (type === 'spacer'){
+      h += field('Height', '<input class="field-input" data-style="height" value="' + esc(el.style.height || '40px') + '" placeholder="e.g. 40px">');
+    }
+    h += field('Margin', '<input class="field-input" data-style="margin" value="' + esc(el.style.margin || '') + '" placeholder="e.g. 10px 0">');
+    h += field('Padding', '<input class="field-input" data-style="padding" value="' + esc(el.style.padding || '') + '" placeholder="e.g. 12px">');
+
+    inspector.innerHTML = h;
+    bindFields();
+  }
+
+  function renderStyles(){
+    const el = inner(selected);
+    let h = '<h3>Element Styles</h3>';
+
+    h += field('Text Color',
+      '<div class="color-row"><input type="color" data-style="color" value="' + toHex(el.style.color, '#ffffff') + '">' +
+      '<input class="field-input" data-style="color" value="' + esc(el.style.color || '') + '" placeholder="#ffffff"></div>');
+
+    h += field('Background Color',
+      '<div class="color-row"><input type="color" data-style="backgroundColor" value="' + toHex(el.style.backgroundColor, '#000000') + '">' +
+      '<input class="field-input" data-style="backgroundColor" value="' + esc(el.style.backgroundColor || '') + '" placeholder="transparent"></div>');
+
+    h += field('Background Gradient',
+      '<div class="duo"><input class="field-input" id="grad-a" placeholder="#6a11cb"><input class="field-input" id="grad-b" placeholder="#2575fc"></div>' +
+      '<button class="tool-btn full-btn" id="grad-apply" style="margin-top:8px">Apply Gradient</button>');
+
+    h += field('Border Radius', '<input class="field-input" data-style="borderRadius" value="' + esc(el.style.borderRadius || '') + '" placeholder="e.g. 12px">');
+
+    h += field('Quick Presets',
+      '<div class="stack">' +
+      '<button class="tool-btn" data-preset="shadow">Add Shadow</button>' +
+      '<button class="tool-btn" data-preset="rounded">Rounded Corners</button>' +
+      '<button class="tool-btn" data-preset="center">Center Text</button>' +
+      '</div>');
+
+    h += field('Custom CSS (inline)',
+      '<textarea class="field-input mono" id="inline-css" style="min-height:130px">' + esc(el.style.cssText) + '</textarea>');
+
+    inspector.innerHTML = h;
+    bindFields();
+
+    document.getElementById('grad-apply').addEventListener('click', () => {
+      if (!selected) return;
+      const a = document.getElementById('grad-a').value.trim() || '#6a11cb';
+      const b = document.getElementById('grad-b').value.trim() || '#2575fc';
+      inner(selected).style.background = 'linear-gradient(120deg,' + a + ',' + b + ')';
+      renderStyles();
+    });
+
+    inspector.querySelectorAll('[data-preset]').forEach(btn => btn.addEventListener('click', () => {
+      if (!selected) return;
+      const el2 = inner(selected);
+      if (btn.dataset.preset === 'shadow') el2.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      else if (btn.dataset.preset === 'rounded') el2.style.borderRadius = '16px';
+      else if (btn.dataset.preset === 'center') el2.style.textAlign = 'center';
+      renderStyles();
+    }));
+
+    document.getElementById('inline-css').addEventListener('change', e => {
+      if (selected) inner(selected).style.cssText = e.target.value;
+    });
+  }
+
+  function renderGlobal(){
+    const st = document.getElementById('user-global-css');
+    inspector.innerHTML =
+      '<h3>Global Styles</h3>' +
+      '<p class="note">CSS here applies to the whole page you are building and is included in the export.</p>' +
+      field('Custom CSS', '<textarea class="field-input mono" id="global-css" style="min-height:200px">' + esc(st ? st.textContent : '') + '</textarea>') +
+      '<button class="btn full-btn" id="global-apply">Apply</button>';
+
+    document.getElementById('global-apply').addEventListener('click', () => {
+      let st2 = document.getElementById('user-global-css');
+      if (!st2){
+        st2 = document.createElement('style');
+        st2.id = 'user-global-css';
+        document.head.appendChild(st2);
+      }
+      st2.textContent = document.getElementById('global-css').value;
+      notify('Global styles applied');
+    });
+  }
+
+  function bindFields(){
+    inspector.querySelectorAll('[data-prop]').forEach(input => {
+      input.addEventListener('change', () => {
+        if (!selected) return;
+        const el = inner(selected);
+        const prop = input.dataset.prop;
+        if (prop === 'textContent' || prop === 'innerHTML') el[prop] = input.value;
+        else el.setAttribute(prop, input.value);
+      });
+    });
+    inspector.querySelectorAll('[data-style]').forEach(input => {
+      input.addEventListener(input.type === 'color' ? 'input' : 'change', () => {
+        if (selected) inner(selected).style[input.dataset.style] = input.value;
+      });
+    });
+  }
+
+  function toHex(rgb, fallback){
+    if (!rgb) return fallback;
+    if (rgb.startsWith('#')){
+      return rgb.length === 4 ? '#' + rgb[1] + rgb[1] + rgb[2] + rgb[2] + rgb[3] + rgb[3] : rgb;
+    }
+    const m = rgb.match(/\d+/g);
+    if (!m) return fallback;
+    return '#' + m.slice(0, 3).map(x => parseInt(x, 10).toString(16).padStart(2, '0')).join('');
+  }
+
+  /* --- Sidebar --- */
+  document.querySelectorAll('.element-btn').forEach(btn => {
+    btn.addEventListener('dragstart', e => e.dataTransfer.setData('text/ngp-type', btn.dataset.type));
+    btn.addEventListener('click', () => addPiece(btn.dataset.type));
+  });
+
+  canvas.addEventListener('dragover', e => { e.preventDefault(); canvas.classList.add('dragover'); });
+  canvas.addEventListener('dragleave', () => canvas.classList.remove('dragover'));
+  canvas.addEventListener('drop', e => {
+    e.preventDefault();
+    canvas.classList.remove('dragover');
+    const type = e.dataTransfer.getData('text/ngp-type');
+    if (type) addPiece(type);
+  });
+
+  /* --- Canvas clicks --- */
+  canvas.addEventListener('click', e => {
+    if (previewing) return;
+
+    const ctl = e.target.closest('.ctl-btn');
+    if (ctl){
+      e.stopPropagation();
+      const piece = ctl.closest('.piece');
+      const act = ctl.dataset.act;
+      if (act === 'del'){
+        piece.remove();
+        selected = null;
+        renderInspector();
+        refreshCount();
+      } else if (act === 'up'){
+        const prev = piece.previousElementSibling;
+        if (prev && prev.classList.contains('piece')) canvas.insertBefore(piece, prev);
+      } else if (act === 'down'){
+        const next = piece.nextElementSibling;
+        if (next) canvas.insertBefore(next, piece);
+      } else if (act === 'dupe'){
+        const clone = piece.cloneNode(true);
+        clone.dataset.id = 'p' + (++counter);
+        clone.classList.remove('selected');
+        piece.after(clone);
+        select(clone);
+        refreshCount();
+      }
+      return;
+    }
+
+    const piece = e.target.closest('.piece');
+    if (piece){ e.stopPropagation(); select(piece); }
+    else select(null);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){
+      [exportModal, clearModal].forEach(m => m.classList.remove('active'));
+      if (!previewing) select(null);
+    }
+    if (e.key === 'Delete' && selected && !previewing){
+      const tag = document.activeElement.tagName;
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA'){
+        selected.remove();
+        selected = null;
+        renderInspector();
+        refreshCount();
+      }
+    }
+  });
+
+  /* --- Tabs --- */
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activeTab = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderInspector();
+    });
+  });
+
+  /* --- Toolbar --- */
+  const previewBtn = document.getElementById('preview-btn');
+  previewBtn.addEventListener('click', () => {
+    previewing = !previewing;
+    document.body.classList.toggle('previewing', previewing);
+    previewBtn.classList.toggle('active', previewing);
+    previewBtn.textContent = previewing ? 'Exit Preview' : 'Preview';
+    if (previewing) select(null);
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    if (pieces().length === 0){ notify('Canvas is already empty'); return; }
+    clearModal.classList.add('active');
+  });
+  document.getElementById('cancel-clear-btn').addEventListener('click', () => clearModal.classList.remove('active'));
+  document.getElementById('confirm-clear-btn').addEventListener('click', () => {
+    pieces().forEach(p => p.remove());
+    selected = null;
+    renderInspector();
+    refreshCount();
+    clearModal.classList.remove('active');
+    notify('Canvas cleared');
+  });
+
+  /* --- Export --- */
+  function buildExport(){
+    const gstyle = document.getElementById('user-global-css');
+    let out = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>My Page</title>\n<style>\nbody{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#0e0e11;color:#ffffff}\n';
+    if (gstyle && gstyle.textContent.trim()) out += gstyle.textContent.trim() + '\n';
+    out += '</style>\n</head>\n<body>\n\n';
+    pieces().forEach(p => { out += '  ' + inner(p).outerHTML + '\n'; });
+    out += '\n</body>\n</html>';
+    return out;
+  }
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    document.getElementById('code-output').textContent = buildExport();
+    exportModal.classList.add('active');
+  });
+  document.getElementById('close-export-btn').addEventListener('click', () => exportModal.classList.remove('active'));
+
+  document.getElementById('copy-btn').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('code-output').textContent)
+      .then(() => notify('Copied to clipboard'))
+      .catch(() => notify('Copy failed, select the code manually'));
+  });
+
+  document.getElementById('download-btn').addEventListener('click', () => {
+    const blob = new Blob([document.getElementById('code-output').textContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'my-page.html';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    notify('Downloaded my-page.html');
+  });
+
+  [exportModal, clearModal].forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+  });
+
+  refreshCount();
+})();
+</script>
+
 </body>
 </html>
