@@ -312,83 +312,71 @@
 
 <script>
   /* credit accepts a string, or an array of strings and { text, strike } objects */
-  /* id is the in-game level ID, read by the NGP Demonlist mod; 0 = unpublished, mod skips it */
   const MAIN_LIST = [
     {
-      id: 77236587,
       name: "Stereo Madness",
       credit: "Unverified",
       fp: ["72 60FPS", "45 120FPS", "44 240FPS", "1 999FPS", "Currently being recounted."],
       stars: 200
     },
     {
-      id: 0,
       name: "Slaughterhouse Is Dead",
       credit: "Verified by: WPopoff",
       fp: ["60 60fps", "30 80fps", "9 120fps"],
       stars: 146
     },
     {
-      id: 127323087,
       name: "Society",
       credit: "Verified by: WPopoff",
       fp: ["40 60FPS", "27 80FPS", "12 120FPS", "3 240FPS"],
-      stars: 77
+      stars: 94
     },
     {
-      id: 72956745,
       name: "Crazy Time",
-      credit: "Verified by: Unknown",
+      credit: "Verified by: CrazyGuy",
       fp: ["Unknown amount of Frame perfects"],
-      stars: 76
+      stars: 91
     },
     {
-      id: 27690100,
       name: "Slaughterhouse",
       credit: [
         "Verified by Doogie",
         { text: "Hacked By: SpaceUK", strike: true }
       ],
       fp: ["20 60fps", "10 80fps", "3 120fps"],
-      stars: 76
+      stars: 77
     },
     {
-      id: 146217987,
       name: "Torrent | Version 2",
       credit: "Verified by: NamedFlame",
       fp: ["12 60fps", "5 120fps", "1 240fps"],
       stars: 76
     },
     {
-      id: 20635816,
       name: "Amplification",
       credit: "Verified by: NamedFlame",
       fp: ["6 60FPS", "2 80FPS", "3 120FPS", "2 240FPS"],
       stars: 69
     },
     {
-      id: 7485599,
       name: "Kappaclysm",
       credit: "Verified by: KappaclysmPlayer53",
       fp: ["uncounted frame perfects."],
       stars: 69
     },
     {
-      id: 12057578,
       name: "Unity",
       credit: "Verified by: TriAxis(?)",
       fp: ["23,831 25FPS frame perfects"],
       stars: 67
     },
     {
-      id: 27732941,
       name: "OuterSpace",
       credit: "Verified by: NamedFlame",
       fp: ["uncounted frame perfects."],
       stars: 31
     },
     {
-      id: 6508283,
       name: "ReTraY",
       credit: [
         "Being Verified by NamedFlame",
@@ -396,13 +384,6 @@
       ],
       fp: ["uncounted frame perfects."],
       stars: 13
-    },
-    {
-      id: 1734354,
-      name: "Dorabaebasic5",
-      credit: "Verified by: NamedFlame",
-      fp: ["0 Frame Perfect's"],
-      stars: 12
     }
   ];
 
@@ -453,10 +434,10 @@
   ];
 
   const EASY_LIST = [
-    { name: "Back On Track",     diff: "Auto", rate: "-2 Star" },
-    { name: "Stereo Madness (NERFED by RobTop)", diff: "Auto", rate: "1 Star"  },
-    { name: "Thinking Space II", diff: "Auto", rate: "1 Star"  },
-    { name: "Kocmoc",            diff: "Easy", rate: "2 Star"  }
+    { name: "Back On Track",                     diff: "Auto", rate: "-2 Star"},
+    { name: "Stereo Madness (NERFED by RobTop)", diff: "Auto", rate: "1 Star" },
+    { name: "Thinking Space II",                 diff: "Auto", rate: "1 Star" },
+    { name: "Kocmoc",                            diff: "Easy", rate: "2 Star" }
   ];
 
   /* type: added | removed | changed | moved | note */
@@ -465,14 +446,17 @@
       when: "2026-08-11",
       title: "Main list changes",
       changes: [
-        { type: "added",   text: "Slaughterhouse placed at #5, 76 Stars" },
+        { type: "added",   text: "Slaughterhouse placed at #5, 77 Stars" },
         { type: "added",   text: "Slaughterhouse Is Dead placed at #2, 146 Stars" },
         { type: "added",   text: "Amplification placed at #7, 69 Stars" },
         { type: "added",   text: "Stereo Madness (NERFED by RobTop) in the Easy List placed at #2, 1 Star" },
         { type: "changed", text: "Kappaclysm 75 Stars to 69 Stars" },
         { type: "changed", text: "Unity 74 Stars to 67 Stars" },
+        { type: "changed", text: "Society 77 Stars to 94 Stars" },
+        { type: "changed", text: "Crazy Time 76 Stars to 91 Stars" },
         { type: "changed", text: "Stereo Madness 100 Stars to 200 Stars" },
         { type: "changed", text: "Main List is now up to 200 Stars" },
+        { type: "changed", text: "Crazy Time's verifier is now CrazyGuy" },
         { type: "note",    text: "Stereo Madness frame perfects are being recounted" }
       ]
     },
