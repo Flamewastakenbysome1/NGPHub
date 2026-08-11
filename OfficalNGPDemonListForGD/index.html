@@ -36,6 +36,12 @@
     --row-hover:rgba(255,255,255,.045);
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
     --ease:cubic-bezier(.22,.61,.36,1);
+
+    --tag-added:#7fd6a2;   --tag-added-bg:rgba(93,200,140,.11);   --tag-added-br:rgba(93,200,140,.26);
+    --tag-removed:#ef9490; --tag-removed-bg:rgba(224,110,105,.11); --tag-removed-br:rgba(224,110,105,.26);
+    --tag-changed:#93b6ff; --tag-changed-bg:rgba(110,150,240,.11); --tag-changed-br:rgba(110,150,240,.26);
+    --tag-moved:#e3bb7c;   --tag-moved-bg:rgba(214,170,100,.11);   --tag-moved-br:rgba(214,170,100,.26);
+    --tag-note:#c3aef0;    --tag-note-bg:rgba(106,17,203,.14);     --tag-note-br:rgba(106,17,203,.3);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -150,13 +156,40 @@
 
   .placement{
     display:inline-block; margin-top:8px; padding:3px 8px;
-    background:rgba(106,17,203,.14); border:1px solid rgba(106,17,203,.3);
-    border-radius:4px; font-family:var(--mono); font-size:.71rem; color:#c3aef0;
+    background:var(--tag-note-bg); border:1px solid var(--tag-note-br);
+    border-radius:4px; font-family:var(--mono); font-size:.71rem; color:var(--tag-note);
   }
 
   .list.compact li{padding:11px 12px 11px 6px; align-items:center}
   .list.compact .name{margin:0; font-size:.95rem}
   .list.compact .rank{font-size:.95rem}
+
+  .log{margin:0; padding:0}
+  .log-day{
+    display:grid; grid-template-columns:118px 1fr; column-gap:22px;
+    padding:20px 0; border-top:1px solid var(--rule);
+  }
+  .log-day:last-child{border-bottom:1px solid var(--rule)}
+  .log-when{
+    font-family:var(--mono); font-size:.74rem; color:var(--muted); opacity:.7;
+    letter-spacing:.04em; padding-top:3px; font-variant-numeric:tabular-nums;
+  }
+  .log-title{font-size:.88rem; font-weight:500; color:#d6d8e4; margin:0 0 9px}
+  .log-items{list-style:none; margin:0; padding:0}
+  .log-items li{
+    display:flex; gap:10px; align-items:baseline;
+    padding:5px 0; font-size:.855rem; line-height:1.5; color:var(--muted);
+  }
+  .chg{
+    flex:0 0 auto; font-family:var(--mono); font-size:.61rem; font-weight:500;
+    letter-spacing:.1em; text-transform:uppercase; padding:2px 6px; border-radius:3px;
+    border:1px solid var(--rule-strong); color:var(--muted); min-width:62px; text-align:center;
+  }
+  .chg-added  {color:var(--tag-added);   background:var(--tag-added-bg);   border-color:var(--tag-added-br)}
+  .chg-removed{color:var(--tag-removed); background:var(--tag-removed-bg); border-color:var(--tag-removed-br)}
+  .chg-changed{color:var(--tag-changed); background:var(--tag-changed-bg); border-color:var(--tag-changed-br)}
+  .chg-moved  {color:var(--tag-moved);   background:var(--tag-moved-bg);   border-color:var(--tag-moved-br)}
+  .chg-note   {color:var(--tag-note);    background:var(--tag-note-bg);    border-color:var(--tag-note-br)}
 
   @media (max-width:560px){
     .list li{grid-template-columns:34px 1fr; row-gap:9px}
@@ -165,6 +198,10 @@
     .rail .num{display:inline; font-size:1rem}
     .rail .unit{display:inline; margin-left:5px; letter-spacing:.1em}
     .list li:hover{transform:none}
+    .log-day{grid-template-columns:1fr; row-gap:10px}
+    .log-when{padding-top:0}
+    .log-items li{flex-direction:column; gap:4px}
+    .chg{min-width:0; align-self:flex-start}
   }
 
   html{color-scheme:dark}
@@ -238,6 +275,14 @@
     </div>
     <ol class="list compact" id="list-easy"></ol>
   </section>
+
+  <section class="section" id="change-list">
+    <div class="section-head">
+      <h2>Change List:</h2>
+      <span class="section-count" id="count-log"></span>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
 </main>
 
 <footer>
@@ -271,7 +316,7 @@
     {
       name: "Stereo Madness",
       credit: "Unverified",
-      fp: ["72 60FPS", "45 120FPS", "44 240FPS", "1 999FPS"],
+      fp: ["72 60FPS", "45 120FPS", "44 240FPS", "1 999FPS", "Currently being recounted."],
       stars: 100
     },
     {
@@ -287,6 +332,15 @@
       stars: 76
     },
     {
+      name: "Slaughterhouse",
+      credit: [
+        "Verified by Doogie",
+        { text: "Hacked By: SpaceUK", strike: true }
+      ],
+      fp: ["20 60fps", "10 80fps", "3 120fps"],
+      stars: 76
+    },
+    {
       name: "Torrent | Version 2",
       credit: "Verified by: NamedFlame",
       fp: ["12 60fps", "5 120fps", "1 240fps"],
@@ -296,19 +350,19 @@
       name: "Amplification",
       credit: "Verified by: NamedFlame",
       fp: ["6 60FPS", "2 80FPS", "3 120FPS", "2 240FPS"],
-      stars: 76
+      stars: 69
     },
     {
       name: "Kappaclysm",
       credit: "Verified by: KappaclysmPlayer53",
       fp: ["uncounted frame perfects."],
-      stars: 75
+      stars: 69
     },
     {
       name: "Unity",
       credit: "Verified by: TriAxis(?)",
       fp: ["23,831 25FPS frame perfects"],
-      stars: 74
+      stars: 67
     },
     {
       name: "OuterSpace",
@@ -377,6 +431,29 @@
     { name: "Back On Track",     diff: "Auto", rate: "-2 Star" },
     { name: "Thinking Space II", diff: "Auto", rate: "1 Star"  },
     { name: "Kocmoc",            diff: "Easy", rate: "2 Star"  }
+  ];
+
+  /* type: added | removed | changed | moved | note */
+  const CHANGE_LIST = [
+    {
+      when: "2026-08-11",
+      title: "Main list shuffle",
+      changes: [
+        { type: "added",   text: "Slaughterhouse placed at #4, 76 Stars" },
+        { type: "added",   text: "Amplification placed at #6, 69 Stars" },
+        { type: "changed", text: "Kappaclysm 75 Stars to 69 Stars" },
+        { type: "changed", text: "Unity 74 Stars to 67 Stars" },
+        { type: "note",    text: "Stereo Madness frame perfects are being recounted" }
+      ]
+    },
+    {
+      when: "2026-08-10",
+      title: "Page rebuild",
+      changes: [
+        { type: "added",   text: "Star counts and frame perfects split into their own fields" },
+        { type: "changed", text: "Struck-out credits now supported, first used on ReTraY" }
+      ]
+    }
   ];
 
   function el(tag, cls, text){
@@ -477,9 +554,39 @@
     document.getElementById('count-easy').textContent = EASY_LIST.length + ' levels';
   }
 
+  function renderLog(){
+    const box = document.getElementById('log');
+    box.replaceChildren();
+    let total = 0;
+
+    CHANGE_LIST.forEach(day => {
+      const wrap = el('div', 'log-day');
+      wrap.appendChild(el('div', 'log-when', day.when));
+
+      const body = el('div', 'log-body');
+      if (day.title) body.appendChild(el('p', 'log-title', day.title));
+
+      const ul = el('ul', 'log-items');
+      (day.changes || []).forEach(c => {
+        const li = document.createElement('li');
+        li.appendChild(el('span', 'chg chg-' + c.type, c.type));
+        li.appendChild(el('span', null, c.text));
+        ul.appendChild(li);
+        total++;
+      });
+
+      body.appendChild(ul);
+      wrap.appendChild(body);
+      box.appendChild(wrap);
+    });
+
+    document.getElementById('count-log').textContent = total + ' changes';
+  }
+
   renderMain();
   renderNgp();
   renderEasy();
+  renderLog();
 </script>
 
 <script type="module">
