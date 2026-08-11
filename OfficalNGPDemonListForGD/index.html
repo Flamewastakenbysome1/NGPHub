@@ -317,7 +317,13 @@
       name: "Stereo Madness",
       credit: "Unverified",
       fp: ["72 60FPS", "45 120FPS", "44 240FPS", "1 999FPS", "Currently being recounted."],
-      stars: 100
+      stars: 200
+    },
+    {
+      name: "Slaughterhouse Is Dead",
+      credit: "Verified by: WPopoff",
+      fp: ["60 60fps", "30 80fps", "9 120fps"],
+      stars: 146
     },
     {
       name: "Society",
@@ -429,6 +435,7 @@
 
   const EASY_LIST = [
     { name: "Back On Track",     diff: "Auto", rate: "-2 Star" },
+    { name: "Stereo Madness (NERFED by RobTop)", diff: "Auto", rate: "1 Star"  },
     { name: "Thinking Space II", diff: "Auto", rate: "1 Star"  },
     { name: "Kocmoc",            diff: "Easy", rate: "2 Star"  }
   ];
@@ -437,12 +444,16 @@
   const CHANGE_LIST = [
     {
       when: "2026-08-11",
-      title: "Main list shuffle",
+      title: "Main list changes",
       changes: [
-        { type: "added",   text: "Slaughterhouse placed at #4, 76 Stars" },
-        { type: "added",   text: "Amplification placed at #6, 69 Stars" },
+        { type: "added",   text: "Slaughterhouse placed at #5, 76 Stars" },
+        { type: "added",   text: "Slaughterhouse Is Dead placed at #2, 146 Stars" },
+        { type: "added",   text: "Amplification placed at #7, 69 Stars" },
+        { type: "added",   text: "Stereo Madness (NERFED by RobTop) in the Easy List placed at #2, 1 Star" },
         { type: "changed", text: "Kappaclysm 75 Stars to 69 Stars" },
         { type: "changed", text: "Unity 74 Stars to 67 Stars" },
+        { type: "changed", text: "Stereo Madness 100 Stars to 200 Stars" },
+        { type: "changed", text: "Main List is now up to 200 Stars" },
         { type: "note",    text: "Stereo Madness frame perfects are being recounted" }
       ]
     },
