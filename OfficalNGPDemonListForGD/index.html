@@ -198,6 +198,7 @@
     border:1px solid var(--rule-strong); color:var(--muted);
   }
   .pill-diff{color:#e0a0a0; background:rgba(210,120,120,.1); border-color:rgba(210,120,120,.24)}
+  .pill-gddp{color:#a8c8e8; background:rgba(140,180,225,.1); border-color:rgba(140,180,225,.26)}
   .pill-feat-1{color:#9fd4f0; background:rgba(120,190,230,.1); border-color:rgba(120,190,230,.24)}
   .pill-feat-2{color:#e3c47c; background:rgba(214,180,100,.1); border-color:rgba(214,180,100,.24)}
   .pill-feat-3{color:#f0b0d8; background:rgba(230,140,200,.1); border-color:rgba(230,140,200,.24)}
@@ -506,16 +507,23 @@
   ];
 
   /* to = null means no upper bound; empty tiers are skipped
-     feature = default feature glow for every level in the tier */
+     feature = default feature glow, gddp = default GDDP Integration face */
   const TIERS = [
-    { key: "obsidian", label: "Obsidian Demons:", from: 1,  to: 10,   feature: 4 },
-    { key: "amethyst", label: "Amethyst Demons:", from: 11, to: 20,   feature: 3 },
-    { key: "pearl",    label: "Pearl Demons:",    from: 21, to: 30,   feature: 2 },
-    { key: "extreme",  label: "Extreme Demons:",  from: 31, to: null, feature: 1 }
+    { key: "obsidian", label: "Obsidian Demons:", from: 1,  to: 10,   feature: 4, gddp: 16 },
+    { key: "amethyst", label: "Amethyst Demons:", from: 11, to: 20,   feature: 3, gddp: 14 },
+    { key: "pearl",    label: "Pearl Demons:",    from: 21, to: 30,   feature: 2, gddp: 12 },
+    { key: "extreme",  label: "Extreme Demons:",  from: 31, to: null, feature: 1, gddp: 0  }
   ];
 
   /* every level on a demonlist is a demon, so this is the fallback face */
   const DEFAULT_DIFF = 10;
+
+  const GDDP_NAMES = {
+    1: "Beginner", 2: "Bronze",   3: "Silver",  4: "Gold",
+    5: "Amber",    6: "Platinum", 7: "Sapphire", 8: "Jade",
+    9: "Emerald", 10: "Ruby",    11: "Diamond", 12: "Pearl",
+    13: "Onyx",   14: "Amethyst", 15: "Azurite", 16: "Obsidian"
+  };
 
   const DIFF_NAMES = {
     "-1": "Auto",
@@ -677,9 +685,15 @@
 
     const diff = lvl.diff != null ? lvl.diff : DEFAULT_DIFF;
     const feat = lvl.feature != null ? lvl.feature : tier.feature;
+    const gddp = lvl.gddp != null ? lvl.gddp : tier.gddp;
 
     const pills = el('div', 'pills');
-    if (DIFF_NAMES[diff]) pills.appendChild(el('span', 'pill pill-diff', DIFF_NAMES[diff]));
+    if (gddp && GDDP_NAMES[gddp]) {
+      pills.appendChild(el('span', 'pill pill-gddp', GDDP_NAMES[gddp]));
+    }
+    else if (DIFF_NAMES[diff]) {
+      pills.appendChild(el('span', 'pill pill-diff', DIFF_NAMES[diff]));
+    }
     if (FEAT_NAMES[feat]) pills.appendChild(el('span', 'pill pill-feat-' + feat, FEAT_NAMES[feat]));
     if (pills.childNodes.length) body.appendChild(pills);
 
