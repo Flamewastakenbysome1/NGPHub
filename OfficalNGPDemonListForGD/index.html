@@ -191,6 +191,18 @@
     padding:3px 8px; border:1px solid var(--rule-strong); border-radius:4px; white-space:nowrap;
   }
 
+  .pills{display:flex; flex-wrap:wrap; gap:6px; margin:7px 0 0}
+  .pill{
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.03em;
+    border:1px solid var(--rule-strong); color:var(--muted);
+  }
+  .pill-diff{color:#e0a0a0; background:rgba(210,120,120,.1); border-color:rgba(210,120,120,.24)}
+  .pill-feat-1{color:#9fd4f0; background:rgba(120,190,230,.1); border-color:rgba(120,190,230,.24)}
+  .pill-feat-2{color:#e3c47c; background:rgba(214,180,100,.1); border-color:rgba(214,180,100,.24)}
+  .pill-feat-3{color:#f0b0d8; background:rgba(230,140,200,.1); border-color:rgba(230,140,200,.24)}
+  .pill-feat-4{color:#c3aef0; background:rgba(150,120,230,.12); border-color:rgba(150,120,230,.28)}
+
   .placement{
     display:inline-block; margin-top:8px; padding:3px 8px;
     background:var(--tag-note-bg); border:1px solid var(--tag-note-br);
@@ -493,13 +505,26 @@
     },
   ];
 
-  /* to = null means no upper bound; empty tiers are skipped */
+  /* to = null means no upper bound; empty tiers are skipped
+     feature = default feature glow for every level in the tier */
   const TIERS = [
-    { key: "obsidian", label: "Obsidian Demons:", from: 1,  to: 10 },
-    { key: "amethyst", label: "Amethyst Demons:", from: 11, to: 20 },
-    { key: "pearl",    label: "Pearl Demons:",    from: 21, to: 30 },
-    { key: "extreme",  label: "Extreme Demons:",  from: 31, to: null }
+    { key: "obsidian", label: "Obsidian Demons:", from: 1,  to: 10,   feature: 4 },
+    { key: "amethyst", label: "Amethyst Demons:", from: 11, to: 20,   feature: 3 },
+    { key: "pearl",    label: "Pearl Demons:",    from: 21, to: 30,   feature: 2 },
+    { key: "extreme",  label: "Extreme Demons:",  from: 31, to: null, feature: 1 }
   ];
+
+  /* every level on a demonlist is a demon, so this is the fallback face */
+  const DEFAULT_DIFF = 10;
+
+  const DIFF_NAMES = {
+    "-1": "Auto",
+    0: "N/A",     1: "Easy",         2: "Normal",       3: "Hard",
+    4: "Harder",  5: "Insane",       6: "Hard Demon",   7: "Easy Demon",
+    8: "Medium Demon", 9: "Insane Demon", 10: "Extreme Demon"
+  };
+
+  const FEAT_NAMES = { 1: "Featured", 2: "Epic", 3: "Legendary", 4: "Mythic" };
 
   const NGP_LIST = [
     {
@@ -579,7 +604,8 @@
         { type: "changed", text: "Dorabaebasic5 12 Stars to 11 Stars" },
         { type: "moved",   text: "Society to #2, Slaughterhouse Is Dead to #3" },
         { type: "added",   text: "Demon tiers: Obsidian, Amethyst, Pearl, Extreme" },
-        { type: "added",   text: "Level IDs shown next to level names" }
+        { type: "added",   text: "Level IDs shown next to level names" },
+        { type: "added",   text: "Difficulty and feature ratings shown on every main list level" }
       ]
     },
     {
@@ -641,13 +667,21 @@
     return p;
   }
 
-  function mainRow(lvl, rank){
+  function mainRow(lvl, rank, tier){
     const li = document.createElement('li');
     li.appendChild(el('div', 'rank', String(rank)));
 
     const body = el('div', 'body');
     body.appendChild(nameLine(lvl));
     if (lvl.credit) creditLines(lvl.credit).forEach(p => body.appendChild(p));
+
+    const diff = lvl.diff != null ? lvl.diff : DEFAULT_DIFF;
+    const feat = lvl.feature != null ? lvl.feature : tier.feature;
+
+    const pills = el('div', 'pills');
+    if (DIFF_NAMES[diff]) pills.appendChild(el('span', 'pill pill-diff', DIFF_NAMES[diff]));
+    if (FEAT_NAMES[feat]) pills.appendChild(el('span', 'pill pill-feat-' + feat, FEAT_NAMES[feat]));
+    if (pills.childNodes.length) body.appendChild(pills);
 
     if (lvl.fp && lvl.fp.length){
       const chips = el('ul', 'fp');
@@ -685,7 +719,7 @@
       section.appendChild(head);
 
       const ol = el('ol', 'list');
-      slice.forEach((lvl, i) => ol.appendChild(mainRow(lvl, tier.from + i)));
+      slice.forEach((lvl, i) => ol.appendChild(mainRow(lvl, tier.from + i, tier)));
       section.appendChild(ol);
 
       box.appendChild(section);
