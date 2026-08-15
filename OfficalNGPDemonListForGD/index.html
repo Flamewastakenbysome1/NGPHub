@@ -42,6 +42,11 @@
     --tag-changed:#93b6ff; --tag-changed-bg:rgba(110,150,240,.11); --tag-changed-br:rgba(110,150,240,.26);
     --tag-moved:#e3bb7c;   --tag-moved-bg:rgba(214,170,100,.11);   --tag-moved-br:rgba(214,170,100,.26);
     --tag-note:#c3aef0;    --tag-note-bg:rgba(106,17,203,.14);     --tag-note-br:rgba(106,17,203,.3);
+
+    --tier-obsidian:#a78bfa;
+    --tier-amethyst:#c084d8;
+    --tier-pearl:#9fc4d8;
+    --tier-extreme:#e08f8a;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -103,6 +108,28 @@
   }
   .section-sub{color:var(--muted); font-size:.85rem; margin:0 0 14px}
 
+  .tier{padding-top:18px}
+  .tier-head{
+    display:flex; align-items:baseline; gap:10px;
+    margin:0 0 10px; font-size:.95rem; font-weight:500; letter-spacing:.01em;
+  }
+  .tier-head .dot{
+    width:7px; height:7px; border-radius:2px; flex:0 0 auto;
+    transform:translateY(-1px);
+  }
+  .tier-head .range{
+    font-family:var(--mono); font-size:.68rem; color:var(--muted); opacity:.55;
+    font-weight:400; letter-spacing:.05em;
+  }
+  .tier-obsidian .dot{background:var(--tier-obsidian)}
+  .tier-obsidian .label{color:var(--tier-obsidian)}
+  .tier-amethyst .dot{background:var(--tier-amethyst)}
+  .tier-amethyst .label{color:var(--tier-amethyst)}
+  .tier-pearl .dot{background:var(--tier-pearl)}
+  .tier-pearl .label{color:var(--tier-pearl)}
+  .tier-extreme .dot{background:var(--tier-extreme)}
+  .tier-extreme .label{color:var(--tier-extreme)}
+
   .list{list-style:none; margin:0; padding:0}
   .list li{
     display:grid; grid-template-columns:52px 1fr auto; column-gap:14px;
@@ -122,7 +149,17 @@
   .list li:nth-child(2) .rank{opacity:.9; color:#9fb8ff}
   .list li:nth-child(3) .rank{opacity:.8; color:#8fa0c8}
 
+  .tier:not(:first-of-type) .list li:nth-child(1) .rank,
+  .tier:not(:first-of-type) .list li:nth-child(2) .rank,
+  .tier:not(:first-of-type) .list li:nth-child(3) .rank{
+    opacity:.55; color:var(--muted);
+  }
+
   .name{font-size:1.02rem; font-weight:500; line-height:1.3; margin:0 0 5px}
+  .name .lvl-id{
+    font-family:var(--mono); font-size:.7rem; font-weight:400;
+    color:var(--muted); opacity:.5; margin-left:9px; letter-spacing:.02em;
+  }
   .credit{font-size:.83rem; color:var(--muted); margin:0; line-height:1.5}
   .credit + .credit{margin-top:1px}
   .credit.struck{text-decoration:line-through; text-decoration-thickness:1px; opacity:.45}
@@ -198,6 +235,7 @@
     .rail .num{display:inline; font-size:1rem}
     .rail .unit{display:inline; margin-left:5px; letter-spacing:.1em}
     .list li:hover{transform:none}
+    .name .lvl-id{display:block; margin-left:0; margin-top:3px}
     .log-day{grid-template-columns:1fr; row-gap:10px}
     .log-when{padding-top:0}
     .log-items li{flex-direction:column; gap:4px}
@@ -253,10 +291,10 @@
 
   <section class="section" id="main-list">
     <div class="section-head">
-      <h2>Main Demonlist (Obsidian Demons):</h2>
+      <h2>Main Demonlist</h2>
       <span class="section-count" id="count-main"></span>
     </div>
-    <ol class="list" id="list-main"></ol>
+    <div id="tiers-main"></div>
   </section>
 
   <section class="section" id="ngp-list">
@@ -312,6 +350,7 @@
 
 <script>
   /* credit accepts a string, or an array of strings and { text, strike } objects */
+  /* id is the in-game level ID, read by the NGP Demonlist mod; 0 = unpublished, hidden on the page */
   const MAIN_LIST = [
     {
       id: 77236587,
@@ -321,13 +360,6 @@
       stars: 200
     },
     {
-      id: 0,
-      name: "Slaughterhouse Is Dead",
-      credit: "Verified by: WPopoff",
-      fp: ["60 60fps", "30 80fps", "9 120fps"],
-      stars: 146
-    },
-    {
       id: 127323087,
       name: "Society",
       credit: "Verified by: WPopoff",
@@ -335,25 +367,39 @@
       stars: 94
     },
     {
+      id: 0,
+      name: "Slaughterhouse Is Dead",
+      credit: "Verified by: WPopoff",
+      fp: ["60 60fps", "30 80fps", "9 120fps"],
+      stars: 87
+    },
+    {
+      id: 86407629,
+      name: "Tidal Wave",
+      credit: "Verified by: Zoink",
+      fp: ["Uncounted Frame Perfects", "est. ~200 60fps"],
+      stars: 85
+    },
+    {
       id: 146217987,
       name: "Torrent | Version 3",
       credit: "Being Verified by: NamedFlame",
-      fp: ["Uncounted Frame Perfects"],
-      stars: 93
+      fp: ["uncounted frame perfects."],
+      stars: 49
     },
     {
       id: 62912799,
       name: "Ashley Wave Trials",
       credit: "Verified by: Zoink",
       fp: ["47 60FPS", "16 80FPS", "3 120FPS"],
-      stars: 91
+      stars: 46
     },
     {
-      id: 72956745,
-      name: "Crazy Time",
-      credit: "Verified by: CrazyGuy",
-      fp: ["Unknown amount of Frame perfects"],
-      stars: 91
+      id: 89496627,
+      name: "Avernus",
+      credit: "Verified by: Zoink",
+      fp: ["uncounted frame perfects."],
+      stars: 40
     },
     {
       id: 27690100,
@@ -363,35 +409,63 @@
         { text: "Hacked By: SpaceUK", strike: true }
       ],
       fp: ["20 60fps", "10 80fps", "3 120fps"],
-      stars: 77
+      stars: 40
     },
     {
-      id: 20635816,
-      name: "Amplification",
-      credit: "Verified by: NamedFlame",
-      fp: ["6 60FPS", "2 80FPS", "3 120FPS", "2 240FPS"],
-      stars: 69
-    },
-    {
-      id: 7485599,
-      name: "Kappaclysm",
-      credit: "Verified by: KappaclysmPlayer53",
+      id: 72956745,
+      name: "Crazy Time",
+      credit: "Verified by: CrazyGuy",
       fp: ["uncounted frame perfects."],
-      stars: 69
+      stars: 38
+    },
+    {
+      id: 28225110,
+      name: "Shock",
+      credit: "Verified by: ShockedGuy237",
+      fp: ["uncounted frame perfects."],
+      stars: 34
     },
     {
       id: 12057578,
       name: "Unity",
       credit: "Verified by: TriAxis(?)",
       fp: ["23,831 25FPS frame perfects"],
-      stars: 67
+      stars: 31
+    },
+    {
+      id: 20635816,
+      name: "Amplification",
+      credit: "Verified by: NamedFlame",
+      fp: ["6 60FPS", "2 80FPS", "3 120FPS", "2 240FPS"],
+      stars: 23
+    },
+    {
+      id: 28179535,
+      name: "Acid Factory",
+      credit: "Verified by: NamedFlame",
+      fp: ["uncounted frame perfects."],
+      stars: 23
+    },
+    {
+      id: 7485599,
+      name: "Kappaclysm",
+      credit: "Verified by: KappaclysmPlayer53",
+      fp: ["uncounted frame perfects."],
+      stars: 22
+    },
+    {
+      id: 27483789,
+      name: "First Race",
+      credit: "Verified by: RaceWinner001",
+      fp: ["uncounted frame perfects."],
+      stars: 17
     },
     {
       id: 27732941,
       name: "OuterSpace",
       credit: "Verified by: NamedFlame",
       fp: ["uncounted frame perfects."],
-      stars: 31
+      stars: 17
     },
     {
       id: 6508283,
@@ -401,15 +475,30 @@
         { text: "Hacked By: ReTraYPlayer532", strike: true }
       ],
       fp: ["uncounted frame perfects."],
-      stars: 13
+      stars: 12
     },
     {
       id: 1734354,
       name: "Dorabaebasic5",
       credit: "Verified by: NamedFlame",
       fp: ["uncounted frame perfects."],
-      stars: 12
+      stars: 11
     },
+    {
+      id: 10565740,
+      name: "Bloodbath",
+      credit: "Verified by: Riot",
+      fp: ["None noteable"],
+      stars: 10
+    },
+  ];
+
+  /* to = null means no upper bound; empty tiers are skipped */
+  const TIERS = [
+    { key: "obsidian", label: "Obsidian Demons:", from: 1,  to: 10 },
+    { key: "amethyst", label: "Amethyst Demons:", from: 11, to: 20 },
+    { key: "pearl",    label: "Pearl Demons:",    from: 21, to: 30 },
+    { key: "extreme",  label: "Extreme Demons:",  from: 31, to: null }
   ];
 
   const NGP_LIST = [
@@ -468,6 +557,32 @@
   /* type: added | removed | changed | moved | note */
   const CHANGE_LIST = [
     {
+      when: "2026-08-15",
+      title: "Star rebalance & new placements",
+      changes: [
+        { type: "added",   text: "Tidal Wave placed at #4, 85 Stars" },
+        { type: "added",   text: "Avernus placed at #7, 40 Stars" },
+        { type: "added",   text: "Shock placed at #10, 34 Stars" },
+        { type: "added",   text: "Acid Factory placed at #13, 23 Stars" },
+        { type: "added",   text: "First Race placed at #15, 17 Stars" },
+        { type: "added",   text: "Bloodbath placed at #19, 10 Stars" },
+        { type: "changed", text: "Slaughterhouse Is Dead 146 Stars to 87 Stars" },
+        { type: "changed", text: "Torrent | Version 3 93 Stars to 49 Stars" },
+        { type: "changed", text: "Ashley Wave Trials 91 Stars to 46 Stars" },
+        { type: "changed", text: "Crazy Time 91 Stars to 38 Stars" },
+        { type: "changed", text: "Slaughterhouse 77 Stars to 40 Stars" },
+        { type: "changed", text: "Amplification 69 Stars to 23 Stars" },
+        { type: "changed", text: "Kappaclysm 69 Stars to 22 Stars" },
+        { type: "changed", text: "Unity 67 Stars to 31 Stars" },
+        { type: "changed", text: "OuterSpace 31 Stars to 17 Stars" },
+        { type: "changed", text: "ReTraY 13 Stars to 12 Stars" },
+        { type: "changed", text: "Dorabaebasic5 12 Stars to 11 Stars" },
+        { type: "moved",   text: "Society to #2, Slaughterhouse Is Dead to #3" },
+        { type: "added",   text: "Demon tiers: Obsidian, Amethyst, Pearl, Extreme" },
+        { type: "added",   text: "Level IDs shown next to level names" }
+      ]
+    },
+    {
       when: "2026-08-12",
       title: "Changes",
       changes: [
@@ -520,33 +635,60 @@
     });
   }
 
+  function nameLine(lvl){
+    const p = el('p', 'name', lvl.name);
+    if (lvl.id) p.appendChild(el('small', 'lvl-id', 'id: ' + lvl.id));
+    return p;
+  }
+
+  function mainRow(lvl, rank){
+    const li = document.createElement('li');
+    li.appendChild(el('div', 'rank', String(rank)));
+
+    const body = el('div', 'body');
+    body.appendChild(nameLine(lvl));
+    if (lvl.credit) creditLines(lvl.credit).forEach(p => body.appendChild(p));
+
+    if (lvl.fp && lvl.fp.length){
+      const chips = el('ul', 'fp');
+      lvl.fp.forEach(f => chips.appendChild(el('li', null, f)));
+      body.appendChild(chips);
+    }
+    li.appendChild(body);
+
+    const rail = el('div', 'rail');
+    if (lvl.stars != null){
+      rail.appendChild(el('span', 'num', lvl.stars));
+      rail.appendChild(el('span', 'unit', 'Stars'));
+    }
+    li.appendChild(rail);
+
+    return li;
+  }
+
   function renderMain(){
-    const ol = document.getElementById('list-main');
-    ol.replaceChildren();
+    const box = document.getElementById('tiers-main');
+    box.replaceChildren();
 
-    MAIN_LIST.forEach((lvl, i) => {
-      const li = document.createElement('li');
-      li.appendChild(el('div', 'rank', String(i + 1)));
+    TIERS.forEach(tier => {
+      const upper = tier.to == null ? MAIN_LIST.length : tier.to;
+      const slice = MAIN_LIST.slice(tier.from - 1, upper);
+      if (!slice.length) return;
 
-      const body = el('div', 'body');
-      body.appendChild(el('p', 'name', lvl.name));
-      if (lvl.credit) creditLines(lvl.credit).forEach(p => body.appendChild(p));
+      const section = el('div', 'tier tier-' + tier.key);
 
-      if (lvl.fp && lvl.fp.length){
-        const chips = el('ul', 'fp');
-        lvl.fp.forEach(f => chips.appendChild(el('li', null, f)));
-        body.appendChild(chips);
-      }
-      li.appendChild(body);
+      const head = el('h3', 'tier-head');
+      head.appendChild(el('span', 'dot'));
+      head.appendChild(el('span', 'label', tier.label));
+      head.appendChild(el('span', 'range',
+        tier.to == null ? '#' + tier.from + '+' : '#' + tier.from + '-' + tier.to));
+      section.appendChild(head);
 
-      const rail = el('div', 'rail');
-      if (lvl.stars != null){
-        rail.appendChild(el('span', 'num', lvl.stars));
-        rail.appendChild(el('span', 'unit', 'Stars'));
-      }
-      li.appendChild(rail);
+      const ol = el('ol', 'list');
+      slice.forEach((lvl, i) => ol.appendChild(mainRow(lvl, tier.from + i)));
+      section.appendChild(ol);
 
-      ol.appendChild(li);
+      box.appendChild(section);
     });
 
     document.getElementById('count-main').textContent = MAIN_LIST.length + ' levels';
@@ -561,7 +703,7 @@
       li.appendChild(el('div', 'rank', String(i + 1)));
 
       const body = el('div', 'body');
-      body.appendChild(el('p', 'name', lvl.name));
+      body.appendChild(nameLine(lvl));
       if (lvl.credit) creditLines(lvl.credit).forEach(p => body.appendChild(p));
 
       if (lvl.placement){
@@ -588,7 +730,7 @@
       li.appendChild(el('div', 'rank', String(i + 1)));
 
       const body = el('div', 'body');
-      body.appendChild(el('p', 'name', lvl.name));
+      body.appendChild(nameLine(lvl));
       if (lvl.diff) body.appendChild(el('p', 'credit', lvl.diff));
       li.appendChild(body);
 
